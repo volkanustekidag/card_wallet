@@ -1,0 +1,51 @@
+{
+    "loginSnackText": "YANLIŞ PIN! TEKRAR DENEYİN.",
+    "createPin": "PIN numaranızı oluşturun",
+    "enterPin": "PIN numaranızı girin",
+
+    "addCC": "Kredi Kartı Ekle",
+    "addIC": "IBAN Kart Ekle",
+    "yourCC": "Kredi Kartlarınız",
+    "seeAll": "Hepsini Gör",
+    "addFirstCC": "İlk Kredi Kartını Ekle",
+    "yourIC": "IBAN Kartlarınız",
+    "addFirstIC": "İlk IBAN Kartını Ekle",
+
+    "settings": "Ayarlar",
+    "lang": "Dil - TR",
+    "clearAllD": "Tum Verileri Sil",
+    "PP": "Gizlilik Politikası",
+    "chanPIN": "PIN Degiştir",
+    "areUSure": "Tum veriler silinecek.\n Silmek istedigine emin misin?",
+    "delete": "Sil",
+    "cancel": "Vazgeç",
+
+    "IC": "IBAN Kartlar",
+    "slidableDel": "Sil",
+    "copyInfo": "TuM KART BİLGİLERİ KOPYALANDI!",
+    "copyAll": "Hepsini\nKopyala",
+    "hName": "Sahibinin Adı",
+    "sCode": "Swift Kod",
+    "bName": "Banka Adı",
+    "valid": "SKT",
+
+    "cNum": "Kart Numarası",
+
+    "CC": "Kredi Kartlar",
+
+    "succChan": "PIN BAŞARIYLA DEgİŞTİRİLDİ.",
+
+    "addNPIN": "Yeni PIN numaranızı ekleyin-",
+
+    "addNIC": "YENİ IBAN KARTI EKLENDİ BAŞARIYLA!",
+
+    "addNCC": "YENİ KREDİ KARTI EKLENDİ BAŞARIYLA!",
+
+    "selecetLang": "Dil Seçiniz.",
+
+    "cardDeleteInfo": "KART BAŞARIYLA SİLİNDİ!",
+
+    "PPT": "Kart Cüzdanı için Gizlilik Politikası\nCard Wallet'ta ana önceliklerimizden biri ziyaretçilerimizin gizliliğidir. Bu Gizlilik\nPolitika belgesi, tarafından toplanan ve kaydedilen bilgi türlerini içerir.\nKart Cüzdanı ve nasıl kullandığımız.\nEk sorularınız varsa veya Gizlilik Politikamız hakkında daha fazla bilgiye ihtiyacınız varsa,\nbizimle iletişim kurmakta tereddüt etmeyin.\nLog dosyaları\nKart Cüzdanı, günlük dosyalarını kullanmak için standart bir prosedür izler. Bu dosyalar ziyaretçileri günlüğe kaydeder\nuygulamayı kullandıklarında. Günlük dosyaları tarafından toplanan bilgiler internet protokolünü içerir.\n(IP) adresleri, tarayıcı türü, İnternet Servis Sağlayıcısı (İSS), tarih ve saat damgası,\nyönlendiren/çıkış sayfaları ve muhtemelen tıklama sayısı. Bunlar hiçbiriyle bağlantılı değil\nkişisel olarak tanımlanabilir bilgiler. Bilginin amacı,\neğilimleri analiz etme, uygulamayı yönetme, kullanıcıların uygulamadaki hareketlerini izleme ve\ndemografik bilgilerin toplanması.\nReklam Ortaklarımız\nUygulamamızdaki bazı reklamverenler tanımlama bilgileri ve web işaretçileri kullanabilir. bizim reklam\nortaklar aşağıda listelenmiştir. Reklam ortaklarımızın her birinin kendi Gizliliği vardır\nKullanıcı verileriyle ilgili politikaları için politika. Daha kolay erişim için, onların\nAşağıdaki Gizlilik Politikaları.\n● Google\nhttps://policies.google.com/technologies/ads\nGizlilik Politikaları\nHer bir reklamın Gizlilik Politikasını bulmak için bu listeye başvurabilirsiniz.\nKart Cüzdanının ortakları.\nÜçüncü taraf reklam sunucuları veya reklam ağları, çerezler, JavaScript veya\nİlgili reklamlarda kullanılan işaretçiler ve üzerinde görünen bağlantılar\nKart Cüzdanı. Bu gerçekleştiğinde otomatik olarak IP adresinizi alırlar. Bunlar\nteknolojiler, reklam kampanyalarının etkinliğini ölçmek için kullanılır\nve/veya bu uygulamada veya diğer uygulamalarda gördüğünüz reklam içeriğini kişiselleştirmek için\nveya web siteleri. Kart Cüzdanının, kullanılan bu çerezlere erişimi veya bunlar üzerinde kontrolü olmadığını unutmayın.\nüçüncü taraf reklamverenler tarafından.\nÜçüncü Taraf Gizlilik Politikaları\nKart Cüzdanının Gizlilik Politikası, diğer reklamverenler veya web siteleri için geçerli değildir. Böylece,\nbu üçüncü taraf reklamlarının ilgili Gizlilik Politikalarına başvurmanızı tavsiye ederiz.\nDaha detaylı bilgi için sunucular. Uygulamalarını ve talimatlarını içerebilir\nbelirli seçeneklerden nasıl vazgeçileceği hakkında.\nÇocuk Bilgileri\nÖnceliğimizin bir diğer parçası da interneti kullanırken çocuklara koruma sağlamaktır.\nEbeveynleri ve velileri gözlemlemeye, katılmaya ve/veya izlemeye ve\nçevrimiçi etkinliklerine rehberlik eder.\nKart Cüzdanı, herhangi bir Kişisel Tanımlanabilir Bilgiyi bilerek toplamaz.\n13 yaşın altındaki çocuklar. Çocuğunuzun bu tür bir hizmet sağladığını düşünüyorsanız\nUygulamamız hakkında bilgi, hemen bizimle iletişime geçmenizi ve\nbu tür bilgileri kayıtlarımızdan derhal kaldırmak için elimizden gelenin en iyisini yapacağız.\nYalnızca Çevrimiçi Gizlilik Politikası\nBu Gizlilik Politikası yalnızca çevrimiçi etkinliklerimiz için geçerlidir ve web sitemizin ziyaretçileri için geçerlidir.\nKart Cüzdanında paylaştıkları ve/veya topladıkları bilgilerle ilgili uygulama.\nBu politika, çevrimdışı veya diğer kanallar aracılığıyla toplanan hiçbir bilgi için geçerli değildir.\nbu uygulamadan daha fazla. Gizlilik Politikamız, Uygulama Gizlilik Politikası yardımıyla oluşturulmuştur.\nApp-Privacy-Policy.com'dan Jeneratör\nRazı olmak\nUygulamamızı kullanarak, Gizlilik Politikamızı kabul etmiş ve Şartlarını kabul etmiş olursunuz.\nve Koşullar.",
+
+    "emptyList": "Henüz hiç kartınız yok!"
+}
