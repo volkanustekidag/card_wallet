@@ -8,7 +8,7 @@ import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/feature/credit_cards/bloc/credit_card_bloc.dart';
 
-class AddCreditAppBar extends StatelessWidget with PreferredSizeWidget {
+class AddCreditAppBar extends StatelessWidget implements PreferredSizeWidget {
   const AddCreditAppBar({
     Key? key,
   }) : super(key: key);

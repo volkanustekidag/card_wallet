@@ -6,7 +6,7 @@ import 'package:wallet_app/feature/credit_cards/bloc/credit_card_bloc.dart';
 import 'package:sizer/sizer.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-class CCAppBar extends StatelessWidget with PreferredSizeWidget {
+class CCAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CCAppBar({
     Key? key,
   }) : super(key: key);

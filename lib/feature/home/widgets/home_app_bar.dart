@@ -5,7 +5,7 @@ import 'package:wallet_app/core/constants/colors.dart';
 import 'package:wallet_app/feature/home/bloc/home_bloc.dart';
 import 'package:sizer/sizer.dart';
 
-class HomeAppBar extends StatelessWidget with PreferredSizeWidget {
+class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const HomeAppBar({
     Key? key,
   }) : super(key: key);

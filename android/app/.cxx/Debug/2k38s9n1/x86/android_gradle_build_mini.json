@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/volkanustekidag/development/flutter/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/volkanustekidag/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/volkanustekidag/card_wallet/android/app/.cxx/Debug/2k38s9n1/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/volkanustekidag/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/volkanustekidag/card_wallet/android/app/.cxx/Debug/2k38s9n1/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}

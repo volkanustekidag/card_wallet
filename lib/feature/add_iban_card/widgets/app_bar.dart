@@ -7,7 +7,7 @@ import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:sizer/sizer.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-class AddIbanAppBar extends StatelessWidget with PreferredSizeWidget {
+class AddIbanAppBar extends StatelessWidget implements PreferredSizeWidget {
   const AddIbanAppBar({
     Key? key,
   }) : super(key: key);

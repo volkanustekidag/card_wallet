@@ -11,7 +11,7 @@ import 'package:wallet_app/feature/iban_card/bloc/iban_card_bloc.dart';
 import 'package:flutter_bloc/src/bloc_provider.dart';
 
 class ProviderList {
-  final List<BlocProviderSingleChildWidget> providers = [
+  final List<BlocProvider> providers = [
     BlocProvider(
       create: (_) => AuthenticationBloc(AuthenticationService()),
     ),

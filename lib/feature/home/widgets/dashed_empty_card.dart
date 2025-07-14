@@ -22,9 +22,8 @@ class DashedEmptyCard extends StatelessWidget {
         ),
       ),
       child: DottedBorder(
+          strokeCap: StrokeCap.round,
           color: Colors.white,
-          borderType: BorderType.RRect,
-          strokeWidth: 2,
           dashPattern: const [12, 4],
           radius: const Radius.circular(15),
           child: SizedBox(

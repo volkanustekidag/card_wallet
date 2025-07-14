@@ -1,0 +1,1 @@
+/Users/volkanustekidag/card_wallet/build/app/intermediates/cxx/Debug/2k38s9n1/obj/arm64-v8a

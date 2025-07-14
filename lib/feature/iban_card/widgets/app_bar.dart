@@ -6,7 +6,7 @@ import 'package:wallet_app/feature/iban_card/bloc/iban_card_bloc.dart';
 import 'package:sizer/sizer.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-class IbanCardsAppBar extends StatelessWidget with PreferredSizeWidget {
+class IbanCardsAppBar extends StatelessWidget implements PreferredSizeWidget {
   const IbanCardsAppBar({
     Key? key,
   }) : super(key: key);
