@@ -1,14 +1,13 @@
+// feature/home/widgets/home_app_bar.dart - GetX Version
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:wallet_app/core/controllers/home_controller.dart';
 import 'package:wallet_app/core/constants/colors.dart';
-import 'package:wallet_app/feature/home/bloc/home_bloc.dart';
 import 'package:sizer/sizer.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const HomeAppBar({
-    Key? key,
-  }) : super(key: key);
+  const HomeAppBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +16,8 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
             onPressed: () {
-              Navigator.pushNamed(context, "settings").then(
-                (value) => BlocProvider.of<HomeBloc>(context).add(
-                  LoadHomeContentEvent(),
-                ),
+              Get.toNamed('/settings')?.then(
+                (value) => Get.find<HomeController>().refreshData(),
               );
             },
             icon: Icon(
@@ -46,5 +43,5 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(100);
+  Size get preferredSize => const Size.fromHeight(100);
 }

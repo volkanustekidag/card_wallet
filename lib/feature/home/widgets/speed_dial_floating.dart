@@ -1,14 +1,13 @@
+// feature/home/widgets/speed_dial_floating.dart - GetX Version
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:wallet_app/core/controllers/home_controller.dart';
 import 'package:wallet_app/core/constants/colors.dart';
-import 'package:wallet_app/feature/home/bloc/home_bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class SpeedDialFloating extends StatelessWidget {
-  const SpeedDialFloating({
-    Key? key,
-  }) : super(key: key);
+  const SpeedDialFloating({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +19,8 @@ class SpeedDialFloating extends StatelessWidget {
       children: [
         SpeedDialChild(
           onTap: () {
-            Navigator.pushNamed(context, "addCreditCard").then((value) =>
-                BlocProvider.of<HomeBloc>(context).add(LoadHomeContentEvent()));
+            Get.toNamed('/addCreditCard')
+                ?.then((value) => Get.find<HomeController>().refreshData());
           },
           label: "addCC".tr(),
           child: const Icon(
@@ -31,8 +30,8 @@ class SpeedDialFloating extends StatelessWidget {
         ),
         SpeedDialChild(
           onTap: () {
-            Navigator.pushNamed(context, "addIbanCard").then((value) =>
-                BlocProvider.of<HomeBloc>(context).add(LoadHomeContentEvent()));
+            Get.toNamed('/addIbanCard')
+                ?.then((value) => Get.find<HomeController>().refreshData());
           },
           label: "addIC".tr(),
           child: const Icon(

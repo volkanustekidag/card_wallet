@@ -1,15 +1,14 @@
+// feature/iban_card/widgets/app_bar.dart - GetX Version
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:wallet_app/core/controllers/iban_card_controller.dart';
 import 'package:wallet_app/core/constants/colors.dart';
-import 'package:wallet_app/feature/iban_card/bloc/iban_card_bloc.dart';
 import 'package:sizer/sizer.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class IbanCardsAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const IbanCardsAppBar({
-    Key? key,
-  }) : super(key: key);
+  const IbanCardsAppBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +29,8 @@ class IbanCardsAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
             onPressed: () {
-              Navigator.pushNamed(context, "addIbanCard").then((value) =>
-                  BlocProvider.of<IbanCardBloc>(context)
-                      .add(LoadIbanCardEvent()));
+              Get.toNamed('/addIbanCard')?.then(
+                  (value) => Get.find<IbanCardController>().loadIbanCards());
             },
             icon: Icon(
               Icons.add,
@@ -41,7 +39,7 @@ class IbanCardsAppBar extends StatelessWidget implements PreferredSizeWidget {
             ))
       ],
       leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Get.back(),
           icon: const Icon(
             Icons.arrow_back_ios,
             color: Colors.white,

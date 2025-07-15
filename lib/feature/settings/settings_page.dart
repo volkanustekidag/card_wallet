@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wallet_app/core/constants/colors.dart';
 import 'package:wallet_app/feature/settings/widgets/app_bar.dart';
-import 'package:wallet_app/feature/settings/widgets/body.dart';
+import 'package:wallet_app/feature/settings/widgets/settings_body.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -15,8 +15,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ColorConstants.primaryColor,
-      appBar: SettingsAppBar(),
-      body: Body(),
+      appBar: const SettingsAppBar(),
+      body: const Body(),
     );
   }
 }

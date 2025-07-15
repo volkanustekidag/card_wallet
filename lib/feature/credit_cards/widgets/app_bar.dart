@@ -1,15 +1,14 @@
+// feature/credit_cards/widgets/app_bar.dart - GetX Version
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:wallet_app/core/controllers/credit_card_controller.dart';
 import 'package:wallet_app/core/constants/colors.dart';
-import 'package:wallet_app/feature/credit_cards/bloc/credit_card_bloc.dart';
 import 'package:sizer/sizer.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class CCAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const CCAppBar({
-    Key? key,
-  }) : super(key: key);
+  const CCAppBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +29,8 @@ class CCAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
             onPressed: () {
-              Navigator.pushNamed(context, "addCreditCard").then((value) =>
-                  BlocProvider.of<CreditCardBloc>(context)
-                      .add(LoadCreditCardsEvent()));
+              Get.toNamed('/addCreditCard')?.then((value) =>
+                  Get.find<CreditCardController>().loadCreditCards());
             },
             icon: Icon(
               Icons.add,
@@ -41,7 +39,7 @@ class CCAppBar extends StatelessWidget implements PreferredSizeWidget {
             ))
       ],
       leading: IconButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Get.back(),
           icon: const Icon(
             Icons.arrow_back_ios,
             color: Colors.white,
@@ -56,6 +54,5 @@ class CCAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  // TODO: implement preferredSize
   Size get preferredSize => Size.fromHeight(8.h);
 }

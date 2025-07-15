@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wallet_app/core/components/auth_component.dart';
-import 'package:wallet_app/feature/change_pin/bloc/change_pin_bloc.dart';
-import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/controllers/change_pin_controller.dart';
 import 'package:wallet_app/feature/change_pin/widgets/app_bar.dart';
 
 class ChangePinPage extends StatelessWidget {
@@ -10,53 +9,37 @@ class ChangePinPage extends StatelessWidget {
 
   final TextEditingController _textEditingController = TextEditingController();
 
-  bool checkListenerState(CompletedState state) => state is CompletedState;
-
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<ChangePinController>();
+
     return Scaffold(
       backgroundColor: const Color(0xFF061720),
-      appBar: ChangePinAppBar(),
-      body: BlocConsumer<ChangePinBloc, ChangePinState>(
-        listener: (context, state) {
-          if (state is CompletedState) {
-            context.showSnackBarInfo(context, Colors.green, "succChan");
-
-            BlocProvider.of<ChangePinBloc>(context).emit(
-              ChangePinInitial(),
-            );
-
-            Navigator.pop(context);
-          }
-        },
-        builder: (context, state) {
-          if (state is ChangePinInitial || state is FaiulerState) {
+      appBar: const ChangePinAppBar(),
+      body: Obx(() {
+        if (!controller.currentPinVerified.value) {
+          if (controller.verificationFailed.value) {
             _textEditingController.clear();
-
-            return AuthViews(
-              textEditingController: _textEditingController,
-              text: "enterPin",
-              onCompleted: (pin) {
-                BlocProvider.of<ChangePinBloc>(context).add(
-                  CurrentPinVerificationEvent(pin),
-                );
-                _textEditingController.clear();
-              },
-            );
-          } else if (state is SaveNewPinState) {
-            return AuthViews(
-              textEditingController: _textEditingController,
-              text: "addNPIN",
-              onCompleted: (pin) {
-                BlocProvider.of<ChangePinBloc>(context).add(
-                  SaveNewPinEvent(pin),
-                );
-              },
-            );
           }
-          return Container();
-        },
-      ),
+
+          return AuthViews(
+            textEditingController: _textEditingController,
+            text: "enterPin",
+            onCompleted: (pin) {
+              controller.verifyCurrentPin(pin);
+              _textEditingController.clear();
+            },
+          );
+        } else {
+          return AuthViews(
+            textEditingController: _textEditingController,
+            text: "addNPIN",
+            onCompleted: (pin) {
+              controller.saveNewPin(pin);
+            },
+          );
+        }
+      }),
     );
   }
 }

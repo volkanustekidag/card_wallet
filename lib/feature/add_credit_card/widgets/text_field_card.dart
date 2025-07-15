@@ -40,12 +40,12 @@ class TextFieldCard extends StatelessWidget {
             labelStyle: TextStyle(fontSize: 10.sp),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white, width: 1.5),
+              borderSide: const BorderSide(color: Colors.white, width: 1),
             ),
             helperStyle: TextStyle(color: Colors.white),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white, width: 1.5),
+              borderSide: const BorderSide(color: Colors.white, width: 1),
             ),
             hintStyle: const TextStyle(color: Colors.white),
             label: Text(

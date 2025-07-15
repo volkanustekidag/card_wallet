@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
+import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/constants/paddings.dart';
-import 'package:wallet_app/feature/add_credit_card/bloc/add_credit_bloc.dart';
-import 'package:sizer/sizer.dart';
+import 'package:wallet_app/core/controllers/add_credit_card_controller.dart';
 
 class ColorsListView extends StatelessWidget {
-  const ColorsListView({
-    Key? key,
-  }) : super(key: key);
+  const ColorsListView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<AddCreditCardController>();
+
     return Align(
       alignment: Alignment.center,
       child: SizedBox(
@@ -19,14 +19,12 @@ class ColorsListView extends StatelessWidget {
         child: ListView.builder(
           shrinkWrap: true,
           itemCount: LinearGradients().linearGradientList.length,
-          padding: PaddingConstants.normal(),
+          padding: const PaddingConstants.normal(),
           scrollDirection: Axis.horizontal,
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {
-                BlocProvider.of<AddCreditBloc>(context).add(
-                  UpdateCreditCardEvent(index, "cardColorId"),
-                );
+                controller.updateCardField("cardColorId", index);
               },
               child: Container(
                 width: 10.w,

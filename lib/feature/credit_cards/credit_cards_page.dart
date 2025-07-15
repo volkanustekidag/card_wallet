@@ -1,10 +1,10 @@
-import 'package:wallet_app/core/constants/colors.dart';
-import 'package:wallet_app/core/widgets/loading_widget.dart';
-import 'package:wallet_app/feature/credit_cards/bloc/credit_card_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
+import 'package:wallet_app/core/constants/colors.dart';
+import 'package:wallet_app/core/controllers/credit_card_controller.dart';
+import 'package:wallet_app/core/widgets/loading_widget.dart';
 import 'package:wallet_app/feature/credit_cards/widgets/app_bar.dart';
-import 'package:wallet_app/feature/credit_cards/widgets/body.dart';
+import 'package:wallet_app/feature/credit_cards/widgets/credit_cards_body.dart';
 
 class CreditCardsPage extends StatefulWidget {
   const CreditCardsPage({Key? key}) : super(key: key);
@@ -14,24 +14,26 @@ class CreditCardsPage extends StatefulWidget {
 }
 
 class _CreditCardsPageState extends State<CreditCardsPage> {
+  late final CreditCardController _controller;
+
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<CreditCardBloc>(context).add(LoadCreditCardsEvent());
+    _controller = Get.find<CreditCardController>();
   }
-
-  _checkState(CreditCardState state) => state is CreditCardLoadedState;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       backgroundColor: ColorConstants.primaryColor,
-      appBar: CCAppBar(),
-      body: BlocBuilder<CreditCardBloc, CreditCardState>(
-        builder: (context, state) =>
-            _checkState(state) ? Body(state: state) : LoadingWidget(),
-      ),
+      appBar: const CCAppBar(),
+      body: Obx(() {
+        if (_controller.isLoading.value) {
+          return const LoadingWidget();
+        }
+        return Body(controller: _controller);
+      }),
     );
   }
 }

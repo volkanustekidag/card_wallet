@@ -1,12 +1,14 @@
+// feature/home/widgets/dashed_empty_card.dart - GetX Version
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wallet_app/feature/home/bloc/home_bloc.dart';
+import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/controllers/home_controller.dart';
 import 'package:sizer/sizer.dart';
 
 class DashedEmptyCard extends StatelessWidget {
-  final route;
-  final text;
+  final String route;
+  final String text;
+
   const DashedEmptyCard({
     Key? key,
     required this.route,
@@ -16,14 +18,13 @@ class DashedEmptyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, route).then(
-        (value) => BlocProvider.of<HomeBloc>(context).add(
-          LoadHomeContentEvent(),
-        ),
+      onTap: () => Get.toNamed(route)?.then(
+        (value) => Get.find<HomeController>().refreshData(),
       ),
       child: DottedBorder(
-          strokeCap: StrokeCap.round,
           color: Colors.white,
+          borderType: BorderType.RRect,
+          strokeWidth: 2,
           dashPattern: const [12, 4],
           radius: const Radius.circular(15),
           child: SizedBox(
