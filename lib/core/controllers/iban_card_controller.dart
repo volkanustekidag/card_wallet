@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
-import 'package:wallet_app/data/local_services/card_services/iban_card_service.dart';
-import 'package:wallet_app/domain/models/iban_card_model/iban_card.dart';
+import 'package:wallet_app/core/data/local_services/card_services/iban_card_service.dart';
+import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 
 class IbanCardController extends GetxController {
   final IbanCardService _ibanCardService;
-  
+
   IbanCardController(this._ibanCardService);
 
   var ibanCards = <IbanCard>[].obs;
@@ -34,7 +34,7 @@ class IbanCardController extends GetxController {
       await _ibanCardService.removeIbanCard(ibanCard);
       await loadIbanCards();
       Get.snackbar('Success', 'IBAN card deleted successfully',
-                   backgroundColor: Get.theme.primaryColor);
+          backgroundColor: Get.theme.primaryColor);
     } catch (e) {
       Get.snackbar('Error', 'Failed to delete IBAN card');
     }
@@ -46,7 +46,7 @@ class IbanCardController extends GetxController {
       await _ibanCardService.addIbanCard(ibanCard);
       await loadIbanCards();
       Get.snackbar('Success', 'IBAN card added successfully',
-                   backgroundColor: Get.theme.primaryColor);
+          backgroundColor: Get.theme.primaryColor);
     } catch (e) {
       Get.snackbar('Error', 'Failed to add IBAN card');
     }

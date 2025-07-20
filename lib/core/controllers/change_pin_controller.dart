@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
-import 'package:wallet_app/data/local_services/auth_services/authentication_service.dart';
+import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 
 class ChangePinController extends GetxController {
   final AuthenticationService _authenticationService;
-  
+
   ChangePinController(this._authenticationService);
 
   var isLoading = false.obs;
@@ -16,14 +16,14 @@ class ChangePinController extends GetxController {
       isLoading.value = true;
       await _authenticationService.openBox();
       final result = await _authenticationService.authenticate(pin);
-      
+
       if (result == true) {
         currentPinVerified.value = true;
         verificationFailed.value = false;
       } else {
         verificationFailed.value = true;
         Get.snackbar('Error', 'Current PIN is incorrect',
-                     backgroundColor: Get.theme.colorScheme.error);
+            backgroundColor: Get.theme.colorScheme.error);
       }
     } catch (e) {
       Get.snackbar('Error', 'An error occurred during verification');
@@ -37,10 +37,10 @@ class ChangePinController extends GetxController {
       isLoading.value = true;
       await _authenticationService.updatePin(newPin);
       pinChangeCompleted.value = true;
-      
+
       Get.back();
       Get.snackbar('Success', 'PIN changed successfully',
-                   backgroundColor: Get.theme.primaryColor);
+          backgroundColor: Get.theme.primaryColor);
     } catch (e) {
       Get.snackbar('Error', 'Failed to change PIN');
     } finally {

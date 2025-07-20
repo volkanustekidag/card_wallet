@@ -6,13 +6,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/constants/paddings.dart';
 import 'package:wallet_app/core/controllers/iban_card_controller.dart';
 import 'package:wallet_app/core/widgets/empty_list_info.dart';
-import 'package:wallet_app/core/widgets/iban_cards.dart';
-import 'package:wallet_app/domain/models/iban_card_model/iban_card.dart';
+import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
+import 'package:wallet_app/core/widgets/mini_iban_card_widget.dart';
 
-class Body extends StatelessWidget {
+class IbanCardsBody extends StatelessWidget {
   final IbanCardController controller;
 
-  const Body({super.key, required this.controller});
+  const IbanCardsBody({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -28,33 +28,37 @@ class Body extends StatelessWidget {
             shrinkWrap: true,
             children: controller.ibanCards
                 .map<Widget>(
-                  (ibanCard) => Slidable(
-                    endActionPane: ActionPane(
-                      motion: const ScrollMotion(),
-                      children: [
-                        SlidableAction(
-                          onPressed: (context) async {
-                            controller.removeIbanCard(ibanCard);
-                          },
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                          icon: Icons.delete,
-                          label: 'slidableDel'.tr(),
-                        ),
-                        SlidableAction(
-                          onPressed: (context) async {
-                            _generateCopyAllInfoText(ibanCard);
-                            Get.snackbar('Success', 'copyInfo'.tr(),
-                                backgroundColor: Colors.yellow);
-                          },
-                          backgroundColor: Colors.yellow,
-                          foregroundColor: Colors.white,
-                          icon: Icons.content_copy,
-                          label: 'copyAll'.tr(),
-                        )
-                      ],
+                  (ibanCard) => Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16.0, horizontal: 8.0),
+                    child: Slidable(
+                      endActionPane: ActionPane(
+                        motion: const ScrollMotion(),
+                        children: [
+                          SlidableAction(
+                            onPressed: (context) async {
+                              controller.removeIbanCard(ibanCard);
+                            },
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            icon: Icons.delete,
+                            label: 'slidableDel'.tr(),
+                          ),
+                          SlidableAction(
+                            onPressed: (context) async {
+                              _generateCopyAllInfoText(ibanCard);
+                              Get.snackbar('Success', 'copyInfo'.tr(),
+                                  backgroundColor: Colors.yellow);
+                            },
+                            backgroundColor: Colors.yellow,
+                            foregroundColor: Colors.white,
+                            icon: Icons.content_copy,
+                            label: 'copyAll'.tr(),
+                          )
+                        ],
+                      ),
+                      child: MiniIbanCardWidget(ibanCard: ibanCard),
                     ),
-                    child: IbanCards(ibanCard: ibanCard),
                   ),
                 )
                 .toList(),

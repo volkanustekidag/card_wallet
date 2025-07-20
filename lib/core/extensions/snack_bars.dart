@@ -10,7 +10,7 @@ extension SnackBars on BuildContext {
         duration: const Duration(seconds: 1),
         content: Text(
           "${content}".tr(),
-          style: GoogleFonts.montserrat(
+          style: GoogleFonts.poppins(
               color: Colors.white, fontWeight: FontWeight.w400),
         ),
       ),

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
-import 'package:wallet_app/domain/models/verification_model/verification.dart';
+import 'package:wallet_app/core/domain/models/verification_model/verification.dart';
 
 class AuthenticationService {
   Box? _user;

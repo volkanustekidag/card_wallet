@@ -1,10 +1,10 @@
 import 'package:get/get.dart';
-import 'package:wallet_app/data/local_services/card_services/credit_card_service.dart';
-import 'package:wallet_app/domain/models/credit_card_model/credit_card.dart';
+import 'package:wallet_app/core/data/local_services/card_services/credit_card_service.dart';
+import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 
 class CreditCardController extends GetxController {
   final CreditCardService _creditCardService;
-  
+
   CreditCardController(this._creditCardService);
 
   var creditCards = <CreditCard>[].obs;
@@ -33,8 +33,8 @@ class CreditCardController extends GetxController {
     try {
       await _creditCardService.removeToCreditCard(creditCard);
       await loadCreditCards();
-      Get.snackbar('Success', 'Credit card deleted successfully', 
-                   backgroundColor: Get.theme.primaryColor);
+      Get.snackbar('Success', 'Credit card deleted successfully',
+          backgroundColor: Get.theme.primaryColor);
     } catch (e) {
       Get.snackbar('Error', 'Failed to delete credit card');
     }
@@ -46,7 +46,7 @@ class CreditCardController extends GetxController {
       await _creditCardService.addToCreditCard(creditCard);
       await loadCreditCards();
       Get.snackbar('Success', 'Credit card added successfully',
-                   backgroundColor: Get.theme.primaryColor);
+          backgroundColor: Get.theme.primaryColor);
     } catch (e) {
       Get.snackbar('Error', 'Failed to add credit card');
     }

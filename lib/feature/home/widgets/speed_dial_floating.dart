@@ -1,9 +1,8 @@
-// feature/home/widgets/speed_dial_floating.dart - GetX Version
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/core/controllers/home_controller.dart';
-import 'package:wallet_app/core/constants/colors.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class SpeedDialFloating extends StatelessWidget {
@@ -12,10 +11,19 @@ class SpeedDialFloating extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SpeedDial(
-      backgroundColor: ColorConstants.secondaryColor,
+      backgroundColor: context.theme.colorScheme.primary,
+      foregroundColor: Colors.white,
+      activeBackgroundColor: context.theme.colorScheme.secondary,
+      activeForegroundColor: Colors.white,
       animatedIcon: AnimatedIcons.add_event,
-      overlayColor: Colors.transparent,
-      overlayOpacity: 0.3,
+      overlayColor: Colors.black,
+      overlayOpacity: 0.4,
+      spacing: 12,
+      childPadding: EdgeInsets.all(8),
+      spaceBetweenChildren: 8,
+      elevation: 8,
+      animationCurve: Curves.easeInOutCubic,
+      animationDuration: Duration(milliseconds: 300),
       children: [
         SpeedDialChild(
           onTap: () {
@@ -23,9 +31,17 @@ class SpeedDialFloating extends StatelessWidget {
                 ?.then((value) => Get.find<HomeController>().refreshData());
           },
           label: "addCC".tr(),
-          child: const Icon(
-            Icons.add_card,
-            color: ColorConstants.secondaryColor,
+          labelStyle: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+          labelBackgroundColor: context.theme.colorScheme.surface,
+          backgroundColor: context.theme.colorScheme.surface,
+          foregroundColor: context.theme.colorScheme.primary,
+          elevation: 4,
+          child: Icon(
+            Icons.credit_card_rounded,
+            size: 24,
           ),
         ),
         SpeedDialChild(
@@ -34,9 +50,17 @@ class SpeedDialFloating extends StatelessWidget {
                 ?.then((value) => Get.find<HomeController>().refreshData());
           },
           label: "addIC".tr(),
-          child: const Icon(
-            Icons.add_box,
-            color: ColorConstants.secondaryColor,
+          labelStyle: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+          labelBackgroundColor: context.theme.colorScheme.surface,
+          backgroundColor: context.theme.colorScheme.surface,
+          foregroundColor: context.theme.colorScheme.secondary,
+          elevation: 4,
+          child: Icon(
+            Icons.account_balance_rounded,
+            size: 24,
           ),
         ),
       ],

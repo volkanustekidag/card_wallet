@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:wallet_app/core/constants/colors.dart';
 import 'package:wallet_app/core/controllers/home_controller.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
-import 'package:wallet_app/feature/home/widgets/home_app_bar.dart';
 import 'package:wallet_app/feature/home/widgets/body.dart';
 import 'package:wallet_app/feature/home/widgets/speed_dial_floating.dart';
 
@@ -25,12 +23,13 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return WillPopScope(
       onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: ColorConstants.primaryColor,
+        backgroundColor: colorScheme.surface,
         floatingActionButton: const SpeedDialFloating(),
-        appBar: const HomeAppBar(),
         body: Obx(() {
           if (_homeController.isLoading.value) {
             return const LoadingWidget();

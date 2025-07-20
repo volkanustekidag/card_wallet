@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
-import 'package:wallet_app/domain/models/iban_card_model/iban_card.dart';
+import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 
 class IbanCardService {
   late Box<IbanCard> _ibanCard;

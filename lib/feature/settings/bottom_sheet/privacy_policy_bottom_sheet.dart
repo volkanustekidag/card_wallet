@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:sizer/sizer.dart';
-import 'package:wallet_app/core/constants/paddings.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 Future<dynamic> showPrivacyPolicyBottomSheet(BuildContext context) {
@@ -29,8 +29,8 @@ class _PrivacyPolicyBottomSheetBodyState
   Widget build(BuildContext context) {
     return Container(
       height: 70.h,
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: context.theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
@@ -39,7 +39,7 @@ class _PrivacyPolicyBottomSheetBodyState
       child: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: PaddingConstants.high(),
+            padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
             child: Text(
               "PPT".tr(),
             ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wallet_app/core/controllers/auth_controller.dart';
-import 'package:wallet_app/core/constants/colors.dart';
 import 'package:wallet_app/core/components/auth_component.dart';
 
 class AuthenticationPage extends StatefulWidget {
@@ -38,7 +37,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorConstants.primaryColor,
+      backgroundColor: context.theme.scaffoldBackgroundColor,
       resizeToAvoidBottomInset: true,
       body: Obx(() {
         // Show loading spinner when processing

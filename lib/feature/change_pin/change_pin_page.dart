@@ -14,7 +14,7 @@ class ChangePinPage extends StatelessWidget {
     final controller = Get.find<ChangePinController>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF061720),
+      backgroundColor: context.theme.scaffoldBackgroundColor,
       appBar: const ChangePinAppBar(),
       body: Obx(() {
         if (!controller.currentPinVerified.value) {

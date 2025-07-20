@@ -11,36 +11,44 @@ class AddIbanAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AddIbanCardController>();
-
-    return AppBar(
-      centerTitle: true,
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      leading: IconButton(
-        onPressed: () {
-          controller.resetCard();
-          Get.back();
-        },
-        icon: const Icon(
-          Icons.arrow_back_ios,
-          color: Colors.white,
-        ),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    return ClipRRect(
+      borderRadius: BorderRadius.only(
+        bottomLeft: Radius.circular(24),
+        bottomRight: Radius.circular(24),
       ),
-      actions: [
-        IconButton(
+      child: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
           onPressed: () {
-            controller.saveCard();
+            controller.resetCard();
+            Get.back();
           },
           icon: const Icon(
-            Icons.add_card,
-            color: Colors.white,
+            Icons.arrow_back,
           ),
-        )
-      ],
-      title: Text(
-        "addIC".tr(),
-        style: GoogleFonts.montserrat(
-            color: Colors.white, fontWeight: FontWeight.w400),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: IconButton(
+              onPressed: () {
+                controller.saveCard();
+              },
+              icon: const Icon(
+                Icons.add_card,
+              ),
+            ),
+          )
+        ],
+        title: Text(
+          "addIC".tr(),
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w400),
+        ),
       ),
     );
   }

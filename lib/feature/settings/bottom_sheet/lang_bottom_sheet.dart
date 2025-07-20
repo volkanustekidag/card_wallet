@@ -1,62 +1,94 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart';
-import 'package:wallet_app/core/constants/colors.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-Future<dynamic> showLangChoseeBottomSheet(BuildContext context) {
-  return showModalBottomSheet(
-    elevation: 0,
-    backgroundColor: Colors.transparent,
-    isScrollControlled: true,
+Future<void> showLangChoseeBottomSheet(BuildContext context) async {
+  showModalBottomSheet(
     context: context,
-    builder: (context) {
-      return LanguageBottomSheetBody();
-    },
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+    ),
+    builder: (_) => const LanguageBottomSheetBody(),
   );
 }
 
-class LanguageBottomSheetBody extends StatelessWidget {
-  const LanguageBottomSheetBody({
-    Key? key,
-  }) : super(key: key);
+class LanguageBottomSheetBody extends StatefulWidget {
+  const LanguageBottomSheetBody({Key? key}) : super(key: key);
+
+  @override
+  State<LanguageBottomSheetBody> createState() =>
+      _LanguageBottomSheetBodyState();
+}
+
+class _LanguageBottomSheetBodyState extends State<LanguageBottomSheetBody> {
+  int _selectedIndex = 0;
+  late Locale _currentLocale;
+
+  final List<Locale> supportedLocales = [
+    const Locale("en", "US"),
+    const Locale("tr", "TR"),
+  ];
+
+  final List<String> displayNames = [
+    "English",
+    "Türkçe",
+  ];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _currentLocale = context.locale;
+
+    _selectedIndex = supportedLocales.indexWhere((locale) =>
+        locale.languageCode == _currentLocale.languageCode &&
+        locale.countryCode == _currentLocale.countryCode);
+  }
+
+  void _onConfirm() {
+    final selectedLocale = supportedLocales[_selectedIndex];
+    if (selectedLocale != context.locale) {
+      context.setLocale(selectedLocale);
+    }
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 25.h,
-      decoration: const BoxDecoration(
-        color: ColorConstants.primaryColor,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-      ),
-      child: CupertinoPicker(
-        magnification: 1.22,
-        squeeze: 1.2,
-        useMagnifier: true,
-        itemExtent: 6.w,
-        onSelectedItemChanged: (value) => value == 1
-            ? context.setLocale(
-                const Locale("tr", "TR"),
-              )
-            : context.setLocale(
-                const Locale("en", "US"),
-              ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            "selecetLang".tr(),
-            style: const TextStyle(color: Colors.white),
+          Text("Dil Seçimi", style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 12),
+          ...List.generate(supportedLocales.length, (index) {
+            return RadioListTile<int>(
+              value: index,
+              groupValue: _selectedIndex,
+              title: Text(displayNames[index]),
+              onChanged: (int? value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedIndex = value;
+                  });
+                }
+              },
+            );
+          }),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("İptal"),
+              ),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                onPressed: _onConfirm,
+                child: const Text("Onayla"),
+              ),
+            ],
           ),
-          const Text(
-            "TR",
-            style: TextStyle(color: Colors.white),
-          ),
-          const Text(
-            "ENG",
-            style: TextStyle(color: Colors.white),
-          )
         ],
       ),
     );

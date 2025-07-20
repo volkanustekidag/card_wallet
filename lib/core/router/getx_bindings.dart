@@ -1,14 +1,14 @@
 import 'package:get/get.dart';
 import 'package:wallet_app/core/controllers/auth_controller.dart';
-import 'package:wallet_app/core/controllers/add_credit_card_controller.dart';
+import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_controller.dart';
 import 'package:wallet_app/core/controllers/add_iban_card_controller.dart';
 import 'package:wallet_app/core/controllers/change_pin_controller.dart';
 import 'package:wallet_app/core/controllers/credit_card_controller.dart';
 import 'package:wallet_app/core/controllers/home_controller.dart';
 import 'package:wallet_app/core/controllers/iban_card_controller.dart';
-import 'package:wallet_app/data/local_services/auth_services/authentication_service.dart';
-import 'package:wallet_app/data/local_services/card_services/credit_card_service.dart';
-import 'package:wallet_app/data/local_services/card_services/iban_card_service.dart';
+import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/credit_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/iban_card_service.dart';
 
 class AppBindings extends Bindings {
   @override
@@ -82,6 +82,6 @@ class AddIbanCardBindings extends Bindings {
 class ChangePinBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(ChangePinController(Get.find<AuthenticationService>()));
+    Get.put(ChangePinController(Get.put(AuthenticationService())));
   }
 }

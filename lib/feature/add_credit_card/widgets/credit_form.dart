@@ -5,7 +5,7 @@ import 'package:get/get.dart' hide Trans;
 import 'package:sizer/sizer.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/constants/paddings.dart';
-import 'package:wallet_app/core/controllers/add_credit_card_controller.dart';
+import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_controller.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_number_formatter.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_valid_thru_formatter.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';

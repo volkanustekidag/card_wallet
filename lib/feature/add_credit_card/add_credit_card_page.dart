@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flip_card/flip_card.dart';
-import 'package:wallet_app/core/constants/colors.dart';
-import 'package:wallet_app/core/controllers/add_credit_card_controller.dart';
+import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_controller.dart';
 import 'package:wallet_app/core/widgets/credit_card_back.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/add_credit_app_bar.dart';
@@ -29,20 +28,24 @@ class _AddCreditCardPageState extends State<AddCreditCardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: ColorConstants.primaryColor,
+      backgroundColor: context.theme.scaffoldBackgroundColor,
       appBar: const AddCreditAppBar(),
       body: SafeArea(
         child: Column(
           children: [
-            Obx(() => FlipCard(
-                  direction: FlipDirection.HORIZONTAL,
-                  speed: 500,
-                  front: CreditCardFront(
-                      creditCard: _controller.currentCard.value),
-                  back:
-                      CreditCardBack(creditCard: _controller.currentCard.value),
-                )),
+            SizedBox(height: 24),
+            Obx(
+              () => FlipCard(
+                direction: FlipDirection.HORIZONTAL,
+                speed: 500,
+                front:
+                    CreditCardFront(creditCard: _controller.currentCard.value),
+                back: CreditCardBack(creditCard: _controller.currentCard.value),
+              ),
+            ),
+            SizedBox(height: 16),
             const ColorsListView(),
+            SizedBox(height: 16),
             const CreditTextFieldForms(),
           ],
         ),

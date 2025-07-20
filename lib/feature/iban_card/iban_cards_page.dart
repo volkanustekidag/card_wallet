@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:wallet_app/core/constants/colors.dart';
 import 'package:wallet_app/core/controllers/iban_card_controller.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
 import 'package:wallet_app/feature/iban_card/widgets/app_bar.dart';
@@ -26,13 +25,13 @@ class _IbanCardsPageState extends State<IbanCardsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: ColorConstants.primaryColor,
+      backgroundColor: context.theme.scaffoldBackgroundColor,
       appBar: const IbanCardsAppBar(),
       body: Obx(() {
         if (_controller.isLoading.value) {
           return const LoadingWidget();
         }
-        return Body(controller: _controller);
+        return IbanCardsBody(controller: _controller);
       }),
     );
   }

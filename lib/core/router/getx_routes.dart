@@ -74,5 +74,11 @@ class AppRoutes {
       binding: AddIbanCardBindings(),
       transition: Transition.upToDown,
     ),
+    GetPage(
+      name: changePin,
+      page: () => ChangePinPage(),
+      binding: ChangePinBindings(),
+      transition: Transition.upToDown,
+    ),
   ];
 }

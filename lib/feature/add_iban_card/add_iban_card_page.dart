@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:camera/camera.dart';
-import 'package:wallet_app/core/constants/colors.dart';
 import 'package:wallet_app/core/constants/paddings.dart';
 import 'package:wallet_app/core/controllers/add_iban_card_controller.dart';
-import 'package:wallet_app/core/widgets/iban_cards.dart';
+import 'package:wallet_app/core/widgets/add_iban_card_widget.dart';
 import 'package:wallet_app/feature/add_iban_card/widgets/add_iban_app_bar.dart';
 import 'package:wallet_app/feature/add_iban_card/widgets/iban_text_forms.dart';
 
@@ -49,14 +48,16 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: ColorConstants.primaryColor,
+      backgroundColor: context.theme.scaffoldBackgroundColor,
       appBar: const AddIbanAppBar(),
       body: Padding(
         padding: const PaddingConstants.extraHigh(),
         child: Center(
           child: Column(
             children: [
-              Obx(() => IbanCards(ibanCard: _controller.currentCard.value)),
+              Obx(() =>
+                  AddIbanCardWidget(ibanCard: _controller.currentCard.value)),
+              SizedBox(height: 24),
               IbanTextFieldForms(
                   ibanController: _ibanController,
                   focusNode: focusNode,

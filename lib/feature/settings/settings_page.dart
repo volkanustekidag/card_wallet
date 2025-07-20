@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:wallet_app/core/constants/colors.dart';
-import 'package:wallet_app/feature/settings/widgets/app_bar.dart';
+import 'package:get/get.dart';
+import 'package:wallet_app/feature/settings/widgets/settings_app_bar.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_body.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -14,9 +14,9 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorConstants.primaryColor,
+      backgroundColor: context.theme.scaffoldBackgroundColor,
       appBar: const SettingsAppBar(),
-      body: const Body(),
+      body: const SettingsBody(),
     );
   }
 }

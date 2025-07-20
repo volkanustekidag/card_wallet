@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/constants/paddings.dart';
-import 'package:wallet_app/domain/models/credit_card_model/credit_card.dart';
+import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 
 class CreditCardBack extends StatelessWidget {
   final CreditCard creditCard;
@@ -15,10 +15,9 @@ class CreditCardBack extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: PaddingConstants.normal(),
+        padding: EdgeInsets.symmetric(horizontal: 16),
         child: Container(
             height: 28.h,
-            width: 90.h,
             decoration: BoxDecoration(
               gradient:
                   LinearGradients().linearGradientList[creditCard.cardColorId],

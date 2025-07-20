@@ -41,7 +41,7 @@ dependencies:
   flutter_secure_storage: ^9.2.4
   flutter_slidable: ^4.0.0
   flutter_speed_dial: ^6.0.0
-  flutter_svg: ^1.1.4
+  flutter_svg: ^2.2.0
   google_fonts: ^6.2.1
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -52,6 +52,7 @@ dependencies:
     git:
       url: https://github.com/volkanustekidag/flutter_iban_scanner.git
   get: ^4.7.2
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   build_runner: ^2.2.0

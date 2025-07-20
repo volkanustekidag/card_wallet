@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:wallet_app/data/local_services/auth_services/authentication_service.dart';
+import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 
 class AuthController extends GetxController {
   final AuthenticationService _authenticationService;

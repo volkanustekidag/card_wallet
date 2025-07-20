@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:flip_card/flip_card.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/core/controllers/credit_card_controller.dart';
-import 'package:wallet_app/core/constants/paddings.dart';
 import 'package:wallet_app/core/widgets/credit_card_back.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
 import 'package:wallet_app/core/widgets/empty_list_info.dart';
-import 'package:wallet_app/domain/models/credit_card_model/credit_card.dart';
+import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 
 class Body extends StatelessWidget {
   final CreditCardController controller;
@@ -18,57 +17,82 @@ class Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const PaddingConstants.normal(),
-      child: Obx(() {
-        if (controller.creditCards.isEmpty) {
-          return const EmptyListInfo();
-        }
+    print("object");
+    return Obx(() {
+      if (controller.creditCards.isEmpty) {
+        return const EmptyListInfo();
+      }
 
-        return ListView(
+      return Padding(
+        padding: EdgeInsets.only(top: 16.0),
+        child: ListView(
           shrinkWrap: true,
           children: controller.creditCards
               .map<Widget>(
-                (creditCard) => Slidable(
-                  endActionPane: ActionPane(
-                    motion: const ScrollMotion(),
+                (creditCard) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: Row(
                     children: [
-                      SlidableAction(
-                        onPressed: (context) async {
-                          controller.removeCreditCard(creditCard);
-                        },
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                        icon: Icons.delete,
-                        label: 'slidableDel'.tr(),
+                      Expanded(
+                        child: FlipCard(
+                          direction: FlipDirection.HORIZONTAL,
+                          speed: 1000,
+                          onFlipDone: (status) {},
+                          back: CreditCardBack(creditCard: creditCard),
+                          front: CreditCardFront(
+                            creditCard: creditCard,
+                          ),
+                        ),
                       ),
-                      SlidableAction(
-                        onPressed: (context) async {
-                          _generateCopyAllInfoText(creditCard);
-                          Get.snackbar('Success', 'copyInfo'.tr(),
-                              backgroundColor: Colors.yellow);
-                        },
-                        backgroundColor: Colors.yellow,
-                        foregroundColor: Colors.white,
-                        icon: Icons.content_copy,
-                        label: 'copyAll'.tr(),
-                      )
+                      Column(
+                        children: [
+                          IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () {
+                                showDialogDeleteData(
+                                  context,
+                                  () => controller.removeCreditCard(creditCard),
+                                );
+                              },
+                              icon: CircleAvatar(child: Icon(Icons.delete))),
+                          IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () {
+                                _generateCopyAllInfoText(creditCard);
+                                Get.snackbar('Success', 'copyInfo'.tr(),
+                                    backgroundColor: Colors.yellow);
+                              },
+                              icon: CircleAvatar(child: Icon(Icons.copy))),
+                          if (creditCard.id != 1)
+                            IconButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: () {},
+                                icon: CircleAvatar(child: Icon(Icons.edit))),
+                        ],
+                      ),
+                      SizedBox(width: 12),
                     ],
-                  ),
-                  child: FlipCard(
-                    direction: FlipDirection.HORIZONTAL,
-                    speed: 1000,
-                    onFlipDone: (status) {},
-                    back: CreditCardBack(creditCard: creditCard),
-                    front: CreditCardFront(
-                      creditCard: creditCard,
-                    ),
                   ),
                 ),
               )
               .toList(),
+        ),
+      );
+    });
+  }
+
+  Future<void> showDialogDeleteData(
+      BuildContext context, Function onConfirm) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return CustomDialog(
+          onConfirm: () async {
+            await onConfirm();
+            Get.back();
+          },
         );
-      }),
+      },
     );
   }
 

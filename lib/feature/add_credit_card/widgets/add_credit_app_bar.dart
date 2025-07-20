@@ -3,7 +3,7 @@ import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:wallet_app/core/controllers/add_credit_card_controller.dart';
+import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_controller.dart';
 
 class AddCreditAppBar extends StatelessWidget implements PreferredSizeWidget {
   const AddCreditAppBar({Key? key}) : super(key: key);
@@ -11,36 +11,44 @@ class AddCreditAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AddCreditCardController>();
-
-    return AppBar(
-      leading: IconButton(
-        onPressed: () {
-          controller.resetCard();
-          Get.back();
-        },
-        icon: const Icon(
-          Icons.arrow_back_ios,
-          color: Colors.white,
-        ),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    return ClipRRect(
+      borderRadius: BorderRadius.only(
+        bottomLeft: Radius.circular(24),
+        bottomRight: Radius.circular(24),
       ),
-      centerTitle: true,
-      elevation: 0,
-      actions: [
-        IconButton(
+      child: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
           onPressed: () {
-            controller.saveCard();
+            controller.resetCard();
+            Get.back();
           },
           icon: const Icon(
-            Icons.add_card,
-            color: Colors.white,
+            Icons.arrow_back,
           ),
-        )
-      ],
-      backgroundColor: Colors.transparent,
-      title: Text(
-        "addCC".tr(),
-        style: GoogleFonts.montserrat(
-            color: Colors.white, fontWeight: FontWeight.w500),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: IconButton(
+              onPressed: () {
+                controller.saveCard();
+              },
+              icon: const Icon(
+                Icons.add_card,
+              ),
+            ),
+          )
+        ],
+        title: Text(
+          "addCC".tr(),
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+        ),
       ),
     );
   }

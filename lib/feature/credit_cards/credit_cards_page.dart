@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:wallet_app/core/constants/colors.dart';
 import 'package:wallet_app/core/controllers/credit_card_controller.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
 import 'package:wallet_app/feature/credit_cards/widgets/app_bar.dart';
@@ -26,7 +25,7 @@ class _CreditCardsPageState extends State<CreditCardsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: ColorConstants.primaryColor,
+      backgroundColor: context.theme.scaffoldBackgroundColor,
       appBar: const CCAppBar(),
       body: Obx(() {
         if (_controller.isLoading.value) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 
 class TextFieldCard extends StatelessWidget {
@@ -28,29 +29,34 @@ class TextFieldCard extends StatelessWidget {
       child: TextField(
         maxLength: maxLength,
         keyboardType: textInputType,
-        inputFormatters: inputFormatters,
-        style: const TextStyle(color: Colors.white),
+        style: GoogleFonts.poppins(
+          fontSize: 12.sp,
+          fontWeight: FontWeight.w500,
+        ),
         onChanged: onChanged,
         decoration: InputDecoration(
-            iconColor: Colors.white,
             prefixIcon: Icon(
               iconData,
-              color: Colors.white,
             ),
-            labelStyle: TextStyle(fontSize: 10.sp),
+            labelStyle: GoogleFonts.poppins(
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w500,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white, width: 1),
+              borderSide: const BorderSide(width: 1),
             ),
-            helperStyle: TextStyle(color: Colors.white),
+            helperStyle: GoogleFonts.poppins(
+              fontSize: 10.sp,
+              fontWeight: FontWeight.w500,
+              color: Colors.black54,
+            ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white, width: 1),
+              borderSide: const BorderSide(width: 1),
             ),
-            hintStyle: const TextStyle(color: Colors.white),
             label: Text(
               label,
-              style: const TextStyle(color: Colors.white),
             ),
             hintText: hintText),
       ),

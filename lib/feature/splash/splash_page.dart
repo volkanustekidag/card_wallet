@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:wallet_app/core/constants/app_images.dart';
 import 'package:sizer/sizer.dart';
-import 'package:wallet_app/core/constants/colors.dart';
 import 'package:wallet_app/core/router/getx_routes.dart';
 
 class SplashPage extends StatefulWidget {
@@ -32,7 +31,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorConstants.primaryColor,
+      backgroundColor: context.theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
           Image.asset(

@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:wallet_app/core/controllers/iban_card_controller.dart';
-import 'package:wallet_app/data/local_services/card_services/iban_card_service.dart';
-import 'package:wallet_app/domain/models/iban_card_model/iban_card.dart';
+import 'package:wallet_app/core/data/local_services/card_services/iban_card_service.dart';
+import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 
 class AddIbanCardController extends GetxController {
   final IbanCardService _ibanCardService;

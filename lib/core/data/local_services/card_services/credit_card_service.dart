@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
-import 'package:wallet_app/domain/models/credit_card_model/credit_card.dart';
+import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 
 class CreditCardService {
   late Box<CreditCard> _creditCards;

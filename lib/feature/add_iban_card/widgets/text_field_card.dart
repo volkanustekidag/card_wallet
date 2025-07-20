@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 
 class TextFieldCard extends StatelessWidget {
@@ -6,6 +7,7 @@ class TextFieldCard extends StatelessWidget {
   final iconData;
   final label;
   final hintText;
+  final int maxLength;
 
   const TextFieldCard({
     Key? key,
@@ -13,40 +15,34 @@ class TextFieldCard extends StatelessWidget {
     this.iconData,
     this.label,
     this.hintText,
+    required this.maxLength,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: 85.w,
-      child: TextField(
-        maxLength: 16,
-        onChanged: onChanged,
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-            focusColor: Colors.white,
-            iconColor: Colors.white,
-            prefixIcon: Icon(
-              iconData,
-              color: Colors.white,
-            ),
-            labelStyle: TextStyle(fontSize: 10.sp),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white, width: 1.5),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-              borderSide: const BorderSide(color: Colors.white, width: 1.5),
-            ),
-            helperStyle: TextStyle(color: Colors.white),
-            hintStyle: const TextStyle(color: Colors.white),
-            label: Text(
-              label,
-              style: const TextStyle(color: Colors.white),
-            ),
-            hintText: hintText),
-      ),
+    return TextField(
+      maxLength: maxLength,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+          prefixIcon: Icon(
+            iconData,
+          ),
+          labelStyle: GoogleFonts.poppins(
+            fontSize: 10.sp,
+            fontWeight: FontWeight.w500,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(width: 1),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(width: 1),
+          ),
+          label: Text(
+            label,
+          ),
+          hintText: hintText),
     );
   }
 }

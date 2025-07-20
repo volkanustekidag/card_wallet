@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
-import 'package:wallet_app/core/constants/colors.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:sizer/sizer.dart';
 
@@ -10,32 +8,31 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      elevation: 0,
-      centerTitle: true,
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: <Color>[
-                ColorConstants.primaryColor.withOpacity(0.5),
-                ColorConstants.primaryColor.withOpacity(0.1),
-              ]),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.only(
+        bottomLeft: Radius.circular(24),
+        bottomRight: Radius.circular(24),
+      ),
+      child: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: colorScheme.surface,
+        surfaceTintColor: Colors.transparent,
+        // Title
+        title: Text(
+          "settings".tr(),
+          style: GoogleFonts.poppins(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
         ),
+
+        // Actions - Theme indicator
       ),
-      leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: const Icon(
-            Icons.arrow_back_ios,
-            color: Colors.white,
-          )),
-      title: Text(
-        "settings".tr(),
-        style: GoogleFonts.montserrat(
-            color: Colors.white, fontWeight: FontWeight.w500),
-      ),
-      backgroundColor: Colors.transparent,
     );
   }
 

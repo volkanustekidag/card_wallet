@@ -2,7 +2,6 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:wallet_app/core/constants/paddings.dart';
 import 'package:wallet_app/core/controllers/add_iban_card_controller.dart';
 import 'package:wallet_app/feature/add_iban_card/widgets/iban_text_field.dart';
 import 'package:wallet_app/feature/add_iban_card/widgets/text_field_card.dart';
@@ -27,11 +26,12 @@ class IbanTextFieldForms extends StatelessWidget {
     return Expanded(
       child: SingleChildScrollView(
         child: Padding(
-          padding: const PaddingConstants.symmetricHighVertical(),
+          padding: EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             children: [
               TextFieldCard(
                 label: "hName".tr(),
+                maxLength: 32,
                 onChanged: (val) {
                   controller.updateCardField("cardHolder", val);
                 },
@@ -39,10 +39,12 @@ class IbanTextFieldForms extends StatelessWidget {
                 hintText: "XXXXXX XXXXXX",
               ),
               IbanTextField(
-                  ibanController: _ibanController,
-                  focusNode: focusNode,
-                  cameras: cameras),
+                ibanController: _ibanController,
+                focusNode: focusNode,
+                cameras: cameras,
+              ),
               TextFieldCard(
+                maxLength: 11,
                 label: "sCode".tr(),
                 onChanged: (val) {
                   controller.updateCardField("swiftCode", val);
@@ -51,6 +53,7 @@ class IbanTextFieldForms extends StatelessWidget {
                 hintText: "00000000",
               ),
               TextFieldCard(
+                maxLength: 24,
                 label: "bName".tr(),
                 onChanged: (val) {
                   controller.updateCardField("bankName", val);
