@@ -1,14 +1,12 @@
 import 'package:get/get.dart';
-import 'package:wallet_app/core/data/local_services/card_services/credit_card_service.dart';
-import 'package:wallet_app/core/data/local_services/card_services/iban_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 
 class HomeController extends GetxController {
-  final CreditCardService _creditCardService;
-  final IbanCardService _ibanCardService;
-
-  HomeController(this._creditCardService, this._ibanCardService);
+  final CreditCardService _creditCardService = CreditCardService();
+  final IbanCardService _ibanCardService = IbanCardService();
 
   var creditCards = <CreditCard>[].obs;
   var ibanCards = <IbanCard>[].obs;

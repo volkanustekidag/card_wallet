@@ -14,6 +14,8 @@ class MiniIbanCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
           gradient: const LinearGradient(colors: [
             Color(0xFF35383E),
@@ -21,23 +23,20 @@ class MiniIbanCardWidget extends StatelessWidget {
           ]),
           boxShadow: Shadows.shadowMedium,
           borderRadius: BorderRadius.circular(10)),
-      child: Padding(
-        padding: EdgeInsets.all(12),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildColumnCardItem("hName".tr(), ibanCard.cardHolder),
-            _buildColumnCardItem("IBAN", ibanCard.iban),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildColumnCardItem("sCode".tr(), ibanCard.swiftCode),
-                _buildColumnCardItem("bName".tr(), ibanCard.bankName)
-              ],
-            )
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildColumnCardItem("hName".tr(), ibanCard.cardHolder),
+          _buildColumnCardItem("IBAN", ibanCard.iban),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildColumnCardItem("sCode".tr(), ibanCard.swiftCode),
+              _buildColumnCardItem("bName".tr(), ibanCard.bankName)
+            ],
+          )
+        ],
       ),
     );
   }

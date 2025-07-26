@@ -5,6 +5,8 @@
 
     "addCC": "Add Credit Card",
     "addIC": "Add IBAN Card",
+    "addCreditCard": "Add new credit card",
+    "addIbanCard": "Add new IBAN card",
     "yourCC": "Your Credit Cards",
     "seeAll": "See All",
     "addFirstCC": "Add First Credit Card",

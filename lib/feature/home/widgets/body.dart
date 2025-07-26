@@ -54,6 +54,11 @@ class HomeBody extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 16),
+
+                  // Quick Add Shortcuts
+                  _buildQuickAddShortcuts(context),
+                  SizedBox(height: 40),
+
                   // Credit Cards Section
                   Column(
                     children: [
@@ -74,7 +79,7 @@ class HomeBody extends StatelessWidget {
                             ),
                     ],
                   ),
-                  SizedBox(height: 84),
+                  SizedBox(height: 40),
                   // IBAN Cards Section
                   Column(
                     children: [
@@ -99,5 +104,126 @@ class HomeBody extends StatelessWidget {
             ],
           ),
         ));
+  }
+
+  Widget _buildQuickAddShortcuts(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 32),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildQuickAddCard(
+              context,
+              title: "addCC".tr(),
+              subtitle: "addCreditCard".tr(),
+              icon: Icons.credit_card,
+              color: Colors.blue,
+              route: "/addCreditCard",
+              gradientColors: [Colors.blue.shade400, Colors.blue.shade600],
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: _buildQuickAddCard(
+              context,
+              title: "addIC".tr(),
+              subtitle: "addIbanCard".tr(),
+              icon: Icons.account_balance,
+              color: Colors.green,
+              route: "/addIbanCard",
+              gradientColors: [Colors.green.shade400, Colors.green.shade600],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickAddCard(
+    BuildContext context, {
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    required String route,
+    required List<Color> gradientColors,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradientColors,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.3),
+            blurRadius: 12,
+            offset: Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Get.toNamed(route)?.then(
+              (value) => Get.find<HomeController>().refreshData(),
+            );
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            height: 124,
+            child: Stack(
+              children: [
+                // Background "+" icon at top right
+                Positioned(
+                  top: -32,
+                  right: -32,
+                  child: Icon(
+                    Icons.add,
+                    size: 124,
+                    color: Colors.white.withValues(alpha: 0.05),
+                  ),
+                ),
+                // Main content
+                Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Icon with circular background
+                      Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(
+                          icon,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                      // Title
+                      Text(
+                        title,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

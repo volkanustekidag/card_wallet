@@ -44,20 +44,58 @@ class IbanCardService {
 
   Future<void> deleteAllData() async {
     await openBox();
-    _ibanCard.deleteAll(_ibanCard.keys);
+    await _ibanCard.deleteAll(_ibanCard.keys);
   }
 
   Future<List<IbanCard>> getAllIbanCards() async {
-    return _ibanCard.values.toList();
+    try {
+      // Model artık hem int hem string ID'leri handle ediyor
+      return _ibanCard.values.toList();
+    } catch (e) {
+      print('Error getting all IBAN cards: $e');
+      return [];
+    }
   }
 
   Future<void> addIbanCard(final IbanCard ibanCard) async {
-    _ibanCard.add(ibanCard);
+    try {
+      await _ibanCard.add(ibanCard);
+    } catch (e) {
+      print('Error adding IBAN card: $e');
+      throw Exception('Failed to add IBAN card');
+    }
   }
 
   Future<void> removeIbanCard(final IbanCard ibanCard) async {
-    final ibanCardToRemove =
-        _ibanCard.values.firstWhere((element) => element == ibanCard);
-    await ibanCardToRemove.delete();
+    try {
+      final ibanCardToRemove = _ibanCard.values.firstWhere((element) {
+        // ID'leri string olarak karşılaştır
+        return element.id == ibanCard.id;
+      });
+      await ibanCardToRemove.delete();
+    } catch (e) {
+      print('Error removing IBAN card: $e');
+      throw Exception('IBAN card not found');
+    }
+  }
+
+  // Yeni eklenen güncelleme metodu
+  Future<void> updateIbanCard(
+      IbanCard originalCard, IbanCard updatedCard) async {
+    try {
+      final index = _ibanCard.values.toList().indexWhere((card) {
+        // ID'leri string olarak karşılaştır
+        return card.id == originalCard.id;
+      });
+
+      if (index != -1) {
+        await _ibanCard.putAt(index, updatedCard);
+      } else {
+        throw Exception('IBAN card not found for update');
+      }
+    } catch (e) {
+      print('Error updating IBAN card: $e');
+      throw Exception('Failed to update IBAN card');
+    }
   }
 }

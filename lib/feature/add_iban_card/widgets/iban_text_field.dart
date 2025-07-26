@@ -2,7 +2,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_iban_scanner/flutter_iban_scanner.dart';
-import 'package:wallet_app/core/controllers/add_iban_card_controller.dart';
+import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
 
 class IbanTextField extends StatelessWidget {
   const IbanTextField({

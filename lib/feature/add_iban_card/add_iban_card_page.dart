@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:camera/camera.dart';
 import 'package:wallet_app/core/constants/paddings.dart';
-import 'package:wallet_app/core/controllers/add_iban_card_controller.dart';
+import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/widgets/add_iban_card_widget.dart';
+import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
 import 'package:wallet_app/feature/add_iban_card/widgets/add_iban_app_bar.dart';
 import 'package:wallet_app/feature/add_iban_card/widgets/iban_text_forms.dart';
 
 class AddIbanCardPage extends StatefulWidget {
-  const AddIbanCardPage({Key? key}) : super(key: key);
+  final IbanCard? ibanCard; // Opsiyonel parametresi
+
+  const AddIbanCardPage({Key? key, this.ibanCard}) : super(key: key);
 
   @override
   State<AddIbanCardPage> createState() => _AddIbanCardPageState();
@@ -16,7 +19,8 @@ class AddIbanCardPage extends StatefulWidget {
 
 class _AddIbanCardPageState extends State<AddIbanCardPage> {
   late TextEditingController _ibanController;
-  late final AddIbanCardController _controller;
+  late final AddIbanCardController _controller =
+      Get.put(AddIbanCardController());
   List<CameraDescription> cameras = [];
 
   @override
@@ -24,7 +28,17 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
     super.initState();
     _initCameras();
     _ibanController = TextEditingController();
-    _controller = Get.find<AddIbanCardController>();
+
+    // Initialization'ı initState'de yap
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.ibanCard != null) {
+        _controller.initializeForEdit(widget.ibanCard!);
+        print('Initializing for edit: ${widget.ibanCard!.cardHolder}');
+      } else {
+        _controller.initializeForCreate();
+        print('Initializing for create');
+      }
+    });
   }
 
   @override
@@ -38,7 +52,7 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
     try {
       cameras = await availableCameras();
     } catch (e) {
-      // Handle camera initialization error
+      print('Camera initialization error: $e');
     }
   }
 
@@ -49,7 +63,7 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: context.theme.scaffoldBackgroundColor,
-      appBar: const AddIbanAppBar(),
+      appBar: AddIbanAppBar(ibanCard: widget.ibanCard),
       body: Padding(
         padding: const PaddingConstants.extraHigh(),
         child: Center(

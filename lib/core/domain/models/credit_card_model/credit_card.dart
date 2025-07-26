@@ -5,7 +5,7 @@ part 'credit_card.g.dart';
 @HiveType(typeId: 3)
 class CreditCard extends HiveObject {
   @HiveField(0)
-  late int id;
+  late dynamic id;
   @HiveField(1)
   late String bankName;
   @HiveField(2)
@@ -19,6 +19,13 @@ class CreditCard extends HiveObject {
   @HiveField(6)
   late int cardColorId;
 
-  CreditCard(this.id, this.bankName, this.creditCardNumber, this.cardHolder,
-      this.expirationDate, this.cvc2, this.cardColorId);
+  CreditCard({
+    required this.id,
+    required this.bankName,
+    required this.creditCardNumber,
+    required this.cardHolder,
+    required this.expirationDate,
+    required this.cvc2,
+    required this.cardColorId,
+  });
 }

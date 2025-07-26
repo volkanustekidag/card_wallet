@@ -61,4 +61,20 @@ class CreditCardService {
   Future<void> addToCreditCard(final CreditCard creditCard) async {
     _creditCards.add(creditCard);
   }
+
+  // Yeni eklenen güncelleme metodu
+  Future<void> updateCreditCard(
+      CreditCard originalCard, CreditCard updatedCard) async {
+    // Orijinal kartın index'ini bul
+    final index = _creditCards.values.toList().indexWhere((card) =>
+        card.id == originalCard.id &&
+        card.creditCardNumber == originalCard.creditCardNumber);
+
+    if (index != -1) {
+      // Kartı güncelle
+      await _creditCards.putAt(index, updatedCard);
+    } else {
+      throw Exception('Credit card not found for update');
+    }
+  }
 }

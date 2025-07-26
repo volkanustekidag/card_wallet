@@ -1,15 +1,74 @@
 import 'package:get/get.dart';
 import 'package:wallet_app/core/controllers/credit_card_controller.dart';
-import 'package:wallet_app/core/data/local_services/card_services/credit_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 
 class AddCreditCardController extends GetxController {
-  final CreditCardService _creditCardService;
+  final CreditCardService _creditCardService = CreditCardService();
 
-  AddCreditCardController(this._creditCardService);
-
-  var currentCard = CreditCard(1, "", "", "", "", "", 1).obs;
+  var currentCard = CreditCard(
+    id: "",
+    bankName: "",
+    creditCardNumber: "",
+    cardHolder: "",
+    expirationDate: "",
+    cvc2: "",
+    cardColorId: 1,
+  ).obs;
   var isLoading = false.obs;
+  var isEditMode = false.obs;
+  CreditCard? _originalCard;
+
+  // Benzersiz string ID oluştur
+  String _generateNewId() {
+    return DateTime.now().millisecondsSinceEpoch.toString() +
+        (1000 + (999 * (DateTime.now().microsecond / 1000000)).round())
+            .toString();
+  }
+
+  // Edit modu için başlatma
+  void initializeForEdit(CreditCard card) {
+    _originalCard = card;
+
+    // Kartın verilerini kopyala - currentCard'ı güncelleyince form otomatik dolacak
+    currentCard.value = CreditCard(
+      id: card.id, // Orijinal ID'yi koru
+      bankName: card.bankName,
+      creditCardNumber: card.creditCardNumber,
+      cardHolder: card.cardHolder,
+      expirationDate: card.expirationDate,
+      cvc2: card.cvc2,
+      cardColorId: card.cardColorId,
+    );
+
+    isEditMode.value = true;
+
+    // Trigger refresh to ensure UI updates
+    currentCard.refresh();
+
+    print(
+        'Edit mode initialized for card: ${card.bankName} - ${card.creditCardNumber}');
+  }
+
+  // Yeni kart oluşturma modu için başlatma
+  void initializeForCreate() {
+    _originalCard = null;
+    currentCard.value = CreditCard(
+      id: _generateNewId(),
+      bankName: "",
+      creditCardNumber: "",
+      cardHolder: "",
+      expirationDate: "",
+      cvc2: "",
+      cardColorId: 1,
+    );
+    isEditMode.value = false;
+
+    // Trigger refresh
+    currentCard.refresh();
+
+    print('Create mode initialized');
+  }
 
   void updateCardField(String fieldName, dynamic value) {
     final card = currentCard.value;
@@ -35,33 +94,71 @@ class AddCreditCardController extends GetxController {
         break;
     }
 
-    currentCard.refresh(); // Trigger UI update
+    currentCard.refresh();
   }
 
   Future<void> saveCard() async {
     try {
       isLoading.value = true;
       await _creditCardService.openBox();
-      await _creditCardService.addToCreditCard(currentCard.value);
 
-      // Reset form
-      currentCard.value = CreditCard(1, "", "", "", "", "", 1);
+      if (isEditMode.value && _originalCard != null) {
+        // Güncelleme işlemi
+        final updatedCard = CreditCard(
+          id: _generateNewId(),
+          bankName: currentCard.value.bankName,
+          creditCardNumber: currentCard.value.creditCardNumber,
+          cardHolder: currentCard.value.cardHolder,
+          expirationDate: currentCard.value.expirationDate,
+          cvc2: currentCard.value.cvc2,
+          cardColorId: currentCard.value.cardColorId,
+        );
 
-      Get.back();
-      Get.snackbar('Success', 'Credit card added successfully',
-          backgroundColor: Get.theme.primaryColor);
+        await _creditCardService.updateCreditCard(_originalCard!, updatedCard);
+        Get.back();
+        Get.snackbar('Success', 'Credit card updated successfully',
+            backgroundColor: Get.theme.primaryColor);
+      } else {
+        // Yeni kart ekleme işlemi
+        final newCard = CreditCard(
+          id: _generateNewId(),
+          bankName: currentCard.value.bankName,
+          creditCardNumber: currentCard.value.creditCardNumber,
+          cardHolder: currentCard.value.cardHolder,
+          expirationDate: currentCard.value.expirationDate,
+          cvc2: currentCard.value.cvc2,
+          cardColorId: currentCard.value.cardColorId,
+        );
 
-      // Update credit cards list
+        await _creditCardService.addToCreditCard(newCard);
+        Get.back();
+        Get.snackbar('Success', 'Credit card added successfully',
+            backgroundColor: Get.theme.primaryColor);
+      }
+
       final creditCardController = Get.find<CreditCardController>();
       creditCardController.loadCreditCards();
+      resetCard();
     } catch (e) {
-      Get.snackbar('Error', 'Failed to save credit card');
+      print('Error saving card: $e');
+      Get.snackbar('Error', 'Failed to save credit card: ${e.toString()}');
     } finally {
       isLoading.value = false;
     }
   }
 
   void resetCard() {
-    currentCard.value = CreditCard(1, "", "", "", "", "", 1);
+    currentCard.value = CreditCard(
+      id: _generateNewId(),
+      bankName: "",
+      creditCardNumber: "",
+      cardHolder: "",
+      expirationDate: "",
+      cvc2: "",
+      cardColorId: 1,
+    );
+    isEditMode.value = false;
+    _originalCard = null;
+    currentCard.refresh();
   }
 }

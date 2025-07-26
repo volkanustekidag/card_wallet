@@ -5,7 +5,7 @@ part 'iban_card.g.dart';
 @HiveType(typeId: 2)
 class IbanCard extends HiveObject {
   @HiveField(0)
-  late int id;
+  late dynamic id;
 
   @HiveField(1)
   late String bankName;
@@ -19,5 +19,11 @@ class IbanCard extends HiveObject {
   @HiveField(4)
   late String swiftCode;
 
-  IbanCard(this.bankName, this.cardHolder, this.iban, this.swiftCode, this.id);
+  IbanCard({
+    required this.id,
+    required this.bankName,
+    required this.cardHolder,
+    required this.iban,
+    required this.swiftCode,
+  });
 }

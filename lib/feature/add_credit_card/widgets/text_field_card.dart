@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 
 class TextFieldCard extends StatelessWidget {
+  final TextEditingController? controller; // Controller eklendi
   final maxLength;
   final inputFormatters;
   final onChanged;
@@ -13,6 +14,7 @@ class TextFieldCard extends StatelessWidget {
 
   const TextFieldCard({
     Key? key,
+    this.controller, // Controller parametresi
     this.maxLength,
     this.inputFormatters,
     this.onChanged,
@@ -27,6 +29,7 @@ class TextFieldCard extends StatelessWidget {
     return SizedBox(
       width: 90.w,
       child: TextField(
+        controller: controller, // Controller kullan
         maxLength: maxLength,
         keyboardType: textInputType,
         style: GoogleFonts.poppins(
@@ -34,6 +37,7 @@ class TextFieldCard extends StatelessWidget {
           fontWeight: FontWeight.w500,
         ),
         onChanged: onChanged,
+        inputFormatters: inputFormatters,
         decoration: InputDecoration(
             prefixIcon: Icon(
               iconData,

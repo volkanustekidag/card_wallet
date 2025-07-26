@@ -61,7 +61,12 @@ class CustomDialog extends StatelessWidget {
                     child: Text(cancelText),
                   ),
                   ElevatedButton(
-                    onPressed: () async {},
+                    onPressed: () async {
+                      if (onConfirm != null) {
+                        await onConfirm!();
+                      }
+                      Navigator.pop(context);
+                    },
                     style: ElevatedButton.styleFrom(),
                     child: Text("delete".tr()),
                   ),

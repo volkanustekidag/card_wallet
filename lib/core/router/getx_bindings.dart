@@ -1,14 +1,14 @@
 import 'package:get/get.dart';
 import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_controller.dart';
-import 'package:wallet_app/core/controllers/add_iban_card_controller.dart';
+import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
 import 'package:wallet_app/core/controllers/change_pin_controller.dart';
 import 'package:wallet_app/core/controllers/credit_card_controller.dart';
 import 'package:wallet_app/core/controllers/home_controller.dart';
 import 'package:wallet_app/core/controllers/iban_card_controller.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
-import 'package:wallet_app/core/data/local_services/card_services/credit_card_service.dart';
-import 'package:wallet_app/core/data/local_services/card_services/iban_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 
 class AppBindings extends Bindings {
   @override
@@ -21,16 +21,11 @@ class AppBindings extends Bindings {
     // Controllers
     Get.lazyPut<AuthController>(
         () => AuthController(Get.find<AuthenticationService>()));
-    Get.lazyPut<CreditCardController>(
-        () => CreditCardController(Get.find<CreditCardService>()));
-    Get.lazyPut<IbanCardController>(
-        () => IbanCardController(Get.find<IbanCardService>()));
-    Get.lazyPut<AddCreditCardController>(
-        () => AddCreditCardController(Get.find<CreditCardService>()));
-    Get.lazyPut<AddIbanCardController>(
-        () => AddIbanCardController(Get.find<IbanCardService>()));
-    Get.lazyPut<HomeController>(() => HomeController(
-        Get.find<CreditCardService>(), Get.find<IbanCardService>()));
+    Get.lazyPut<CreditCardController>(() => CreditCardController());
+    Get.lazyPut<IbanCardController>(() => IbanCardController());
+    Get.lazyPut<AddCreditCardController>(() => AddCreditCardController());
+    Get.lazyPut<AddIbanCardController>(() => AddIbanCardController());
+    Get.lazyPut<HomeController>(() => HomeController());
     Get.lazyPut<ChangePinController>(
         () => ChangePinController(Get.find<AuthenticationService>()));
   }
@@ -39,8 +34,7 @@ class AppBindings extends Bindings {
 class HomeBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(HomeController(
-        Get.find<CreditCardService>(), Get.find<IbanCardService>()));
+    Get.put(HomeController());
   }
 }
 
@@ -54,28 +48,28 @@ class AuthBindings extends Bindings {
 class CreditCardBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(CreditCardController(Get.find<CreditCardService>()));
+    Get.put(CreditCardController());
   }
 }
 
 class AddCreditCardBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(AddCreditCardController(Get.find<CreditCardService>()));
+    Get.put(AddCreditCardController);
   }
 }
 
 class IbanCardBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(IbanCardController(Get.find<IbanCardService>()));
+    Get.put(IbanCardController());
   }
 }
 
 class AddIbanCardBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(AddIbanCardController(Get.find<IbanCardService>()));
+    Get.put(AddIbanCardController());
   }
 }
 

@@ -17,11 +17,11 @@ class IbanCardAdapter extends TypeAdapter<IbanCard> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return IbanCard(
-      fields[1] as String,
-      fields[2] as String,
-      fields[3] as String,
-      fields[4] as String,
-      fields[0] as int,
+      id: fields[0] as dynamic,
+      bankName: fields[1] as String,
+      cardHolder: fields[2] as String,
+      iban: fields[3] as String,
+      swiftCode: fields[4] as String,
     );
   }
 

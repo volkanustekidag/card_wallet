@@ -1,11 +1,11 @@
 import 'package:get/get.dart';
-import 'package:wallet_app/core/data/local_services/card_services/iban_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 
 class IbanCardController extends GetxController {
-  final IbanCardService _ibanCardService;
+  final IbanCardService _ibanCardService = IbanCardService();
 
-  IbanCardController(this._ibanCardService);
+  IbanCardController();
 
   var ibanCards = <IbanCard>[].obs;
   var isLoading = false.obs;
@@ -23,7 +23,9 @@ class IbanCardController extends GetxController {
       final result = await _ibanCardService.getAllIbanCards();
       ibanCards.value = result;
     } catch (e) {
-      Get.snackbar('Error', 'Failed to load IBAN cards');
+      print('Error loading IBAN cards: $e');
+      Get.snackbar('Error', 'Failed to load IBAN cards: ${e.toString()}');
+      ibanCards.value = []; // Hata durumunda boş liste
     } finally {
       isLoading.value = false;
     }
@@ -36,7 +38,8 @@ class IbanCardController extends GetxController {
       Get.snackbar('Success', 'IBAN card deleted successfully',
           backgroundColor: Get.theme.primaryColor);
     } catch (e) {
-      Get.snackbar('Error', 'Failed to delete IBAN card');
+      print('Error removing IBAN card: $e');
+      Get.snackbar('Error', 'Failed to delete IBAN card: ${e.toString()}');
     }
   }
 
@@ -48,7 +51,8 @@ class IbanCardController extends GetxController {
       Get.snackbar('Success', 'IBAN card added successfully',
           backgroundColor: Get.theme.primaryColor);
     } catch (e) {
-      Get.snackbar('Error', 'Failed to add IBAN card');
+      print('Error adding IBAN card: $e');
+      Get.snackbar('Error', 'Failed to add IBAN card: ${e.toString()}');
     }
   }
 }
