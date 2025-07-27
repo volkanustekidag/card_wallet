@@ -13,6 +13,7 @@ import 'package:wallet_app/feature/settings/bottom_sheet/privacy_policy_bottom_s
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_card.dart';
 import 'package:wallet_app/core/data/services/backup_service.dart';
+import 'package:wallet_app/core/extensions/snack_bars.dart';
 
 class SettingsBody extends StatefulWidget {
   const SettingsBody({Key? key}) : super(key: key);
@@ -162,20 +163,10 @@ class _SettingsBodyState extends State<SettingsBody> {
 
       print(filePath); // For debugging purposes
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${'backupSuccess'.tr()} $filePath'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      context.showSuccessSnackBar('${'backupSuccess'.tr()} $filePath');
     } catch (e) {
       print('Yedekleme hatası: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${'backupError'.tr()} $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      context.showErrorSnackBar('${'backupError'.tr()} $e');
     }
   }
 
@@ -183,45 +174,20 @@ class _SettingsBodyState extends State<SettingsBody> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: Text('restoreTitle'.tr()),
-          content: Text(
-              'Bu işlem mevcut tüm verileri silecek ve yedekleme dosyasındaki verilerle değiştirecektir. Devam etmek istiyor musunuz?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('cancel'.tr()),
-            ),
-            TextButton(
-              onPressed: () async {
-                final navigator = Navigator.of(context);
-                final scaffoldMessenger = ScaffoldMessenger.of(context);
+        return CustomDialog(
+          title: "restoreTitle",
+          content: "Bu işlem mevcut tüm verileri silecek ve yedekleme dosyasındaki verilerle değiştirecektir. Devam etmek istiyor musunuz?",
+          onConfirm: () async {
+            try {
+              final backupService = BackupService();
+              await backupService.restoreFromFile();
 
-                navigator.pop();
-
-                try {
-                  final backupService = BackupService();
-                  await backupService.restoreFromFile();
-
-                  scaffoldMessenger.showSnackBar(
-                    SnackBar(
-                      content: Text('restoreSuccess'.tr()),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
-                } catch (e) {
-                  print('Geri yükleme hatası: $e');
-                  scaffoldMessenger.showSnackBar(
-                    SnackBar(
-                      content: Text('${'restoreError'.tr()} $e'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
-              child: Text('yes'.tr()),
-            ),
-          ],
+              context.showSuccessSnackBar('restoreSuccess');
+            } catch (e) {
+              print('Geri yükleme hatası: $e');
+              context.showErrorSnackBar('${'restoreError'.tr()} $e');
+            }
+          },
         );
       },
     );

@@ -10,6 +10,7 @@ import 'package:wallet_app/core/widgets/credit_card_front.dart';
 import 'package:wallet_app/core/widgets/empty_list_info.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/feature/add_credit_card/add_credit_card_page.dart';
+import 'package:wallet_app/core/extensions/snack_bars.dart';
 
 class Body extends StatefulWidget {
   final CreditCardController controller;
@@ -121,8 +122,7 @@ class _BodyState extends State<Body> {
                             padding: EdgeInsets.zero,
                             onPressed: () {
                               _generateCopyAllInfoText(creditCard);
-                              Get.snackbar('Success', 'copyInfo'.tr(),
-                                  backgroundColor: Colors.yellow);
+                              context.showSuccessSnackBar('copyInfo');
                             },
                             icon: CircleAvatar(child: Icon(Icons.copy))),
                         if (_shouldShowEditButton(creditCard))

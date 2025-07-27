@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/core/constants/paddings.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
@@ -11,6 +12,7 @@ import 'package:wallet_app/core/widgets/mini_iban_card_widget.dart';
 import 'package:wallet_app/feature/add_iban_card/add_iban_card_page.dart';
 import 'package:wallet_app/feature/iban_card/utils/iban_card_utils.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_qr_generator.dart';
+import 'package:wallet_app/core/extensions/snack_bars.dart';
 
 class IbanCardsBody extends StatelessWidget {
   final IbanCardController controller;
@@ -41,10 +43,7 @@ class IbanCardsBody extends StatelessWidget {
                               onPressed: () {
                                 showDialogDeleteData(context, () {
                                   controller.removeIbanCard(ibanCard);
-                                  Get.snackbar(
-                                    'success'.tr(),
-                                    'deleteSuccess'.tr(),
-                                  );
+                                  context.showSuccessSnackBar('deleteSuccess');
                                 });
                               },
                               icon: CircleAvatar(child: Icon(Icons.delete))),
@@ -52,10 +51,7 @@ class IbanCardsBody extends StatelessWidget {
                               padding: EdgeInsets.zero,
                               onPressed: () {
                                 _generateCopyAllInfoText(ibanCard);
-                                Get.snackbar(
-                                  'Success',
-                                  'copyInfo'.tr(),
-                                );
+                                context.showSuccessSnackBar('copyInfo');
                               },
                               icon: CircleAvatar(child: Icon(Icons.copy))),
                           IconButton(
@@ -101,11 +97,18 @@ class IbanCardsBody extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
             Icon(Icons.qr_code, color: Theme.of(context).primaryColor),
             SizedBox(width: 8),
-            Text('qrCodeGenerate'.tr()),
+            Text(
+              'qrCodeGenerate'.tr(),
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            ),
           ],
         ),
         content: SingleChildScrollView(
@@ -230,7 +233,17 @@ class IbanCardsBody extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('cancel'.tr()),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: Text(
+              'cancel'.tr(),
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                color: Colors.grey[600],
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -250,7 +263,18 @@ class IbanCardsBody extends StatelessWidget {
                 reference: referenceController.text.trim(),
               );
             },
-            child: Text('qrCodeGenerate'.tr()),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: Text(
+              'qrCodeGenerate'.tr(),
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),
@@ -472,32 +496,59 @@ class IbanCardsBody extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Row(
           children: [
             Icon(Icons.error, color: Colors.red),
             SizedBox(width: 8),
-            Text('qrCodeError'.tr()),
+            Text(
+              'qrCodeError'.tr(),
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            ),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('qrCodeErrorMessage'.tr()),
+            Text(
+              'qrCodeErrorMessage'.tr(),
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
             SizedBox(height: 8),
             ...errors.map((error) => Padding(
                   padding: EdgeInsets.symmetric(vertical: 2),
                   child: Text(
                     '• $error',
-                    style: TextStyle(color: Colors.red[700]),
+                    style: GoogleFonts.poppins(
+                      color: Colors.red[700],
+                      fontSize: 14,
+                    ),
                   ),
                 )),
           ],
         ),
         actions: [
-          TextButton(
+          ElevatedButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('ok'.tr()),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            child: Text(
+              'ok'.tr(),
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),

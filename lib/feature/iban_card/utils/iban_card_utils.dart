@@ -5,6 +5,7 @@ import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart'; // pubspec.yaml'a ekleyin
+import 'package:wallet_app/core/extensions/snack_bars.dart';
 
 /// QR Code Display Utilities
 class IbanCardUtils {
@@ -324,12 +325,7 @@ class QRDialog extends StatelessWidget {
 
   void _copyToClipboard(BuildContext context) {
     Clipboard.setData(ClipboardData(text: qrData));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('qrCodeCopied'.tr()),
-        duration: Duration(seconds: 2),
-      ),
-    );
+    context.showSuccessSnackBar('qrCodeCopied');
   }
 
   void _shareQR() {
@@ -569,14 +565,7 @@ class QRBottomSheet extends StatelessWidget {
 
   void _copyToClipboard(BuildContext context) {
     Clipboard.setData(ClipboardData(text: qrData));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('qrCodeCopied'.tr()),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    context.showSuccessSnackBar('qrCodeCopied');
   }
 
   void _shareQR() {
