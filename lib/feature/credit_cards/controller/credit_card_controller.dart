@@ -1,5 +1,4 @@
 import 'package:get/get.dart' hide Trans;
-import 'package:flutter/material.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -28,7 +27,8 @@ class CreditCardController extends GetxController {
     } catch (e) {
       print('Error loading credit cards: $e');
       // Detaylı hata mesajı göster
-      Get.context?.showErrorSnackBar("failedToLoadCreditCards".tr(args: [e.toString()]));
+      Get.context?.showErrorSnackBar(
+          "failedToLoadCreditCards".tr(args: [e.toString()]));
       creditCards.value = []; // Hata durumunda boş liste
     } finally {
       isLoading.value = false;
@@ -42,7 +42,8 @@ class CreditCardController extends GetxController {
       Get.context?.showSuccessSnackBar("creditCardDeletedSuccessfully".tr());
     } catch (e) {
       print('Error removing credit card: $e');
-      Get.context?.showErrorSnackBar("failedToDeleteCreditCard".tr(args: [e.toString()]));
+      Get.context?.showErrorSnackBar(
+          "failedToDeleteCreditCard".tr(args: [e.toString()]));
     }
   }
 
@@ -54,7 +55,8 @@ class CreditCardController extends GetxController {
       Get.context?.showSuccessSnackBar("creditCardAddedSuccessfully".tr());
     } catch (e) {
       print('Error adding credit card: $e');
-      Get.context?.showErrorSnackBar("failedToSaveCreditCard".tr(args: [e.toString()]));
+      Get.context?.showErrorSnackBar(
+          "failedToSaveCreditCard".tr(args: [e.toString()]));
     }
   }
 }

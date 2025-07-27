@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
@@ -141,7 +140,8 @@ class AddIbanCardController extends GetxController {
       resetCard();
     } catch (e) {
       print('Error saving IBAN card: $e');
-      Get.context?.showErrorSnackBar('Failed to save IBAN card: ${e.toString()}');
+      Get.context
+          ?.showErrorSnackBar('Failed to save IBAN card: ${e.toString()}');
     } finally {
       isLoading.value = false;
     }

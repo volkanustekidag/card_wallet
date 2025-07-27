@@ -1,5 +1,4 @@
 import 'package:get/get.dart' hide Trans;
-import 'package:flutter/material.dart';
 import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
@@ -154,7 +153,8 @@ class AddCreditCardController extends GetxController {
       resetCard();
     } catch (e) {
       print('Error saving card: $e');
-      Get.context?.showErrorSnackBar("failedToSaveCreditCard".tr(args: [e.toString()]));
+      Get.context?.showErrorSnackBar(
+          "failedToSaveCreditCard".tr(args: [e.toString()]));
     } finally {
       isLoading.value = false;
     }

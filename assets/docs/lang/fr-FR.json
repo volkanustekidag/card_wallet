@@ -180,7 +180,6 @@
     "failedToDeleteIbanCard": "Échec de la suppression de la carte IBAN",
     "ibanCardAddedSuccessfully": "Carte IBAN ajoutée avec succès",
     "failedToAddIbanCard": "Échec de l'ajout de la carte IBAN",
-    "success": "Succès",
     
     "qrCode": "Code QR",
     "copyQRAction": "Copier",
@@ -213,6 +212,19 @@
     "referenceTooLong": "La référence ne peut pas dépasser 35 caractères",
     "descriptionTooLong": "La description ne peut pas dépasser 140 caractères",
     "notSpecified": "Non spécifié",
-    "unknownBank": "Banque inconnue"
+    "unknownBank": "Banque inconnue",
+    
+    "errorCheckingPassword": "Une erreur s'est produite lors de la vérification du mot de passe",
+    "errorDuringAuthentication": "Une erreur s'est produite lors de l'authentification",
+    "errorDuringRegistration": "Une erreur s'est produite lors de l'inscription",
+    "biometricAuthReason": "Authentifiez-vous pour accéder à votre portefeuille de cartes",
+    "biometricNotSupportedDevice": "L'authentification biométrique n'est pas prise en charge sur cet appareil",
+    "biometricEnableAuthReason": "Authentifiez-vous pour activer l'authentification biométrique",
+    "biometricEnabled": "Authentification biométrique activée",
+    "biometricAuthFailed": "Échec de l'authentification biométrique",
+    "biometricDisabled": "Authentification biométrique désactivée",
+    "biometricSettingChangeError": "Impossible de modifier le paramètre biométrique",
+    "autoLockTimeUpdateError": "Impossible de mettre à jour le délai de verrouillage automatique",
+    "restoreContent": "Cette action supprimera toutes les données existantes et les remplacera par celles du fichier de sauvegarde. Voulez-vous continuer ?"
 
 }

@@ -209,6 +209,19 @@
     "referenceTooLong": "Referans 35 karakteri geçemez",
     "descriptionTooLong": "Açıklama 140 karakteri geçemez",
     "notSpecified": "Belirtilmedi",
-    "unknownBank": "Bilinmeyen Banka"
+    "unknownBank": "Bilinmeyen Banka",
+    
+    "errorCheckingPassword": "Şifre kontrol edilirken bir hata oluştu",
+    "errorDuringAuthentication": "Kimlik doğrulama sırasında bir hata oluştu", 
+    "errorDuringRegistration": "Kayıt sırasında bir hata oluştu",
+    "biometricAuthReason": "Kart cüzdanınıza erişmek için kimlik doğrulaması yapın",
+    "biometricNotSupportedDevice": "Biometric doğrulama cihazda desteklenmiyor",
+    "biometricEnableAuthReason": "Biometric doğrulamayı etkinleştirmek için kimlik doğrulaması yapın",
+    "biometricEnabled": "Biometric doğrulama etkinleştirildi",
+    "biometricAuthFailed": "Biometric doğrulama başarısız",
+    "biometricDisabled": "Biometric doğrulama devre dışı bırakıldı",
+    "biometricSettingChangeError": "Biometric ayarı değiştirilemedi",
+    "autoLockTimeUpdateError": "Otomatik kilit süresi güncellenemedi",
+    "restoreContent": "Bu işlem mevcut tüm verileri silecek ve yedekleme dosyasındaki verilerle değiştirecektir. Devam etmek istiyor musunuz?"
 
 }

@@ -175,8 +175,8 @@ class _SettingsBodyState extends State<SettingsBody> {
       context: context,
       builder: (context) {
         return CustomDialog(
-          title: "restoreTitle",
-          content: "Bu işlem mevcut tüm verileri silecek ve yedekleme dosyasındaki verilerle değiştirecektir. Devam etmek istiyor musunuz?",
+          title: "restoreTitle".tr(),
+          content: "restoreContent".tr(),
           onConfirm: () async {
             try {
               final backupService = BackupService();
@@ -184,7 +184,6 @@ class _SettingsBodyState extends State<SettingsBody> {
 
               context.showSuccessSnackBar('restoreSuccess');
             } catch (e) {
-              print('Geri yükleme hatası: $e');
               context.showErrorSnackBar('${'restoreError'.tr()} $e');
             }
           },

@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 

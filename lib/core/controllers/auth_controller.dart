@@ -1,6 +1,6 @@
-import 'package:get/get.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:local_auth/local_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/biometric_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
@@ -49,7 +49,8 @@ class AuthController extends GetxController {
       // After checking password, update biometric button visibility
       await checkBiometricAvailability();
     } catch (e) {
-      Get.context?.showErrorSnackBar('An error occurred while checking password');
+      Get.context
+          ?.showErrorSnackBar('errorCheckingPassword'.tr());
     } finally {
       isLoading.value = false;
     }
@@ -68,7 +69,7 @@ class AuthController extends GetxController {
         // Don't show snackbar here, let the UI handle the error display
       }
     } catch (e) {
-      Get.context?.showErrorSnackBar('An error occurred during authentication');
+      Get.context?.showErrorSnackBar('errorDuringAuthentication'.tr());
     } finally {
       isLoading.value = false;
     }
@@ -81,7 +82,7 @@ class AuthController extends GetxController {
       isRegistering.value = false;
       hasPassword.value = true;
     } catch (e) {
-      Get.context?.showErrorSnackBar('An error occurred during registration');
+      Get.context?.showErrorSnackBar('errorDuringRegistration'.tr());
     } finally {
       isLoading.value = false;
     }
@@ -118,8 +119,7 @@ class AuthController extends GetxController {
       isLoading.value = true;
 
       final success = await _biometricService.authenticateWithBiometric(
-        localizedReason:
-            'Kart cüzdanınıza erişmek için kimlik doğrulaması yapın',
+        localizedReason: 'biometricAuthReason'.tr(),
       );
 
       if (success) {
@@ -132,7 +132,8 @@ class AuthController extends GetxController {
       Get.context?.showErrorSnackBar(e.message);
       authenticationFailed.value = true;
     } catch (e) {
-      Get.context?.showErrorSnackBar('Biometric doğrulama sırasında bir hata oluştu');
+      Get.context
+          ?.showErrorSnackBar('biometricAuthError'.tr());
       authenticationFailed.value = true;
     } finally {
       isLoading.value = false;
@@ -146,7 +147,8 @@ class AuthController extends GetxController {
         // Check if biometric is available first
         final isAvailable = await _biometricService.isBiometricAvailable();
         if (!isAvailable) {
-          Get.context?.showErrorSnackBar('Biometric doğrulama cihazda desteklenmiyor');
+          Get.context
+              ?.showErrorSnackBar('biometricNotSupportedDevice'.tr());
           return;
         }
 
@@ -156,20 +158,20 @@ class AuthController extends GetxController {
         try {
           // Test authenticate with biometric to ensure it works
           final success = await _biometricService.authenticateWithBiometric(
-            localizedReason:
-                'Biometric doğrulamayı etkinleştirmek için kimlik doğrulaması yapın',
+            localizedReason: 'biometricEnableAuthReason'.tr(),
           );
 
           if (success) {
             isBiometricEnabled.value = true;
             showBiometricButton.value = true;
-            Get.context?.showSuccessSnackBar('Biometric doğrulama etkinleştirildi');
+            Get.context
+                ?.showSuccessSnackBar('biometricEnabled'.tr());
           } else {
             // If authentication failed, disable it again
             await _biometricService.setBiometricEnabled(false);
             isBiometricEnabled.value = false;
             showBiometricButton.value = false;
-            Get.context?.showErrorSnackBar('Biometric doğrulama başarısız');
+            Get.context?.showErrorSnackBar('biometricAuthFailed'.tr());
           }
         } catch (e) {
           // If any error occurs, disable it again
@@ -182,12 +184,13 @@ class AuthController extends GetxController {
         await _biometricService.setBiometricEnabled(false);
         isBiometricEnabled.value = false;
         showBiometricButton.value = false;
-        Get.context?.showSuccessSnackBar('Biometric doğrulama devre dışı bırakıldı');
+        Get.context
+            ?.showSuccessSnackBar('biometricDisabled'.tr());
       }
     } on BiometricException catch (e) {
       Get.context?.showErrorSnackBar(e.message);
     } catch (e) {
-      Get.context?.showErrorSnackBar('Biometric ayarı değiştirilemedi: $e');
+      Get.context?.showErrorSnackBar('biometricSettingChangeError'.tr() + ': $e');
     }
   }
 
@@ -230,7 +233,7 @@ class AuthController extends GetxController {
       await _biometricService.setAutoLockTime(time);
       autoLockTime.value = time;
     } catch (e) {
-      Get.context?.showErrorSnackBar('Otomatik kilit süresi güncellenemedi');
+      Get.context?.showErrorSnackBar('autoLockTimeUpdateError'.tr());
     }
   }
 }

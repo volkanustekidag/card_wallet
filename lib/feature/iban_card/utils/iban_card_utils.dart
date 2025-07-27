@@ -175,7 +175,7 @@ class QRDialog extends StatelessWidget {
                   return Container(
                     child: Center(
                       child: Text(
-                        "QR kod oluşturulamadı",
+                        "errorGeneratingQR".tr(),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -256,7 +256,8 @@ class QRDialog extends StatelessWidget {
             _buildDetailRow('amountLabel'.tr(), '$amount ${currency ?? 'EUR'}'),
           if (reference != null && reference!.isNotEmpty)
             _buildDetailRow('referenceLabel'.tr(), reference!),
-          if (format != null) _buildDetailRow('formatLabel'.tr(), format!.toUpperCase()),
+          if (format != null)
+            _buildDetailRow('formatLabel'.tr(), format!.toUpperCase()),
         ],
       ),
     );
@@ -495,7 +496,8 @@ class QRBottomSheet extends StatelessWidget {
             if (reference != null && reference!.isNotEmpty)
               _buildDetailTile(Icons.tag, 'referenceLabel'.tr(), reference!),
             if (format != null)
-              _buildDetailTile(Icons.qr_code, 'formatLabel'.tr(), format!.toUpperCase()),
+              _buildDetailTile(
+                  Icons.qr_code, 'formatLabel'.tr(), format!.toUpperCase()),
           ],
         ),
       ),

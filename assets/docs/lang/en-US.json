@@ -213,6 +213,19 @@
     "referenceTooLong": "Reference cannot exceed 35 characters",
     "descriptionTooLong": "Description cannot exceed 140 characters",
     "notSpecified": "Not specified",
-    "unknownBank": "Unknown Bank"
+    "unknownBank": "Unknown Bank",
+    
+    "errorCheckingPassword": "An error occurred while checking password",
+    "errorDuringAuthentication": "An error occurred during authentication",
+    "errorDuringRegistration": "An error occurred during registration",
+    "biometricAuthReason": "Authenticate to access your card wallet",
+    "biometricNotSupportedDevice": "Biometric authentication is not supported on this device",
+    "biometricEnableAuthReason": "Authenticate to enable biometric authentication",
+    "biometricEnabled": "Biometric authentication enabled",
+    "biometricAuthFailed": "Biometric authentication failed",
+    "biometricDisabled": "Biometric authentication disabled",
+    "biometricSettingChangeError": "Could not change biometric setting",
+    "autoLockTimeUpdateError": "Auto-lock time could not be updated",
+    "restoreContent": "This action will delete all existing data and replace it with the data from the backup file. Do you want to continue?"
 
 }

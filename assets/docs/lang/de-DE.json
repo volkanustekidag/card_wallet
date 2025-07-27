@@ -141,7 +141,6 @@
     "biometricAuthenticateReason": "Authentifizieren Sie sich für den Zugriff auf die App",
     "biometricNotSupported": "Biometrische Authentifizierung wird auf diesem Gerät nicht unterstützt",
     "biometricNotEnabled": "Biometrische Authentifizierung ist nicht aktiviert",
-    "biometricAuthError": "Biometrischer Authentifizierungsfehler",
     "autoLockTimeSaveError": "Auto-Sperrzeit konnte nicht gespeichert werden",
     "faceRecognition": "Gesichtserkennung",
     "fingerprint": "Fingerabdruck",
@@ -213,6 +212,19 @@
     "referenceTooLong": "Referenz darf 35 Zeichen nicht überschreiten",
     "descriptionTooLong": "Beschreibung darf 140 Zeichen nicht überschreiten",
     "notSpecified": "Nicht angegeben",
-    "unknownBank": "Unbekannte Bank"
-
+    "unknownBank": "Unbekannte Bank",
+    
+    "errorCheckingPassword": "Fehler beim Überprüfen des Passworts",
+    "errorDuringAuthentication": "Fehler bei der Authentifizierung",
+    "errorDuringRegistration": "Fehler bei der Registrierung",
+    "biometricAuthReason": "Authentifizieren Sie sich, um auf Ihre Kartenbrieftasche zuzugreifen",
+    "biometricAuthError": "Fehler bei der biometrischen Authentifizierung",
+    "biometricNotSupportedDevice": "Biometrische Authentifizierung wird auf diesem Gerät nicht unterstützt",
+    "biometricEnableAuthReason": "Authentifizieren Sie sich, um biometrische Authentifizierung zu aktivieren",
+    "biometricEnabled": "Biometrische Authentifizierung aktiviert",
+    "biometricAuthFailed": "Biometrische Authentifizierung fehlgeschlagen",
+    "biometricDisabled": "Biometrische Authentifizierung deaktiviert",
+    "biometricSettingChangeError": "Biometrische Einstellung konnte nicht geändert werden",
+    "autoLockTimeUpdateError": "Auto-Sperrzeit konnte nicht aktualisiert werden",
+    "restoreContent": "Diese Aktion löscht alle vorhandenen Daten und ersetzt sie durch die Daten aus der Sicherungsdatei. Möchten Sie fortfahren?"
 }

@@ -1,5 +1,4 @@
 import 'package:get/get.dart' hide Trans;
-import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
@@ -27,7 +26,8 @@ class IbanCardController extends GetxController {
       ibanCards.value = result;
     } catch (e) {
       print('Error loading IBAN cards: $e');
-      Get.context?.showErrorSnackBar('${'failedToLoadIbanCards'.tr()}: ${e.toString()}');
+      Get.context?.showErrorSnackBar(
+          '${'failedToLoadIbanCards'.tr()}: ${e.toString()}');
       ibanCards.value = []; // Hata durumunda boş liste
     } finally {
       isLoading.value = false;
@@ -41,7 +41,8 @@ class IbanCardController extends GetxController {
       Get.context?.showSuccessSnackBar('ibanCardDeletedSuccessfully'.tr());
     } catch (e) {
       print('Error removing IBAN card: $e');
-      Get.context?.showErrorSnackBar('${'failedToDeleteIbanCard'.tr()}: ${e.toString()}');
+      Get.context?.showErrorSnackBar(
+          '${'failedToDeleteIbanCard'.tr()}: ${e.toString()}');
     }
   }
 
@@ -53,7 +54,8 @@ class IbanCardController extends GetxController {
       Get.context?.showSuccessSnackBar('ibanCardAddedSuccessfully'.tr());
     } catch (e) {
       print('Error adding IBAN card: $e');
-      Get.context?.showErrorSnackBar('${'failedToAddIbanCard'.tr()}: ${e.toString()}');
+      Get.context
+          ?.showErrorSnackBar('${'failedToAddIbanCard'.tr()}: ${e.toString()}');
     }
   }
 }
