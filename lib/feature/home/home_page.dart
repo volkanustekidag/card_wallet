@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wallet_app/core/controllers/home_controller.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
+import 'package:wallet_app/core/widgets/banner_ad_widget.dart';
 import 'package:wallet_app/feature/home/widgets/body.dart';
 
 class HomePage extends StatefulWidget {
@@ -32,7 +33,14 @@ class _HomePageState extends State<HomePage> {
           if (_homeController.isLoading.value) {
             return const LoadingWidget();
           }
-          return HomeBody(controller: _homeController);
+          return Column(
+            children: [
+              Expanded(
+                child: HomeBody(controller: _homeController),
+              ),
+              const BannerAdWidget(),
+            ],
+          );
         }),
       ),
     );

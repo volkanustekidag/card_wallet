@@ -232,94 +232,100 @@ class IBANQRGenerator {
 
     // Extract bank code from Turkish IBAN (positions 4-7)
     final bankCode = iban.substring(4, 8);
-    final bankName = _turkishBankCodes[bankCode] ?? 'Unknown Bank';
 
     // TR-KAREKOD Official Format (TCMB Standard)
     // Based on EMVCo QR Code Specification with Turkish extensions
     final qrFields = <String>[];
-    
+
     // Payload Format Indicator (ID: 00) - Always "01"
     qrFields.add('000201');
-    
+
     // Point of Initiation Method (ID: 01) - "11" for static, "12" for dynamic
     qrFields.add('010211');
-    
+
     // Merchant Account Information (ID: 26-51) - Using 51 for Turkey
     final merchantInfo = _buildMerchantInfo(iban, bankCode);
-    qrFields.add('51${merchantInfo.length.toString().padLeft(2, '0')}$merchantInfo');
-    
+    qrFields.add(
+        '51${merchantInfo.length.toString().padLeft(2, '0')}$merchantInfo');
+
     // Transaction Currency (ID: 53) - "949" for TRY
     qrFields.add('5303949');
-    
+
     // Transaction Amount (ID: 54) - Only if amount is specified
     if (amount != null && amount > 0) {
       final amountStr = amount.toStringAsFixed(2);
-      qrFields.add('54${amountStr.length.toString().padLeft(2, '0')}$amountStr');
+      qrFields
+          .add('54${amountStr.length.toString().padLeft(2, '0')}$amountStr');
     }
-    
+
     // Country Code (ID: 58) - "TR" for Turkey
     qrFields.add('5802TR');
-    
+
     // Merchant Name (ID: 59) - Beneficiary name (max 25 chars)
     final merchantName = _truncateString(beneficiaryName, 25);
-    qrFields.add('59${merchantName.length.toString().padLeft(2, '0')}$merchantName');
-    
+    qrFields.add(
+        '59${merchantName.length.toString().padLeft(2, '0')}$merchantName');
+
     // Additional Data Field Template (ID: 62)
     final additionalData = _buildAdditionalData(reference, description);
     if (additionalData.isNotEmpty) {
-      qrFields.add('62${additionalData.length.toString().padLeft(2, '0')}$additionalData');
+      qrFields.add(
+          '62${additionalData.length.toString().padLeft(2, '0')}$additionalData');
     }
-    
+
     // Build the complete QR string
     final qrString = qrFields.join('');
-    
+
     // Calculate CRC16 checksum (ID: 63)
     final crc = _calculateCRC16(qrString + '6304');
-    final finalQR = qrString + '63' + '04' + crc.toRadixString(16).toUpperCase().padLeft(4, '0');
-    
+    final finalQR = qrString +
+        '63' +
+        '04' +
+        crc.toRadixString(16).toUpperCase().padLeft(4, '0');
+
     return finalQR;
   }
-  
+
   /// Build merchant account information for Turkish banks
   static String _buildMerchantInfo(String iban, String bankCode) {
     final fields = <String>[];
-    
+
     // Globally Unique Identifier (ID: 00) - Turkish domain
     fields.add('0007tr.gov.tcmb');
-    
+
     // Merchant Account Information (ID: 01) - IBAN
     fields.add('01${iban.length.toString().padLeft(2, '0')}$iban');
-    
+
     // Bank Code (ID: 02)
     fields.add('02${bankCode.length.toString().padLeft(2, '0')}$bankCode');
-    
+
     return fields.join('');
   }
-  
+
   /// Build additional data field for reference and description
   static String _buildAdditionalData(String reference, String description) {
     final fields = <String>[];
-    
+
     // Bill Number (ID: 01) - Reference
     if (reference.isNotEmpty) {
       final ref = _truncateString(reference, 25);
       fields.add('01${ref.length.toString().padLeft(2, '0')}$ref');
     }
-    
+
     // Purpose of Transaction (ID: 08) - Description
     if (description.isNotEmpty) {
       final desc = _truncateString(description, 25);
       fields.add('08${desc.length.toString().padLeft(2, '0')}$desc');
     }
-    
+
     return fields.join('');
   }
-  
+
   /// Calculate CRC16 checksum for QR code validation
   static int _calculateCRC16(String data) {
     int crc = 0xFFFF;
     final bytes = data.codeUnits;
-    
+
     for (int byte in bytes) {
       crc ^= byte << 8;
       for (int i = 0; i < 8; i++) {
@@ -331,7 +337,7 @@ class IBANQRGenerator {
         crc &= 0xFFFF;
       }
     }
-    
+
     return crc;
   }
 
@@ -349,90 +355,98 @@ class IBANQRGenerator {
 
     // TR-FAST EMVCo QR Code Format (BKM Standard)
     final qrFields = <String>[];
-    
+
     // Payload Format Indicator (ID: 00) - Always "01"
     qrFields.add('000201');
-    
+
     // Point of Initiation Method (ID: 01) - "12" for dynamic (TR-FAST)
     qrFields.add('010212');
-    
+
     // Merchant Account Information (ID: 26-51) - Using 50 for TR-FAST
     final fastInfo = _buildTRFastInfo(iban, bankCode, beneficiaryName);
     qrFields.add('50${fastInfo.length.toString().padLeft(2, '0')}$fastInfo');
-    
+
     // Transaction Currency (ID: 53) - "949" for TRY
     qrFields.add('5303949');
-    
+
     // Transaction Amount (ID: 54) - Mandatory for TR-FAST
     if (amount != null && amount > 0) {
       final amountStr = amount.toStringAsFixed(2);
-      qrFields.add('54${amountStr.length.toString().padLeft(2, '0')}$amountStr');
+      qrFields
+          .add('54${amountStr.length.toString().padLeft(2, '0')}$amountStr');
     }
-    
+
     // Country Code (ID: 58) - "TR" for Turkey
     qrFields.add('5802TR');
-    
+
     // Merchant Name (ID: 59) - Beneficiary name (max 25 chars)
     final merchantName = _truncateString(beneficiaryName, 25);
-    qrFields.add('59${merchantName.length.toString().padLeft(2, '0')}$merchantName');
-    
+    qrFields.add(
+        '59${merchantName.length.toString().padLeft(2, '0')}$merchantName');
+
     // Merchant City (ID: 60) - Optional
     qrFields.add('6007TURKIYE');
-    
+
     // Additional Data Field Template (ID: 62) - Enhanced for TR-FAST
     final additionalData = _buildTRFastAdditionalData(reference, description);
     if (additionalData.isNotEmpty) {
-      qrFields.add('62${additionalData.length.toString().padLeft(2, '0')}$additionalData');
+      qrFields.add(
+          '62${additionalData.length.toString().padLeft(2, '0')}$additionalData');
     }
-    
+
     // Build the complete QR string
     final qrString = qrFields.join('');
-    
+
     // Calculate CRC16 checksum (ID: 63)
     final crc = _calculateCRC16(qrString + '6304');
-    final finalQR = qrString + '63' + '04' + crc.toRadixString(16).toUpperCase().padLeft(4, '0');
-    
+    final finalQR = qrString +
+        '63' +
+        '04' +
+        crc.toRadixString(16).toUpperCase().padLeft(4, '0');
+
     return finalQR;
   }
-  
+
   /// Build TR-FAST specific merchant account information
-  static String _buildTRFastInfo(String iban, String bankCode, String beneficiaryName) {
+  static String _buildTRFastInfo(
+      String iban, String bankCode, String beneficiaryName) {
     final fields = <String>[];
-    
+
     // Globally Unique Identifier (ID: 00) - TR-FAST domain
     fields.add('0011tr.gov.fast');
-    
+
     // Merchant Account Information (ID: 01) - IBAN
     fields.add('01${iban.length.toString().padLeft(2, '0')}$iban');
-    
+
     // Bank Code (ID: 02)
     fields.add('02${bankCode.length.toString().padLeft(2, '0')}$bankCode');
-    
+
     // Service Type (ID: 03) - "FAST" for instant payment
     fields.add('0304FAST');
-    
+
     return fields.join('');
   }
-  
+
   /// Build TR-FAST specific additional data
-  static String _buildTRFastAdditionalData(String reference, String description) {
+  static String _buildTRFastAdditionalData(
+      String reference, String description) {
     final fields = <String>[];
-    
+
     // Bill Number (ID: 01) - Reference/Invoice number
     if (reference.isNotEmpty) {
       final ref = _truncateString(reference, 25);
       fields.add('01${ref.length.toString().padLeft(2, '0')}$ref');
     }
-    
+
     // Purpose of Transaction (ID: 08) - Description
     if (description.isNotEmpty) {
       final desc = _truncateString(description, 25);
       fields.add('08${desc.length.toString().padLeft(2, '0')}$desc');
     }
-    
+
     // Payment System (ID: 09) - TR-FAST identifier
     fields.add('0906TRFAST');
-    
+
     return fields.join('');
   }
 
@@ -514,7 +528,7 @@ class IBANQRGenerator {
           // For Turkish IBANs, use TR-KAREKOD as default (static QR)
           // TR-FAST is used for dynamic payments with amount > 0
           actualFormat = formatTRKareKod;
-          
+
           // If amount is provided and > 0, use TR-FAST for instant payment
           if (data['amount'] != null && data['amount'] > 0) {
             actualFormat = formatTRFast;
@@ -839,7 +853,8 @@ class BankingCompliantExample {
       turkishStaticPayment,
       format: IBANQRGenerator.formatTRKareKod,
     );
-    print('Turkish Static QR (${turkishStaticResult.metadata?.standard}): ${turkishStaticResult.data}');
+    print(
+        'Turkish Static QR (${turkishStaticResult.metadata?.standard}): ${turkishStaticResult.data}');
 
     // Turkish IBAN example - Dynamic QR with amount (TR-FAST format)
     final turkishDynamicPayment = IBANQRGenerator.createPaymentData(
@@ -855,7 +870,8 @@ class BankingCompliantExample {
       turkishDynamicPayment,
       format: IBANQRGenerator.formatTRFast,
     );
-    print('Turkish Dynamic QR (${turkishDynamicResult.metadata?.standard}): ${turkishDynamicResult.data}');
+    print(
+        'Turkish Dynamic QR (${turkishDynamicResult.metadata?.standard}): ${turkishDynamicResult.data}');
 
     // Auto-detection example (will choose appropriate format)
     final autoPayment = IBANQRGenerator.createPaymentData(
@@ -866,7 +882,8 @@ class BankingCompliantExample {
     );
 
     final autoResult = IBANQRGenerator.generateQRCode(autoPayment);
-    print('Auto-detected QR (${autoResult.metadata?.standard}): ${autoResult.data}');
+    print(
+        'Auto-detected QR (${autoResult.metadata?.standard}): ${autoResult.data}');
 
     // European IBAN example (EPC format)
     final europeanPayment = IBANQRGenerator.createPaymentData(
@@ -879,13 +896,16 @@ class BankingCompliantExample {
     );
 
     final europeanResult = IBANQRGenerator.generateQRCode(europeanPayment);
-    print('European QR (${europeanResult.metadata?.standard}): ${europeanResult.data}');
+    print(
+        'European QR (${europeanResult.metadata?.standard}): ${europeanResult.data}');
 
     // Validation examples
-    print('IBAN Valid: ${IBANQRGenerator.validateIBAN('TR330006100519786457841326')}');
+    print(
+        'IBAN Valid: ${IBANQRGenerator.validateIBAN('TR330006100519786457841326')}');
     print('BIC Valid: ${IBANQRGenerator.validateBIC('COBADEFFXXX')}');
-    print('Formatted IBAN: ${IBANQRGenerator.formatIBANForDisplay('TR330006100519786457841326')}');
-    
+    print(
+        'Formatted IBAN: ${IBANQRGenerator.formatIBANForDisplay('TR330006100519786457841326')}');
+
     // Bank name lookup
     print('Bank Name: ${IBANQRGenerator.getTurkishBankName('0006')}');
   }

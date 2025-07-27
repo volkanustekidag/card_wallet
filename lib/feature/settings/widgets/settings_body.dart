@@ -11,7 +11,7 @@ import 'package:wallet_app/feature/settings/bottom_sheet/privacy_policy_bottom_s
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/feature/settings/widgets/premium_card.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_card.dart';
-import 'package:wallet_app/core/services/backup_service.dart';
+import 'package:wallet_app/core/data/services/backup_service.dart';
 
 class SettingsBody extends StatefulWidget {
   const SettingsBody({Key? key}) : super(key: key);

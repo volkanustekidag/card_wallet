@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/core/controllers/iban_card_controller.dart';
+import 'package:wallet_app/core/data/services/admob_service.dart';
 import 'package:sizer/sizer.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -28,7 +29,8 @@ class IbanCardsAppBar extends StatelessWidget implements PreferredSizeWidget {
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: IconButton(
-                onPressed: () {
+                onPressed: () async {
+                  await AdMobService.showInterstitialAd();
                   Get.toNamed('/addIbanCard')?.then((value) =>
                       Get.find<IbanCardController>().loadIbanCards());
                 },

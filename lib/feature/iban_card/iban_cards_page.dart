@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wallet_app/core/controllers/iban_card_controller.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
+import 'package:wallet_app/core/widgets/banner_ad_widget.dart';
 import 'package:wallet_app/feature/iban_card/widgets/app_bar.dart';
 import 'package:wallet_app/feature/iban_card/widgets/iban_cards_body.dart';
 
@@ -30,7 +31,14 @@ class _IbanCardsPageState extends State<IbanCardsPage> {
         if (_controller.isLoading.value) {
           return const LoadingWidget();
         }
-        return IbanCardsBody(controller: _controller);
+        return Column(
+          children: [
+            Expanded(
+              child: IbanCardsBody(controller: _controller),
+            ),
+            const BannerAdWidget(),
+          ],
+        );
       }),
     );
   }

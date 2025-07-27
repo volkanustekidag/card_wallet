@@ -12,6 +12,7 @@ import 'package:wallet_app/core/data/local_services/auth_services/authentication
 import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/data/local_services/theme_services/theme_services.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
+import 'package:wallet_app/core/data/services/admob_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +29,10 @@ void main() async {
   // Theme service initialization
   final themeService = ThemeService();
   await themeService.init();
+
+  // AdMob initialization
+  await AdMobService.initialize();
+  await AdMobService.loadInterstitialAd();
 
   // Screen orientation settings
   await SystemChrome.setPreferredOrientations([
@@ -65,7 +70,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeController = Get.put(ThemeController());
-    
+
     return Sizer(
       builder: (context, orientation, deviceType) {
         return GetMaterialApp(

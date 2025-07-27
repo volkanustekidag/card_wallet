@@ -3,6 +3,7 @@ import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/controllers/home_controller.dart';
+import 'package:wallet_app/core/data/services/admob_service.dart';
 import 'package:wallet_app/core/widgets/background_shapes_painter.dart';
 import 'package:wallet_app/feature/home/widgets/cards_list_view.dart';
 import 'package:wallet_app/feature/home/widgets/dashed_empty_card.dart';
@@ -36,7 +37,8 @@ class HomeBody extends StatelessWidget {
                     forceMaterialTransparency: true,
                     leading: IconButton(
                       icon: Icon(Icons.menu_rounded, size: 20.sp),
-                      onPressed: () {
+                      onPressed: () async {
+                        await AdMobService.showInterstitialAd();
                         Get.toNamed('/settings')?.then(
                           (value) => controller.refreshData(),
                         );
@@ -168,7 +170,8 @@ class HomeBody extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () {
+          onTap: () async {
+            await AdMobService.showInterstitialAd();
             Get.toNamed(route)?.then(
               (value) => Get.find<HomeController>().refreshData(),
             );
