@@ -1,0 +1,2 @@
+/Users/volkanustekidag/card_wallet/android/app/.cxx/RelWithDebInfo/1vj3d3e5/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/volkanustekidag/card_wallet/android/app/.cxx/RelWithDebInfo/1vj3d3e5/armeabi-v7a/CMakeFiles/rebuild_cache.dir
