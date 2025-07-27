@@ -28,6 +28,8 @@ class CreditCardService {
         key: C_CARD_SECURE_STORAGE_KEY,
         value: json.encode(secureKey),
       );
+    } else {
+      await openBox();
     }
   }
 

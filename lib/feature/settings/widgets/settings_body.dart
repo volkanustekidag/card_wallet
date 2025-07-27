@@ -3,21 +3,22 @@ import 'package:get/get.dart' hide Trans;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wallet_app/core/controllers/theme_controller.dart';
+import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
-import 'package:wallet_app/core/router/getx_routes.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/lang_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/privacy_policy_bottom_sheet.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/feature/settings/widgets/premium_card.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_card.dart';
-// import 'package:wallet_app/core/controllers/theme_controller.dart';
 
 class SettingsBody extends StatelessWidget {
   const SettingsBody({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final AuthController authController = Get.put(AuthController());
+
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -49,15 +50,30 @@ class SettingsBody extends StatelessWidget {
               ),
               onTap: () => showLangChoseeBottomSheet(context),
             ),
-            SettingsCard(
-              iconData: Icons.password,
-              title: "chanPIN".tr(),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-              ),
-              onTap: () => Get.toNamed(AppRoutes.changePin),
-            ),
+
+            // Biometric Authentication Setting
+            Obx(() {
+              if (!authController.isBiometricAvailable.value) {
+                return const SizedBox.shrink();
+              }
+
+              return SettingsCard(
+                iconData: Icons.fingerprint,
+                title: authController.getBiometricDisplayName(),
+                trailing: Switch(
+                  value: authController.isBiometricEnabled.value,
+                  onChanged: (value) {
+                    authController.toggleBiometric(value);
+                  },
+                  activeColor: Colors.green,
+                ),
+                onTap: () {
+                  authController.toggleBiometric(
+                      !authController.isBiometricEnabled.value);
+                },
+              );
+            }),
+
             SettingsCard(
                 iconData: Icons.privacy_tip,
                 title: "PP".tr(),

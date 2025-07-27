@@ -1,10 +1,13 @@
 import 'package:get/get.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
+import 'package:wallet_app/core/data/local_services/auth_services/biometric_service.dart';
 
 class AuthController extends GetxController {
-  final AuthenticationService _authenticationService;
+  final AuthenticationService _authenticationService = AuthenticationService();
+  final BiometricService _biometricService = BiometricService();
 
-  AuthController(this._authenticationService);
+  AuthController();
 
   var isLoading = false.obs;
   var isRegistering = false.obs;
@@ -12,10 +15,19 @@ class AuthController extends GetxController {
   var authenticationSuccess = false.obs;
   var authenticationFailed = false.obs;
 
+  // Biometric states
+  var isBiometricAvailable = false.obs;
+  var isBiometricEnabled = false.obs;
+  var availableBiometrics = <BiometricType>[].obs;
+  var showBiometricButton = false.obs;
+  var autoLockTime = 5.obs;
+
   @override
   void onInit() {
     super.onInit();
     checkHavePassword();
+    checkBiometricAvailability();
+    loadAutoLockTime();
   }
 
   Future<void> checkHavePassword() async {
@@ -73,5 +85,126 @@ class AuthController extends GetxController {
   void resetAuthenticationState() {
     authenticationFailed.value = false;
     authenticationSuccess.value = false;
+  }
+
+  /// Check biometric availability and update states
+  Future<void> checkBiometricAvailability() async {
+    try {
+      isBiometricAvailable.value =
+          await _biometricService.isBiometricAvailable();
+      availableBiometrics.value =
+          await _biometricService.getAvailableBiometrics();
+      isBiometricEnabled.value = await _biometricService.isBiometricEnabled();
+
+      // Show biometric button only if available, enabled, and user has password
+      showBiometricButton.value = isBiometricAvailable.value &&
+          isBiometricEnabled.value &&
+          hasPassword.value;
+    } catch (e) {
+      isBiometricAvailable.value = false;
+      isBiometricEnabled.value = false;
+      showBiometricButton.value = false;
+    }
+  }
+
+  /// Authenticate using biometric
+  Future<void> authenticateWithBiometric() async {
+    try {
+      isLoading.value = true;
+
+      final success = await _biometricService.authenticateWithBiometric(
+        localizedReason:
+            'Kart cüzdanınıza erişmek için kimlik doğrulaması yapın',
+      );
+
+      if (success) {
+        authenticationSuccess.value = true;
+        Get.offAllNamed('/home');
+      } else {
+        authenticationFailed.value = true;
+      }
+    } on BiometricException catch (e) {
+      Get.snackbar('Biometric Hata', e.message);
+      authenticationFailed.value = true;
+    } catch (e) {
+      Get.snackbar('Hata', 'Biometric doğrulama sırasında bir hata oluştu');
+      authenticationFailed.value = true;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// Enable or disable biometric authentication
+  Future<void> toggleBiometric(bool enabled) async {
+    try {
+      if (enabled) {
+        // First authenticate with biometric to ensure it works
+        final success = await _biometricService.authenticateWithBiometric(
+          localizedReason:
+              'Biometric doğrulamayı etkinleştirmek için kimlik doğrulaması yapın',
+        );
+
+        if (success) {
+          await _biometricService.setBiometricEnabled(true);
+          isBiometricEnabled.value = true;
+          showBiometricButton.value = true;
+          Get.snackbar('Başarılı', 'Biometric doğrulama etkinleştirildi');
+        } else {
+          Get.snackbar('Hata', 'Biometric doğrulama başarısız');
+        }
+      } else {
+        await _biometricService.setBiometricEnabled(false);
+        isBiometricEnabled.value = false;
+        showBiometricButton.value = false;
+        Get.snackbar('Başarılı', 'Biometric doğrulama devre dışı bırakıldı');
+      }
+    } on BiometricException catch (e) {
+      Get.snackbar('Biometric Hata', e.message);
+    } catch (e) {
+      Get.snackbar('Hata', 'Biometric ayarı değiştirilemedi');
+    }
+  }
+
+  /// Get biometric type display name
+  String getBiometricDisplayName() {
+    return _biometricService.getBiometricTypeDisplayName(availableBiometrics);
+  }
+
+  /// Check if app should be locked based on auto-lock timer
+  Future<bool> shouldLockApp() async {
+    try {
+      return await _biometricService.shouldLockApp();
+    } catch (e) {
+      return true; // Default to locked if error
+    }
+  }
+
+  /// Update last active time (call this on user interaction)
+  Future<void> updateLastActiveTime() async {
+    try {
+      await _biometricService.updateLastActiveTime();
+    } catch (e) {
+      // Silent fail - not critical
+    }
+  }
+
+  /// Load auto-lock time from storage
+  Future<void> loadAutoLockTime() async {
+    try {
+      final time = await _biometricService.getAutoLockTime();
+      autoLockTime.value = time;
+    } catch (e) {
+      autoLockTime.value = 5; // Default value
+    }
+  }
+
+  /// Update auto-lock time
+  Future<void> updateAutoLockTime(int time) async {
+    try {
+      await _biometricService.setAutoLockTime(time);
+      autoLockTime.value = time;
+    } catch (e) {
+      Get.snackbar('Hata', 'Otomatik kilit süresi güncellenemedi');
+    }
   }
 }

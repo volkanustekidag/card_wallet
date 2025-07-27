@@ -7,6 +7,7 @@ import 'package:wallet_app/core/controllers/credit_card_controller.dart';
 import 'package:wallet_app/core/controllers/home_controller.dart';
 import 'package:wallet_app/core/controllers/iban_card_controller.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
+import 'package:wallet_app/core/data/local_services/auth_services/biometric_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 
@@ -15,12 +16,12 @@ class AppBindings extends Bindings {
   void dependencies() {
     // Services
     Get.lazyPut<AuthenticationService>(() => AuthenticationService());
+    Get.lazyPut<BiometricService>(() => BiometricService());
     Get.lazyPut<CreditCardService>(() => CreditCardService());
     Get.lazyPut<IbanCardService>(() => IbanCardService());
 
     // Controllers
-    Get.lazyPut<AuthController>(
-        () => AuthController(Get.find<AuthenticationService>()));
+    Get.lazyPut<AuthController>(() => AuthController());
     Get.lazyPut<CreditCardController>(() => CreditCardController());
     Get.lazyPut<IbanCardController>(() => IbanCardController());
     Get.lazyPut<AddCreditCardController>(() => AddCreditCardController());
@@ -41,7 +42,7 @@ class HomeBindings extends Bindings {
 class AuthBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(AuthController(Get.find<AuthenticationService>()));
+    Get.put(AuthController());
   }
 }
 
