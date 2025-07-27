@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:wallet_app/core/constants/app_images.dart';
 import 'package:sizer/sizer.dart';
@@ -32,21 +31,14 @@ class _SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.theme.scaffoldBackgroundColor,
-      body: Stack(
-        children: [
-          Image.asset(
-            AppImages().splashBackground,
-            fit: BoxFit.fill,
-            width: double.infinity,
-            height: double.infinity,
+      body: Center(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(100),
+          child: Image.asset(
+            AppImages.logo,
+            width: 30.w,
           ),
-          Center(
-            child: SvgPicture.asset(
-              AppImages().splashLogo,
-              width: 30.w,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
