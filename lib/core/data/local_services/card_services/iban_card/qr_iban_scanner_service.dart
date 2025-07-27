@@ -1,7 +1,8 @@
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class QRIbanScannerService {
   final ImagePicker _picker = ImagePicker();
@@ -13,7 +14,7 @@ class QRIbanScannerService {
       // Kamera izni kontrol et
       final cameraPermission = await Permission.camera.request();
       if (!cameraPermission.isGranted) {
-        Get.snackbar('Error', 'Camera permission is required');
+        Get.snackbar('Error', 'cameraPermissionRequired'.tr());
         return null;
       }
 
@@ -32,7 +33,7 @@ class QRIbanScannerService {
           await _barcodeScanner.processImage(inputImage);
 
       if (barcodes.isEmpty) {
-        Get.snackbar('Info', 'No QR code found in the image');
+        Get.snackbar('Info', 'noQRCodeFound'.tr());
         return null;
       }
 
@@ -40,7 +41,7 @@ class QRIbanScannerService {
       return _parseQRContent(barcodes.first.rawValue ?? '');
     } catch (e) {
       print('QR scan error: $e');
-      Get.snackbar('Error', 'Failed to scan QR code: ${e.toString()}');
+      Get.snackbar('Error', '${'qrScanError'.tr()}: ${e.toString()}');
       return null;
     }
   }
@@ -60,14 +61,15 @@ class QRIbanScannerService {
           await _barcodeScanner.processImage(inputImage);
 
       if (barcodes.isEmpty) {
-        Get.snackbar('Info', 'No QR code found in the image');
+        Get.snackbar('Info', 'noQRCodeFound'.tr());
         return null;
       }
 
       return _parseQRContent(barcodes.first.rawValue ?? '');
     } catch (e) {
       print('Gallery QR scan error: $e');
-      Get.snackbar('Error', 'Failed to scan QR from gallery: ${e.toString()}');
+      Get.snackbar(
+          'Error', '${'failedToScanQRFromGallery'.tr()}: ${e.toString()}');
       return null;
     }
   }

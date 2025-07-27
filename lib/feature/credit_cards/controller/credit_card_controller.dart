@@ -1,6 +1,8 @@
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
+import 'package:flutter/material.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CreditCardController extends GetxController {
   final CreditCardService _creditCardService = CreditCardService();
@@ -25,7 +27,14 @@ class CreditCardController extends GetxController {
     } catch (e) {
       print('Error loading credit cards: $e');
       // Detaylı hata mesajı göster
-      Get.snackbar('Error', 'Failed to load credit cards: ${e.toString()}');
+      Get.snackbar(
+        "error".tr(),
+        "failedToLoadCreditCards".tr(args: [e.toString()]),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 2),
+      );
       creditCards.value = []; // Hata durumunda boş liste
     } finally {
       isLoading.value = false;
@@ -36,11 +45,24 @@ class CreditCardController extends GetxController {
     try {
       await _creditCardService.removeToCreditCard(creditCard);
       creditCards.remove(creditCard);
-      Get.snackbar('Success', 'Credit card deleted successfully',
-          backgroundColor: Get.theme.primaryColor);
+      Get.snackbar(
+        "success".tr(),
+        "creditCardDeletedSuccessfully".tr(),
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 2),
+      );
     } catch (e) {
       print('Error removing credit card: $e');
-      Get.snackbar('Error', 'Failed to delete credit card: ${e.toString()}');
+      Get.snackbar(
+        "error".tr(),
+        "failedToDeleteCreditCard".tr(args: [e.toString()]),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 2),
+      );
     }
   }
 
@@ -49,11 +71,24 @@ class CreditCardController extends GetxController {
       await _creditCardService.openBox();
       await _creditCardService.addToCreditCard(creditCard);
       await loadCreditCards();
-      Get.snackbar('Success', 'Credit card added successfully',
-          backgroundColor: Get.theme.primaryColor);
+      Get.snackbar(
+        "success".tr(),
+        "creditCardAddedSuccessfully".tr(),
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 2),
+      );
     } catch (e) {
       print('Error adding credit card: $e');
-      Get.snackbar('Error', 'Failed to add credit card: ${e.toString()}');
+      Get.snackbar(
+        "error".tr(),
+        "failedToSaveCreditCard".tr(args: [e.toString()]),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 2),
+      );
     }
   }
 }

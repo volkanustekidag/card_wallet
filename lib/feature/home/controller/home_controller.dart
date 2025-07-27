@@ -30,7 +30,6 @@ class HomeController extends GetxController {
       creditCards.value = creditCardList;
       ibanCards.value = ibanCardList;
     } catch (e) {
-      Get.snackbar('Error', 'Failed to load home content');
     } finally {
       isLoading.value = false;
     }

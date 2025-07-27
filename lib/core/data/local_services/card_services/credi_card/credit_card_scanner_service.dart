@@ -1,4 +1,3 @@
-import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 
@@ -26,8 +25,6 @@ class CreditCardScannerService {
       // Kredi kartı bilgilerini parse et
       return _parseCreditCardInfo(recognizedText.text);
     } catch (e) {
-      print('Credit card scan error: $e');
-      Get.snackbar('Error', 'Failed to scan credit card: ${e.toString()}');
       return null;
     }
   }
@@ -48,8 +45,6 @@ class CreditCardScannerService {
 
       return _parseCreditCardInfo(recognizedText.text);
     } catch (e) {
-      print('Gallery scan error: $e');
-      Get.snackbar('Error', 'Failed to scan from gallery: ${e.toString()}');
       return null;
     }
   }

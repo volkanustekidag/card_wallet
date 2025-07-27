@@ -50,9 +50,7 @@ class BackupService {
           encryptionCipher: HiveAesCipher(encryptionKey),
         );
       }
-    } catch (e) {
-      print('Error opening iban cards box with encryption: $e');
-    }
+    } catch (e) {}
     return await Hive.openBox<IbanCard>(I_CARD_BOX_NAME);
   }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
-import 'package:wallet_app/core/controllers/home_controller.dart';
+import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';

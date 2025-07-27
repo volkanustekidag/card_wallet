@@ -10,6 +10,7 @@ import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_co
 import 'package:wallet_app/feature/add_credit_card/utils/card_number_formatter.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_valid_thru_formatter.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
+import 'package:wallet_app/core/extensions/snack_bars.dart';
 
 class CreditTextFieldForms extends StatefulWidget {
   const CreditTextFieldForms({Key? key}) : super(key: key);
@@ -93,20 +94,10 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
           controller.updateCardField("cardHolder", scannedInfo['cardHolder']!);
         }
 
-        Get.snackbar(
-          'Success',
-          'Credit card scanned successfully!',
-          backgroundColor: Colors.green.withOpacity(0.8),
-          colorText: Colors.white,
-        );
+        context.showSuccessSnackBar('creditCardScannedSuccessfully');
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to scan credit card',
-        backgroundColor: Colors.red.withOpacity(0.8),
-        colorText: Colors.white,
-      );
+      context.showErrorSnackBar('failedToScanCreditCard');
     } finally {
       setState(() {
         _isScanning = false;
@@ -142,20 +133,10 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
           controller.updateCardField("cardHolder", scannedInfo['cardHolder']!);
         }
 
-        Get.snackbar(
-          'Success',
-          'Credit card scanned successfully!',
-          backgroundColor: Colors.green.withOpacity(0.8),
-          colorText: Colors.white,
-        );
+        context.showSuccessSnackBar('creditCardScannedSuccessfully');
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to scan credit card',
-        backgroundColor: Colors.red.withOpacity(0.8),
-        colorText: Colors.white,
-      );
+      context.showErrorSnackBar('failedToScanCreditCard');
     } finally {
       setState(() {
         _isScanning = false;
@@ -176,7 +157,7 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Scan Credit Card',
+              'scanCreditCard'.tr(),
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

@@ -4,7 +4,7 @@ import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_co
 import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
 import 'package:wallet_app/core/controllers/change_pin_controller.dart';
 import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
-import 'package:wallet_app/core/controllers/home_controller.dart';
+import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';

@@ -135,7 +135,7 @@ class QRDialog extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'QR Kod',
+                  'qrCode'.tr(),
                   style: GoogleFonts.poppins(
                     fontSize: 20,
                     color: Theme.of(context).primaryColor,
@@ -199,19 +199,19 @@ class QRDialog extends StatelessWidget {
                 _buildActionButton(
                   context,
                   icon: Icons.copy,
-                  label: 'Kopyala',
+                  label: 'copyQRAction'.tr(),
                   onPressed: () => _copyToClipboard(context),
                 ),
                 _buildActionButton(
                   context,
                   icon: Icons.share,
-                  label: 'Paylaş',
+                  label: 'shareQRAction'.tr(),
                   onPressed: () => _shareQR(),
                 ),
                 _buildActionButton(
                   context,
                   icon: Icons.fullscreen,
-                  label: 'Tam Ekran',
+                  label: 'fullScreenAction'.tr(),
                   onPressed: () {
                     Navigator.of(context).pop();
                     IbanCardUtils.showQRFullScreen(
@@ -251,12 +251,12 @@ class QRDialog extends StatelessWidget {
                 color: Theme.of(context).primaryColor,
               )),
           const SizedBox(height: 12),
-          _buildDetailRow('Alıcı', beneficiaryName),
+          _buildDetailRow('recipient'.tr(), beneficiaryName),
           if (amount != null && amount!.isNotEmpty)
-            _buildDetailRow('Miktar', '$amount ${currency ?? 'EUR'}'),
+            _buildDetailRow('amountLabel'.tr(), '$amount ${currency ?? 'EUR'}'),
           if (reference != null && reference!.isNotEmpty)
-            _buildDetailRow('Referans', reference!),
-          if (format != null) _buildDetailRow('Format', format!.toUpperCase()),
+            _buildDetailRow('referenceLabel'.tr(), reference!),
+          if (format != null) _buildDetailRow('formatLabel'.tr(), format!.toUpperCase()),
         ],
       ),
     );
@@ -331,7 +331,7 @@ class QRDialog extends StatelessWidget {
   void _shareQR() {
     Share.share(
       qrData,
-      subject: 'IBAN Ödeme QR Kodu - $beneficiaryName',
+      subject: '${'qrCodeSubject'.tr()} - $beneficiaryName',
     );
   }
 }
@@ -394,7 +394,7 @@ class QRBottomSheet extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'QR Kod Oluşturuldu',
+                      'qrCodeGenerated'.tr(),
                       style:
                           Theme.of(context).textTheme.headlineSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
@@ -478,7 +478,7 @@ class QRBottomSheet extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Ödeme Bilgileri',
+                  'paymentInformation'.tr(),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -488,14 +488,14 @@ class QRBottomSheet extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            _buildDetailTile(Icons.person, 'Alıcı', beneficiaryName),
+            _buildDetailTile(Icons.person, 'recipient'.tr(), beneficiaryName),
             if (amount != null && amount!.isNotEmpty)
-              _buildDetailTile(Icons.monetization_on, 'Miktar',
+              _buildDetailTile(Icons.monetization_on, 'amountLabel'.tr(),
                   '$amount ${currency ?? 'EUR'}'),
             if (reference != null && reference!.isNotEmpty)
-              _buildDetailTile(Icons.tag, 'Referans', reference!),
+              _buildDetailTile(Icons.tag, 'referenceLabel'.tr(), reference!),
             if (format != null)
-              _buildDetailTile(Icons.qr_code, 'Format', format!.toUpperCase()),
+              _buildDetailTile(Icons.qr_code, 'formatLabel'.tr(), format!.toUpperCase()),
           ],
         ),
       ),
@@ -571,7 +571,7 @@ class QRBottomSheet extends StatelessWidget {
   void _shareQR() {
     Share.share(
       qrData,
-      subject: 'IBAN Ödeme QR Kodu - $beneficiaryName',
+      subject: '${'qrCodeSubject'.tr()} - $beneficiaryName',
     );
   }
 }
@@ -664,7 +664,7 @@ class QRFullScreenPage extends StatelessWidget {
   void _shareQR() {
     Share.share(
       qrData,
-      subject: 'IBAN Ödeme QR Kodu - $beneficiaryName',
+      subject: '${'qrCodeSubject'.tr()} - $beneficiaryName',
     );
   }
 }
@@ -715,22 +715,22 @@ class _QRGeneratorExampleState extends State<QRGeneratorExample> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('QR Generator Demo')),
+      appBar: AppBar(title: Text('qrGeneratorDemo'.tr())),
       body: Padding(
         padding: EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(
               controller: ibanController,
-              decoration: InputDecoration(labelText: 'IBAN'),
+              decoration: InputDecoration(labelText: 'ibanFieldLabel'.tr()),
             ),
             TextField(
               controller: nameController,
-              decoration: InputDecoration(labelText: 'Alıcı Adı'),
+              decoration: InputDecoration(labelText: 'recipientNameLabel'.tr()),
             ),
             TextField(
               controller: amountController,
-              decoration: InputDecoration(labelText: 'Miktar'),
+              decoration: InputDecoration(labelText: 'amountFieldLabel'.tr()),
             ),
             SizedBox(height: 20),
             Row(
@@ -738,14 +738,14 @@ class _QRGeneratorExampleState extends State<QRGeneratorExample> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _generateAndShowQR,
-                    child: Text('Dialog Göster'),
+                    child: Text('showDialog'.tr()),
                   ),
                 ),
                 SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _generateAndShowBottomSheet,
-                    child: Text('Bottom Sheet'),
+                    child: Text('showBottomSheet'.tr()),
                   ),
                 ),
               ],

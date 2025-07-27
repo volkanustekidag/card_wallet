@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
+import 'package:wallet_app/core/extensions/snack_bars.dart';
 
 class PremiumPage extends StatefulWidget {
   const PremiumPage({Key? key}) : super(key: key);
@@ -36,7 +38,7 @@ class _PremiumPageState extends State<PremiumPage> {
           onPressed: () => Get.back(),
         ),
         title: Text(
-          'Premium',
+          'premium'.tr(),
           style: GoogleFonts.poppins(
             color: colorScheme.onSurface,
             fontWeight: FontWeight.w600,
@@ -83,7 +85,7 @@ class _PremiumPageState extends State<PremiumPage> {
 
                 // Title
                 Text(
-                  'Upgrade to Premium',
+                  'upgradeToPremium'.tr(),
                   style: GoogleFonts.poppins(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -95,7 +97,7 @@ class _PremiumPageState extends State<PremiumPage> {
 
                 // Description
                 Text(
-                  'You\'ve reached the free limit of 3 cards!\nUpgrade to Premium for unlimited cards and ad-free experience.',
+                  'premiumDescription'.tr(),
                   style: GoogleFonts.poppins(
                     fontSize: 16,
                     color: colorScheme.onSurface.withOpacity(0.7),
@@ -127,11 +129,11 @@ class _PremiumPageState extends State<PremiumPage> {
 
   Widget _buildFeaturesList(ColorScheme colorScheme) {
     final features = [
-      'Unlimited credit cards',
-      'Unlimited IBAN cards',
-      'Ad-free experience',
-      'Premium support',
-      'Future premium features',
+      'unlimitedCreditCards'.tr(),
+      'unlimitedIbanCards'.tr(),
+      'adFreeExperience'.tr(),
+      'premiumSupport'.tr(),
+      'futurePremiumFeatures'.tr(),
     ];
 
     return Container(
@@ -202,20 +204,10 @@ class _PremiumPageState extends State<PremiumPage> {
           if (success) {
             // Sadece başarılı olursa sayfadan çık
             Get.back();
-            Get.snackbar(
-              'Success',
-              'Premium activated! Enjoy unlimited cards and ad-free experience.',
-              backgroundColor: Colors.green,
-              colorText: Colors.white,
-            );
+            context.showSuccessSnackBar('premiumActivated');
           } else {
             // Başarısız olursa sayfada kal ve hata göster
-            Get.snackbar(
-              'Error',
-              'Purchase failed. Please try again.',
-              backgroundColor: Colors.red,
-              colorText: Colors.white,
-            );
+            context.showErrorSnackBar('purchaseFailed');
           }
         },
         style: ElevatedButton.styleFrom(
@@ -233,7 +225,7 @@ class _PremiumPageState extends State<PremiumPage> {
             const Icon(Icons.workspace_premium, size: 24),
             const SizedBox(width: 12),
             Text(
-              'Get Premium - ${product.price}',
+              '${'getPremium'.tr()} - ${product.price}',
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -249,15 +241,10 @@ class _PremiumPageState extends State<PremiumPage> {
     return TextButton(
       onPressed: () async {
         await _premiumController.restorePurchases();
-        Get.snackbar(
-          'Restore',
-          'Purchase restoration completed.',
-          backgroundColor: colorScheme.primary,
-          colorText: colorScheme.onPrimary,
-        );
+        context.showInfoSnackBar('purchaseRestoreCompleted');
       },
       child: Text(
-        'Restore Purchases',
+        'restorePurchases'.tr(),
         style: GoogleFonts.poppins(
           fontSize: 16,
           color: colorScheme.primary,

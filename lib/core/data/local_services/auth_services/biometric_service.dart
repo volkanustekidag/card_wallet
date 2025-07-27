@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class BiometricService {
   static final BiometricService _instance = BiometricService._internal();
@@ -9,7 +10,7 @@ class BiometricService {
 
   final LocalAuthentication _localAuth = LocalAuthentication();
   static const _storage = FlutterSecureStorage();
-  
+
   // Storage keys
   static const String _biometricEnabledKey = 'biometric_enabled';
   static const String _autoLockTimeKey = 'auto_lock_time';
@@ -54,15 +55,16 @@ class BiometricService {
   /// Enable or disable biometric authentication
   Future<void> setBiometricEnabled(bool enabled) async {
     try {
-      await _storage.write(key: _biometricEnabledKey, value: enabled.toString());
+      await _storage.write(
+          key: _biometricEnabledKey, value: enabled.toString());
     } catch (e) {
-      throw Exception('Biometric ayarı kaydedilemedi: $e');
+      throw Exception('${'biometricSettingsSaveError'.tr()}: $e');
     }
   }
 
   /// Authenticate using biometric
   Future<bool> authenticateWithBiometric({
-    String localizedReason = 'Uygulamaya erişmek için kimlik doğrulaması yapın',
+    String? localizedReason,
     bool useErrorDialogs = true,
     bool stickyAuth = true,
   }) async {
@@ -70,18 +72,18 @@ class BiometricService {
       // Check if biometric is available
       final bool isAvailable = await isBiometricAvailable();
       if (!isAvailable) {
-        throw BiometricException('Biometric doğrulama cihazda desteklenmiyor');
+        throw BiometricException('biometricNotSupported'.tr());
       }
 
       // Check if biometric is enabled
       final bool isEnabled = await isBiometricEnabled();
       if (!isEnabled) {
-        throw BiometricException('Biometric doğrulama etkinleştirilmemiş');
+        throw BiometricException('biometricNotEnabled'.tr());
       }
 
       // Perform authentication
       final bool didAuthenticate = await _localAuth.authenticate(
-        localizedReason: localizedReason,
+        localizedReason: localizedReason ?? 'biometricAuthenticateReason'.tr(),
         options: AuthenticationOptions(
           useErrorDialogs: useErrorDialogs,
           stickyAuth: stickyAuth,
@@ -97,7 +99,7 @@ class BiometricService {
     } on PlatformException catch (e) {
       throw BiometricException(_handlePlatformException(e));
     } catch (e) {
-      throw BiometricException('Biometric doğrulama hatası: $e');
+      throw BiometricException('${'biometricAuthError'.tr()}: $e');
     }
   }
 
@@ -106,7 +108,7 @@ class BiometricService {
     try {
       await _storage.write(key: _autoLockTimeKey, value: minutes.toString());
     } catch (e) {
-      throw Exception('Otomatik kilit süresi kaydedilemedi: $e');
+      throw Exception('${'autoLockTimeSaveError'.tr()}: $e');
     }
   }
 
@@ -133,13 +135,14 @@ class BiometricService {
   /// Check if app should be locked based on auto-lock timer
   Future<bool> shouldLockApp() async {
     try {
-      final String? lastActiveStr = await _storage.read(key: _lastActiveTimeKey);
+      final String? lastActiveStr =
+          await _storage.read(key: _lastActiveTimeKey);
       if (lastActiveStr == null) return true;
 
       final int lastActive = int.tryParse(lastActiveStr) ?? 0;
       final int autoLockMinutes = await getAutoLockTime();
       final int autoLockMs = autoLockMinutes * 60 * 1000;
-      
+
       final int now = DateTime.now().millisecondsSinceEpoch;
       final int timeDiff = now - lastActive;
 
@@ -152,17 +155,17 @@ class BiometricService {
   /// Get biometric type display name
   String getBiometricTypeDisplayName(List<BiometricType> types) {
     if (types.contains(BiometricType.face)) {
-      return 'Yüz Tanıma';
+      return 'faceRecognition'.tr();
     } else if (types.contains(BiometricType.fingerprint)) {
-      return 'Parmak İzi';
+      return 'fingerprint'.tr();
     } else if (types.contains(BiometricType.iris)) {
-      return 'Iris Tanıma';
+      return 'irisRecognition'.tr();
     } else if (types.contains(BiometricType.strong)) {
-      return 'Güçlü Biometric';
+      return 'strongBiometric'.tr();
     } else if (types.contains(BiometricType.weak)) {
-      return 'Biometric';
+      return 'biometric'.tr();
     } else {
-      return 'Biometric Doğrulama';
+      return 'biometricAuthentication'.tr();
     }
   }
 
@@ -170,25 +173,25 @@ class BiometricService {
   String _handlePlatformException(PlatformException e) {
     switch (e.code) {
       case 'NotAvailable':
-        return 'Biometric doğrulama bu cihazda mevcut değil';
+        return 'biometricNotAvailable'.tr();
       case 'NotEnrolled':
-        return 'Cihazınızda kayıtlı biometric bilgi bulunamadı';
+        return 'biometricNotEnrolled'.tr();
       case 'LockedOut':
-        return 'Çok fazla başarısız deneme. Lütfen daha sonra tekrar deneyin';
+        return 'biometricLockedOut'.tr();
       case 'PermanentlyLockedOut':
-        return 'Biometric doğrulama kalıcı olarak kilitlendi';
+        return 'biometricPermanentlyLockedOut'.tr();
       case 'UserCancel':
-        return 'Kullanıcı tarafından iptal edildi';
+        return 'biometricUserCancel'.tr();
       case 'UserFallback':
-        return 'Kullanıcı alternatif yöntem seçti';
+        return 'biometricUserFallback'.tr();
       case 'SystemCancel':
-        return 'Sistem tarafından iptal edildi';
+        return 'biometricSystemCancel'.tr();
       case 'InvalidContext':
-        return 'Geçersiz bağlam';
+        return 'biometricInvalidContext'.tr();
       case 'NotSupported':
-        return 'Bu işlem desteklenmiyor';
+        return 'biometricOperationNotSupported'.tr();
       default:
-        return 'Bilinmeyen hata: ${e.message}';
+        return '${'biometricUnknownError'.tr()}: ${e.message}';
     }
   }
 
@@ -208,7 +211,7 @@ class BiometricService {
 class BiometricException implements Exception {
   final String message;
   BiometricException(this.message);
-  
+
   @override
   String toString() => 'BiometricException: $message';
 }
@@ -216,9 +219,9 @@ class BiometricException implements Exception {
 /// Auto-lock time options
 class AutoLockTime {
   static const List<int> options = [1, 2, 5, 10, 15, 30]; // minutes
-  
+
   static String getDisplayText(int minutes) {
-    if (minutes == 1) return '1 dakika';
-    return '$minutes dakika';
+    if (minutes == 1) return 'oneMinute'.tr();
+    return '$minutes ${'minutes'.tr()}';
   }
 }

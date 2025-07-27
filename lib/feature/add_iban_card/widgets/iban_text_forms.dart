@@ -6,6 +6,7 @@ import 'package:wallet_app/core/data/local_services/card_services/iban_card/qr_i
 import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
 import 'package:wallet_app/feature/add_iban_card/widgets/iban_text_field.dart';
 import 'package:wallet_app/feature/add_iban_card/widgets/text_field_card.dart';
+import 'package:wallet_app/core/extensions/snack_bars.dart';
 
 class IbanTextFieldForms extends StatefulWidget {
   final TextEditingController ibanController;
@@ -96,20 +97,10 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
           controller.updateCardField("swiftCode", scannedInfo['swiftCode']!);
         }
 
-        Get.snackbar(
-          'Success',
-          'qrScanSuccess'.tr(),
-          backgroundColor: Colors.green.withOpacity(0.8),
-          colorText: Colors.white,
-        );
+        context.showSuccessSnackBar('qrScanSuccess');
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to scan QR code',
-        backgroundColor: Colors.red.withOpacity(0.8),
-        colorText: Colors.white,
-      );
+      context.showErrorSnackBar('Failed to scan QR code');
     } finally {
       setState(() {
         _isScanning = false;
@@ -148,20 +139,10 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
           controller.updateCardField("swiftCode", scannedInfo['swiftCode']!);
         }
 
-        Get.snackbar(
-          'Success',
-          'qrScanSuccess'.tr(),
-          backgroundColor: Colors.green.withOpacity(0.8),
-          colorText: Colors.white,
-        );
+        context.showSuccessSnackBar('qrScanSuccess');
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to scan QR code',
-        backgroundColor: Colors.red.withOpacity(0.8),
-        colorText: Colors.white,
-      );
+      context.showErrorSnackBar('Failed to scan QR code');
     } finally {
       setState(() {
         _isScanning = false;

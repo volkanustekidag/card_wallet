@@ -33,59 +33,49 @@ class AppRoutes {
       name: auth,
       page: () => const AuthenticationPage(),
       binding: AuthBindings(),
-      transition: Transition.fadeIn,
     ),
     GetPage(
       name: home,
       page: () => const HomePage(),
       binding: HomeBindings(),
-      transition: Transition.upToDown,
     ),
     GetPage(
       name: settings,
       page: () => const SettingsPage(),
-      transition: Transition.rightToLeft,
     ),
     GetPage(
       name: changePin,
       page: () => ChangePinPage(),
       binding: ChangePinBindings(),
-      transition: Transition.rightToLeft,
     ),
     GetPage(
       name: creditCards,
       page: () => const CreditCardsPage(),
       binding: CreditCardBindings(),
-      transition: Transition.rightToLeft,
     ),
     GetPage(
       name: ibanCards,
       page: () => const IbanCardsPage(),
       binding: IbanCardBindings(),
-      transition: Transition.rightToLeft,
     ),
     GetPage(
       name: addCreditCard,
       page: () => const AddCreditCardPage(),
       binding: AddCreditCardBindings(),
-      transition: Transition.downToUp,
     ),
     GetPage(
       name: addIbanCard,
       page: () => const AddIbanCardPage(),
       binding: AddIbanCardBindings(),
-      transition: Transition.upToDown,
     ),
     GetPage(
       name: changePin,
       page: () => ChangePinPage(),
       binding: ChangePinBindings(),
-      transition: Transition.upToDown,
     ),
     GetPage(
       name: premium,
       page: () => const PremiumPage(),
-      transition: Transition.rightToLeft,
     ),
   ];
 }

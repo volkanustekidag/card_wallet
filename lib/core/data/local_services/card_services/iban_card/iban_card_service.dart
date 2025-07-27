@@ -54,7 +54,6 @@ class IbanCardService {
       // Model artık hem int hem string ID'leri handle ediyor
       return _ibanCard.values.toList();
     } catch (e) {
-      print('Error getting all IBAN cards: $e');
       return [];
     }
   }
@@ -63,7 +62,6 @@ class IbanCardService {
     try {
       await _ibanCard.add(ibanCard);
     } catch (e) {
-      print('Error adding IBAN card: $e');
       throw Exception('Failed to add IBAN card');
     }
   }
@@ -76,7 +74,6 @@ class IbanCardService {
       });
       await ibanCardToRemove.delete();
     } catch (e) {
-      print('Error removing IBAN card: $e');
       throw Exception('IBAN card not found');
     }
   }
@@ -96,7 +93,6 @@ class IbanCardService {
         throw Exception('IBAN card not found for update');
       }
     } catch (e) {
-      print('Error updating IBAN card: $e');
       throw Exception('Failed to update IBAN card');
     }
   }

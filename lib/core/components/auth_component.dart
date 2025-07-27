@@ -97,7 +97,7 @@ class AuthViews extends StatelessWidget {
                     return Column(
                       children: [
                         Text(
-                          'veya',
+                          "or".tr(),
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: color.onSurface.withValues(alpha: 0.6),
                           ),

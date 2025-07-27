@@ -31,6 +31,7 @@ class IbanCardsBody extends StatelessWidget {
 
           return ListView(
             shrinkWrap: true,
+            clipBehavior: Clip.none,
             children: controller.ibanCards
                 .map<Widget>(
                   (ibanCard) => Row(
@@ -235,7 +236,8 @@ class IbanCardsBody extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
             child: Text(
               'cancel'.tr(),
@@ -267,7 +269,8 @@ class IbanCardsBody extends StatelessWidget {
               backgroundColor: Theme.of(context).primaryColor,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
             child: Text(
               'qrCodeGenerate'.tr(),
@@ -541,7 +544,8 @@ class IbanCardsBody extends StatelessWidget {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
             child: Text(
               'ok'.tr(),
@@ -561,6 +565,8 @@ class IbanCardsBody extends StatelessWidget {
       context: context,
       builder: (context) {
         return CustomDialog(
+          title: 'deleteIbanCard'.tr(),
+          content: 'deleteDataMessage'.tr(),
           onConfirm: () {
             onConfirm();
             Get.back();

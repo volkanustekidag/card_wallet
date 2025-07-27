@@ -2,9 +2,10 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
-import 'package:wallet_app/core/controllers/home_controller.dart';
+import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/services/admob_service.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class DashedEmptyCard extends StatelessWidget {
   final String route;
@@ -77,7 +78,7 @@ class DashedEmptyCard extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Tap to add your first card',
+                    "tapToAdd".tr(),
                     style: GoogleFonts.poppins(
                       color: theme.colorScheme.onSurface.withOpacity(0.7),
                       fontSize: 14,

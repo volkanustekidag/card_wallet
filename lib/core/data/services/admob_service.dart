@@ -1,8 +1,10 @@
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdMobService {
-  static const String _bannerAdUnitId = 'ca-app-pub-7579710244323779/9583261767';
-  static const String _interstitialAdUnitId = 'ca-app-pub-7579710244323779/6994140338';
+  static const String _bannerAdUnitId =
+      'ca-app-pub-7579710244323779/9583261767';
+  static const String _interstitialAdUnitId =
+      'ca-app-pub-7579710244323779/6994140338';
 
   static InterstitialAd? _interstitialAd;
   static bool _isInterstitialAdReady = false;
@@ -18,11 +20,8 @@ class AdMobService {
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(
-        onAdLoaded: (ad) {
-          print('Banner ad loaded successfully');
-        },
+        onAdLoaded: (ad) {},
         onAdFailedToLoad: (ad, error) {
-          print('Banner ad failed to load: $error');
           ad.dispose();
         },
       ),
@@ -39,8 +38,9 @@ class AdMobService {
           _interstitialAd = ad;
           _isInterstitialAdReady = true;
           print('Interstitial ad loaded successfully');
-          
-          _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
+
+          _interstitialAd!.fullScreenContentCallback =
+              FullScreenContentCallback(
             onAdDismissedFullScreenContent: (ad) {
               ad.dispose();
               _isInterstitialAdReady = false;
@@ -49,13 +49,11 @@ class AdMobService {
             onAdFailedToShowFullScreenContent: (ad, error) {
               ad.dispose();
               _isInterstitialAdReady = false;
-              print('Interstitial ad failed to show: $error');
               loadInterstitialAd(); // Yeni reklam yükle
             },
           );
         },
         onAdFailedToLoad: (error) {
-          print('Interstitial ad failed to load: $error');
           _isInterstitialAdReady = false;
         },
       ),
@@ -66,7 +64,6 @@ class AdMobService {
     if (_isInterstitialAdReady && _interstitialAd != null) {
       await _interstitialAd!.show();
     } else {
-      print('Interstitial ad is not ready yet');
       await loadInterstitialAd(); // Reklam hazır değilse yükle
     }
   }

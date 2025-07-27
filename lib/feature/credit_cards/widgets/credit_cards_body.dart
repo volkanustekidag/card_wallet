@@ -157,6 +157,8 @@ class _BodyState extends State<Body> {
       context: context,
       builder: (context) {
         return CustomDialog(
+          title: 'deleteCreditCard'.tr(),
+          content: 'deleteDataMessage'.tr(),
           onConfirm: () async {
             await onConfirm();
             Get.back();

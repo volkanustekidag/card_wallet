@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
@@ -115,8 +116,14 @@ class AddIbanCardController extends GetxController {
 
         await _ibanCardService.updateIbanCard(_originalCard!, updatedCard);
         Get.back();
-        Get.snackbar('Success', 'IBAN card updated successfully',
-            backgroundColor: Get.theme.primaryColor);
+        Get.snackbar(
+          'Success', 
+          'IBAN card updated successfully',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          duration: Duration(seconds: 2),
+        );
       } else {
         // Yeni kart ekleme işlemi - yeni string ID
         final newCard = IbanCard(
@@ -131,8 +138,14 @@ class AddIbanCardController extends GetxController {
 
         await _ibanCardService.addIbanCard(newCard);
         Get.back();
-        Get.snackbar('Success', 'IBAN card added successfully',
-            backgroundColor: Get.theme.primaryColor);
+        Get.snackbar(
+          'Success', 
+          'IBAN card added successfully',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          duration: Duration(seconds: 2),
+        );
       }
 
       // IBAN kartları yeniden yükle
@@ -141,7 +154,14 @@ class AddIbanCardController extends GetxController {
       resetCard();
     } catch (e) {
       print('Error saving IBAN card: $e');
-      Get.snackbar('Error', 'Failed to save IBAN card: ${e.toString()}');
+      Get.snackbar(
+        'Error', 
+        'Failed to save IBAN card: ${e.toString()}',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 2),
+      );
     } finally {
       isLoading.value = false;
     }
