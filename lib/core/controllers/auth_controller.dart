@@ -43,6 +43,9 @@ class AuthController extends GetxController {
         hasPassword.value = true;
         isRegistering.value = false;
       }
+      
+      // After checking password, update biometric button visibility
+      await checkBiometricAvailability();
     } catch (e) {
       Get.snackbar('Error', 'An error occurred while checking password');
     } finally {
@@ -96,11 +99,19 @@ class AuthController extends GetxController {
           await _biometricService.getAvailableBiometrics();
       isBiometricEnabled.value = await _biometricService.isBiometricEnabled();
 
+      print('Biometric available: ${isBiometricAvailable.value}');
+      print('Biometric enabled: ${isBiometricEnabled.value}');
+      print('Has password: ${hasPassword.value}');
+      print('Available biometrics: ${availableBiometrics.value}');
+
       // Show biometric button only if available, enabled, and user has password
       showBiometricButton.value = isBiometricAvailable.value &&
           isBiometricEnabled.value &&
           hasPassword.value;
+      
+      print('Show biometric button: ${showBiometricButton.value}');
     } catch (e) {
+      print('Biometric check error: $e');
       isBiometricAvailable.value = false;
       isBiometricEnabled.value = false;
       showBiometricButton.value = false;
@@ -137,31 +148,64 @@ class AuthController extends GetxController {
   /// Enable or disable biometric authentication
   Future<void> toggleBiometric(bool enabled) async {
     try {
+      print('Toggle biometric called with enabled: $enabled');
+      
       if (enabled) {
-        // First authenticate with biometric to ensure it works
-        final success = await _biometricService.authenticateWithBiometric(
-          localizedReason:
-              'Biometric doğrulamayı etkinleştirmek için kimlik doğrulaması yapın',
-        );
+        print('Attempting to enable biometric...');
+        
+        // Check if biometric is available first
+        final isAvailable = await _biometricService.isBiometricAvailable();
+        if (!isAvailable) {
+          Get.snackbar('Hata', 'Biometric doğrulama cihazda desteklenmiyor');
+          return;
+        }
+        
+        // Temporarily enable biometric to test authentication
+        await _biometricService.setBiometricEnabled(true);
+        
+        try {
+          // Test authenticate with biometric to ensure it works
+          final success = await _biometricService.authenticateWithBiometric(
+            localizedReason:
+                'Biometric doğrulamayı etkinleştirmek için kimlik doğrulaması yapın',
+          );
 
-        if (success) {
-          await _biometricService.setBiometricEnabled(true);
-          isBiometricEnabled.value = true;
-          showBiometricButton.value = true;
-          Get.snackbar('Başarılı', 'Biometric doğrulama etkinleştirildi');
-        } else {
-          Get.snackbar('Hata', 'Biometric doğrulama başarısız');
+          print('Biometric authentication result: $success');
+
+          if (success) {
+            isBiometricEnabled.value = true;
+            showBiometricButton.value = true;
+            Get.snackbar('Başarılı', 'Biometric doğrulama etkinleştirildi');
+            print('Biometric enabled successfully');
+          } else {
+            // If authentication failed, disable it again
+            await _biometricService.setBiometricEnabled(false);
+            isBiometricEnabled.value = false;
+            showBiometricButton.value = false;
+            Get.snackbar('Hata', 'Biometric doğrulama başarısız');
+            print('Biometric authentication failed');
+          }
+        } catch (e) {
+          // If any error occurs, disable it again
+          await _biometricService.setBiometricEnabled(false);
+          isBiometricEnabled.value = false;
+          showBiometricButton.value = false;
+          throw e;
         }
       } else {
+        print('Disabling biometric...');
         await _biometricService.setBiometricEnabled(false);
         isBiometricEnabled.value = false;
         showBiometricButton.value = false;
         Get.snackbar('Başarılı', 'Biometric doğrulama devre dışı bırakıldı');
+        print('Biometric disabled successfully');
       }
     } on BiometricException catch (e) {
+      print('BiometricException: ${e.message}');
       Get.snackbar('Biometric Hata', e.message);
     } catch (e) {
-      Get.snackbar('Hata', 'Biometric ayarı değiştirilemedi');
+      print('General error in toggleBiometric: $e');
+      Get.snackbar('Hata', 'Biometric ayarı değiştirilemedi: $e');
     }
   }
 

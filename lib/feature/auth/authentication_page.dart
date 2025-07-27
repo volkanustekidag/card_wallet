@@ -11,7 +11,6 @@ class AuthenticationPage extends StatefulWidget {
 }
 
 class _AuthenticationPageState extends State<AuthenticationPage> {
-  final TextEditingController _textEditingController = TextEditingController();
   late final AuthController _authController;
 
   @override
@@ -31,7 +30,6 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     } else {
       _authController.login(password);
     }
-    _textEditingController.clear();
   }
 
   @override
@@ -49,10 +47,9 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
           );
         }
 
-        // Clear text field if authentication failed
+        // Reset authentication state if failed
         if (_authController.authenticationFailed.value) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            _textEditingController.clear();
             _authController.resetAuthenticationState();
           });
         }
@@ -60,7 +57,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
         // Show registration screen if no password exists
         if (_authController.isRegistering.value) {
           return AuthViews(
-            textEditingController: _textEditingController,
+            textEditingController: TextEditingController(),
             text: "createPin",
             onCompleted: _handlePinCompleted,
           );
@@ -68,7 +65,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
         // Show login screen (default state)
         return AuthViews(
-          textEditingController: _textEditingController,
+          textEditingController: TextEditingController(),
           text: "enterPin",
           onCompleted: _handlePinCompleted,
         );

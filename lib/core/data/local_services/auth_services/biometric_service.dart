@@ -20,8 +20,11 @@ class BiometricService {
     try {
       final bool isAvailable = await _localAuth.canCheckBiometrics;
       final bool isDeviceSupported = await _localAuth.isDeviceSupported();
+      print('Can check biometrics: $isAvailable');
+      print('Device supported: $isDeviceSupported');
       return isAvailable && isDeviceSupported;
     } catch (e) {
+      print('Error checking biometric availability: $e');
       return false;
     }
   }
@@ -29,8 +32,11 @@ class BiometricService {
   /// Get available biometric types
   Future<List<BiometricType>> getAvailableBiometrics() async {
     try {
-      return await _localAuth.getAvailableBiometrics();
+      final biometrics = await _localAuth.getAvailableBiometrics();
+      print('Raw biometrics from device: $biometrics');
+      return biometrics;
     } catch (e) {
+      print('Error getting biometrics: $e');
       return [];
     }
   }
@@ -79,7 +85,7 @@ class BiometricService {
         options: AuthenticationOptions(
           useErrorDialogs: useErrorDialogs,
           stickyAuth: stickyAuth,
-          biometricOnly: true,
+          biometricOnly: false, // Allow all available authentication methods
         ),
       );
 

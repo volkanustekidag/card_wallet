@@ -99,6 +99,7 @@ class HomeBody extends StatelessWidget {
                             ),
                     ],
                   ),
+                  SizedBox(height: 40),
                 ],
               ),
             ],
@@ -210,8 +211,10 @@ class HomeBody extends StatelessWidget {
                       // Title
                       Text(
                         title,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                         style: GoogleFonts.poppins(
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
