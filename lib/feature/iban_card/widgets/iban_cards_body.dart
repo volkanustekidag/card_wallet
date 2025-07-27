@@ -4,7 +4,7 @@ import 'package:get/get.dart' hide Trans;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/core/constants/paddings.dart';
-import 'package:wallet_app/core/controllers/iban_card_controller.dart';
+import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/widgets/empty_list_info.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/widgets/mini_iban_card_widget.dart';

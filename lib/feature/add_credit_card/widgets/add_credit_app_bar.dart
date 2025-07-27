@@ -13,7 +13,7 @@ class AddCreditAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<AddCreditCardController>();
+    final controller = Get.put(AddCreditCardController());
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 

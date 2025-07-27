@@ -1,12 +1,11 @@
 import 'package:get/get.dart';
-import 'package:wallet_app/core/controllers/iban_card_controller.dart';
+import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
+import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 
 class AddIbanCardController extends GetxController {
   final IbanCardService _ibanCardService = IbanCardService();
-
-  AddIbanCardController();
 
   var currentCard = IbanCard(
     id: "",
@@ -90,6 +89,19 @@ class AddIbanCardController extends GetxController {
     try {
       isLoading.value = true;
       await _ibanCardService.openBox();
+
+      // Premium kontrolü sadece yeni kart eklerken
+      if (!isEditMode.value) {
+        final ibanCardController = Get.put(IbanCardController());
+        final premiumController = Get.find<PremiumController>();
+
+        final currentCount = ibanCardController.ibanCards.length;
+        if (!premiumController.canAddMoreIbanCards(currentCount)) {
+          // Direkt premium sayfasına yönlendir
+          Get.toNamed('/premium');
+          return;
+        }
+      }
 
       if (isEditMode.value && _originalCard != null) {
         // Güncelleme işlemi - orijinal ID'yi koru

@@ -35,7 +35,7 @@ class CreditCardController extends GetxController {
   Future<void> removeCreditCard(CreditCard creditCard) async {
     try {
       await _creditCardService.removeToCreditCard(creditCard);
-      await loadCreditCards();
+      creditCards.remove(creditCard);
       Get.snackbar('Success', 'Credit card deleted successfully',
           backgroundColor: Get.theme.primaryColor);
     } catch (e) {

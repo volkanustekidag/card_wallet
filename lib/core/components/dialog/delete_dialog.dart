@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart' hide Trans;
-import 'package:google_fonts/google_fonts.dart';
-import 'package:sizer/sizer.dart';
+
 import 'package:easy_localization/easy_localization.dart';
-import 'package:wallet_app/core/constants/paddings.dart';
 
 class CustomDialog extends StatelessWidget {
   const CustomDialog({
@@ -19,63 +16,23 @@ class CustomDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        height: 40.h,
-        width: 80.w,
-        decoration: BoxDecoration(
-            color: context.theme.scaffoldBackgroundColor,
-            borderRadius: BorderRadius.circular(20)),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Icon(
-              Icons.info,
-              size: 18.w,
-            ),
-            Padding(
-              padding: PaddingConstants.normal(),
-              child: DefaultTextStyle(
-                style: GoogleFonts.poppins(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                  color: context.theme.colorScheme.onSurface,
-                ),
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-            Padding(
-              padding: PaddingConstants.normal(),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(),
-                    child: Text(cancelText),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (onConfirm != null) {
-                        await onConfirm!();
-                      }
-                      Navigator.pop(context);
-                    },
-                    style: ElevatedButton.styleFrom(),
-                    child: Text("delete".tr()),
-                  ),
-                ],
-              ),
-            )
-          ],
+    return AlertDialog(
+      title: Text(title.tr()),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text('cancel'.tr()),
         ),
-      ),
+        TextButton(
+          onPressed: () {
+            if (onConfirm != null) {
+              onConfirm!();
+            }
+            Navigator.pop(context);
+          },
+          child: Text('yes'.tr()),
+        ),
+      ],
     );
   }
 }

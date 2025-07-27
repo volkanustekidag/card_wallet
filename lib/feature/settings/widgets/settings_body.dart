@@ -6,10 +6,11 @@ import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
+import 'package:wallet_app/core/widgets/premium_status_widget.dart';
+import 'package:wallet_app/core/widgets/premium_upgrade_widget.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/lang_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/privacy_policy_bottom_sheet.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
-import 'package:wallet_app/feature/settings/widgets/premium_card.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_card.dart';
 import 'package:wallet_app/core/data/services/backup_service.dart';
 
@@ -45,7 +46,8 @@ class _SettingsBodyState extends State<SettingsBody> {
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
           children: [
-            PremiumCard(),
+            PremiumUpgradeWidget(margin: EdgeInsets.only(bottom: 16)),
+            PremiumStatusWidget(margin: EdgeInsets.only(bottom: 16)),
             SettingsCard(
               iconData: Icons.lightbulb,
               title: "theme".tr(),
@@ -92,7 +94,7 @@ class _SettingsBodyState extends State<SettingsBody> {
                   onChanged: (value) {
                     authController.toggleBiometric(value);
                   },
-                  activeColor: Colors.green,
+                  activeColor: Colors.blue,
                 ),
                 onTap: () {
                   authController.toggleBiometric(
@@ -230,6 +232,8 @@ class _SettingsBodyState extends State<SettingsBody> {
       context: context,
       builder: (context) {
         return CustomDialog(
+          title: "areUSure".tr(),
+          cancelText: "cancel".tr(),
           onConfirm: () async {
             await CreditCardService().deleteAllData();
 

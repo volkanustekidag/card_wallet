@@ -4,7 +4,7 @@ import 'package:get/get.dart' hide Trans;
 import 'package:flip_card/flip_card.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
-import 'package:wallet_app/core/controllers/credit_card_controller.dart';
+import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
 import 'package:wallet_app/core/widgets/credit_card_back.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
 import 'package:wallet_app/core/widgets/empty_list_info.dart';

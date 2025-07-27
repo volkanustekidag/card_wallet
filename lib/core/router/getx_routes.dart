@@ -7,6 +7,7 @@ import 'package:wallet_app/feature/change_pin/change_pin_page.dart';
 import 'package:wallet_app/feature/credit_cards/credit_cards_page.dart';
 import 'package:wallet_app/feature/home/home_page.dart';
 import 'package:wallet_app/feature/iban_card/iban_cards_page.dart';
+import 'package:wallet_app/feature/premium/premium_page.dart';
 import 'package:wallet_app/feature/settings/settings_page.dart';
 import 'package:wallet_app/feature/splash/splash_page.dart';
 
@@ -20,6 +21,7 @@ class AppRoutes {
   static const String ibanCards = '/ibanCards';
   static const String addCreditCard = '/addCreditCard';
   static const String addIbanCard = '/addIbanCard';
+  static const String premium = '/premium';
 
   static List<GetPage> routes = [
     GetPage(
@@ -79,6 +81,11 @@ class AppRoutes {
       page: () => ChangePinPage(),
       binding: ChangePinBindings(),
       transition: Transition.upToDown,
+    ),
+    GetPage(
+      name: premium,
+      page: () => const PremiumPage(),
+      transition: Transition.rightToLeft,
     ),
   ];
 }

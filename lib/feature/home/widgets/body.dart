@@ -3,8 +3,13 @@ import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/controllers/home_controller.dart';
+import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
+import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
+import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/services/admob_service.dart';
 import 'package:wallet_app/core/widgets/background_shapes_painter.dart';
+import 'package:wallet_app/core/widgets/premium_crown_widget.dart';
+import 'package:wallet_app/core/widgets/premium_upgrade_widget.dart';
 import 'package:wallet_app/feature/home/widgets/cards_list_view.dart';
 import 'package:wallet_app/feature/home/widgets/dashed_empty_card.dart';
 import 'package:wallet_app/feature/home/widgets/row_titles.dart';
@@ -38,7 +43,11 @@ class HomeBody extends StatelessWidget {
                     leading: IconButton(
                       icon: Icon(Icons.menu_rounded, size: 20.sp),
                       onPressed: () async {
-                        await AdMobService.showInterstitialAd();
+                        final premiumController = Get.find<PremiumController>();
+                        // Premium kullanıcılara interstitial reklam gösterme
+                        if (!premiumController.isPremium) {
+                          await AdMobService.showInterstitialAd();
+                        }
                         Get.toNamed('/settings')?.then(
                           (value) => controller.refreshData(),
                         );
@@ -54,12 +63,18 @@ class HomeBody extends StatelessWidget {
                         height: 1.1,
                       ),
                     ),
+                    actions: [
+                      const PremiumCrownWidget(size: 20),
+                    ],
                   ),
+
+                  // Premium upgrade banner for non-premium users / Premium status for premium users
+                  const PremiumUpgradeWidget(),
                   SizedBox(height: 16),
 
                   // Quick Add Shortcuts
                   _buildQuickAddShortcuts(context),
-                  SizedBox(height: 40),
+                  SizedBox(height: 32),
 
                   // Credit Cards Section
                   Column(
@@ -81,7 +96,7 @@ class HomeBody extends StatelessWidget {
                             ),
                     ],
                   ),
-                  SizedBox(height: 40),
+                  SizedBox(height: 32),
                   // IBAN Cards Section
                   Column(
                     children: [
@@ -171,7 +186,33 @@ class HomeBody extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: () async {
-            await AdMobService.showInterstitialAd();
+            // Kart limiti kontrolü
+            final premiumController = Get.find<PremiumController>();
+
+            if (route == "/addCreditCard") {
+              final creditCardController = Get.find<CreditCardController>();
+              final currentCount = creditCardController.creditCards.length;
+              print(
+                  'Credit Card - Premium: ${premiumController.isPremium}, Count: $currentCount, CanAdd: ${premiumController.canAddMoreCreditCards(currentCount)}');
+              if (!premiumController.canAddMoreCreditCards(currentCount)) {
+                Get.toNamed('/premium');
+                return;
+              }
+            } else if (route == "/addIbanCard") {
+              final ibanCardController = Get.find<IbanCardController>();
+              final currentCount = ibanCardController.ibanCards.length;
+              print(
+                  'IBAN Card - Premium: ${premiumController.isPremium}, Count: $currentCount, CanAdd: ${premiumController.canAddMoreIbanCards(currentCount)}');
+              if (!premiumController.canAddMoreIbanCards(currentCount)) {
+                Get.toNamed('/premium');
+                return;
+              }
+            }
+
+            // Premium kullanıcılara interstitial reklam gösterme
+            if (!premiumController.isPremium) {
+              await AdMobService.showInterstitialAd();
+            }
             Get.toNamed(route)?.then(
               (value) => Get.find<HomeController>().refreshData(),
             );

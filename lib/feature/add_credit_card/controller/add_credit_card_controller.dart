@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
-import 'package:wallet_app/core/controllers/credit_card_controller.dart';
+import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
+import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 
@@ -101,6 +102,19 @@ class AddCreditCardController extends GetxController {
     try {
       isLoading.value = true;
       await _creditCardService.openBox();
+
+      // Premium kontrolü sadece yeni kart eklerken
+      if (!isEditMode.value) {
+        final creditCardController = Get.put(CreditCardController());
+        final premiumController = Get.find<PremiumController>();
+
+        final currentCount = creditCardController.creditCards.length;
+        if (!premiumController.canAddMoreCreditCards(currentCount)) {
+          // Direkt premium sayfasına yönlendir
+          Get.toNamed('/premium');
+          return;
+        }
+      }
 
       if (isEditMode.value && _originalCard != null) {
         // Güncelleme işlemi

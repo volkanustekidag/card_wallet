@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:wallet_app/core/controllers/iban_card_controller.dart';
+import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
-import 'package:wallet_app/core/widgets/banner_ad_widget.dart';
+import 'package:wallet_app/core/widgets/premium_banner_ad_widget.dart';
 import 'package:wallet_app/feature/iban_card/widgets/app_bar.dart';
 import 'package:wallet_app/feature/iban_card/widgets/iban_cards_body.dart';
 
@@ -36,7 +36,7 @@ class _IbanCardsPageState extends State<IbanCardsPage> {
             Expanded(
               child: IbanCardsBody(controller: _controller),
             ),
-            const BannerAdWidget(),
+            const PremiumBannerAdWidget(),
           ],
         );
       }),

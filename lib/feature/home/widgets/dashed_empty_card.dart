@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/core/controllers/home_controller.dart';
+import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/services/admob_service.dart';
 
 class DashedEmptyCard extends StatelessWidget {
@@ -23,7 +24,11 @@ class DashedEmptyCard extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 38),
       child: GestureDetector(
         onTap: () async {
-          await AdMobService.showInterstitialAd();
+          final premiumController = Get.find<PremiumController>();
+          // Premium kullanıcılara interstitial reklam gösterme
+          if (!premiumController.isPremium) {
+            await AdMobService.showInterstitialAd();
+          }
           Get.toNamed(route)?.then(
             (value) => Get.find<HomeController>().refreshData(),
           );

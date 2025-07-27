@@ -34,7 +34,7 @@ class IbanCardController extends GetxController {
   Future<void> removeIbanCard(IbanCard ibanCard) async {
     try {
       await _ibanCardService.removeIbanCard(ibanCard);
-      await loadIbanCards();
+      ibanCards.remove(ibanCard);
       Get.snackbar('Success', 'IBAN card deleted successfully',
           backgroundColor: Get.theme.primaryColor);
     } catch (e) {
