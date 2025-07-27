@@ -13,8 +13,28 @@ import 'package:wallet_app/feature/settings/widgets/premium_card.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_card.dart';
 import 'package:wallet_app/core/services/backup_service.dart';
 
-class SettingsBody extends StatelessWidget {
+class SettingsBody extends StatefulWidget {
   const SettingsBody({Key? key}) : super(key: key);
+
+  @override
+  State<SettingsBody> createState() => _SettingsBodyState();
+}
+
+class _SettingsBodyState extends State<SettingsBody> {
+  String _getCurrentLanguageName(BuildContext context) {
+    switch (context.locale.languageCode) {
+      case 'tr':
+        return 'Türkçe';
+      case 'en':
+        return 'English';
+      case 'de':
+        return 'Deutsch';
+      case 'fr':
+        return 'Français';
+      default:
+        return 'English';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +47,8 @@ class SettingsBody extends StatelessWidget {
           children: [
             PremiumCard(),
             SettingsCard(
-              iconData: Icons.language,
-              title: "Tema",
+              iconData: Icons.lightbulb,
+              title: "theme".tr(),
               trailing: GetX<ThemeController>(
                 builder: (controller) {
                   return Switch(
@@ -40,16 +60,22 @@ class SettingsBody extends StatelessWidget {
                   );
                 },
               ),
-              onTap: () => showLangChoseeBottomSheet(context),
+              onTap: () {},
             ),
             SettingsCard(
               iconData: Icons.language,
-              title: "lang".tr(),
+              title: _getCurrentLanguageName(context),
               trailing: Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
               ),
-              onTap: () => showLangChoseeBottomSheet(context),
+              onTap: () async {
+                final languageChanged =
+                    await showLangChoseeBottomSheet(context);
+                if (languageChanged == true && mounted) {
+                  setState(() {});
+                }
+              },
             ),
 
             // Biometric Authentication Setting
@@ -85,7 +111,7 @@ class SettingsBody extends StatelessWidget {
                 onTap: () => showPrivacyPolicyBottomSheet(context)),
             SettingsCard(
               iconData: Icons.backup,
-              title: "Veri Yedekle",
+              title: "backupData".tr(),
               trailing: Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
@@ -94,7 +120,7 @@ class SettingsBody extends StatelessWidget {
             ),
             SettingsCard(
               iconData: Icons.restore,
-              title: "Veri Geri Yükle",
+              title: "restoreData".tr(),
               trailing: Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
@@ -136,7 +162,7 @@ class SettingsBody extends StatelessWidget {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Yedekleme başarıyla oluşturuldu: $filePath'),
+          content: Text('${'backupSuccess'.tr()} $filePath'),
           backgroundColor: Colors.green,
         ),
       );
@@ -144,7 +170,7 @@ class SettingsBody extends StatelessWidget {
       print('Yedekleme hatası: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Yedekleme hatası: $e'),
+          content: Text('${'backupError'.tr()} $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -156,13 +182,13 @@ class SettingsBody extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Veri Geri Yükleme'),
+          title: Text('restoreTitle'.tr()),
           content: Text(
               'Bu işlem mevcut tüm verileri silecek ve yedekleme dosyasındaki verilerle değiştirecektir. Devam etmek istiyor musunuz?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('İptal'),
+              child: Text('cancel'.tr()),
             ),
             TextButton(
               onPressed: () async {
@@ -177,7 +203,7 @@ class SettingsBody extends StatelessWidget {
 
                   scaffoldMessenger.showSnackBar(
                     SnackBar(
-                      content: Text('Veriler başarıyla geri yüklendi'),
+                      content: Text('restoreSuccess'.tr()),
                       backgroundColor: Colors.green,
                     ),
                   );
@@ -185,13 +211,13 @@ class SettingsBody extends StatelessWidget {
                   print('Geri yükleme hatası: $e');
                   scaffoldMessenger.showSnackBar(
                     SnackBar(
-                      content: Text('Geri yükleme hatası: $e'),
+                      content: Text('${'restoreError'.tr()} $e'),
                       backgroundColor: Colors.red,
                     ),
                   );
                 }
               },
-              child: Text('Evet'),
+              child: Text('yes'.tr()),
             ),
           ],
         );

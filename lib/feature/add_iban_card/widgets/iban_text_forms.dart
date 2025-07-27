@@ -98,7 +98,7 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
 
         Get.snackbar(
           'Success',
-          'QR code scanned successfully!',
+          'qrScanSuccess'.tr(),
           backgroundColor: Colors.green.withOpacity(0.8),
           colorText: Colors.white,
         );
@@ -150,7 +150,7 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
 
         Get.snackbar(
           'Success',
-          'QR code scanned successfully!',
+          'qrScanSuccess'.tr(),
           backgroundColor: Colors.green.withOpacity(0.8),
           colorText: Colors.white,
         );
@@ -191,8 +191,8 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
             SizedBox(height: 20),
             ListTile(
               leading: Icon(Icons.qr_code_scanner, color: Colors.blue),
-              title: Text('Scan QR Code'),
-              subtitle: Text('Use camera to scan QR code'),
+              title: Text('scanQR'.tr()),
+              subtitle: Text('scanQRSubtitle'.tr()),
               onTap: () {
                 Navigator.pop(context);
                 _scanQRForIban();
@@ -200,8 +200,8 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
             ),
             ListTile(
               leading: Icon(Icons.photo_library, color: Colors.green),
-              title: Text('Choose from Gallery'),
-              subtitle: Text('Select QR code image'),
+              title: Text('chooseFromGallery'.tr()),
+              subtitle: Text('chooseFromGallerySubtitle'.tr()),
               onTap: () {
                 Navigator.pop(context);
                 _scanQRFromGallery();

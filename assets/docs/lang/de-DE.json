@@ -1,0 +1,116 @@
+{
+    "loginSnackText": "FALSCHE PIN! VERSUCHEN SIE ES ERNEUT.",
+    "createPin": "Erstellen Sie Ihre PIN-Nummer",
+    "enterPin": "Geben Sie Ihre PIN-Nummer ein",
+
+    "addCC": "Kreditkarte hinzufügen",
+    "addIC": "IBAN-Karte hinzufügen",
+    "addCreditCard": "Neue Kreditkarte hinzufügen",
+    "addIbanCard": "Neue IBAN-Karte hinzufügen",
+    "yourCC": "Ihre Kreditkarten",
+    "seeAll": "Alle anzeigen",
+    "addFirstCC": "Erste Kreditkarte hinzufügen",
+    "yourIC": "Ihre IBAN-Karten",
+    "addFirstIC": "Erste IBAN-Karte hinzufügen",
+
+    "settings": "Einstellungen",
+    "lang": "Sprache - DEU",
+    "clearAllD": "Alle Daten löschen",
+    "PP": "Datenschutzrichtlinie",
+    "rateApp": "App bewerten",
+    "chanPIN": "PIN ändern",
+    "areUSure": "Alle Daten werden gelöscht.\n Sind Sie sicher, dass Sie löschen möchten?",
+    "delete": "Löschen",
+    "cancel": "Abbrechen",
+
+    "IC": "IBAN-Karten",
+    "slidableDel": "Löschen",
+    "copyInfo": "ALLE KARTENINFORMATIONEN KOPIERT!",
+    "copyAll": "Alle kopieren",
+    "hName": "Karteninhaber",
+    "sCode": "Swift-Code",
+    "bName": "Bankname",
+    "valid": "GÜLTIG BIS",
+
+    "cNum": "Kartennummer",
+
+    "CC": "Kreditkarten",
+
+    "succChan": "PIN ERFOLGREICH GEÄNDERT!",
+
+    "addNPIN": "Fügen Sie Ihre neue PIN-Nummer hinzu",
+
+    "addNIC": "NEUE IBAN-KARTE ERFOLGREICH HINZUGEFÜGT!",
+
+    "addNCC": "NEUE KREDITKARTE ERFOLGREICH HINZUGEFÜGT!",
+
+    "selecetLang": "Sprache auswählen.",
+
+    "cardDeleteInfo": "KARTE ERFOLGREICH GELÖSCHT!",
+
+    "PPT": "Datenschutzrichtlinie für Card Wallet\nBei Card Wallet ist der Schutz der Privatsphäre unserer Besucher eine unserer Hauptprioritäten. Dieses Datenschutz-Richtliniendokument enthält Arten von Informationen, die von Card Wallet gesammelt und aufgezeichnet werden und wie wir sie verwenden.\nWenn Sie zusätzliche Fragen haben oder weitere Informationen zu unserer Datenschutzrichtlinie benötigen, zögern Sie nicht, uns zu kontaktieren.\nProtokoll-Dateien\nCard Wallet folgt einem Standardverfahren zur Verwendung von Protokolldateien. Diese Dateien protokollieren Besucher, wenn sie die App verwenden. Die von Protokolldateien gesammelten Informationen umfassen Internet-Protokoll-(IP-)Adressen, Browser-Typ, Internet Service Provider (ISP), Datum und Zeitstempel, verweisende/Exit-Seiten und möglicherweise die Anzahl der Klicks. Diese sind nicht mit persönlich identifizierbaren Informationen verknüpft. Der Zweck der Informationen ist die Analyse von Trends, die Verwaltung der App, die Verfolgung der Benutzerbewegungen in der App und die Sammlung demografischer Informationen.\nUnsere Werbepartner\nEinige der Werbetreibenden in unserer App können Cookies und Web-Beacons verwenden. Unsere Werbepartner sind unten aufgeführt. Jeder unserer Werbepartner hat seine eigene Datenschutzrichtlinie für ihre Richtlinien zu Benutzerdaten. Für einen einfacheren Zugang haben wir ihre Datenschutzrichtlinien unten verlinkt.\n● Google\nhttps://policies.google.com/technologies/ads\nDatenschutzrichtlinien\nSie können diese Liste konsultieren, um die Datenschutzrichtlinie für jeden der Werbepartner von Card Wallet zu finden.\nWerbeanzeigen-Server oder Werbenetzwerke von Drittanbietern verwenden Technologien wie Cookies, JavaScript oder Beacons, die in ihren jeweiligen Anzeigen und Links verwendet werden, die auf Card Wallet erscheinen. Sie erhalten automatisch Ihre IP-Adresse, wenn dies auftritt. Diese Technologien werden verwendet, um die Wirksamkeit ihrer Werbekampagnen zu messen und/oder den Werbeinhalt zu personalisieren, den Sie in dieser App oder anderen Apps oder Websites sehen. Beachten Sie, dass Card Wallet keinen Zugang zu oder Kontrolle über diese Cookies hat, die von Drittanbieter-Werbetreibenden verwendet werden.\nDatenschutzrichtlinien von Drittanbietern\nDie Datenschutzrichtlinie von Card Wallet gilt nicht für andere Werbetreibende oder Websites. Daher raten wir Ihnen, die jeweiligen Datenschutzrichtlinien dieser Drittanbieter-Werbeserver für detailliertere Informationen zu konsultieren. Es kann ihre Praktiken und Anweisungen darüber enthalten, wie Sie sich von bestimmten Optionen abmelden können.\nInformationen von Kindern\nEin weiterer Teil unserer Priorität ist es, Schutz für Kinder bei der Nutzung des Internets hinzuzufügen. Wir ermutigen Eltern und Erziehungsberechtigte, ihre Online-Aktivitäten zu beobachten, daran teilzunehmen und/oder zu überwachen und zu leiten.\nCard Wallet sammelt wissentlich keine persönlich identifizierbaren Informationen von Kindern unter 13 Jahren. Wenn Sie denken, dass Ihr Kind diese Art von Informationen in unserer App bereitgestellt hat, ermutigen wir Sie dringend, uns sofort zu kontaktieren, und wir werden unser Bestes geben, um solche Informationen umgehend aus unseren Aufzeichnungen zu entfernen.\nNur Online-Datenschutzrichtlinie\nDiese Datenschutzrichtlinie gilt nur für unsere Online-Aktivitäten und ist gültig für Besucher unserer App in Bezug auf die Informationen, die sie in Card Wallet geteilt und/oder gesammelt haben. Diese Richtlinie gilt nicht für Informationen, die offline oder über andere Kanäle als diese App gesammelt wurden. Unsere Datenschutzrichtlinie wurde mit Hilfe des App-Datenschutzrichtlinien-Generators von App-Privacy-Policy.com erstellt.\nZustimmung\nDurch die Nutzung unserer App stimmen Sie hiermit unserer Datenschutzrichtlinie zu und akzeptieren ihre Geschäftsbedingungen.",
+
+    "emptyList": "Sie haben noch keine Karten!",
+    
+    "editCC": "Kreditkarte bearbeiten",
+    "editIC": "IBAN-Karte bearbeiten",
+    "deleteSuccess": "Karte erfolgreich gelöscht!",
+    "CVC2": "CVC2",
+    "IBAN": "IBAN",
+    "CARDWALLET": "CARDWALLET",
+    
+    "theme": "Theme",
+    "backupData": "Daten sichern",
+    "restoreData": "Daten wiederherstellen",
+    "langSelection": "Sprachauswahl",
+    "confirm": "Bestätigen",
+    "ok": "OK",
+    "yes": "Ja",
+    
+    "qrCodeGenerate": "QR-Code generieren",
+    "qrCodeOptions": "QR-Code-Optionen",
+    "qrCodeError": "QR-Code-Fehler",
+    "qrCodeErrorMessage": "Beim Generieren des QR-Codes ist ein Fehler aufgetreten:",
+    "qrCodeCreated": "QR-Code erstellt",
+    "qrCodeCopied": "QR-Code-Daten in die Zwischenablage kopiert",
+    "qrCodeCannotGenerate": "QR-Code kann nicht generiert werden",
+    "qrScanSuccess": "QR-Code erfolgreich gescannt!",
+    "copy": "Kopieren",
+    "share": "Teilen",
+    
+    "paymentDetails": "Zahlungsdetails",
+    "paymentInfo": "Zahlungsinformationen",
+    "paymentDescription": "Zahlungsbeschreibung",
+    "amount": "Betrag",
+    
+    "backupSuccess": "Backup erfolgreich erstellt:",
+    "backupError": "Backup-Fehler:",
+    "restoreTitle": "Datenwiederherstellung",
+    "restoreSuccess": "Daten erfolgreich wiederhergestellt",
+    "restoreError": "Wiederherstellungsfehler:",
+    
+    "scanQR": "QR-Code scannen",
+    "scanQRSubtitle": "Kamera zum Scannen des QR-Codes verwenden",
+    "chooseFromGallery": "Aus Galerie wählen",
+    "chooseFromGallerySubtitle": "QR-Code-Bild auswählen",
+    "takePhoto": "Foto aufnehmen",
+    "takePhotoSubtitle": "Kamera zum Scannen der Karte verwenden",
+    "choosePhotoFromGallery": "Aus Galerie wählen",
+    "choosePhotoSubtitle": "Vorhandenes Foto auswählen",
+    
+    "accountInfo": "Kontoinformationen",
+    "amountOptional": "Betrag (Optional)",
+    "referenceOptional": "Referenz (Optional)",
+    "currency": "EUR",
+    
+    "success": "Erfolgreich",
+    "amountInfo": "Wenn Sie einen Betrag angeben, wird ein SEPA-Instant-QR-Code erstellt. Andernfalls wird ein statischer QR-Code erstellt.",
+    "qrGenerationError": "QR-Code-Generierungsfehler:",
+    "dialog": "Dialog",
+    "dialogSubtitle": "Kleine Ansicht",
+    "bottomSheet": "Bottom Sheet",
+    "bottomSheetSubtitle": "Detaillierte Ansicht",
+    "fullScreen": "Vollbild",
+    "fullScreenSubtitle": "Maximale Größe - Ideal für Zahlung"
+
+}

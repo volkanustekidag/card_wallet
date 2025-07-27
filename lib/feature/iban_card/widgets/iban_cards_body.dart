@@ -42,7 +42,7 @@ class IbanCardsBody extends StatelessWidget {
                                 showDialogDeleteData(context, () {
                                   controller.removeIbanCard(ibanCard);
                                   Get.snackbar(
-                                    'Success',
+                                    'success'.tr(),
                                     'deleteSuccess'.tr(),
                                   );
                                 });
@@ -105,7 +105,7 @@ class IbanCardsBody extends StatelessWidget {
           children: [
             Icon(Icons.qr_code, color: Theme.of(context).primaryColor),
             SizedBox(width: 8),
-            Text('QR Kod Oluştur'),
+            Text('qrCodeGenerate'.tr()),
           ],
         ),
         content: SingleChildScrollView(
@@ -124,7 +124,7 @@ class IbanCardsBody extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Hesap Bilgileri',
+                        'accountInfo'.tr(),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).textTheme.bodyLarge?.color,
@@ -159,10 +159,10 @@ class IbanCardsBody extends StatelessWidget {
               TextField(
                 controller: amountController,
                 decoration: InputDecoration(
-                  labelText: 'Miktar (İsteğe bağlı)',
+                  labelText: 'amountOptional'.tr(),
                   hintText: '0.00',
                   prefixIcon: Icon(Icons.monetization_on),
-                  suffixText: 'TRY',
+                  suffixText: 'currency'.tr(),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -175,8 +175,8 @@ class IbanCardsBody extends StatelessWidget {
               TextField(
                 controller: referenceController,
                 decoration: InputDecoration(
-                  labelText: 'Referans (İsteğe bağlı)',
-                  hintText: 'Ödeme açıklaması',
+                  labelText: 'referenceOptional'.tr(),
+                  hintText: 'paymentDescription'.tr(),
                   prefixIcon: Icon(Icons.note),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -212,7 +212,7 @@ class IbanCardsBody extends StatelessWidget {
                     SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Miktar belirtirseniz TR-FAST (anında ödeme) QR kodu oluşturulur. Belirtmezseniz statik QR kod oluşturulur.',
+                        'amountInfo'.tr(),
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).brightness == Brightness.dark
@@ -230,7 +230,7 @@ class IbanCardsBody extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('İptal'),
+            child: Text('cancel'.tr()),
           ),
           ElevatedButton(
             onPressed: () {
@@ -250,7 +250,7 @@ class IbanCardsBody extends StatelessWidget {
                 reference: referenceController.text.trim(),
               );
             },
-            child: Text('QR Kod Oluştur'),
+            child: Text('qrCodeGenerate'.tr()),
           ),
         ],
       ),
@@ -288,7 +288,7 @@ class IbanCardsBody extends StatelessWidget {
       }
     } catch (e) {
       // Genel hata
-      _showQRError(context, ['QR kod oluşturma hatası: $e']);
+      _showQRError(context, ['${'qrGenerationError'.tr()} $e']);
     }
   }
 
@@ -325,7 +325,7 @@ class IbanCardsBody extends StatelessWidget {
 
             // Title
             Text(
-              'QR Kod Seçenekleri',
+              'qrCodeOptions'.tr(),
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -348,8 +348,8 @@ class IbanCardsBody extends StatelessWidget {
                   child: _buildQROptionButton(
                     context,
                     icon: Icons.visibility,
-                    title: 'Dialog',
-                    subtitle: 'Küçük görünüm',
+                    title: 'dialog'.tr(),
+                    subtitle: 'dialogSubtitle'.tr(),
                     onPressed: () {
                       Navigator.pop(context);
                       IbanCardUtils.showQRDialog(
@@ -370,8 +370,8 @@ class IbanCardsBody extends StatelessWidget {
                   child: _buildQROptionButton(
                     context,
                     icon: Icons.open_in_full,
-                    title: 'Bottom Sheet',
-                    subtitle: 'Detaylı görünüm',
+                    title: 'bottomSheet'.tr(),
+                    subtitle: 'bottomSheetSubtitle'.tr(),
                     onPressed: () {
                       Navigator.pop(context);
                       IbanCardUtils.showQRBottomSheet(
@@ -397,8 +397,8 @@ class IbanCardsBody extends StatelessWidget {
               child: _buildQROptionButton(
                 context,
                 icon: Icons.fullscreen,
-                title: 'Tam Ekran',
-                subtitle: 'Maksimum boyut - Ödeme için ideal',
+                title: 'fullScreen'.tr(),
+                subtitle: 'fullScreenSubtitle'.tr(),
                 onPressed: () {
                   Navigator.pop(context);
                   IbanCardUtils.showQRFullScreen(
@@ -476,14 +476,14 @@ class IbanCardsBody extends StatelessWidget {
           children: [
             Icon(Icons.error, color: Colors.red),
             SizedBox(width: 8),
-            Text('QR Kod Hatası'),
+            Text('qrCodeError'.tr()),
           ],
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('QR kod oluşturulurken bir hata oluştu:'),
+            Text('qrCodeErrorMessage'.tr()),
             SizedBox(height: 8),
             ...errors.map((error) => Padding(
                   padding: EdgeInsets.symmetric(vertical: 2),
@@ -497,7 +497,7 @@ class IbanCardsBody extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Tamam'),
+            child: Text('ok'.tr()),
           ),
         ],
       ),

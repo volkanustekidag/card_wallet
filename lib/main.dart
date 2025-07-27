@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
@@ -40,12 +40,23 @@ void main() async {
       supportedLocales: const [
         Locale("tr", "TR"),
         Locale("en", "US"),
+        Locale("de", "DE"),
+        Locale("fr", "FR"),
       ],
       saveLocale: true,
       path: "assets/docs/lang",
-      child: const MyApp(),
+      child: const AppWrapper(),
     ),
   );
+}
+
+class AppWrapper extends StatelessWidget {
+  const AppWrapper({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MyApp();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -53,25 +64,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Theme Controller'ı başlat
     final themeController = Get.put(ThemeController());
-
+    
     return Sizer(
       builder: (context, orientation, deviceType) {
-        return Obx(
-          () => GetMaterialApp(
-            initialRoute: AppRoutes.splash,
-            getPages: AppRoutes.routes,
-            initialBinding: AppBindings(),
-            locale: context.locale,
-            localizationsDelegates: context.localizationDelegates,
-            supportedLocales: context.supportedLocales,
-            title: 'Card Wallet',
-            debugShowCheckedModeBanner: false,
-            theme: AppThemes.lightTheme,
-            darkTheme: AppThemes.darkTheme,
-            themeMode: themeController.themeMode,
-          ),
+        return GetMaterialApp(
+          initialRoute: AppRoutes.splash,
+          getPages: AppRoutes.routes,
+          initialBinding: AppBindings(),
+          locale: context.locale,
+          localizationsDelegates: context.localizationDelegates,
+          supportedLocales: context.supportedLocales,
+          title: 'Card Wallet',
+          debugShowCheckedModeBanner: false,
+          theme: AppThemes.lightTheme,
+          darkTheme: AppThemes.darkTheme,
+          themeMode: themeController.themeMode,
         );
       },
     );

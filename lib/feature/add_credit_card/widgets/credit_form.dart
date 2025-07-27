@@ -185,8 +185,8 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
             SizedBox(height: 20),
             ListTile(
               leading: Icon(Icons.camera_alt, color: Colors.blue),
-              title: Text('Take Photo'),
-              subtitle: Text('Use camera to scan card'),
+              title: Text('takePhoto'.tr()),
+              subtitle: Text('takePhotoSubtitle'.tr()),
               onTap: () {
                 Navigator.pop(context);
                 _scanCreditCard();
@@ -194,8 +194,8 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
             ),
             ListTile(
               leading: Icon(Icons.photo_library, color: Colors.green),
-              title: Text('Choose from Gallery'),
-              subtitle: Text('Select existing photo'),
+              title: Text('choosePhotoFromGallery'.tr()),
+              subtitle: Text('choosePhotoSubtitle'.tr()),
               onTap: () {
                 Navigator.pop(context);
                 _scanFromGallery();
@@ -321,7 +321,7 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
                           onChanged: (val) {
                             controller.updateCardField("cvc2", val);
                           },
-                          label: "CVC2",
+                          label: "CVC2".tr(),
                           hintText: "XXX",
                           inputFormatters: null,
                           iconData: Icons.password,

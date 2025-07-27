@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get_utils/get_utils.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart'; // pubspec.yaml'a ekleyin
@@ -242,7 +243,7 @@ class QRDialog extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Ödeme Detayları',
+          Text('paymentDetails'.tr(),
               style: GoogleFonts.poppins(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -324,8 +325,8 @@ class QRDialog extends StatelessWidget {
   void _copyToClipboard(BuildContext context) {
     Clipboard.setData(ClipboardData(text: qrData));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('QR kod verisi panoya kopyalandı'),
+      SnackBar(
+        content: Text('qrCodeCopied'.tr()),
         duration: Duration(seconds: 2),
       ),
     );
@@ -539,7 +540,7 @@ class QRBottomSheet extends StatelessWidget {
           child: OutlinedButton.icon(
             onPressed: () => _copyToClipboard(context),
             icon: const Icon(Icons.copy),
-            label: const Text('Kopyala'),
+            label: Text('copy'.tr()),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
@@ -553,7 +554,7 @@ class QRBottomSheet extends StatelessWidget {
           child: ElevatedButton.icon(
             onPressed: () => _shareQR(),
             icon: const Icon(Icons.share),
-            label: const Text('Paylaş'),
+            label: Text('share'.tr()),
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
@@ -570,7 +571,7 @@ class QRBottomSheet extends StatelessWidget {
     Clipboard.setData(ClipboardData(text: qrData));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('QR kod verisi kopyalandı'),
+        content: Text('qrCodeCopied'.tr()),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         duration: const Duration(seconds: 2),

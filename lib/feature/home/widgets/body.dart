@@ -38,12 +38,12 @@ class HomeBody extends StatelessWidget {
                       icon: Icon(Icons.menu_rounded, size: 20.sp),
                       onPressed: () {
                         Get.toNamed('/settings')?.then(
-                          (value) => Get.find<HomeController>().refreshData(),
+                          (value) => controller.refreshData(),
                         );
                       },
                     ),
                     title: Text(
-                      "CARDWALLET",
+                      "CARDWALLET".tr(),
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
                         fontSize: 16,

@@ -50,6 +50,67 @@
 
     "PPT": "Privacy Policy for Card Wallet\nAt Card Wallet, one of our main priorities is the privacy of our visitors. This Privacy\n\nPolicy document contains types of information that is collected and recorded by\nCard Wallet and how we use it.\nIf you have additional questions or require more information about our Privacy Policy,\ndo not hesitate to contact us.\nLog Files\nCard Wallet follows a standard procedure of using log files. These files log visitors\n\nwhen they use app. The information collected by log files include internet protocol\n(IP) addresses, browser type, Internet Service Provider (ISP), date and time stamp,\nreferring/exit pages, and possibly the number of clicks. These are not linked to any\ninformation that is personally identifiable. The purpose of the information is for\nanalyzing trends, administering the app, tracking users' movement on the app, and\ngathering demographic information.\nOur Advertising Partners\nSome of advertisers in our app may use cookies and web beacons. Our advertising\npartners are listed below. Each of our advertising partners has their own Privacy\nPolicy for their policies on user data. For easier access, we hyperlinked to their\nPrivacy Policies below.\n● Google\nhttps://policies.google.com/technologies/ads\nPrivacy Policies\nYou may consult this list to find the Privacy Policy for each of the advertising\npartners of Card Wallet.\nThird-party ad servers or ad networks uses technologies like cookies, JavaScript, or\nBeacons that are used in their respective advertisements and links that appear on\nCard Wallet. They automatically receive your IP address when this occurs. These\ntechnologies are used to measure the effectiveness of their advertising campaigns\nand/or to personalize the advertising content that you see on this app or other apps\nor websites.Note that Card Wallet has no access to or control over these cookies that are used\nby third-party advertisers.\nThird Party Privacy Policies\nCard Wallet's Privacy Policy does not apply to other advertisers or websites. Thus,\nwe are advising you to consult the respective Privacy Policies of these third-party ad\nservers for more detailed information. It may include their practices and instructions\nabout how to opt-out of certain options.\nChildren's Information\nAnother part of our priority is adding protection for children while using the internet.\nWe encourage parents and guardians to observe, participate in, and/or monitor and\nguide their online activity.\nCard Wallet does not knowingly collect any Personal Identifiable Information from\nchildren under the age of 13. If you think that your child provided this kind of\ninformation on our App, we strongly encourage you to contact us immediately and\nwe will do our best efforts to promptly remove such information from our records.\nOnline Privacy Policy Only\nThis Privacy Policy applies only to our online activities and is valid for visitors to our\nApp with regards to the information that they shared and/or collect in Card Wallet.\nThis policy is not applicable to any information collected offline or via channels other\nthan this app. Our Privacy Policy was created with the help of the App Privacy Policy\nGenerator from App-Privacy-Policy.com\nConsent\nBy using our app, you hereby consent to our Privacy Policy and agree to its Terms\nand Conditions.",
 
-    "emptyList": "You don't have any cards yet!"
+    "emptyList": "You don't have any cards yet!",
+    
+    "editCC": "Edit Credit Card",
+    "editIC": "Edit IBAN Card",
+    "deleteSuccess": "Card deleted successfully!",
+    "CVC2": "CVC2",
+    "IBAN": "IBAN",
+    "CARDWALLET": "CARDWALLET",
+    
+    "theme": "Theme",
+    "backupData": "Backup Data",
+    "restoreData": "Restore Data",
+    "langSelection": "Language Selection",
+    "confirm": "Confirm",
+    "ok": "OK",
+    "yes": "Yes",
+    
+    "qrCodeGenerate": "Generate QR Code",
+    "qrCodeOptions": "QR Code Options",
+    "qrCodeError": "QR Code Error",
+    "qrCodeErrorMessage": "An error occurred while generating QR code:",
+    "qrCodeCreated": "QR Code Created",
+    "qrCodeCopied": "QR code data copied to clipboard",
+    "qrCodeCannotGenerate": "QR code cannot be generated",
+    "qrScanSuccess": "QR code scanned successfully!",
+    "copy": "Copy",
+    "share": "Share",
+    
+    "paymentDetails": "Payment Details",
+    "paymentInfo": "Payment Information",
+    "paymentDescription": "Payment description",
+    "amount": "Amount",
+    
+    "backupSuccess": "Backup created successfully:",
+    "backupError": "Backup error:",
+    "restoreTitle": "Data Restore",
+    "restoreSuccess": "Data restored successfully",
+    "restoreError": "Restore error:",
+    
+    "scanQR": "Scan QR Code",
+    "scanQRSubtitle": "Use camera to scan QR code",
+    "chooseFromGallery": "Choose from Gallery",
+    "chooseFromGallerySubtitle": "Select QR code image",
+    "takePhoto": "Take Photo",
+    "takePhotoSubtitle": "Use camera to scan card",
+    "choosePhotoFromGallery": "Choose from Gallery",
+    "choosePhotoSubtitle": "Select existing photo",
+    
+    "accountInfo": "Account Information",
+    "amountOptional": "Amount (Optional)",
+    "referenceOptional": "Reference (Optional)",
+    "currency": "TRY",
+    
+    "success": "Success",
+    "amountInfo": "If you specify an amount, a TR-FAST (instant payment) QR code will be created. If not, a static QR code will be created.",
+    "qrGenerationError": "QR code generation error:",
+    "dialog": "Dialog",
+    "dialogSubtitle": "Small view",
+    "bottomSheet": "Bottom Sheet",
+    "bottomSheetSubtitle": "Detailed view",
+    "fullScreen": "Full Screen",
+    "fullScreenSubtitle": "Maximum size - Ideal for payment"
 
 }

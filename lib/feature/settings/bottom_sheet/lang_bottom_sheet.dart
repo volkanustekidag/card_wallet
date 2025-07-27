@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:get/get.dart' hide Trans;
+import 'package:get/instance_manager.dart';
 
-Future<void> showLangChoseeBottomSheet(BuildContext context) async {
-  showModalBottomSheet(
+Future<bool?> showLangChoseeBottomSheet(BuildContext context) async {
+  return showModalBottomSheet<bool>(
     context: context,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
@@ -21,34 +23,52 @@ class LanguageBottomSheetBody extends StatefulWidget {
 
 class _LanguageBottomSheetBodyState extends State<LanguageBottomSheetBody> {
   int _selectedIndex = 0;
-  late Locale _currentLocale;
 
   final List<Locale> supportedLocales = [
     const Locale("en", "US"),
     const Locale("tr", "TR"),
+    const Locale("de", "DE"),
+    const Locale("fr", "FR"),
   ];
 
   final List<String> displayNames = [
     "English",
     "Türkçe",
+    "Deutsch",
+    "Français",
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = 0; // Default to English initially
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _currentLocale = context.locale;
+    // Find current language index - safe to access context here
+    final currentLocale = context.locale;
+    _selectedIndex = supportedLocales.indexWhere(
+        (locale) => locale.languageCode == currentLocale.languageCode);
 
-    _selectedIndex = supportedLocales.indexWhere((locale) =>
-        locale.languageCode == _currentLocale.languageCode &&
-        locale.countryCode == _currentLocale.countryCode);
+    if (_selectedIndex == -1) {
+      _selectedIndex = 0; // Default to English
+    }
+
+    print('Current locale: $currentLocale, Selected index: $_selectedIndex');
   }
 
-  void _onConfirm() {
+  void _onConfirm() async {
     final selectedLocale = supportedLocales[_selectedIndex];
-    if (selectedLocale != context.locale) {
-      context.setLocale(selectedLocale);
+
+    if (selectedLocale.languageCode != context.locale.languageCode) {
+      await context.setLocale(selectedLocale);
+      Get.updateLocale(selectedLocale);
+      Navigator.pop(context, true);
+    } else {
+      Navigator.pop(context, false);
     }
-    Navigator.pop(context);
   }
 
   @override
@@ -58,7 +78,8 @@ class _LanguageBottomSheetBodyState extends State<LanguageBottomSheetBody> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text("Dil Seçimi", style: Theme.of(context).textTheme.titleLarge),
+          Text("langSelection".tr(),
+              style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
           ...List.generate(supportedLocales.length, (index) {
             return RadioListTile<int>(
@@ -80,12 +101,12 @@ class _LanguageBottomSheetBodyState extends State<LanguageBottomSheetBody> {
             children: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text("İptal"),
+                child: Text("cancel".tr()),
               ),
               const SizedBox(width: 8),
               ElevatedButton(
                 onPressed: _onConfirm,
-                child: const Text("Onayla"),
+                child: Text("confirm".tr()),
               ),
             ],
           ),
