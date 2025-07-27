@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:easy_localization/easy_localization.dart';
 
 /// Banking Standard IBAN QR Code Generator for Flutter
 /// Compliant with EPC QR Code, ISO 20022, and regional banking standards
@@ -575,7 +576,7 @@ class IBANQRGenerator {
         ),
       );
     } catch (error) {
-      return QRResult.error(['QR kod oluşturma hatası: $error']);
+      return QRResult.error(['${'qrCodeGenerationError'.tr()} $error']);
     }
   }
 
@@ -660,29 +661,28 @@ class IBANQRGenerator {
     // IBAN validation
     final iban = data['iban'] as String?;
     if (iban == null || iban.isEmpty) {
-      errors.add('IBAN adresi gerekli');
+      errors.add('ibanRequired'.tr());
     } else if (!validateIBAN(iban)) {
-      errors.add(
-          'Geçersiz IBAN adresi. Lütfen doğru IBAN formatını kontrol edin.');
+      errors.add('invalidIban'.tr());
     }
 
     // Beneficiary name validation
     final beneficiaryName = data['beneficiaryName'] as String?;
     if (beneficiaryName == null || beneficiaryName.isEmpty) {
-      errors.add('Alıcı adı gerekli');
+      errors.add('recipientNameRequired'.tr());
     } else if (beneficiaryName.length < 2) {
-      errors.add('Alıcı adı en az 2 karakter olmalı');
+      errors.add('recipientNameTooShort'.tr());
     } else if (beneficiaryName.length > 70) {
-      errors.add('Alıcı adı 70 karakteri geçemez');
+      errors.add('recipientNameTooLong'.tr());
     }
 
     // Amount validation
     final amount = data['amount'] as double?;
     if (amount != null) {
       if (amount <= 0) {
-        errors.add('Miktar 0\'dan büyük olmalı');
+        errors.add('amountMustBePositive'.tr());
       } else if (amount > 999999999.99) {
-        errors.add('Miktar çok yüksek');
+        errors.add('amountTooHigh'.tr());
       }
     }
 
@@ -690,26 +690,26 @@ class IBANQRGenerator {
     final currency = data['currency'] as String?;
     if (currency != null && currency.isNotEmpty) {
       if (!RegExp(r'^[A-Z]{3}$').hasMatch(currency)) {
-        errors.add('Para birimi 3 harfli ISO kodu olmalı (örn: EUR, USD, TRY)');
+        errors.add('invalidCurrencyCode'.tr());
       }
     }
 
     // BIC validation
     final bic = data['bic'] as String? ?? '';
     if (bic.isNotEmpty && !validateBIC(bic)) {
-      errors.add('Geçersiz BIC kodu');
+      errors.add('invalidBicCode'.tr());
     }
 
     // Reference validation
     final reference = data['reference'] as String? ?? '';
     if (reference.length > 35) {
-      errors.add('Referans 35 karakteri geçemez');
+      errors.add('referenceTooLong'.tr());
     }
 
     // Description validation
     final description = data['description'] as String? ?? '';
     if (description.length > 140) {
-      errors.add('Açıklama 140 karakteri geçemez');
+      errors.add('descriptionTooLong'.tr());
     }
 
     return ValidationResult(
@@ -830,11 +830,11 @@ class QRMetadata {
 
   String get formattedAmount => amount != null
       ? '${amount!.toStringAsFixed(2)} $currency'
-      : 'Belirtilmedi';
+      : 'notSpecified'.tr();
 
   String get bankName => bankCode != null
-      ? IBANQRGenerator.getTurkishBankName(bankCode!) ?? 'Bilinmeyen Banka'
-      : 'Belirtilmedi';
+      ? IBANQRGenerator.getTurkishBankName(bankCode!) ?? 'unknownBank'.tr()
+      : 'notSpecified'.tr();
 }
 
 /// Example usage with banking standards compliance

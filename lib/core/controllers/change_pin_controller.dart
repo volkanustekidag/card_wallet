@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
+import 'package:wallet_app/core/extensions/snack_bars.dart';
 
 class ChangePinController extends GetxController {
   final AuthenticationService _authenticationService;
@@ -22,11 +24,10 @@ class ChangePinController extends GetxController {
         verificationFailed.value = false;
       } else {
         verificationFailed.value = true;
-        Get.snackbar('Error', 'Current PIN is incorrect',
-            backgroundColor: Get.theme.colorScheme.error);
+        Get.context?.showErrorSnackBar('Current PIN is incorrect');
       }
     } catch (e) {
-      Get.snackbar('Error', 'An error occurred during verification');
+      Get.context?.showErrorSnackBar('An error occurred during verification');
     } finally {
       isLoading.value = false;
     }
@@ -39,10 +40,9 @@ class ChangePinController extends GetxController {
       pinChangeCompleted.value = true;
 
       Get.back();
-      Get.snackbar('Success', 'PIN changed successfully',
-          backgroundColor: Get.theme.primaryColor);
+      Get.context?.showSuccessSnackBar('PIN changed successfully');
     } catch (e) {
-      Get.snackbar('Error', 'Failed to change PIN');
+      Get.context?.showErrorSnackBar('Failed to change PIN');
     } finally {
       isLoading.value = false;
     }

@@ -194,6 +194,21 @@
     "ibanFieldLabel": "IBAN",
     "recipientNameLabel": "Alıcı Adı",
     "amountFieldLabel": "Miktar",
-    "qrGeneratorDemo": "QR Generator Demo"
+    "qrGeneratorDemo": "QR Generator Demo",
+    
+    "qrCodeGenerationError": "QR kod oluşturma hatası:",
+    "ibanRequired": "IBAN adresi gerekli",
+    "invalidIban": "Geçersiz IBAN adresi. Lütfen doğru IBAN formatını kontrol edin.",
+    "recipientNameRequired": "Alıcı adı gerekli",
+    "recipientNameTooShort": "Alıcı adı en az 2 karakter olmalı",
+    "recipientNameTooLong": "Alıcı adı 70 karakteri geçemez",
+    "amountMustBePositive": "Miktar 0'dan büyük olmalı",
+    "amountTooHigh": "Miktar çok yüksek",
+    "invalidCurrencyCode": "Para birimi 3 harfli ISO kodu olmalı (örn: EUR, USD, TRY)",
+    "invalidBicCode": "Geçersiz BIC kodu",
+    "referenceTooLong": "Referans 35 karakteri geçemez",
+    "descriptionTooLong": "Açıklama 140 karakteri geçemez",
+    "notSpecified": "Belirtilmedi",
+    "unknownBank": "Bilinmeyen Banka"
 
 }

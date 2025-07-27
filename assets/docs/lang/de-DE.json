@@ -198,6 +198,21 @@
     "ibanFieldLabel": "IBAN",
     "recipientNameLabel": "Empfängername",
     "amountFieldLabel": "Betrag",
-    "qrGeneratorDemo": "QR-Generator Demo"
+    "qrGeneratorDemo": "QR-Generator Demo",
+    
+    "qrCodeGenerationError": "QR-Code-Generierungsfehler:",
+    "ibanRequired": "IBAN ist erforderlich",
+    "invalidIban": "Ungültige IBAN. Bitte überprüfen Sie das korrekte IBAN-Format.",
+    "recipientNameRequired": "Empfängername ist erforderlich",
+    "recipientNameTooShort": "Empfängername muss mindestens 2 Zeichen haben",
+    "recipientNameTooLong": "Empfängername darf 70 Zeichen nicht überschreiten",
+    "amountMustBePositive": "Betrag muss größer als 0 sein",
+    "amountTooHigh": "Betrag ist zu hoch",
+    "invalidCurrencyCode": "Währung muss ein 3-stelliger ISO-Code sein (z.B.: EUR, USD, TRY)",
+    "invalidBicCode": "Ungültiger BIC-Code",
+    "referenceTooLong": "Referenz darf 35 Zeichen nicht überschreiten",
+    "descriptionTooLong": "Beschreibung darf 140 Zeichen nicht überschreiten",
+    "notSpecified": "Nicht angegeben",
+    "unknownBank": "Unbekannte Bank"
 
 }

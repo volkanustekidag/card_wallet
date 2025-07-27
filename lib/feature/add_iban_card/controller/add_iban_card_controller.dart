@@ -4,6 +4,7 @@ import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dar
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
+import 'package:wallet_app/core/extensions/snack_bars.dart';
 
 class AddIbanCardController extends GetxController {
   final IbanCardService _ibanCardService = IbanCardService();
@@ -116,14 +117,7 @@ class AddIbanCardController extends GetxController {
 
         await _ibanCardService.updateIbanCard(_originalCard!, updatedCard);
         Get.back();
-        Get.snackbar(
-          'Success', 
-          'IBAN card updated successfully',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-          duration: Duration(seconds: 2),
-        );
+        Get.context?.showSuccessSnackBar('IBAN card updated successfully');
       } else {
         // Yeni kart ekleme işlemi - yeni string ID
         final newCard = IbanCard(
@@ -138,14 +132,7 @@ class AddIbanCardController extends GetxController {
 
         await _ibanCardService.addIbanCard(newCard);
         Get.back();
-        Get.snackbar(
-          'Success', 
-          'IBAN card added successfully',
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-          duration: Duration(seconds: 2),
-        );
+        Get.context?.showSuccessSnackBar('IBAN card added successfully');
       }
 
       // IBAN kartları yeniden yükle
@@ -154,14 +141,7 @@ class AddIbanCardController extends GetxController {
       resetCard();
     } catch (e) {
       print('Error saving IBAN card: $e');
-      Get.snackbar(
-        'Error', 
-        'Failed to save IBAN card: ${e.toString()}',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-        duration: Duration(seconds: 2),
-      );
+      Get.context?.showErrorSnackBar('Failed to save IBAN card: ${e.toString()}');
     } finally {
       isLoading.value = false;
     }

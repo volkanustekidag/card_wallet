@@ -5,6 +5,7 @@ import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:wallet_app/core/extensions/snack_bars.dart';
 
 class AddCreditCardController extends GetxController {
   final CreditCardService _creditCardService = CreditCardService();
@@ -130,14 +131,7 @@ class AddCreditCardController extends GetxController {
 
         await _creditCardService.updateCreditCard(_originalCard!, updatedCard);
         Get.back();
-        Get.snackbar(
-          "success".tr(),
-          "creditCardUpdatedSuccessfully".tr(),
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-          duration: Duration(seconds: 2),
-        );
+        Get.context?.showSuccessSnackBar("creditCardUpdatedSuccessfully".tr());
       } else {
         // Yeni kart ekleme işlemi
         final newCard = CreditCard(
@@ -152,14 +146,7 @@ class AddCreditCardController extends GetxController {
 
         await _creditCardService.addToCreditCard(newCard);
         Get.back();
-        Get.snackbar(
-          "success".tr(),
-          "creditCardAddedSuccessfully".tr(),
-          backgroundColor: Colors.green,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-          duration: Duration(seconds: 2),
-        );
+        Get.context?.showSuccessSnackBar("creditCardAddedSuccessfully".tr());
       }
 
       final creditCardController = Get.find<CreditCardController>();
@@ -167,14 +154,7 @@ class AddCreditCardController extends GetxController {
       resetCard();
     } catch (e) {
       print('Error saving card: $e');
-      Get.snackbar(
-        "error".tr(),
-        "failedToSaveCreditCard".tr(args: [e.toString()]),
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-        duration: Duration(seconds: 2),
-      );
+      Get.context?.showErrorSnackBar("failedToSaveCreditCard".tr(args: [e.toString()]));
     } finally {
       isLoading.value = false;
     }

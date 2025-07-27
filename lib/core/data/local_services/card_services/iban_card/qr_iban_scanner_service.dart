@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:wallet_app/core/extensions/snack_bars.dart';
 
 class QRIbanScannerService {
   final ImagePicker _picker = ImagePicker();
@@ -14,7 +15,7 @@ class QRIbanScannerService {
       // Kamera izni kontrol et
       final cameraPermission = await Permission.camera.request();
       if (!cameraPermission.isGranted) {
-        Get.snackbar('Error', 'cameraPermissionRequired'.tr());
+        Get.context?.showErrorSnackBar('cameraPermissionRequired'.tr());
         return null;
       }
 
@@ -33,7 +34,7 @@ class QRIbanScannerService {
           await _barcodeScanner.processImage(inputImage);
 
       if (barcodes.isEmpty) {
-        Get.snackbar('Info', 'noQRCodeFound'.tr());
+        Get.context?.showInfoSnackBar('noQRCodeFound'.tr());
         return null;
       }
 
@@ -41,7 +42,7 @@ class QRIbanScannerService {
       return _parseQRContent(barcodes.first.rawValue ?? '');
     } catch (e) {
       print('QR scan error: $e');
-      Get.snackbar('Error', '${'qrScanError'.tr()}: ${e.toString()}');
+      Get.context?.showErrorSnackBar('${'qrScanError'.tr()}: ${e.toString()}');
       return null;
     }
   }
@@ -61,15 +62,15 @@ class QRIbanScannerService {
           await _barcodeScanner.processImage(inputImage);
 
       if (barcodes.isEmpty) {
-        Get.snackbar('Info', 'noQRCodeFound'.tr());
+        Get.context?.showInfoSnackBar('noQRCodeFound'.tr());
         return null;
       }
 
       return _parseQRContent(barcodes.first.rawValue ?? '');
     } catch (e) {
       print('Gallery QR scan error: $e');
-      Get.snackbar(
-          'Error', '${'failedToScanQRFromGallery'.tr()}: ${e.toString()}');
+      Get.context?.showErrorSnackBar(
+          '${'failedToScanQRFromGallery'.tr()}: ${e.toString()}');
       return null;
     }
   }
