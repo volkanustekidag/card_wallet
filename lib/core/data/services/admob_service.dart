@@ -1,10 +1,29 @@
+import 'dart:io';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdMobService {
-  static const String _bannerAdUnitId =
+  // Android Ad Unit IDs
+  static const String _androidBannerAdUnitId =
       'ca-app-pub-7579710244323779/9583261767';
-  static const String _interstitialAdUnitId =
+  static const String _androidInterstitialAdUnitId =
       'ca-app-pub-7579710244323779/6994140338';
+
+  // iOS Ad Unit IDs
+  static const String _iosBannerAdUnitId =
+      'ca-app-pub-7579710244323779/6122854551';
+  static const String _iosInterstitialAdUnitId =
+      'ca-app-pub-7579710244323779/7155351739';
+
+  // Platform specific getters
+  static String get _bannerAdUnitId {
+    return Platform.isAndroid ? _androidBannerAdUnitId : _iosBannerAdUnitId;
+  }
+
+  static String get _interstitialAdUnitId {
+    return Platform.isAndroid
+        ? _androidInterstitialAdUnitId
+        : _iosInterstitialAdUnitId;
+  }
 
   static InterstitialAd? _interstitialAd;
   static bool _isInterstitialAdReady = false;
