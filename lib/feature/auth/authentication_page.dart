@@ -57,6 +57,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
         // Show registration screen if no password exists
         if (_authController.isRegistering.value) {
           return AuthViews(
+            key: const ValueKey('register'),
             textEditingController: TextEditingController(),
             text: "createPin",
             onCompleted: _handlePinCompleted,
@@ -65,6 +66,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
         // Show login screen (default state)
         return AuthViews(
+          key: const ValueKey('login'),
           textEditingController: TextEditingController(),
           text: "enterPin",
           onCompleted: _handlePinCompleted,
