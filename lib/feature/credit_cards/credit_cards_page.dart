@@ -14,7 +14,8 @@ class CreditCardsPage extends StatefulWidget {
 }
 
 class _CreditCardsPageState extends State<CreditCardsPage> {
-  late final CreditCardController _controller = Get.put(CreditCardController());
+  late final CreditCardController _controller =
+      Get.find<CreditCardController>();
 
   @override
   void initState() {
@@ -24,13 +25,14 @@ class _CreditCardsPageState extends State<CreditCardsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      extendBodyBehindAppBar: false,
       backgroundColor: context.theme.scaffoldBackgroundColor,
       appBar: const CCAppBar(),
       body: Obx(() {
         if (_controller.isLoading.value) {
           return const LoadingWidget();
         }
+
         return Column(
           children: [
             Expanded(

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -22,24 +24,21 @@ void main() async {
   await Hive.initFlutter();
 
   // Service initializations
-  await CreditCardService().init();
-  await IbanCardService().init();
-  await AuthenticationService().init();
-
-  // Theme service initialization
-  final themeService = ThemeService();
-  await themeService.init();
-
-  // AdMob initialization
-  await AdMobService.initialize();
-  await AdMobService.loadInterstitialAd();
-  await AdMobService.loadRewardedAd();
+  await Future.wait([
+    CreditCardService().init(),
+    IbanCardService().init(),
+    AuthenticationService().init(),
+    ThemeService().init(),
+  ]);
 
   // Screen orientation settings
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  // Kick off AdMob initialization without blocking first frame
+  _initializeAdMobInBackground();
 
   runApp(
     EasyLocalization(
@@ -63,6 +62,20 @@ class AppWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return MyApp();
   }
+}
+
+void _initializeAdMobInBackground() {
+  unawaited(Future(() async {
+    try {
+      await AdMobService.initialize();
+      await Future.wait([
+        AdMobService.loadInterstitialAd(),
+        AdMobService.loadRewardedAd(),
+      ]);
+    } catch (e) {
+      // Keep silent in release; initialization retry is handled internally
+    }
+  }));
 }
 
 class MyApp extends StatelessWidget {

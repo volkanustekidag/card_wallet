@@ -20,7 +20,7 @@ class AddIbanCardPage extends StatefulWidget {
 class _AddIbanCardPageState extends State<AddIbanCardPage> {
   late TextEditingController _ibanController;
   late final AddIbanCardController _controller =
-      Get.put(AddIbanCardController());
+      Get.find<AddIbanCardController>();
   List<CameraDescription> cameras = [];
 
   @override
@@ -29,16 +29,11 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
     _initCameras();
     _ibanController = TextEditingController();
 
-    // Initialization'ı initState'de yap
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.ibanCard != null) {
-        _controller.initializeForEdit(widget.ibanCard!);
-        print('Initializing for edit: ${widget.ibanCard!.cardHolder}');
-      } else {
-        _controller.initializeForCreate();
-        print('Initializing for create');
-      }
-    });
+    if (widget.ibanCard != null) {
+      _controller.initializeForEdit(widget.ibanCard!);
+    } else {
+      _controller.initializeForCreate();
+    }
   }
 
   @override

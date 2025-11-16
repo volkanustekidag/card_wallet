@@ -37,48 +37,51 @@ class AppBindings extends Bindings {
 class HomeBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(HomeController());
+    Get.find<HomeController>();
   }
 }
 
 class AuthBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(AuthController());
+    Get.find<AuthController>();
   }
 }
 
 class CreditCardBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(CreditCardController());
+    if (!Get.isRegistered<CreditCardController>()) {
+      Get.lazyPut<CreditCardController>(() => CreditCardController());
+    }
   }
 }
 
 class AddCreditCardBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(AddCreditCardController);
+    Get.lazyPut<AddCreditCardController>(() => AddCreditCardController());
   }
 }
 
 class IbanCardBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(IbanCardController());
+    Get.lazyPut<IbanCardController>(() => IbanCardController());
   }
 }
 
 class AddIbanCardBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(AddIbanCardController());
+    Get.lazyPut<AddIbanCardController>(() => AddIbanCardController());
   }
 }
 
 class ChangePinBindings extends Bindings {
   @override
   void dependencies() {
-    Get.put(ChangePinController(Get.put(AuthenticationService())));
+    Get.lazyPut<ChangePinController>(
+        () => ChangePinController(Get.find<AuthenticationService>()));
   }
 }

@@ -31,13 +31,12 @@ class AdMobService {
   }
 
   static String get _rewardedAdUnitId {
-    return Platform.isAndroid
-        ? _androidRewardedAdUnitId
-        : _iosRewardedAdUnitId;
+    return Platform.isAndroid ? _androidRewardedAdUnitId : _iosRewardedAdUnitId;
   }
 
   static InterstitialAd? _interstitialAd;
   static bool _isInterstitialAdReady = false;
+  static bool _isInterstitialLoading = false;
   static RewardedAd? _rewardedAd;
   static bool _isRewardedAdReady = false;
 
@@ -46,22 +45,26 @@ class AdMobService {
   }
 
   // Banner Ad
-  static BannerAd createBannerAd() {
+  static BannerAd createBannerAd({BannerAdListener? listener}) {
     return BannerAd(
       adUnitId: _bannerAdUnitId,
       size: AdSize.banner,
       request: const AdRequest(),
-      listener: BannerAdListener(
-        onAdLoaded: (ad) {},
-        onAdFailedToLoad: (ad, error) {
-          ad.dispose();
-        },
-      ),
+      listener: listener ??
+          BannerAdListener(
+            onAdLoaded: (ad) {},
+            onAdFailedToLoad: (ad, error) {
+              ad.dispose();
+            },
+          ),
     );
   }
 
   // Interstitial Ad
   static Future<void> loadInterstitialAd() async {
+    if (_isInterstitialLoading) return;
+    _isInterstitialLoading = true;
+
     await InterstitialAd.load(
       adUnitId: _interstitialAdUnitId,
       request: const AdRequest(),
@@ -69,6 +72,7 @@ class AdMobService {
         onAdLoaded: (ad) {
           _interstitialAd = ad;
           _isInterstitialAdReady = true;
+          _isInterstitialLoading = false;
           print('Interstitial ad loaded successfully');
 
           _interstitialAd!.fullScreenContentCallback =
@@ -76,16 +80,19 @@ class AdMobService {
             onAdDismissedFullScreenContent: (ad) {
               ad.dispose();
               _isInterstitialAdReady = false;
+              _interstitialAd = null;
               loadInterstitialAd(); // Yeni reklam yükle
             },
             onAdFailedToShowFullScreenContent: (ad, error) {
               ad.dispose();
               _isInterstitialAdReady = false;
+              _interstitialAd = null;
               loadInterstitialAd(); // Yeni reklam yükle
             },
           );
         },
         onAdFailedToLoad: (error) {
+          _isInterstitialLoading = false;
           _isInterstitialAdReady = false;
         },
       ),
@@ -96,7 +103,8 @@ class AdMobService {
     if (_isInterstitialAdReady && _interstitialAd != null) {
       await _interstitialAd!.show();
     } else {
-      await loadInterstitialAd(); // Reklam hazır değilse yükle
+      // Reklam hazır değilse kullanıcıyı bekletmeden yüklemeyi başlat
+      unawaited(loadInterstitialAd());
     }
   }
 

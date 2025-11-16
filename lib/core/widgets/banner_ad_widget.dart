@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:wallet_app/core/data/services/admob_service.dart';
 
 class BannerAdWidget extends StatefulWidget {
   const BannerAdWidget({Key? key}) : super(key: key);
@@ -19,10 +20,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   }
 
   void _loadAd() {
-    _bannerAd = BannerAd(
-      adUnitId: 'ca-app-pub-7579710244323779/9583261767',
-      size: AdSize.banner,
-      request: const AdRequest(),
+    _bannerAd = AdMobService.createBannerAd(
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           if (mounted) {

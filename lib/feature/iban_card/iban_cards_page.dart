@@ -14,7 +14,7 @@ class IbanCardsPage extends StatefulWidget {
 }
 
 class _IbanCardsPageState extends State<IbanCardsPage> {
-  late final IbanCardController _controller = Get.put(IbanCardController());
+  late final IbanCardController _controller = Get.find<IbanCardController>();
 
   @override
   void initState() {

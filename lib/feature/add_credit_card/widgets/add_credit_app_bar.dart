@@ -15,18 +15,9 @@ class AddCreditAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(AddCreditCardController());
+    final controller = Get.find<AddCreditCardController>();
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
-    // Controller'ı credit card varsa edit modunda başlat
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (creditCard != null) {
-        controller.initializeForEdit(creditCard!);
-      } else {
-        controller.initializeForCreate();
-      }
-    });
 
     return ClipRRect(
       borderRadius: BorderRadius.only(

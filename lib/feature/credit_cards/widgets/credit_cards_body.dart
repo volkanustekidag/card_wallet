@@ -21,9 +21,12 @@ class Body extends StatefulWidget {
   State<Body> createState() => _BodyState();
 }
 
+enum _DemoStage { idle, flippingToBack, showingBack, flippingToFront }
+
 class _BodyState extends State<Body> {
   GlobalKey<FlipCardState>? _firstCardKey;
   bool _demoShown = false;
+  _DemoStage _demoStage = _DemoStage.idle;
 
   @override
   void initState() {
@@ -31,31 +34,74 @@ class _BodyState extends State<Body> {
     _firstCardKey = GlobalKey<FlipCardState>();
   }
 
-  void _showFlipDemo() {
-    if (_demoShown) return;
+  void _resetDemoState() {
+    _demoShown = false;
+    _demoStage = _DemoStage.idle;
+    _firstCardKey = GlobalKey<FlipCardState>();
+  }
+
+  void _scheduleFlipDemo() {
+    if (_demoShown || _demoStage != _DemoStage.idle || _firstCardKey == null) {
+      return;
+    }
+    _demoStage = _DemoStage.flippingToBack;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(Duration(milliseconds: 300), () {
-        if (mounted &&
-            _firstCardKey?.currentState != null &&
-            widget.controller.creditCards.isNotEmpty) {
-          // Kartı çevir
-          _firstCardKey!.currentState!.toggleCard();
+      final cardState = _firstCardKey?.currentState;
+      if (!_canAnimate(cardState)) {
+        _demoStage = _DemoStage.idle;
+        return;
+      }
 
-          // 3 saniye sonra geri çevir
-          Future.delayed(Duration(milliseconds: 1500), () {
-            if (mounted && _firstCardKey?.currentState != null) {
-              _firstCardKey!.currentState!.toggleCard();
-            }
-          });
+      if (!cardState!.isFront) {
+        cardState.toggleCardWithoutAnimation();
+      }
 
-          _demoShown = true;
+      Future.delayed(const Duration(milliseconds: _initialDelayMs), () {
+        final state = _firstCardKey?.currentState;
+        if (!_canAnimate(state) || _demoStage != _DemoStage.flippingToBack) {
+          _demoStage = _DemoStage.idle;
+          return;
         }
+        state!.toggleCard();
       });
     });
   }
 
-  // Güvenli ID kontrol metodu
+  bool _canAnimate(FlipCardState? cardState) {
+    if (!mounted || cardState == null) return false;
+    return cardState.mounted;
+  }
+
+  static const int _initialDelayMs = 400;
+  static const int _backHoldDurationMs = 800;
+
+  void _handleDemoFlip(bool wasFrontBeforeFlip) {
+    if (_firstCardKey?.currentState == null) {
+      _demoStage = _DemoStage.idle;
+      return;
+    }
+
+    final showingBack = wasFrontBeforeFlip;
+
+    if (_demoStage == _DemoStage.flippingToBack && showingBack) {
+      _demoStage = _DemoStage.showingBack;
+      Future.delayed(const Duration(milliseconds: _backHoldDurationMs), () {
+        if (_demoStage != _DemoStage.showingBack) return;
+        final state = _firstCardKey?.currentState;
+        if (!_canAnimate(state)) {
+          _demoStage = _DemoStage.idle;
+          return;
+        }
+        _demoStage = _DemoStage.flippingToFront;
+        state!.toggleCard();
+      });
+    } else if (_demoStage == _DemoStage.flippingToFront && !showingBack) {
+      _demoStage = _DemoStage.idle;
+      _demoShown = true;
+    }
+  }
+
   bool _shouldShowEditButton(CreditCard creditCard) {
     try {
       final idString = creditCard.id.toString();
@@ -69,84 +115,78 @@ class _BodyState extends State<Body> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (widget.controller.creditCards.isEmpty) {
-        // Liste boşsa demo flag'ini sıfırla
-        _demoShown = false;
+      final cards = widget.controller.creditCards;
+
+      if (cards.isEmpty) {
+        _resetDemoState();
         return const EmptyListInfo();
       }
 
-      // Kartlar varsa ve demo henüz gösterilmediyse göster
-      if (widget.controller.creditCards.isNotEmpty && !_demoShown) {
-        _showFlipDemo();
-      }
+      _firstCardKey ??= GlobalKey<FlipCardState>();
+      _scheduleFlipDemo();
 
-      return Padding(
-        padding: EdgeInsets.only(top: 16.0),
-        child: ListView(
-          shrinkWrap: true,
-          children: widget.controller.creditCards.asMap().entries.map<Widget>(
-            (entry) {
-              final index = entry.key;
-              final creditCard = entry.value;
-              final isFirstCard = index == 0;
+      return ListView.separated(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        itemCount: cards.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 16),
+        itemBuilder: (context, index) {
+          final creditCard = cards[index];
+          final isFirstCard = index == 0;
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Row(
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: FlipCard(
+                    key: isFirstCard ? _firstCardKey : null,
+                    direction: FlipDirection.HORIZONTAL,
+                    speed: 1000,
+                    onFlipDone: isFirstCard ? _handleDemoFlip : null,
+                    back: CreditCardBack(creditCard: creditCard),
+                    front: CreditCardFront(creditCard: creditCard),
+                  ),
+                ),
+                Column(
                   children: [
-                    Expanded(
-                      child: FlipCard(
-                        key: isFirstCard ? _firstCardKey : null,
-                        direction: FlipDirection.HORIZONTAL,
-                        speed: 1000,
-                        onFlipDone: (status) {},
-                        back: CreditCardBack(creditCard: creditCard),
-                        front: CreditCardFront(
-                          creditCard: creditCard,
-                        ),
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        showDialogDeleteData(
+                          context,
+                          () => widget.controller.removeCreditCard(creditCard),
+                        );
+                      },
+                      icon: const CircleAvatar(child: Icon(Icons.delete)),
+                    ),
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        _generateCopyAllInfoText(creditCard);
+                        context.showSuccessSnackBar('copyInfo');
+                      },
+                      icon: const CircleAvatar(child: Icon(Icons.copy)),
+                    ),
+                    if (_shouldShowEditButton(creditCard))
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          Get.to(() =>
+                                  AddCreditCardPage(creditCard: creditCard))!
+                              .then((value) {
+                            widget.controller.loadCreditCards();
+                            _resetDemoState();
+                          });
+                        },
+                        icon: const CircleAvatar(child: Icon(Icons.edit)),
                       ),
-                    ),
-                    Column(
-                      children: [
-                        IconButton(
-                            padding: EdgeInsets.zero,
-                            onPressed: () {
-                              showDialogDeleteData(
-                                context,
-                                () => widget.controller
-                                    .removeCreditCard(creditCard),
-                              );
-                            },
-                            icon: CircleAvatar(child: Icon(Icons.delete))),
-                        IconButton(
-                            padding: EdgeInsets.zero,
-                            onPressed: () {
-                              _generateCopyAllInfoText(creditCard);
-                              context.showSuccessSnackBar('copyInfo');
-                            },
-                            icon: CircleAvatar(child: Icon(Icons.copy))),
-                        if (_shouldShowEditButton(creditCard))
-                          IconButton(
-                              padding: EdgeInsets.zero,
-                              onPressed: () {
-                                Get.to(() => AddCreditCardPage(
-                                        creditCard: creditCard))!
-                                    .then((value) {
-                                  widget.controller.loadCreditCards();
-                                  // Edit'ten dönünce demo'yu sıfırla ki tekrar gösterilsin
-                                  _demoShown = false;
-                                });
-                              },
-                              icon: CircleAvatar(child: Icon(Icons.edit))),
-                      ],
-                    ),
-                    SizedBox(width: 12),
                   ],
                 ),
-              );
-            },
-          ).toList(),
-        ),
+                const SizedBox(width: 12),
+              ],
+            ),
+          );
+        },
       );
     });
   }
@@ -162,8 +202,7 @@ class _BodyState extends State<Body> {
           onConfirm: () async {
             await onConfirm();
             Get.back();
-            // Silme işleminden sonra demo'yu sıfırla
-            _demoShown = false;
+            _resetDemoState();
           },
         );
       },

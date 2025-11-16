@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -6,70 +7,70 @@ import 'package:wallet_app/core/constants/keys.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 
 class IbanCardService {
-  late Box<IbanCard> _ibanCard;
+  IbanCardService._internal();
+  static final IbanCardService _instance = IbanCardService._internal();
+  factory IbanCardService() => _instance;
+
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  Box<IbanCard>? _ibanCard;
+  Future<void>? _openingFuture;
 
   Future<void> init() async {
-    if (!Hive.isAdapterRegistered(2)) {
-      Hive.registerAdapter(IbanCardAdapter());
+    if (_ibanCard?.isOpen == true) return;
+
+    if (_openingFuture != null) {
+      await _openingFuture;
+      return;
     }
 
-    bool boxExists = await Hive.boxExists(I_CARD_BOX_NAME);
+    final completer = Completer<void>();
+    _openingFuture = completer.future;
 
-    if (boxExists == false) {
-      final secureKey = Hive.generateSecureKey();
-      const secureStorage = FlutterSecureStorage();
-
-      _ibanCard = await Hive.openBox(
-        I_CARD_BOX_NAME,
-        encryptionCipher: HiveAesCipher(secureKey),
-      );
-
-      await secureStorage.write(
-        key: I_CARD_SECURE_STORAGE_KEY,
-        value: json.encode(secureKey),
-      );
-    } else {
-      await openBox();
+    try {
+      if (!Hive.isAdapterRegistered(2)) {
+        Hive.registerAdapter(IbanCardAdapter());
+      }
+      await _openEncryptedBox();
+      completer.complete();
+    } catch (e, stackTrace) {
+      completer.completeError(e, stackTrace);
+      rethrow;
+    } finally {
+      _openingFuture = null;
     }
   }
 
   Future<void> openBox() async {
-    final secureKey =
-        await const FlutterSecureStorage().read(key: I_CARD_SECURE_STORAGE_KEY);
-    List<int> encryptionKey =
-        (json.decode(secureKey!) as List<dynamic>).cast<int>();
-    _ibanCard = await Hive.openBox(
-      I_CARD_BOX_NAME,
-      encryptionCipher: HiveAesCipher(encryptionKey),
-    );
+    await _ensureBoxReady();
   }
 
   Future<void> deleteAllData() async {
-    await openBox();
-    await _ibanCard.deleteAll(_ibanCard.keys);
+    final box = await _ensureBoxReady();
+    await box.deleteAll(box.keys);
   }
 
   Future<List<IbanCard>> getAllIbanCards() async {
     try {
-      // Model artık hem int hem string ID'leri handle ediyor
-      return _ibanCard.values.toList();
+      final box = await _ensureBoxReady();
+      return box.values.toList();
     } catch (e) {
       return [];
     }
   }
 
   Future<void> addIbanCard(final IbanCard ibanCard) async {
+    final box = await _ensureBoxReady();
     try {
-      await _ibanCard.add(ibanCard);
+      await box.add(ibanCard);
     } catch (e) {
       throw Exception('Failed to add IBAN card');
     }
   }
 
   Future<void> removeIbanCard(final IbanCard ibanCard) async {
+    final box = await _ensureBoxReady();
     try {
-      final ibanCardToRemove = _ibanCard.values.firstWhere((element) {
-        // ID'leri string olarak karşılaştır
+      final ibanCardToRemove = box.values.firstWhere((element) {
         return element.id == ibanCard.id;
       });
       await ibanCardToRemove.delete();
@@ -81,19 +82,57 @@ class IbanCardService {
   // Yeni eklenen güncelleme metodu
   Future<void> updateIbanCard(
       IbanCard originalCard, IbanCard updatedCard) async {
+    final box = await _ensureBoxReady();
     try {
-      final index = _ibanCard.values.toList().indexWhere((card) {
-        // ID'leri string olarak karşılaştır
+      final index = box.values.toList().indexWhere((card) {
         return card.id == originalCard.id;
       });
 
       if (index != -1) {
-        await _ibanCard.putAt(index, updatedCard);
+        await box.putAt(index, updatedCard);
       } else {
         throw Exception('IBAN card not found for update');
       }
     } catch (e) {
       throw Exception('Failed to update IBAN card');
     }
+  }
+
+  Future<Box<IbanCard>> _ensureBoxReady() async {
+    if (_ibanCard?.isOpen == true) {
+      return _ibanCard!;
+    }
+
+    await init();
+    if (_ibanCard == null) {
+      throw StateError('IBAN card box could not be opened');
+    }
+    return _ibanCard!;
+  }
+
+  Future<void> _openEncryptedBox() async {
+    List<int> encryptionKey;
+    final boxExists = await Hive.boxExists(I_CARD_BOX_NAME);
+
+    if (!boxExists) {
+      final secureKey = Hive.generateSecureKey();
+      encryptionKey = secureKey;
+      await _secureStorage.write(
+        key: I_CARD_SECURE_STORAGE_KEY,
+        value: json.encode(secureKey),
+      );
+    } else {
+      final storedKey =
+          await _secureStorage.read(key: I_CARD_SECURE_STORAGE_KEY);
+      if (storedKey == null) {
+        throw Exception('Missing encryption key for IBAN card storage');
+      }
+      encryptionKey = (json.decode(storedKey) as List<dynamic>).cast<int>();
+    }
+
+    _ibanCard = await Hive.openBox(
+      I_CARD_BOX_NAME,
+      encryptionCipher: HiveAesCipher(encryptionKey),
+    );
   }
 }

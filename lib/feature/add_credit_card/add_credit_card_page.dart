@@ -20,7 +20,17 @@ class AddCreditCardPage extends StatefulWidget {
 
 class _AddCreditCardPageState extends State<AddCreditCardPage> {
   late final AddCreditCardController _controller =
-      Get.put(AddCreditCardController());
+      Get.find<AddCreditCardController>();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.creditCard != null) {
+      _controller.initializeForEdit(widget.creditCard!);
+    } else {
+      _controller.initializeForCreate();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
