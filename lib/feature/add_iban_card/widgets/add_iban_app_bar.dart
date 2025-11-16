@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
@@ -32,8 +34,8 @@ class AddIbanAppBar extends StatelessWidget implements PreferredSizeWidget {
             controller.resetCard();
             Get.back();
           },
-          icon: const Icon(
-            Icons.arrow_back,
+          icon: Icon(
+            Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
           ),
         ),
         actions: [
