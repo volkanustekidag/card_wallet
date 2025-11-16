@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
+import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
+import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
@@ -92,15 +94,33 @@ class AddIbanCardController extends GetxController {
       await _ibanCardService.openBox();
 
       // Premium kontrolü sadece yeni kart eklerken
+      bool rewardUnlockActive = false;
+
       if (!isEditMode.value) {
-        final ibanCardController = Get.put(IbanCardController());
         final premiumController = Get.find<PremiumController>();
 
-        final currentCount = ibanCardController.ibanCards.length;
-        if (!premiumController.canAddMoreIbanCards(currentCount)) {
-          // Direkt premium sayfasına yönlendir
-          Get.toNamed('/premium');
-          return;
+        final currentCount =
+            await premiumController.getStoredCardCount(CardLimitType.iban);
+        final args = Get.arguments;
+        rewardUnlockActive = args != null &&
+            args is Map &&
+            args['rewardUnlock'] == CardLimitType.iban.name;
+
+        if (!premiumController.canAddMoreIbanCards(currentCount) &&
+            !rewardUnlockActive) {
+          final dialogContext = Get.context;
+          if (dialogContext == null) {
+            Get.toNamed('/premium');
+            return;
+          }
+
+          final unlocked =
+              await showCardLimitDialog(dialogContext, CardLimitType.iban);
+          if (!unlocked) {
+            return;
+          }
+
+          rewardUnlockActive = true;
         }
       }
 

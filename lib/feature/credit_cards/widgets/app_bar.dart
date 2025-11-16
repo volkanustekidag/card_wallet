@@ -4,7 +4,8 @@ import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
-import 'package:wallet_app/core/data/services/admob_service.dart';
+import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
+import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:sizer/sizer.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -31,12 +32,25 @@ class CCAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: IconButton(
                 onPressed: () async {
                   final premiumController = Get.find<PremiumController>();
-                  // Premium kullanıcılara interstitial reklam gösterme
-                  if (!premiumController.isPremium) {
-                    await AdMobService.showInterstitialAd();
+                  CardLimitType? rewardUnlockType;
+                  final currentCount = await premiumController
+                      .getStoredCardCount(CardLimitType.credit);
+
+                  if (!premiumController.canAddMoreCreditCards(currentCount)) {
+                    final canProceed = await showCardLimitDialog(
+                        context, CardLimitType.credit);
+                    if (!canProceed) {
+                      return;
+                    }
+                    rewardUnlockType = CardLimitType.credit;
                   }
-                  Get.toNamed('/addCreditCard')?.then((value) =>
-                      Get.find<CreditCardController>().loadCreditCards());
+                  await premiumController.showInterstitialIfNeeded();
+                  final arguments = rewardUnlockType != null
+                      ? {'rewardUnlock': rewardUnlockType.name}
+                      : null;
+                  Get.toNamed('/addCreditCard', arguments: arguments)?.then(
+                      (value) =>
+                          Get.find<CreditCardController>().loadCreditCards());
                 },
                 icon: Icon(
                   Icons.add,
@@ -53,5 +67,5 @@ class CCAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(8.h);
+  Size get preferredSize => Size.fromHeight(6.h);
 }

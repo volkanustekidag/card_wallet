@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 
 class PremiumService {
   static const String _premiumProductId = 'premium';
@@ -9,6 +11,8 @@ class PremiumService {
 
   static final InAppPurchase _iap = InAppPurchase.instance;
   static late StreamSubscription<List<PurchaseDetails>> _subscription;
+  static final CreditCardService _creditCardService = CreditCardService();
+  static final IbanCardService _ibanCardService = IbanCardService();
 
   static bool _isPremium = false;
   static final StreamController<bool> _premiumStatusController =
@@ -126,7 +130,7 @@ class PremiumService {
   }
 
   // Card limit methods
-  static const int maxCardsForFree = 3;
+  static const int maxCardsForFree = 1;
 
   static bool canAddMoreCreditCards(int currentCount) {
     if (_isPremium) return true;
@@ -141,5 +145,25 @@ class PremiumService {
   static void dispose() {
     _subscription.cancel();
     _premiumStatusController.close();
+  }
+
+  static Future<int> getStoredCreditCardCount() async {
+    try {
+      await _creditCardService.openBox();
+      final cards = await _creditCardService.getAllCreditCards();
+      return cards.length;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  static Future<int> getStoredIbanCardCount() async {
+    try {
+      await _ibanCardService.openBox();
+      final cards = await _ibanCardService.getAllIbanCards();
+      return cards.length;
+    } catch (e) {
+      return 0;
+    }
   }
 }

@@ -1,6 +1,8 @@
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
+import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
+import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -104,15 +106,32 @@ class AddCreditCardController extends GetxController {
       await _creditCardService.openBox();
 
       // Premium kontrolü sadece yeni kart eklerken
-      if (!isEditMode.value) {
-        final creditCardController = Get.put(CreditCardController());
-        final premiumController = Get.find<PremiumController>();
+      bool rewardUnlockActive = false;
 
-        final currentCount = creditCardController.creditCards.length;
-        if (!premiumController.canAddMoreCreditCards(currentCount)) {
-          // Direkt premium sayfasına yönlendir
-          Get.toNamed('/premium');
-          return;
+      if (!isEditMode.value) {
+        final premiumController = Get.find<PremiumController>();
+        final currentCount =
+            await premiumController.getStoredCardCount(CardLimitType.credit);
+        final args = Get.arguments;
+        rewardUnlockActive = args != null &&
+            args is Map &&
+            args['rewardUnlock'] == CardLimitType.credit.name;
+
+        if (!premiumController.canAddMoreCreditCards(currentCount) &&
+            !rewardUnlockActive) {
+          final dialogContext = Get.context;
+          if (dialogContext == null) {
+            Get.toNamed('/premium');
+            return;
+          }
+
+          final unlocked =
+              await showCardLimitDialog(dialogContext, CardLimitType.credit);
+          if (!unlocked) {
+            return;
+          }
+
+          rewardUnlockActive = true;
         }
       }
 

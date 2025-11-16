@@ -22,5 +22,5 @@ class ChangePinAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   // TODO: implement preferredSize
-  Size get preferredSize => Size.fromHeight(8.h);
+  Size get preferredSize => Size.fromHeight(6.h);
 }

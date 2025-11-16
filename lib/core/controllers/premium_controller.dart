@@ -1,15 +1,19 @@
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:wallet_app/core/data/services/admob_service.dart';
+import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 
 class PremiumController extends GetxController {
   final RxBool _isPremium = false.obs;
   final RxBool _isLoading = false.obs;
   final Rx<ProductDetails?> _premiumProduct = Rx<ProductDetails?>(null);
+  bool _skipNextInterstitial = false;
 
   bool get isPremium => _isPremium.value;
   bool get isLoading => _isLoading.value;
   ProductDetails? get premiumProduct => _premiumProduct.value;
+  bool get shouldSkipInterstitial => _skipNextInterstitial;
 
   @override
   void onInit() {
@@ -81,6 +85,37 @@ class PremiumController extends GetxController {
   }
 
   int get maxCardsForFree => PremiumService.maxCardsForFree;
+
+  Future<bool> requestRewardedSlot(CardLimitType type) async {
+    try {
+      final rewarded = await AdMobService.showRewardedAd();
+      if (rewarded) {
+        _skipNextInterstitial = true;
+      }
+      return rewarded;
+    } catch (e) {
+      print('Error showing rewarded ad: $e');
+      return false;
+    }
+  }
+
+  Future<void> showInterstitialIfNeeded() async {
+    if (isPremium) return;
+
+    if (_skipNextInterstitial) {
+      _skipNextInterstitial = false;
+      return;
+    }
+
+    await AdMobService.showInterstitialAd();
+  }
+
+  Future<int> getStoredCardCount(CardLimitType type) async {
+    if (type == CardLimitType.credit) {
+      return await PremiumService.getStoredCreditCardCount();
+    }
+    return await PremiumService.getStoredIbanCardCount();
+  }
 
   @override
   void onClose() {

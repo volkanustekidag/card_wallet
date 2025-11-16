@@ -4,7 +4,6 @@ import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
-import 'package:wallet_app/core/data/services/admob_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class RowTitles extends StatelessWidget {
@@ -43,10 +42,7 @@ class RowTitles extends StatelessWidget {
           GestureDetector(
             onTap: () async {
               final premiumController = Get.find<PremiumController>();
-              // Premium kullanıcılara interstitial reklam gösterme
-              if (!premiumController.isPremium) {
-                await AdMobService.showInterstitialAd();
-              }
+              await premiumController.showInterstitialIfNeeded();
               Get.toNamed(route)?.then(
                 (value) => Get.find<HomeController>().refreshData(),
               );

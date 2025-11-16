@@ -33,6 +33,7 @@ void main() async {
   // AdMob initialization
   await AdMobService.initialize();
   await AdMobService.loadInterstitialAd();
+  await AdMobService.loadRewardedAd();
 
   // Screen orientation settings
   await SystemChrome.setPreferredOrientations([

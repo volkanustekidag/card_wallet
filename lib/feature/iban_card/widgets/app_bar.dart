@@ -4,7 +4,8 @@ import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
-import 'package:wallet_app/core/data/services/admob_service.dart';
+import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
+import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:sizer/sizer.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -32,12 +33,25 @@ class IbanCardsAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: IconButton(
                 onPressed: () async {
                   final premiumController = Get.find<PremiumController>();
-                  // Premium kullanıcılara interstitial reklam gösterme
-                  if (!premiumController.isPremium) {
-                    await AdMobService.showInterstitialAd();
+                  CardLimitType? rewardUnlockType;
+                  final currentCount = await premiumController
+                      .getStoredCardCount(CardLimitType.iban);
+
+                  if (!premiumController.canAddMoreIbanCards(currentCount)) {
+                    final canProceed =
+                        await showCardLimitDialog(context, CardLimitType.iban);
+                    if (!canProceed) {
+                      return;
+                    }
+                    rewardUnlockType = CardLimitType.iban;
                   }
-                  Get.toNamed('/addIbanCard')?.then((value) =>
-                      Get.find<IbanCardController>().loadIbanCards());
+                  await premiumController.showInterstitialIfNeeded();
+                  final arguments = rewardUnlockType != null
+                      ? {'rewardUnlock': rewardUnlockType.name}
+                      : null;
+                  Get.toNamed('/addIbanCard', arguments: arguments)?.then(
+                      (value) =>
+                          Get.find<IbanCardController>().loadIbanCards());
                 },
                 icon: Icon(
                   Icons.add,
@@ -62,5 +76,5 @@ class IbanCardsAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(8.h);
+  Size get preferredSize => Size.fromHeight(6.h);
 }

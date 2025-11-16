@@ -37,5 +37,5 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(8.h);
+  Size get preferredSize => Size.fromHeight(6.h);
 }

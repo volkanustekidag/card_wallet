@@ -3,10 +3,9 @@ import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
-import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
-import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
-import 'package:wallet_app/core/data/services/admob_service.dart';
+import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
+import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/widgets/background_shapes_painter.dart';
 import 'package:wallet_app/core/widgets/premium_crown_widget.dart';
 import 'package:wallet_app/core/widgets/premium_upgrade_widget.dart';
@@ -44,10 +43,7 @@ class HomeBody extends StatelessWidget {
                       icon: Icon(Icons.menu_rounded, size: 20.sp),
                       onPressed: () async {
                         final premiumController = Get.find<PremiumController>();
-                        // Premium kullanıcılara interstitial reklam gösterme
-                        if (!premiumController.isPremium) {
-                          await AdMobService.showInterstitialAd();
-                        }
+                        await premiumController.showInterstitialIfNeeded();
                         Get.toNamed('/settings')?.then(
                           (value) => controller.refreshData(),
                         );
@@ -189,31 +185,46 @@ class HomeBody extends StatelessWidget {
             // Kart limiti kontrolü
             final premiumController = Get.find<PremiumController>();
 
+            bool canProceed = true;
+            CardLimitType? rewardUnlockType;
+
             if (route == "/addCreditCard") {
-              final creditCardController = Get.find<CreditCardController>();
-              final currentCount = creditCardController.creditCards.length;
+              final currentCount =
+                  await premiumController.getStoredCardCount(CardLimitType.credit);
               print(
                   'Credit Card - Premium: ${premiumController.isPremium}, Count: $currentCount, CanAdd: ${premiumController.canAddMoreCreditCards(currentCount)}');
               if (!premiumController.canAddMoreCreditCards(currentCount)) {
-                Get.toNamed('/premium');
-                return;
+                canProceed =
+                    await showCardLimitDialog(context, CardLimitType.credit);
+                if (!canProceed) {
+                  return;
+                }
+                rewardUnlockType = CardLimitType.credit;
               }
             } else if (route == "/addIbanCard") {
-              final ibanCardController = Get.find<IbanCardController>();
-              final currentCount = ibanCardController.ibanCards.length;
+              final currentCount =
+                  await premiumController.getStoredCardCount(CardLimitType.iban);
               print(
                   'IBAN Card - Premium: ${premiumController.isPremium}, Count: $currentCount, CanAdd: ${premiumController.canAddMoreIbanCards(currentCount)}');
               if (!premiumController.canAddMoreIbanCards(currentCount)) {
-                Get.toNamed('/premium');
-                return;
+                canProceed =
+                    await showCardLimitDialog(context, CardLimitType.iban);
+                if (!canProceed) {
+                  return;
+                }
+                rewardUnlockType = CardLimitType.iban;
               }
             }
 
-            // Premium kullanıcılara interstitial reklam gösterme
-            if (!premiumController.isPremium) {
-              await AdMobService.showInterstitialAd();
+            if (!canProceed) {
+              return;
             }
-            Get.toNamed(route)?.then(
+
+            await premiumController.showInterstitialIfNeeded();
+            final arguments = rewardUnlockType != null
+                ? {'rewardUnlock': rewardUnlockType.name}
+                : null;
+            Get.toNamed(route, arguments: arguments)?.then(
               (value) => Get.find<HomeController>().refreshData(),
             );
           },

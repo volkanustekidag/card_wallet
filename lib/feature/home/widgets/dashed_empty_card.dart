@@ -2,9 +2,10 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
-import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
-import 'package:wallet_app/core/data/services/admob_service.dart';
+import 'package:wallet_app/feature/home/controller/home_controller.dart';
+import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
+import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class DashedEmptyCard extends StatelessWidget {
@@ -26,11 +27,39 @@ class DashedEmptyCard extends StatelessWidget {
       child: GestureDetector(
         onTap: () async {
           final premiumController = Get.find<PremiumController>();
-          // Premium kullanıcılara interstitial reklam gösterme
-          if (!premiumController.isPremium) {
-            await AdMobService.showInterstitialAd();
+          bool canProceed = true;
+          CardLimitType? rewardUnlockType;
+
+          if (route == '/addCreditCard') {
+            final currentCount =
+                await premiumController.getStoredCardCount(CardLimitType.credit);
+            if (!premiumController.canAddMoreCreditCards(currentCount)) {
+              canProceed =
+                  await showCardLimitDialog(context, CardLimitType.credit);
+              if (canProceed) {
+                rewardUnlockType = CardLimitType.credit;
+              }
+            }
+          } else if (route == '/addIbanCard') {
+            final currentCount =
+                await premiumController.getStoredCardCount(CardLimitType.iban);
+            if (!premiumController.canAddMoreIbanCards(currentCount)) {
+              canProceed =
+                  await showCardLimitDialog(context, CardLimitType.iban);
+              if (canProceed) {
+                rewardUnlockType = CardLimitType.iban;
+              }
+            }
           }
-          Get.toNamed(route)?.then(
+
+          if (!canProceed) {
+            return;
+          }
+          await premiumController.showInterstitialIfNeeded();
+          final arguments = rewardUnlockType != null
+              ? {'rewardUnlock': rewardUnlockType.name}
+              : null;
+          Get.toNamed(route, arguments: arguments)?.then(
             (value) => Get.find<HomeController>().refreshData(),
           );
         },
