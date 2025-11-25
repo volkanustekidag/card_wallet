@@ -21,7 +21,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<string>8</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -49,5 +49,9 @@
 	<true/>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-7579710244323779~7269125709</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera so you can scan or capture card images inside the app.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to let you select existing card images to add to your wallet.</string>
 </dict>
 </plist>

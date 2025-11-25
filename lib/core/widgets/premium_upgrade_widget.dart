@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
@@ -47,10 +48,11 @@ class PremiumUpgradeWidget extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Icon(
-                Icons.workspace_premium,
+              SvgPicture.asset(
+                'assets/svg/premium.svg',
+                width: 24,
+                height: 24,
                 color: Colors.white,
-                size: 24,
               ),
               const SizedBox(width: 12),
               Expanded(

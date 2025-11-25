@@ -112,7 +112,15 @@ class _PremiumPageState extends State<PremiumPage> {
 
                 // Purchase Button
                 if (_premiumController.premiumProduct != null)
-                  _buildPurchaseButton(colorScheme),
+                  _buildPurchaseButton(colorScheme)
+                else
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 2.h),
+                    child: Text(
+                      'Loading product... (${_premiumController.premiumProduct == null ? "Product not loaded" : "Loaded"})',
+                      style: TextStyle(color: colorScheme.error),
+                    ),
+                  ),
 
                 SizedBox(height: 2.h),
 

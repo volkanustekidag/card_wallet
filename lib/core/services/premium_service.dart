@@ -113,18 +113,34 @@ class PremiumService {
 
   static Future<ProductDetails?> getPremiumProductDetails() async {
     try {
+      print('🔍 [Premium] Checking if IAP is available...');
       final bool available = await _iap.isAvailable();
-      if (!available) return null;
+      print('🔍 [Premium] IAP available: $available');
+
+      if (!available) {
+        print('❌ [Premium] IAP not available on this device');
+        return null;
+      }
 
       const Set<String> productIds = {_premiumProductId};
+      print('🔍 [Premium] Querying product: $_premiumProductId');
+
       final ProductDetailsResponse response =
           await _iap.queryProductDetails(productIds);
 
+      print('🔍 [Premium] Products found: ${response.productDetails.length}');
+      print('🔍 [Premium] Not found IDs: ${response.notFoundIDs}');
+
       if (response.productDetails.isNotEmpty) {
-        return response.productDetails.first;
+        final product = response.productDetails.first;
+        print('✅ [Premium] Product loaded: ${product.id} - ${product.price}');
+        return product;
       }
+
+      print('❌ [Premium] No products found');
       return null;
     } catch (e) {
+      print('❌ [Premium] Error loading product: $e');
       return null;
     }
   }

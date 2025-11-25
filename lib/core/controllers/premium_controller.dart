@@ -44,10 +44,12 @@ class PremiumController extends GetxController {
 
   Future<void> _loadPremiumProduct() async {
     try {
+      print('🔄 [PremiumController] Loading premium product...');
       final product = await PremiumService.getPremiumProductDetails();
       _premiumProduct.value = product;
+      print('🔄 [PremiumController] Premium product result: ${product?.id ?? "NULL"}');
     } catch (e) {
-      print('Error loading premium product: $e');
+      print('❌ [PremiumController] Error loading premium product: $e');
     }
   }
 
