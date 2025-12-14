@@ -1,5 +1,9 @@
 import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:get/get.dart' hide Trans;
+import 'package:easy_localization/easy_localization.dart';
+import 'package:wallet_app/core/extensions/snack_bars.dart';
 
 class CreditCardScannerService {
   final ImagePicker _picker = ImagePicker();
@@ -8,6 +12,12 @@ class CreditCardScannerService {
   // Kredi kartı tarama
   Future<Map<String, String>?> scanCreditCard() async {
     try {
+      final cameraPermission = await Permission.camera.request();
+      if (!cameraPermission.isGranted) {
+        Get.context?.showErrorSnackBar('cameraPermissionRequired'.tr());
+        return null;
+      }
+
       // Kameradan fotoğraf çek
       final XFile? photo = await _picker.pickImage(
         source: ImageSource.camera,
@@ -25,6 +35,7 @@ class CreditCardScannerService {
       // Kredi kartı bilgilerini parse et
       return _parseCreditCardInfo(recognizedText.text);
     } catch (e) {
+      Get.context?.showErrorSnackBar('qrScanError'.tr());
       return null;
     }
   }

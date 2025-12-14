@@ -6,7 +6,6 @@ import 'package:wallet_app/core/widgets/credit_card_back.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
 import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_controller.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/add_credit_app_bar.dart';
-import 'package:wallet_app/feature/add_credit_card/widgets/colors_list_view.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/credit_form.dart';
 
 class AddCreditCardPage extends StatefulWidget {
@@ -41,7 +40,7 @@ class _AddCreditCardPageState extends State<AddCreditCardPage> {
       body: SafeArea(
         child: Column(
           children: [
-            SizedBox(height: 24),
+            SizedBox(height: 16),
             Obx(
               () => FlipCard(
                 direction: FlipDirection.HORIZONTAL,
@@ -51,9 +50,6 @@ class _AddCreditCardPageState extends State<AddCreditCardPage> {
                 back: CreditCardBack(creditCard: _controller.currentCard.value),
               ),
             ),
-            SizedBox(height: 16),
-            const ColorsListView(),
-            SizedBox(height: 16),
             const CreditTextFieldForms(),
           ],
         ),

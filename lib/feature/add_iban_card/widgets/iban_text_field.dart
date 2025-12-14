@@ -1,7 +1,8 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:flutter_iban_scanner/flutter_iban_scanner.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
 
 class IbanTextField extends StatelessWidget {
@@ -47,9 +48,53 @@ class IbanTextField extends StatelessWidget {
             Icons.camera_alt,
             color: Theme.of(context).primaryColor,
           ),
-          onPressed: () => {
-            focusNode.unfocus(),
-            focusNode.canRequestFocus = false,
+          onPressed: () async {
+            focusNode.unfocus();
+            focusNode.canRequestFocus = false;
+
+            // Kamera izni kontrol et ve iste
+            final cameraStatus = await Permission.camera.status;
+
+            if (cameraStatus.isDenied) {
+              final result = await Permission.camera.request();
+              if (!result.isGranted) {
+                Get.snackbar(
+                  'Permission Required',
+                  'Camera permission is required to scan IBANs',
+                  snackPosition: SnackPosition.BOTTOM,
+                );
+                focusNode.canRequestFocus = true;
+                return;
+              }
+            } else if (cameraStatus.isPermanentlyDenied) {
+              // İzin kalıcı olarak reddedilmiş - ayarlara yönlendir
+              final shouldOpenSettings = await Get.dialog<bool>(
+                AlertDialog(
+                  title: Text('Camera Permission Required'),
+                  content: Text(
+                    'This app needs camera permission to scan IBANs. Please grant camera permission in your device settings.',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Get.back(result: false),
+                      child: Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Get.back(result: true),
+                      child: Text('Open Settings'),
+                    ),
+                  ],
+                ),
+              );
+
+              if (shouldOpenSettings == true) {
+                await openAppSettings();
+              }
+              focusNode.canRequestFocus = true;
+              return;
+            }
+
+            // İzin verildi, scanner'ı aç
             Get.to(() => IBANScannerView(
                   cameras: cameras,
                   onScannerResult: (iban) {
@@ -57,13 +102,14 @@ class IbanTextField extends StatelessWidget {
                     controller.updateCardField("iban", iban);
                     _ibanController.text = iban;
                   },
-                )),
+                ));
+
             Future.delayed(
               const Duration(milliseconds: 100),
               () {
                 focusNode.canRequestFocus = true;
               },
-            ),
+            );
           },
         ),
       ),

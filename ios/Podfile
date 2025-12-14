@@ -36,5 +36,40 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
+
+    target.build_configurations.each do |config|
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+        '$(inherited)',
+        'PERMISSION_CAMERA=1',
+        'PERMISSION_PHOTOS=1'
+      ]
+
+      unless config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'].include?('PERMISSION_CAMERA=1')
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'PERMISSION_CAMERA=1'
+      end
+
+      unless config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'].include?('PERMISSION_PHOTOS=1')
+        config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] << 'PERMISSION_PHOTOS=1'
+      end
+    end
+
+    # Gereksiz ML Kit resource bundle'larını kaldır
+    unwanted_resources = [
+      'MLKitPoseDetectionFastResources',
+      'MLKitPoseDetectionAccurateResources',
+      'GoogleMVFaceDetectorResources',
+      'MLKitImageLabelingResources',
+      'MLKitObjectDetectionResources',
+      'MLKitObjectDetectionCommonResources',
+      'MLKitSegmentationSelfieResources',
+      'PredictOnDeviceResource'
+    ]
+
+    if unwanted_resources.any? { |res| target.name.include?(res) }
+      target.build_configurations.each do |config|
+        # Bu kaynakları build'e dahil etme
+        config.build_settings['EXCLUDED_SOURCE_FILE_NAMES'] = '$(inherited) *.tflite *.emd *.tfl'
+      end
+    end
   end
 end

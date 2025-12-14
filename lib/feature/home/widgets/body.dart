@@ -41,9 +41,7 @@ class HomeBody extends StatelessWidget {
                     forceMaterialTransparency: true,
                     leading: IconButton(
                       icon: Icon(Icons.menu_rounded, size: 20.sp),
-                      onPressed: () async {
-                        final premiumController = Get.find<PremiumController>();
-                        await premiumController.showInterstitialIfNeeded();
+                      onPressed: () {
                         Get.toNamed('/settings')?.then(
                           (value) => controller.refreshData(),
                         );

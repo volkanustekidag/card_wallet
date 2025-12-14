@@ -9,6 +9,7 @@ import 'package:wallet_app/core/data/local_services/card_services/credi_card/cre
 import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_controller.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_number_formatter.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_valid_thru_formatter.dart';
+import 'package:wallet_app/feature/add_credit_card/widgets/colors_list_view.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 
@@ -208,7 +209,10 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
           padding: const PaddingConstants.normal(),
           child: Column(
             children: [
+              const ColorsListView(),
               // Kamera Tarama Butonu
+              SizedBox(height: 16),
+
               Container(
                 width: 90.w,
                 margin: EdgeInsets.only(bottom: 16),

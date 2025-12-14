@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/controllers/auth_controller.dart';
+import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/widgets/premium_status_widget.dart';
@@ -83,26 +84,39 @@ class _SettingsBodyState extends State<SettingsBody> {
               },
             ),
 
-            // Biometric Authentication Setting
+            // Biometric Authentication Setting (shows for everyone but premium unlocks it)
             Obx(() {
+              final premiumController = Get.find<PremiumController>();
               if (!authController.isBiometricAvailable.value) {
                 return const SizedBox.shrink();
               }
 
+              final isPremium = premiumController.isPremium;
+
               return SettingsCard(
                 iconData: Icons.fingerprint,
                 title: authController.getBiometricDisplayName(),
-                trailing: Switch(
-                  value: authController.isBiometricEnabled.value,
-                  onChanged: (value) {
-                    authController.toggleBiometric(value);
-                  },
-                  activeColor: Colors.blue,
-                ),
-                onTap: () {
-                  authController.toggleBiometric(
-                      !authController.isBiometricEnabled.value);
-                },
+                subtitle: isPremium ? null : "premiumUpgrade".tr(),
+                trailing: isPremium
+                    ? Switch(
+                        value: authController.isBiometricEnabled.value,
+                        onChanged: (value) {
+                          authController.toggleBiometric(value);
+                        },
+                        activeColor: Colors.blue,
+                      )
+                    : Icon(
+                        Icons.workspace_premium,
+                        color: Colors.amber.shade600,
+                      ),
+                onTap: isPremium
+                    ? () {
+                        authController.toggleBiometric(
+                            !authController.isBiometricEnabled.value);
+                      }
+                    : () {
+                        Get.toNamed('/premium');
+                      },
               );
             }),
 
