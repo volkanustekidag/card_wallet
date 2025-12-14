@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdMobService {
-  // Android Ad Unit IDs
+  // Real Ad Unit IDs - Android
   static const String _androidBannerAdUnitId =
       'ca-app-pub-7579710244323779/9583261767';
   static const String _androidInterstitialAdUnitId =
@@ -11,7 +11,7 @@ class AdMobService {
   static const String _androidRewardedAdUnitId =
       'ca-app-pub-7579710244323779/3794691228';
 
-  // iOS Ad Unit IDs
+  // Real Ad Unit IDs - iOS
   static const String _iosBannerAdUnitId =
       'ca-app-pub-7579710244323779/6122854551';
   static const String _iosInterstitialAdUnitId =
@@ -19,18 +19,54 @@ class AdMobService {
   static const String _iosRewardedAdUnitId =
       'ca-app-pub-7579710244323779/7352175745';
 
+  // Test Ad Unit IDs - Android
+  static const String _androidTestBannerAdUnitId =
+      'ca-app-pub-3940256099942544/6300978111';
+  static const String _androidTestInterstitialAdUnitId =
+      'ca-app-pub-3940256099942544/1033173712';
+  static const String _androidTestRewardedAdUnitId =
+      'ca-app-pub-3940256099942544/5224354917';
+
+  // Test Ad Unit IDs - iOS
+  static const String _iosTestBannerAdUnitId =
+      'ca-app-pub-3940256099942544/2934735716';
+  static const String _iosTestInterstitialAdUnitId =
+      'ca-app-pub-3940256099942544/4411468910';
+  static const String _iosTestRewardedAdUnitId =
+      'ca-app-pub-3940256099942544/1712485313';
+
+  // Fallback tracking
+  static bool _useTestAdsForBanner = false;
+  static bool _useTestAdsForInterstitial = false;
+  static bool _useTestAdsForRewarded = false;
+
   // Platform specific getters
   static String get _bannerAdUnitId {
+    if (_useTestAdsForBanner) {
+      return Platform.isAndroid
+          ? _androidTestBannerAdUnitId
+          : _iosTestBannerAdUnitId;
+    }
     return Platform.isAndroid ? _androidBannerAdUnitId : _iosBannerAdUnitId;
   }
 
   static String get _interstitialAdUnitId {
+    if (_useTestAdsForInterstitial) {
+      return Platform.isAndroid
+          ? _androidTestInterstitialAdUnitId
+          : _iosTestInterstitialAdUnitId;
+    }
     return Platform.isAndroid
         ? _androidInterstitialAdUnitId
         : _iosInterstitialAdUnitId;
   }
 
   static String get _rewardedAdUnitId {
+    if (_useTestAdsForRewarded) {
+      return Platform.isAndroid
+          ? _androidTestRewardedAdUnitId
+          : _iosTestRewardedAdUnitId;
+    }
     return Platform.isAndroid ? _androidRewardedAdUnitId : _iosRewardedAdUnitId;
   }
 
@@ -44,8 +80,27 @@ class AdMobService {
     await MobileAds.instance.initialize();
   }
 
+  // Enable test ads for fallback
+  static void enableTestAdsForBanner() {
+    _useTestAdsForBanner = true;
+    print('Enabled test ads for banner');
+  }
+
+  static void enableTestAdsForInterstitial() {
+    _useTestAdsForInterstitial = true;
+    print('Enabled test ads for interstitial');
+  }
+
+  static void enableTestAdsForRewarded() {
+    _useTestAdsForRewarded = true;
+    print('Enabled test ads for rewarded');
+  }
+
   // Banner Ad
-  static BannerAd createBannerAd({BannerAdListener? listener}) {
+  static BannerAd createBannerAd({
+    BannerAdListener? listener,
+    bool useTestAd = false,
+  }) {
     return BannerAd(
       adUnitId: _bannerAdUnitId,
       size: AdSize.banner,
@@ -61,6 +116,7 @@ class AdMobService {
   }
 
   // Interstitial Ad
+  static int _interstitialLoadAttempts = 0;
   static Future<void> loadInterstitialAd() async {
     if (_isInterstitialLoading) return;
     _isInterstitialLoading = true;
@@ -73,6 +129,7 @@ class AdMobService {
           _interstitialAd = ad;
           _isInterstitialAdReady = true;
           _isInterstitialLoading = false;
+          _interstitialLoadAttempts = 0;
           print('Interstitial ad loaded successfully');
 
           _interstitialAd!.fullScreenContentCallback =
@@ -92,8 +149,19 @@ class AdMobService {
           );
         },
         onAdFailedToLoad: (error) {
+          print('Interstitial ad failed to load: $error');
           _isInterstitialLoading = false;
           _isInterstitialAdReady = false;
+
+          // İlk denemede başarısız olursa test reklamını dene
+          if (_interstitialLoadAttempts == 0 && !_useTestAdsForInterstitial) {
+            print('Interstitial: Trying fallback to test ad...');
+            _interstitialLoadAttempts++;
+            enableTestAdsForInterstitial();
+            loadInterstitialAd();
+          } else {
+            _interstitialLoadAttempts = 0;
+          }
         },
       ),
     );
@@ -109,6 +177,7 @@ class AdMobService {
   }
 
   // Rewarded Ad
+  static int _rewardedLoadAttempts = 0;
   static Future<void> loadRewardedAd() async {
     await RewardedAd.load(
       adUnitId: _rewardedAdUnitId,
@@ -117,11 +186,23 @@ class AdMobService {
         onAdLoaded: (ad) {
           _rewardedAd = ad;
           _isRewardedAdReady = true;
+          _rewardedLoadAttempts = 0;
           print('Rewarded ad loaded successfully');
         },
         onAdFailedToLoad: (error) {
+          print('Rewarded ad failed to load: $error');
           _rewardedAd = null;
           _isRewardedAdReady = false;
+
+          // İlk denemede başarısız olursa test reklamını dene
+          if (_rewardedLoadAttempts == 0 && !_useTestAdsForRewarded) {
+            print('Rewarded: Trying fallback to test ad...');
+            _rewardedLoadAttempts++;
+            enableTestAdsForRewarded();
+            loadRewardedAd();
+          } else {
+            _rewardedLoadAttempts = 0;
+          }
         },
       ),
     );

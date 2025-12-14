@@ -13,6 +13,7 @@ import 'package:wallet_app/feature/add_iban_card/add_iban_card_page.dart';
 import 'package:wallet_app/feature/iban_card/utils/iban_card_utils.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_qr_generator.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/router/getx_bindings.dart';
 
 class IbanCardsBody extends StatelessWidget {
   final IbanCardController controller;
@@ -67,9 +68,12 @@ class IbanCardsBody extends StatelessWidget {
                             IconButton(
                                 padding: EdgeInsets.zero,
                                 onPressed: () {
-                                  Get.to(AddIbanCardPage(
-                                    ibanCard: ibanCard,
-                                  ));
+                                  Get.to(
+                                    () => AddIbanCardPage(
+                                      ibanCard: ibanCard,
+                                    ),
+                                    binding: AddIbanCardBindings(),
+                                  );
                                 },
                                 icon: CircleAvatar(child: Icon(Icons.edit))),
                         ],

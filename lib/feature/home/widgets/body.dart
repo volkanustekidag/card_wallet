@@ -65,7 +65,7 @@ class HomeBody extends StatelessWidget {
                   ),
 
                   // Premium upgrade banner for non-premium users / Premium status for premium users
-                  const PremiumUpgradeWidget(),
+                  PremiumUpgradeWidget(),
                   SizedBox(height: 16),
 
                   // Quick Add Shortcuts
@@ -189,8 +189,8 @@ class HomeBody extends StatelessWidget {
             CardLimitType? rewardUnlockType;
 
             if (route == "/addCreditCard") {
-              final currentCount =
-                  await premiumController.getStoredCardCount(CardLimitType.credit);
+              final currentCount = await premiumController
+                  .getStoredCardCount(CardLimitType.credit);
               print(
                   'Credit Card - Premium: ${premiumController.isPremium}, Count: $currentCount, CanAdd: ${premiumController.canAddMoreCreditCards(currentCount)}');
               if (!premiumController.canAddMoreCreditCards(currentCount)) {
@@ -202,8 +202,8 @@ class HomeBody extends StatelessWidget {
                 rewardUnlockType = CardLimitType.credit;
               }
             } else if (route == "/addIbanCard") {
-              final currentCount =
-                  await premiumController.getStoredCardCount(CardLimitType.iban);
+              final currentCount = await premiumController
+                  .getStoredCardCount(CardLimitType.iban);
               print(
                   'IBAN Card - Premium: ${premiumController.isPremium}, Count: $currentCount, CanAdd: ${premiumController.canAddMoreIbanCards(currentCount)}');
               if (!premiumController.canAddMoreIbanCards(currentCount)) {

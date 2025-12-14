@@ -12,6 +12,7 @@ class BannerAdWidget extends StatefulWidget {
 class _BannerAdWidgetState extends State<BannerAdWidget> {
   BannerAd? _bannerAd;
   bool _isAdLoaded = false;
+  bool _hasTriedFallback = false;
 
   @override
   void initState() {
@@ -19,7 +20,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
     _loadAd();
   }
 
-  void _loadAd() {
+  void _loadAd({bool useTestAd = false}) {
     _bannerAd = AdMobService.createBannerAd(
       listener: BannerAdListener(
         onAdLoaded: (ad) {
@@ -28,17 +29,30 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
               _isAdLoaded = true;
             });
           }
+          if (useTestAd) {
+            print('Banner: Fallback test ad loaded successfully');
+          }
         },
         onAdFailedToLoad: (ad, error) {
           print('Banner ad failed to load: $error');
           ad.dispose();
-          if (mounted) {
-            setState(() {
-              _isAdLoaded = false;
-            });
+
+          // iOS'ta gerçek reklam yüklenemezse test reklamını dene
+          if (!_hasTriedFallback && !useTestAd) {
+            print('Banner: Trying fallback to test ad...');
+            _hasTriedFallback = true;
+            AdMobService.enableTestAdsForBanner();
+            _loadAd(useTestAd: true);
+          } else {
+            if (mounted) {
+              setState(() {
+                _isAdLoaded = false;
+              });
+            }
           }
         },
       ),
+      useTestAd: useTestAd,
     );
     _bannerAd!.load();
   }

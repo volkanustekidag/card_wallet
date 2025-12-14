@@ -11,6 +11,7 @@ import 'package:wallet_app/core/widgets/empty_list_info.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/feature/add_credit_card/add_credit_card_page.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/router/getx_bindings.dart';
 
 class Body extends StatefulWidget {
   final CreditCardController controller;
@@ -171,9 +172,10 @@ class _BodyState extends State<Body> {
                       IconButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
-                          Get.to(() =>
-                                  AddCreditCardPage(creditCard: creditCard))!
-                              .then((value) {
+                          Get.to(
+                            () => AddCreditCardPage(creditCard: creditCard),
+                            binding: AddCreditCardBindings(),
+                          )!.then((value) {
                             widget.controller.loadCreditCards();
                             _resetDemoState();
                           });

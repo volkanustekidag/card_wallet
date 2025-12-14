@@ -48,12 +48,6 @@ class PremiumUpgradeWidget extends StatelessWidget {
           ),
           child: Row(
             children: [
-              SvgPicture.asset(
-                'assets/svg/premium.svg',
-                width: 24,
-                height: 24,
-                color: Colors.white,
-              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
