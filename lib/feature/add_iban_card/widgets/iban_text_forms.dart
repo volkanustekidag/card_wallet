@@ -7,6 +7,7 @@ import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_contro
 import 'package:wallet_app/feature/add_iban_card/widgets/iban_text_field.dart';
 import 'package:wallet_app/feature/add_iban_card/widgets/text_field_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/controllers/premium_controller.dart';
 
 class IbanTextFieldForms extends StatefulWidget {
   final TextEditingController ibanController;
@@ -27,6 +28,7 @@ class IbanTextFieldForms extends StatefulWidget {
 class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
   late final AddIbanCardController controller;
   late final QRIbanScannerService _qrScannerService;
+  late final PremiumController _premiumController;
 
   // TextEditingController'lar
   late final TextEditingController cardHolderController;
@@ -40,6 +42,7 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
     super.initState();
     controller = Get.find<AddIbanCardController>();
     _qrScannerService = QRIbanScannerService();
+    _premiumController = Get.find<PremiumController>();
 
     // Controller'ları başlat
     cardHolderController = TextEditingController();
@@ -195,6 +198,38 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
     );
   }
 
+  Future<void> _showPremiumRequiredDialog() async {
+    final shouldUpgrade = await Get.dialog<bool>(
+          AlertDialog(
+            title: Text('premiumFeatureLockedTitle'.tr()),
+            content: Text('premiumFeatureLockedDescription'.tr()),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(result: false),
+                child: Text('maybeLater'.tr()),
+              ),
+              ElevatedButton(
+                onPressed: () => Get.back(result: true),
+                child: Text('goPremium'.tr()),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (shouldUpgrade) {
+      Get.toNamed('/premium');
+    }
+  }
+
+  Future<void> _handleQRButtonPressed() async {
+    if (!_premiumController.isPremium) {
+      await _showPremiumRequiredDialog();
+      return;
+    }
+    _showQRScanOptions();
+  }
+
   @override
   void dispose() {
     cardHolderController.dispose();
@@ -213,29 +248,68 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
           child: Column(
             children: [
               // QR Tarama Butonu
-              Container(
-                width: double.infinity,
-                margin: EdgeInsets.only(bottom: 16),
-                child: ElevatedButton.icon(
-                  onPressed: _isScanning ? null : _showQRScanOptions,
-                  icon: _isScanning
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Icon(Icons.qr_code_scanner),
-                  label: Text(
-                      _isScanning ? 'Scanning QR...' : 'Scan QR Code for IBAN'),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              Obx(() {
+                final isPremium = _premiumController.isPremium;
+                return Container(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isScanning ? null : _handleQRButtonPressed,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          !isPremium ? Colors.amber.shade600 : Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (!isPremium)
+                          Row(
+                            children: [
+                              SizedBox(width: 8),
+                              Icon(
+                                Icons.workspace_premium,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        Spacer(),
+                        if (_isScanning)
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        else
+                          Icon(
+                            Icons.qr_code_scanner,
+                            color: Colors.white,
+                          ),
+                        SizedBox(width: 8),
+                        Text(
+                          _isScanning
+                              ? 'Scanning QR...'
+                              : 'Scan QR Code for IBAN',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Spacer(),
+                      ],
                     ),
                   ),
-                ),
-              ),
+                );
+              }),
 
+              SizedBox(height: 16),
               TextFieldCard(
                 controller: cardHolderController,
                 label: "hName".tr(),

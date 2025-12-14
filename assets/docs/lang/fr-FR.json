@@ -128,6 +128,8 @@
     "restorePurchases": "Restaurer les achats",
     "purchaseRestoreCompleted": "Restauration des achats terminée.",
     "premiumActive": "Premium Actif",
+    "premiumFeatureLockedTitle": "Fonctionnalité Premium",
+    "premiumFeatureLockedDescription": "Cette fonctionnalité est réservée aux membres Premium. Passez à Premium pour continuer.",
     "cardLimitReachedTitle": "Limite de carte atteinte",
     "cardLimitReachedDescription": "Le plan gratuit permet d'ajouter seulement 1 %s. Passez à Premium pour des cartes illimitées et une expérience sans publicité ou regardez une publicité récompensée pour ajouter une carte supplémentaire.",
     "cardLimitCardTypeCredit": "carte de crédit",

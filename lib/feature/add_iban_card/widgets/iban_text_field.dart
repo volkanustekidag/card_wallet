@@ -4,6 +4,8 @@ import 'package:get/get.dart' hide Trans;
 import 'package:flutter_iban_scanner/flutter_iban_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
+import 'package:wallet_app/core/controllers/premium_controller.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class IbanTextField extends StatelessWidget {
   const IbanTextField({
@@ -21,6 +23,7 @@ class IbanTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AddIbanCardController>();
+    final premiumController = Get.find<PremiumController>();
 
     return TextField(
       maxLength: 35,
@@ -46,9 +49,32 @@ class IbanTextField extends StatelessWidget {
         suffixIcon: IconButton(
           icon: Icon(
             Icons.camera_alt,
-            color: Theme.of(context).primaryColor,
+            color: Colors.amber.shade600,
           ),
           onPressed: () async {
+            if (!premiumController.isPremium) {
+              final shouldUpgrade = await Get.dialog<bool>(
+                    AlertDialog(
+                      title: Text('premiumFeatureLockedTitle'.tr()),
+                      content: Text('premiumFeatureLockedDescription'.tr()),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Get.back(result: false),
+                          child: Text('maybeLater'.tr()),
+                        ),
+                        ElevatedButton(
+                          onPressed: () => Get.back(result: true),
+                          child: Text('goPremium'.tr()),
+                        ),
+                      ],
+                    ),
+                  ) ??
+                  false;
+              if (shouldUpgrade) {
+                Get.toNamed('/premium');
+              }
+              return;
+            }
             focusNode.unfocus();
             focusNode.canRequestFocus = false;
 

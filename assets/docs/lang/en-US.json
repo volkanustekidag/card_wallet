@@ -129,6 +129,8 @@
     "restorePurchases": "Restore Purchases",
     "purchaseRestoreCompleted": "Purchase restoration completed.",
     "premiumActive": "Premium Active",
+    "premiumFeatureLockedTitle": "Premium feature",
+    "premiumFeatureLockedDescription": "This feature is only available to Premium members. Upgrade to continue.",
     "cardLimitReachedTitle": "Card limit reached",
     "cardLimitReachedDescription": "Free plan allows adding 1 %s. Upgrade to Premium for unlimited cards or watch a rewarded ad to add one more.",
     "cardLimitCardTypeCredit": "credit card",

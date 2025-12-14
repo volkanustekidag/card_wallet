@@ -12,6 +12,7 @@ import 'package:wallet_app/feature/add_credit_card/utils/card_valid_thru_formatt
 import 'package:wallet_app/feature/add_credit_card/widgets/colors_list_view.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/controllers/premium_controller.dart';
 
 class CreditTextFieldForms extends StatefulWidget {
   const CreditTextFieldForms({Key? key}) : super(key: key);
@@ -23,6 +24,7 @@ class CreditTextFieldForms extends StatefulWidget {
 class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
   late final AddCreditCardController controller;
   late final CreditCardScannerService _scannerService;
+  late final PremiumController _premiumController;
 
   // TextEditingController'lar
   late final TextEditingController bankNameController;
@@ -38,6 +40,7 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
     super.initState();
     controller = Get.find<AddCreditCardController>();
     _scannerService = CreditCardScannerService();
+    _premiumController = Get.find<PremiumController>();
 
     // Controller'ları başlat
     bankNameController = TextEditingController();
@@ -190,6 +193,14 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
     );
   }
 
+  void _handleScanButtonPressed() {
+    if (!_premiumController.isPremium) {
+      Get.toNamed('/premium');
+      return;
+    }
+    _showScanOptions();
+  }
+
   @override
   void dispose() {
     bankNameController.dispose();
@@ -213,28 +224,64 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
               // Kamera Tarama Butonu
               SizedBox(height: 16),
 
-              Container(
-                width: 90.w,
-                margin: EdgeInsets.only(bottom: 16),
-                child: ElevatedButton.icon(
-                  onPressed: _isScanning ? null : _showScanOptions,
-                  icon: _isScanning
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Icon(Icons.camera_alt),
-                  label: Text(_isScanning ? 'Scanning...' : 'Scan Credit Card'),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+              Obx(() {
+                final isPremium = _premiumController.isPremium;
+                return Container(
+                  width: 90.w,
+                  child: ElevatedButton(
+                    onPressed: _isScanning ? null : _handleScanButtonPressed,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          isPremium ? Colors.blue : Colors.amber.shade600,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (!isPremium)
+                          Row(
+                            children: [
+                              SizedBox(width: 8),
+                              Icon(
+                                Icons.workspace_premium,
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        Spacer(),
+                        if (_isScanning)
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        else
+                          Icon(
+                            Icons.camera_alt,
+                            color: Colors.white,
+                          ),
+                        SizedBox(width: 8),
+                        Text(
+                          _isScanning ? 'Scanning...' : 'Scan Credit Card',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Spacer(),
+                      ],
                     ),
                   ),
-                ),
-              ),
-
+                );
+              }),
+              SizedBox(height: 16),
               TextFieldCard(
                 controller: bankNameController,
                 maxLength: 16,
