@@ -49,7 +49,9 @@ class IbanTextField extends StatelessWidget {
         suffixIcon: IconButton(
           icon: Icon(
             Icons.camera_alt,
-            color: Colors.amber.shade600,
+            color: !premiumController.isPremium
+                ? Colors.amber.shade600
+                : Colors.blue,
           ),
           onPressed: () async {
             if (!premiumController.isPremium) {
