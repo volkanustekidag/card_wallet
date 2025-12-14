@@ -45,9 +45,15 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
   void _initCameras() async {
     WidgetsFlutterBinding.ensureInitialized();
     try {
-      cameras = await availableCameras();
+      final availableCams = await availableCameras();
+      if (mounted) {
+        setState(() {
+          cameras = availableCams;
+        });
+      }
+      print('✅ Loaded ${cameras.length} cameras');
     } catch (e) {
-      print('Camera initialization error: $e');
+      print('❌ Camera initialization error: $e');
     }
   }
 
