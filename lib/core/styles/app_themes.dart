@@ -41,7 +41,7 @@ class AppThemes {
       onError: Colors.white,
       errorContainer: Color(0xFFFEE2E2),
       onErrorContainer: Color(0xFF991B1B),
-      surface: Colors.white,
+      surface: Color(0xFFF6F8FB),
       onSurface: Color(0xFF374151),
       surfaceContainerHighest: Color(0xFFF3F4F6),
       onSurfaceVariant: Color(0xFF6B7280),
@@ -55,7 +55,7 @@ class AppThemes {
     ),
 
     // Scaffold
-    scaffoldBackgroundColor: const Color(0xFFF6F7FC),
+    scaffoldBackgroundColor: const Color(0xFFF2F4F8),
     canvasColor: Colors.white,
 
     // App Bar Theme

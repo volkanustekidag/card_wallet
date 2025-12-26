@@ -19,6 +19,7 @@ class AddIbanCardPage extends StatefulWidget {
 
 class _AddIbanCardPageState extends State<AddIbanCardPage> {
   late TextEditingController _ibanController;
+  late FocusNode _ibanFocusNode;
   late final AddIbanCardController _controller =
       Get.find<AddIbanCardController>();
   List<CameraDescription> cameras = [];
@@ -28,6 +29,7 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
     super.initState();
     _initCameras();
     _ibanController = TextEditingController();
+    _ibanFocusNode = FocusNode();
 
     if (widget.ibanCard != null) {
       _controller.initializeForEdit(widget.ibanCard!);
@@ -39,6 +41,7 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
   @override
   void dispose() {
     _ibanController.dispose();
+    _ibanFocusNode.dispose();
     super.dispose();
   }
 
@@ -59,26 +62,27 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
 
   @override
   Widget build(BuildContext context) {
-    FocusNode focusNode = FocusNode();
-
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: context.theme.scaffoldBackgroundColor,
       appBar: AddIbanAppBar(ibanCard: widget.ibanCard),
       body: Padding(
         padding: const PaddingConstants.extraHigh(),
-        child: Center(
-          child: Column(
-            children: [
-              Obx(() =>
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Align(
+              alignment: Alignment.topCenter,
+              child: Obx(() =>
                   AddIbanCardWidget(ibanCard: _controller.currentCard.value)),
-              SizedBox(height: 24),
-              IbanTextFieldForms(
-                  ibanController: _ibanController,
-                  focusNode: focusNode,
-                  cameras: cameras)
-            ],
-          ),
+            ),
+            const SizedBox(height: 24),
+            IbanTextFieldForms(
+              ibanController: _ibanController,
+              focusNode: _ibanFocusNode,
+              cameras: cameras,
+            ),
+          ],
         ),
       ),
     );

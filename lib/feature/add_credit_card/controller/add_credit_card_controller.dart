@@ -23,6 +23,7 @@ class AddCreditCardController extends GetxController {
   var isLoading = false.obs;
   var isEditMode = false.obs;
   CreditCard? _originalCard;
+  bool get isFormValid => _isCardValid(currentCard.value);
 
   // Benzersiz string ID oluştur
   String _generateNewId() {
@@ -192,5 +193,16 @@ class AddCreditCardController extends GetxController {
     isEditMode.value = false;
     _originalCard = null;
     currentCard.refresh();
+  }
+
+  bool _isCardValid(CreditCard card) {
+    final sanitizedNumber = card.creditCardNumber.replaceAll(RegExp(r'\s+'), '');
+    final expirationPattern = RegExp(r'^\d{2}\s?\/\s?\d{2}$');
+
+    return card.bankName.trim().isNotEmpty &&
+        sanitizedNumber.length >= 16 &&
+        card.cardHolder.trim().isNotEmpty &&
+        expirationPattern.hasMatch(card.expirationDate.trim()) &&
+        card.cvc2.trim().length == 3;
   }
 }

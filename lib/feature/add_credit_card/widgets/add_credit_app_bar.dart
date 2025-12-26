@@ -40,14 +40,16 @@ class AddCreditAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: Obx(() => IconButton(
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : () {
-                          controller.saveCard();
-                        },
-                  icon: controller.isLoading.value
+              padding: const EdgeInsets.only(right: 8.0),
+              child: Obx(() {
+                final isBusy = controller.isLoading.value;
+                final canSave = controller.isFormValid && !isBusy;
+                final iconColor = canSave
+                    ? colorScheme.primary
+                    : colorScheme.onSurface.withOpacity(0.4);
+                return IconButton(
+                  onPressed: canSave ? controller.saveCard : null,
+                  icon: isBusy
                       ? SizedBox(
                           width: 20,
                           height: 20,
@@ -57,9 +59,10 @@ class AddCreditAppBar extends StatelessWidget implements PreferredSizeWidget {
                           controller.isEditMode.value
                               ? Icons.save
                               : Icons.add_card,
+                          color: iconColor,
                         ),
-                )),
-          )
+                );
+              }))
         ],
         title: Obx(() => Text(
               controller.isEditMode.value ? "editCC".tr() : "addCC".tr(),

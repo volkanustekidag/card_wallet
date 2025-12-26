@@ -5,7 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/qr_iban_scanner_service.dart';
 import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
 import 'package:wallet_app/feature/add_iban_card/widgets/iban_text_field.dart';
-import 'package:wallet_app/feature/add_iban_card/widgets/text_field_card.dart';
+import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 
@@ -241,113 +241,164 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Expanded(
       child: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: [
-              // QR Tarama Butonu
-              Obx(() {
-                final isPremium = _premiumController.isPremium;
-                return Container(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isScanning ? null : _handleQRButtonPressed,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          !isPremium ? Colors.amber.shade600 : Colors.blue,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (!isPremium)
-                          Row(
-                            children: [
-                              SizedBox(width: 8),
-                              Icon(
-                                Icons.workspace_premium,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                        Spacer(),
-                        if (_isScanning)
-                          SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        else
-                          Icon(
-                            Icons.qr_code_scanner,
-                            color: Colors.white,
-                          ),
-                        SizedBox(width: 8),
-                        Text(
-                          _isScanning
-                              ? 'Scanning QR...'
-                              : 'Scan QR Code for IBAN',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        Spacer(),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-
-              SizedBox(height: 16),
-              TextFieldCard(
-                controller: cardHolderController,
-                label: "hName".tr(),
-                maxLength: 32,
-                onChanged: (val) {
-                  controller.updateCardField("cardHolder", val);
-                },
-                iconData: Icons.person,
-                hintText: "XXXXXX XXXXXX",
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'ibanFlowLead'.tr(),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w400,
+                color: theme.colorScheme.onSurface.withOpacity(0.85),
               ),
-              IbanTextField(
-                ibanController: widget.ibanController,
-                focusNode: widget.focusNode,
-                cameras: widget.cameras,
-              ),
-              TextFieldCard(
-                controller: swiftCodeController,
-                maxLength: 11,
-                label: "sCode".tr(),
-                onChanged: (val) {
-                  controller.updateCardField("swiftCode", val);
-                },
-                iconData: Icons.numbers,
-                hintText: "00000000",
-              ),
-              TextFieldCard(
-                controller: bankNameController,
-                maxLength: 24,
-                label: "bName".tr(),
-                onChanged: (val) {
-                  controller.updateCardField("bankName", val);
-                },
-                iconData: Icons.account_balance_rounded,
-                hintText: "XXXXXXX",
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 20),
+            IbanTextField(
+              ibanController: widget.ibanController,
+              focusNode: widget.focusNode,
+              cameras: widget.cameras,
+            ),
+            const SizedBox(height: 12),
+            Obx(() {
+              final isPremium = _premiumController.isPremium;
+              return _buildQrButton(context, isPremium);
+            }),
+            const SizedBox(height: 28),
+            _buildSectionLabel(context, 'accountInfo'.tr()),
+            const SizedBox(height: 12),
+            TextFieldCard(
+              controller: cardHolderController,
+              label: "hName".tr(),
+              maxLength: 32,
+              onChanged: (val) {
+                controller.updateCardField("cardHolder", val);
+              },
+              iconData: Icons.person_outline_rounded,
+              hintText: "XXXXXX XXXXXX",
+            ),
+            const SizedBox(height: 16),
+            TextFieldCard(
+              controller: bankNameController,
+              maxLength: 24,
+              label: "bName".tr(),
+              onChanged: (val) {
+                controller.updateCardField("bankName", val);
+              },
+              iconData: Icons.account_balance_rounded,
+              hintText: "XXXXXXX",
+            ),
+            const SizedBox(height: 16),
+            TextFieldCard(
+              controller: swiftCodeController,
+              maxLength: 11,
+              label: "sCode".tr(),
+              onChanged: (val) {
+                controller.updateCardField("swiftCode", val);
+              },
+              iconData: Icons.numbers,
+              hintText: "00000000",
+            ),
+            const SizedBox(height: 28),
+            _buildSecurityMessage(context),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildQrButton(BuildContext context, bool isPremium) {
+    final theme = Theme.of(context);
+    final accent =
+        isPremium ? theme.colorScheme.primary : Colors.amber.shade700;
+
+    return OutlinedButton(
+      onPressed: _isScanning ? null : _handleQRButtonPressed,
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size.fromHeight(50),
+        backgroundColor: theme.colorScheme.surface.withOpacity(0.35),
+        side: BorderSide(
+          color: theme.colorScheme.outline.withOpacity(0.4),
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+        foregroundColor: accent,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.qr_code_scanner, color: accent, size: 20),
+          const SizedBox(width: 10),
+          Flexible(
+            child: Text(
+              _isScanning ? 'scanInProgress'.tr() : 'scanQROptional'.tr(),
+              style: theme.textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: accent,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(width: 10),
+          if (_isScanning)
+            const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          else if (!isPremium)
+            Icon(
+              Icons.workspace_premium,
+              color: accent,
+              size: 18,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionLabel(BuildContext context, String text) {
+    final theme = Theme.of(context);
+    return Text(
+      text,
+      style: theme.textTheme.titleMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+        color: theme.colorScheme.onSurface,
+      ),
+    );
+  }
+
+  Widget _buildSecurityMessage(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.45),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.lock_outline_rounded,
+            color: theme.colorScheme.primary,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'ibanSecurityMessage'.tr(),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.9),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

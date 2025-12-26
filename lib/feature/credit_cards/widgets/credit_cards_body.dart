@@ -25,14 +25,35 @@ class Body extends StatefulWidget {
 enum _DemoStage { idle, flippingToBack, showingBack, flippingToFront }
 
 class _BodyState extends State<Body> {
+  static const _cardAspectRatio = 1.58;
+  static const _itemAnimationDuration = Duration(milliseconds: 450);
+
   GlobalKey<FlipCardState>? _firstCardKey;
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   bool _demoShown = false;
   _DemoStage _demoStage = _DemoStage.idle;
+  List<CreditCard> _cards = [];
+  late final int _initialItemCount;
+  Worker? _cardsWorker;
 
   @override
   void initState() {
     super.initState();
     _firstCardKey = GlobalKey<FlipCardState>();
+    _cards = _sortCards(widget.controller.creditCards);
+    _initialItemCount = _cards.length;
+    _cardsWorker = ever<List<CreditCard>>(
+        widget.controller.creditCards, _syncAnimatedList);
+
+    if (_cards.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scheduleFlipDemo());
+    }
+  }
+
+  @override
+  void dispose() {
+    _cardsWorker?.dispose();
+    super.dispose();
   }
 
   void _resetDemoState() {
@@ -103,99 +124,261 @@ class _BodyState extends State<Body> {
     }
   }
 
-  bool _shouldShowEditButton(CreditCard creditCard) {
-    try {
-      final idString = creditCard.id.toString();
-      return idString != "1";
-    } catch (e) {
-      print('Error checking credit card ID: $e');
-      return true;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final cards = widget.controller.creditCards;
+    _firstCardKey ??= GlobalKey<FlipCardState>();
 
-      if (cards.isEmpty) {
-        _resetDemoState();
-        return const EmptyListInfo();
-      }
+    return Stack(
+      children: [
+        AnimatedList(
+          key: _listKey,
+          physics: const BouncingScrollPhysics(
+              parent: AlwaysScrollableScrollPhysics()),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 48),
+          initialItemCount: _initialItemCount,
+          itemBuilder: (context, index, animation) {
+            if (_cards.isEmpty || index >= _cards.length) {
+              return const SizedBox.shrink();
+            }
+            final creditCard = _cards[index];
+            final isFirstCard = index == 0;
 
-      _firstCardKey ??= GlobalKey<FlipCardState>();
-      _scheduleFlipDemo();
+            return _buildAnimatedCard(
+              context: context,
+              creditCard: creditCard,
+              animation: animation,
+              highlight: isFirstCard,
+            );
+          },
+        ),
+        if (_cards.isEmpty) const Positioned.fill(child: EmptyListInfo()),
+      ],
+    );
+  }
 
-      return ListView.separated(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        itemCount: cards.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 16),
-        itemBuilder: (context, index) {
-          final creditCard = cards[index];
-          final isFirstCard = index == 0;
+  Widget _buildAnimatedCard({
+    required BuildContext context,
+    required CreditCard creditCard,
+    required Animation<double> animation,
+    required bool highlight,
+    bool isRemoving = false,
+  }) {
+    final curvedAnimation = CurvedAnimation(
+      parent: animation,
+      curve: isRemoving ? Curves.easeInOut : Curves.easeOutCubic,
+      reverseCurve: Curves.easeIn,
+    );
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: [
-                Expanded(
+    return FadeTransition(
+      opacity: curvedAnimation,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: Offset(0, isRemoving ? 0 : 0.08),
+          end: Offset.zero,
+        ).animate(curvedAnimation),
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: AnimatedScale(
+            scale: highlight ? 1.02 : 1,
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOut,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeOut,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: highlight ? 30 : 18,
+                    spreadRadius: highlight ? 1 : 0,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
+              ),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onLongPress: () => _showCardActionsSheet(creditCard),
+                child: AspectRatio(
+                  aspectRatio: _cardAspectRatio,
                   child: FlipCard(
-                    key: isFirstCard ? _firstCardKey : null,
+                    key: highlight ? _firstCardKey : null,
                     direction: FlipDirection.HORIZONTAL,
                     speed: 1000,
-                    onFlipDone: isFirstCard ? _handleDemoFlip : null,
-                    back: CreditCardBack(creditCard: creditCard),
+                    onFlipDone: highlight ? _handleDemoFlip : null,
                     front: CreditCardFront(creditCard: creditCard),
+                    back: CreditCardBack(creditCard: creditCard),
                   ),
                 ),
-                Column(
-                  children: [
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        showDialogDeleteData(
-                          context,
-                          () => widget.controller.removeCreditCard(creditCard),
-                        );
-                      },
-                      icon: const CircleAvatar(child: Icon(Icons.delete)),
-                    ),
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        _generateCopyAllInfoText(creditCard);
-                        context.showSuccessSnackBar('copyInfo');
-                      },
-                      icon: const CircleAvatar(child: Icon(Icons.copy)),
-                    ),
-                    if (_shouldShowEditButton(creditCard))
-                      IconButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () {
-                          Get.to(
-                            () => AddCreditCardPage(creditCard: creditCard),
-                            binding: AddCreditCardBindings(),
-                          )!.then((value) {
-                            widget.controller.loadCreditCards();
-                            _resetDemoState();
-                          });
-                        },
-                        icon: const CircleAvatar(child: Icon(Icons.edit)),
-                      ),
-                  ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _syncAnimatedList(List<CreditCard> incomingCards) {
+    if (!mounted) return;
+
+    final sorted = _sortCards(incomingCards);
+
+    if (_listKey.currentState == null) {
+      _cards = sorted;
+      if (_cards.isEmpty) {
+        _resetDemoState();
+      } else {
+        _scheduleFlipDemo();
+      }
+      setState(() {});
+      return;
+    }
+
+    final newIdSet = sorted.map((card) => card.id.toString()).toSet();
+
+    for (int i = _cards.length - 1; i >= 0; i--) {
+      final id = _cards[i].id.toString();
+      if (!newIdSet.contains(id)) {
+        final removedCard = _cards.removeAt(i);
+        _listKey.currentState!.removeItem(
+          i,
+          (itemContext, animation) => _buildAnimatedCard(
+            context: itemContext,
+            creditCard: removedCard,
+            animation: animation,
+            highlight: i == 0,
+            isRemoving: true,
+          ),
+          duration: _itemAnimationDuration,
+        );
+      }
+    }
+
+    for (int i = 0; i < sorted.length; i++) {
+      final card = sorted[i];
+      final existingIndex =
+          _cards.indexWhere((element) => element.id == card.id);
+
+      if (existingIndex == -1) {
+        _cards.insert(i, card);
+        _listKey.currentState!.insertItem(
+          i,
+          duration: _itemAnimationDuration,
+        );
+      } else {
+        _cards[existingIndex] = card;
+        if (existingIndex != i) {
+          final movedCard = _cards.removeAt(existingIndex);
+          _cards.insert(i, movedCard);
+        }
+      }
+    }
+
+    if (_cards.isEmpty) {
+      _resetDemoState();
+    } else {
+      _scheduleFlipDemo();
+    }
+
+    setState(() {});
+  }
+
+  List<CreditCard> _sortCards(List<CreditCard> cards) {
+    final sorted = List<CreditCard>.from(cards);
+    sorted.sort((a, b) {
+      final aId = int.tryParse(a.id.toString()) ?? 0;
+      final bId = int.tryParse(b.id.toString()) ?? 0;
+      return bId.compareTo(aId);
+    });
+    return sorted;
+  }
+
+  Future<void> _showCardActionsSheet(CreditCard creditCard) async {
+    HapticFeedback.lightImpact();
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-                const SizedBox(width: 12),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'cardActions'.tr(),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium
+                        ?.copyWith(fontWeight: FontWeight.w600),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _CardActionTile(
+                  icon: Icons.copy_rounded,
+                  label: 'copyCardNumberAction'.tr(),
+                  onTap: () {
+                    Clipboard.setData(
+                      ClipboardData(text: creditCard.creditCardNumber),
+                    );
+                    Navigator.of(sheetContext).pop();
+                    context.showSuccessSnackBar('copyInfo');
+                  },
+                ),
+                _CardActionTile(
+                  icon: Icons.edit_rounded,
+                  label: 'editCC'.tr(),
+                  onTap: () {
+                    Navigator.of(sheetContext).pop();
+                    Get.to(
+                      () => AddCreditCardPage(creditCard: creditCard),
+                      binding: AddCreditCardBindings(),
+                    )?.then((_) {
+                      widget.controller.loadCreditCards();
+                      _resetDemoState();
+                    });
+                  },
+                ),
+                _CardActionTile(
+                  icon: Icons.delete_forever_rounded,
+                  label: 'deleteCardAction'.tr(),
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                  onTap: () async {
+                    Navigator.of(sheetContext).pop();
+                    await showDialogDeleteData(
+                      context,
+                      () => widget.controller.removeCreditCard(creditCard),
+                    );
+                  },
+                ),
               ],
             ),
-          );
-        },
-      );
-    });
+          ),
+        );
+      },
+    );
   }
 
   Future<void> showDialogDeleteData(
-      BuildContext context, Function onConfirm) async {
-    showDialog(
+      BuildContext context, Future<void> Function() onConfirm) {
+    return showDialog<void>(
       context: context,
       builder: (context) {
         return CustomDialog(
@@ -210,12 +393,36 @@ class _BodyState extends State<Body> {
       },
     );
   }
+}
 
-  void _generateCopyAllInfoText(CreditCard creditCard) {
-    Clipboard.setData(
-      ClipboardData(
-          text:
-              "${creditCard.bankName}\n${creditCard.creditCardNumber}\n${creditCard.cardHolder}\n${creditCard.expirationDate}\n${creditCard.cvc2}"),
+class _CardActionTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final Color? foregroundColor;
+
+  const _CardActionTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.foregroundColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = foregroundColor ?? Theme.of(context).colorScheme.onSurface;
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      minLeadingWidth: 0,
+      leading: Icon(icon, color: color),
+      title: Text(
+        label,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: color,
+              fontWeight: FontWeight.w500,
+            ),
+      ),
+      onTap: onTap,
     );
   }
 }

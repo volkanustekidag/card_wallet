@@ -12,7 +12,6 @@ import 'package:wallet_app/core/widgets/mini_iban_card_widget.dart';
 import 'package:wallet_app/feature/add_iban_card/add_iban_card_page.dart';
 import 'package:wallet_app/feature/iban_card/utils/iban_card_utils.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_qr_generator.dart';
-import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
 
 class IbanCardsBody extends StatelessWidget {
@@ -30,69 +29,212 @@ class IbanCardsBody extends StatelessWidget {
             return const EmptyListInfo();
           }
 
-          return ListView(
+          return ListView.builder(
             shrinkWrap: true,
             clipBehavior: Clip.none,
-            children: controller.ibanCards
-                .map<Widget>(
-                  (ibanCard) => Row(
-                    children: [
-                      Expanded(child: MiniIbanCardWidget(ibanCard: ibanCard)),
-                      Column(
-                        children: [
-                          IconButton(
-                              padding: EdgeInsets.zero,
-                              onPressed: () {
-                                showDialogDeleteData(context, () {
-                                  controller.removeIbanCard(ibanCard);
-                                  context.showSuccessSnackBar('deleteSuccess');
-                                });
-                              },
-                              icon: CircleAvatar(child: Icon(Icons.delete))),
-                          IconButton(
-                              padding: EdgeInsets.zero,
-                              onPressed: () {
-                                _generateCopyAllInfoText(ibanCard);
-                                context.showSuccessSnackBar('copyInfo');
-                              },
-                              icon: CircleAvatar(child: Icon(Icons.copy))),
-                          IconButton(
-                            padding: EdgeInsets.zero,
-                            icon: CircleAvatar(
-                                child: Icon(Icons.qr_code_scanner)),
-                            onPressed: () {
-                              _showQRGenerationDialog(context, ibanCard);
-                            },
-                          ),
-                          if (ibanCard.id != 1)
-                            IconButton(
-                                padding: EdgeInsets.zero,
-                                onPressed: () {
-                                  Get.to(
-                                    () => AddIbanCardPage(
-                                      ibanCard: ibanCard,
-                                    ),
-                                    binding: AddIbanCardBindings(),
-                                  );
-                                },
-                                icon: CircleAvatar(child: Icon(Icons.edit))),
-                        ],
-                      ),
-                      SizedBox(width: 12),
-                    ],
-                  ),
-                )
-                .toList(),
+            itemCount: controller.ibanCards.length,
+            itemBuilder: (context, index) {
+              final ibanCard = controller.ibanCards[index];
+              return AnimatedSwitcher(
+                duration: Duration(milliseconds: 300),
+                child: MiniIbanCardWidget(
+                  key: ValueKey(ibanCard.id),
+                  ibanCard: ibanCard,
+                  onCopyTap: () {
+                    _copyIBAN(context, ibanCard);
+                  },
+                  onQRTap: () {
+                    _showQRGenerationDialog(context, ibanCard);
+                  },
+                  onLongPress: () {
+                    _showCardActionsBottomSheet(context, ibanCard);
+                  },
+                ),
+              );
+            },
           );
         }),
       ),
     );
   }
 
-  void _generateCopyAllInfoText(IbanCard ibanCard) {
-    Clipboard.setData(ClipboardData(
-        text:
-            "${ibanCard.cardHolder}\n${ibanCard.iban}\n${ibanCard.swiftCode}\n${ibanCard.bankName}"));
+  void _copyIBAN(BuildContext context, IbanCard ibanCard) {
+    Clipboard.setData(ClipboardData(text: ibanCard.iban));
+    _showAutoHideSnackBar(context, 'ibanCopied'.tr());
+  }
+
+  void _showAutoHideSnackBar(BuildContext context, String message) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      duration: Duration(seconds: 2),
+      behavior: SnackBarBehavior.floating,
+      margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  void _showCardActionsBottomSheet(BuildContext context, IbanCard ibanCard) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? Colors.grey[600]
+                        : Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    ibanCard.cardHolder,
+                    style: GoogleFonts.inter(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    ibanCard.bankName,
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(height: 20),
+                Divider(height: 1),
+                _buildActionTile(
+                  context,
+                  icon: Icons.copy,
+                  title: 'copyIban'.tr(),
+                  subtitle: 'copyIbanSubtitle'.tr(),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _copyIBAN(context, ibanCard);
+                  },
+                ),
+                _buildActionTile(
+                  context,
+                  icon: Icons.content_copy,
+                  title: 'copyAllInfo'.tr(),
+                  subtitle: 'copyAllInfoSubtitle'.tr(),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Clipboard.setData(ClipboardData(
+                        text:
+                            "${ibanCard.cardHolder}\n${ibanCard.iban}\n${ibanCard.swiftCode}\n${ibanCard.bankName}"));
+                    _showAutoHideSnackBar(context, 'copyInfo'.tr());
+                  },
+                ),
+                _buildActionTile(
+                  context,
+                  icon: Icons.qr_code,
+                  title: 'showQrCode'.tr(),
+                  subtitle: 'showQrCodeSubtitle'.tr(),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showQRGenerationDialog(context, ibanCard);
+                  },
+                ),
+                if (ibanCard.id != 1)
+                  _buildActionTile(
+                    context,
+                    icon: Icons.edit,
+                    title: 'editCard'.tr(),
+                    subtitle: 'editCardSubtitle'.tr(),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Get.to(
+                        () => AddIbanCardPage(
+                          ibanCard: ibanCard,
+                        ),
+                        binding: AddIbanCardBindings(),
+                      );
+                    },
+                  ),
+                Divider(height: 1),
+                _buildActionTile(
+                  context,
+                  icon: Icons.delete,
+                  title: 'deleteCard'.tr(),
+                  subtitle: 'deleteCardSubtitle'.tr(),
+                  isDestructive: true,
+                  onTap: () {
+                    Navigator.pop(context);
+                    showDialogDeleteData(context, () {
+                      controller.removeIbanCard(ibanCard);
+                      _showAutoHideSnackBar(context, 'deleteSuccess'.tr());
+                    });
+                  },
+                ),
+                SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionTile(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+    bool isDestructive = false,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final color = isDestructive
+        ? Colors.red
+        : (isDark ? Colors.white : Color(0xFF1A1A1A));
+
+    return ListTile(
+      leading: Icon(icon, color: color),
+      title: Text(
+        title,
+        style: GoogleFonts.inter(
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: GoogleFonts.inter(
+          fontSize: 12,
+          color: isDestructive
+              ? Colors.red.withValues(alpha: 0.7)
+              : Colors.grey[600],
+        ),
+      ),
+      onTap: onTap,
+    );
   }
 
   void _showQRGenerationDialog(BuildContext context, IbanCard ibanCard) {
