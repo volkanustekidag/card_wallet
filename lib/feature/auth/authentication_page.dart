@@ -34,10 +34,12 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.theme.scaffoldBackgroundColor,
-      resizeToAvoidBottomInset: true,
-      body: Obx(() {
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: context.theme.scaffoldBackgroundColor,
+        resizeToAvoidBottomInset: true,
+        body: Obx(() {
         // Show loading spinner when processing
         if (_authController.isLoading.value) {
           return const Center(
@@ -72,6 +74,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
           onCompleted: _handlePinCompleted,
         );
       }),
+      ),
     );
   }
 }

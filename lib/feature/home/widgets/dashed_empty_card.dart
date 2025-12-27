@@ -30,8 +30,7 @@ class DashedEmptyCard extends StatelessWidget {
           CardLimitType? rewardUnlockType;
 
           if (route == '/addCreditCard') {
-            final currentCount = await premiumController
-                .getStoredCardCount(CardLimitType.credit);
+            final currentCount = premiumController.creditCardCount;
             if (!premiumController.canAddMoreCreditCards(currentCount)) {
               canProceed =
                   await showCardLimitDialog(context, CardLimitType.credit);
@@ -40,8 +39,7 @@ class DashedEmptyCard extends StatelessWidget {
               }
             }
           } else if (route == '/addIbanCard') {
-            final currentCount =
-                await premiumController.getStoredCardCount(CardLimitType.iban);
+            final currentCount = premiumController.ibanCardCount;
             if (!premiumController.canAddMoreIbanCards(currentCount)) {
               canProceed =
                   await showCardLimitDialog(context, CardLimitType.iban);

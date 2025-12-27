@@ -20,6 +20,7 @@ class _PremiumPageState extends State<PremiumPage> {
   late final PremiumController _premiumController;
   late final PageController _featurePageController;
   Timer? _autoSlideTimer;
+  Worker? _productWorker;
   int _currentFeatureIndex = 0;
   ProductDetails? _selectedProduct;
 
@@ -64,6 +65,11 @@ class _PremiumPageState extends State<PremiumPage> {
     super.initState();
     _premiumController = Get.find<PremiumController>();
     _featurePageController = PageController(viewportFraction: 0.86);
+    _productWorker = ever<List<ProductDetails>>(
+      _premiumController.availableProductsRx,
+      (_) => _ensureDefaultSelectedProduct(),
+    );
+    _ensureDefaultSelectedProduct();
     WidgetsBinding.instance.addPostFrameCallback((_) => _startAutoSlide());
   }
 
@@ -71,6 +77,7 @@ class _PremiumPageState extends State<PremiumPage> {
   void dispose() {
     _autoSlideTimer?.cancel();
     _featurePageController.dispose();
+    _productWorker?.dispose();
     super.dispose();
   }
 
@@ -98,13 +105,6 @@ class _PremiumPageState extends State<PremiumPage> {
         final isLoading = _premiumController.isLoading;
         final weeklyProduct = _premiumController.weeklyProduct;
         final yearlyProduct = _premiumController.yearlyProduct;
-        if (_selectedProduct == null) {
-          if (weeklyProduct != null && yearlyProduct == null) {
-            _selectedProduct = weeklyProduct;
-          } else if (yearlyProduct != null && weeklyProduct == null) {
-            _selectedProduct = yearlyProduct;
-          }
-        }
 
         return Stack(
           children: [
@@ -611,6 +611,20 @@ class _PremiumPageState extends State<PremiumPage> {
       messengerContext.showSuccessSnackBar('premiumActivated');
     } else {
       context.showErrorSnackBar('purchaseFailed');
+    }
+  }
+
+  void _ensureDefaultSelectedProduct() {
+    if (_selectedProduct != null) return;
+
+    final weeklyProduct = _premiumController.weeklyProduct;
+    final yearlyProduct = _premiumController.yearlyProduct;
+    final candidate = weeklyProduct ?? yearlyProduct;
+
+    if (candidate != null && mounted) {
+      setState(() {
+        _selectedProduct = candidate;
+      });
     }
   }
 

@@ -92,48 +92,6 @@ class AddIbanCardWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'ibanPreview'.tr(),
-                    style: TextStyle(fontFamily: 'Poppins', 
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: baseTextColor.withOpacity(0.9),
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: surfaceOverlay,
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(
-                        color: isDark
-                            ? Colors.white.withOpacity(0.08)
-                            : theme.colorScheme.outlineVariant,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.lock, size: 14, color: secondaryTextColor),
-                        const SizedBox(width: 6),
-                        Text(
-                          'secure'.tr(),
-                          style: TextStyle(fontFamily: 'Poppins', 
-                            fontSize: 11,
-                            color: secondaryTextColor,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
               Flexible(
                 fit: FlexFit.loose,
                 child: AnimatedSwitcher(
@@ -185,7 +143,8 @@ class AddIbanCardWidget extends StatelessWidget {
           children: [
             Text(
               'ibanPreviewPlaceholder'.tr(),
-              style: TextStyle(fontFamily: 'Poppins', 
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 13,
                 color: textColor.withOpacity(0.9),
                 fontWeight: FontWeight.w500,
@@ -194,7 +153,8 @@ class AddIbanCardWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'ibanFlowHint'.tr(),
-              style: TextStyle(fontFamily: 'Poppins', 
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 12,
                 color: secondaryTextColor.withOpacity(0.75),
               ),
@@ -220,7 +180,8 @@ class AddIbanCardWidget extends StatelessWidget {
       children: [
         Text(
           'IBAN',
-          style: TextStyle(fontFamily: 'Poppins', 
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 12,
             fontWeight: FontWeight.w600,
             color: secondaryTextColor,
@@ -230,7 +191,8 @@ class AddIbanCardWidget extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           _formatIban(ibanCard.iban),
-          style: TextStyle(fontFamily: 'Poppins', 
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 18,
             letterSpacing: 1.4,
             fontWeight: FontWeight.w600,
@@ -243,7 +205,8 @@ class AddIbanCardWidget extends StatelessWidget {
         const SizedBox(height: 18),
         Text(
           hasHolder ? ibanCard.cardHolder : 'holderPlaceholder'.tr(),
-          style: TextStyle(fontFamily: 'Poppins', 
+          style: TextStyle(
+            fontFamily: 'Poppins',
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: primaryTextColor,
@@ -330,7 +293,8 @@ class _InfoPill extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(fontFamily: 'Poppins', 
+            style: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 11,
               color: captionColor,
               fontWeight: FontWeight.w500,
@@ -340,7 +304,8 @@ class _InfoPill extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             value,
-            style: TextStyle(fontFamily: 'Poppins', 
+            style: TextStyle(
+              fontFamily: 'Poppins',
               fontSize: 13,
               color: textColor,
               fontWeight: FontWeight.w600,
