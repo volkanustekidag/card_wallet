@@ -85,13 +85,8 @@ android {
     packagingOptions {
         jniLibs {
             excludes += ["**/libdigitalink.so", "**/libtextclassifier3_jni_tclib.so"]
-        }
-    }
-
-    bundle {
-        storeArchive {
-            // Uncompressed native libs hatasını (16 KB sayfa boyutu kontrolü) devre dışı bırak
-            enableUncompressedNativeLibs = false
+            // Paket içinde .so'ların ZIP içinde tutulmasını engelle (uncompressed native libs kapatma)
+            useLegacyPackaging true
         }
     }
 }
