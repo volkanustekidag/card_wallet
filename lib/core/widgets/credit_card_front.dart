@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -44,7 +43,7 @@ class CreditCardFront extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 cardNumber,
-                style: GoogleFonts.courierPrime(
+                style: TextStyle(fontFamily: 'Poppins', 
                   fontSize: 26,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -74,7 +73,7 @@ class CreditCardFront extends StatelessWidget {
             bankName,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.poppins(
+            style: TextStyle(fontFamily: 'Poppins', 
               color: Colors.white,
               fontWeight: FontWeight.w600,
               fontSize: 18,
@@ -96,13 +95,13 @@ class CreditCardFront extends StatelessWidget {
   }
 
   Widget _buildMetaInformation(String cardHolder, String expiration) {
-    final labelStyle = GoogleFonts.courierPrime(
+    final labelStyle = TextStyle(fontFamily: 'Poppins', 
       color: Colors.white,
       fontSize: 11,
       letterSpacing: 1.2,
       fontWeight: FontWeight.w500,
     );
-    final valueStyle = GoogleFonts.courierPrime(
+    final valueStyle = TextStyle(fontFamily: 'Poppins', 
       color: Colors.white,
       fontSize: 16,
       letterSpacing: 1.5,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class SettingsCard extends StatelessWidget {
   final IconData iconData;
@@ -64,7 +63,7 @@ class SettingsCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: GoogleFonts.poppins(
+                        style: TextStyle(fontFamily: 'Poppins', 
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           color: isDestructive ? Colors.red : colorScheme.onSurface,
@@ -74,7 +73,7 @@ class SettingsCard extends StatelessWidget {
                         SizedBox(height: 2),
                         Text(
                           subtitle!,
-                          style: GoogleFonts.poppins(
+                          style: TextStyle(fontFamily: 'Poppins', 
                             fontSize: 12,
                             fontWeight: FontWeight.w400,
                             color: colorScheme.onSurface.withValues(alpha: 0.6),

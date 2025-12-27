@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:sizer/sizer.dart';
 
@@ -24,7 +23,7 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
         // Title
         title: Text(
           "settings".tr(),
-          style: GoogleFonts.poppins(
+          style: TextStyle(fontFamily: 'Poppins', 
             color: colorScheme.onSurface,
             fontWeight: FontWeight.w600,
             fontSize: 18,

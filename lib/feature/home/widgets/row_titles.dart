@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -31,7 +30,7 @@ class RowTitles extends StatelessWidget {
           SizedBox(width: 8),
           Text(
             title.tr(),
-            style: GoogleFonts.poppins(
+            style: TextStyle(fontFamily: 'Poppins', 
               fontSize: 14,
               fontWeight: FontWeight.w500,
               color: context.theme.colorScheme.onSurface,
@@ -49,7 +48,7 @@ class RowTitles extends StatelessWidget {
               children: [
                 Text(
                   "seeAll".tr(),
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(fontFamily: 'Poppins', 
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                     color: context.theme.colorScheme.onSurface,

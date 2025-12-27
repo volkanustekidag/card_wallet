@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -62,7 +61,7 @@ class CreditCardBack extends StatelessWidget {
                       children: [
                         Text(
                           'CVC2'.tr(),
-                          style: GoogleFonts.courierPrime(
+                          style: TextStyle(fontFamily: 'Poppins', 
                             color: Colors.white.withOpacity(0.7),
                             fontSize: 10,
                             letterSpacing: 1.2,
@@ -78,7 +77,7 @@ class CreditCardBack extends StatelessWidget {
                           ),
                           child: Text(
                             cvc,
-                            style: GoogleFonts.courierPrime(
+                            style: TextStyle(fontFamily: 'Poppins', 
                               color: Colors.black87,
                               fontSize: 18,
                               letterSpacing: 1.2,

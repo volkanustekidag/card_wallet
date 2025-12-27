@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -50,7 +49,7 @@ class PremiumStatusWidget extends StatelessWidget {
             Expanded(
               child: Text(
                 "premiumActive".tr(),
-                style: GoogleFonts.poppins(
+                style: TextStyle(fontFamily: 'Poppins', 
                   color: Colors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

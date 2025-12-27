@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
@@ -63,7 +62,7 @@ class AddIbanAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
         title: Obx(() => Text(
               controller.isEditMode.value ? "editIC".tr() : "addIC".tr(),
-              style: GoogleFonts.poppins(fontWeight: FontWeight.w400),
+              style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w400),
             )),
       ),
     );

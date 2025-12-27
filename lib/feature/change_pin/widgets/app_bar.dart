@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -15,7 +14,7 @@ class ChangePinAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       title: Text(
         "chanPIN".tr(),
-        style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+        style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w500),
       ),
     );
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class CustomDialog extends StatelessWidget {
@@ -24,7 +23,7 @@ class CustomDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Text(
         title.tr(),
-        style: GoogleFonts.poppins(
+        style: TextStyle(fontFamily: 'Poppins', 
           fontWeight: FontWeight.w600,
           fontSize: 18,
         ),
@@ -32,7 +31,7 @@ class CustomDialog extends StatelessWidget {
       content: content != null
           ? Text(
               content!.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(fontFamily: 'Poppins', 
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
@@ -47,7 +46,7 @@ class CustomDialog extends StatelessWidget {
           ),
           child: Text(
             cancelText.tr(),
-            style: GoogleFonts.poppins(
+            style: TextStyle(fontFamily: 'Poppins', 
               fontWeight: FontWeight.w500,
               color: Colors.grey[600],
             ),
@@ -68,7 +67,7 @@ class CustomDialog extends StatelessWidget {
           ),
           child: Text(
             confirmText.tr(),
-            style: GoogleFonts.poppins(
+            style: TextStyle(fontFamily: 'Poppins', 
               fontWeight: FontWeight.w500,
             ),
           ),

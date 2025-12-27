@@ -3,7 +3,6 @@ import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_qr_generator.dart';
@@ -61,7 +60,8 @@ class HomeBody extends StatelessWidget {
                   title: Text(
                     "CARDWALLET".tr(),
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontSize: 16,
                       letterSpacing: 0.005,
                       fontWeight: FontWeight.w700,
@@ -212,7 +212,8 @@ class HomeBody extends StatelessWidget {
                 Expanded(
                   child: Text(
                     title,
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),
@@ -251,7 +252,8 @@ class HomeBody extends StatelessWidget {
             ),
             child: Text(
               actionLabel,
-              style: GoogleFonts.poppins(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -360,7 +362,8 @@ class HomeBody extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               'qrCodeGenerate'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontWeight: FontWeight.w600,
                 fontSize: 18,
               ),
@@ -490,7 +493,8 @@ class HomeBody extends StatelessWidget {
             ),
             child: Text(
               'cancel'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontWeight: FontWeight.w500,
                 color: Colors.grey[600],
               ),
@@ -521,7 +525,8 @@ class HomeBody extends StatelessWidget {
             ),
             child: Text(
               'qrCodeGenerate'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -745,7 +750,8 @@ class HomeBody extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               'qrCodeError'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontWeight: FontWeight.w600,
                 fontSize: 18,
               ),
@@ -758,7 +764,8 @@ class HomeBody extends StatelessWidget {
           children: [
             Text(
               'qrCodeErrorMessage'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
@@ -769,7 +776,8 @@ class HomeBody extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: 2),
                 child: Text(
                   '• $error',
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
                     color: Colors.red[700],
                     fontSize: 14,
                   ),
@@ -790,7 +798,8 @@ class HomeBody extends StatelessWidget {
             ),
             child: Text(
               'ok'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(
+                fontFamily: 'Poppins',
                 fontWeight: FontWeight.w500,
               ),
             ),

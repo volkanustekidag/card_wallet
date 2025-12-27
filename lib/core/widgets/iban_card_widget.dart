@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -51,7 +50,7 @@ class IbanCardWidget extends StatelessWidget {
           label,
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
-          style: GoogleFonts.poppins(
+          style: TextStyle(fontFamily: 'Poppins', 
             fontSize: 10,
             fontWeight: FontWeight.w500,
             color: Colors.white.withOpacity(0.7),
@@ -62,7 +61,7 @@ class IbanCardWidget extends StatelessWidget {
           value,
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
-          style: GoogleFonts.poppins(
+          style: TextStyle(fontFamily: 'Poppins', 
             fontSize: 10.sp,
             fontWeight: FontWeight.w500,
             color: Colors.white,

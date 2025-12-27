@@ -1,7 +1,6 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
@@ -98,7 +97,7 @@ class DashedEmptyCard extends StatelessWidget {
                   SizedBox(height: 16),
                   Text(
                     text,
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(fontFamily: 'Poppins', 
                       color: theme.colorScheme.onSurface,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -108,7 +107,7 @@ class DashedEmptyCard extends StatelessWidget {
                   SizedBox(height: 8),
                   Text(
                     "tapToAdd".tr(),
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(fontFamily: 'Poppins', 
                       color: theme.colorScheme.onSurface.withOpacity(0.7),
                       fontSize: 14,
                       fontWeight: FontWeight.w400,

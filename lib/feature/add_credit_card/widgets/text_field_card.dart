@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class TextFieldCard extends StatefulWidget {
   final TextEditingController? controller;
@@ -124,7 +123,7 @@ class _TextFieldCardState extends State<TextFieldCard> {
         readOnly: widget.readOnly,
         onTap: widget.onTap,
         style: widget.textStyle ??
-            GoogleFonts.poppins(
+            TextStyle(fontFamily: 'Poppins', 
               fontSize: widget.emphasize ? 16 : 15,
               fontWeight: FontWeight.w500,
               color: theme.colorScheme.onSurface,
@@ -135,19 +134,19 @@ class _TextFieldCardState extends State<TextFieldCard> {
           isDense: true,
           counterText: widget.maxLength != null ? "" : null,
           labelText: widget.label,
-          labelStyle: GoogleFonts.poppins(
+          labelStyle: TextStyle(fontFamily: 'Poppins', 
             fontSize: 12,
             fontWeight: FontWeight.w500,
             color: labelColor,
           ),
           hintText: widget.hintText,
-          hintStyle: GoogleFonts.poppins(
+          hintStyle: TextStyle(fontFamily: 'Poppins', 
             fontSize: 14,
             fontWeight: FontWeight.w400,
             color: theme.colorScheme.onSurface.withOpacity(0.4),
           ),
           helperText: widget.helperText,
-          helperStyle: GoogleFonts.poppins(
+          helperStyle: TextStyle(fontFamily: 'Poppins', 
             fontSize: 11,
             fontWeight: FontWeight.w500,
             color: theme.colorScheme.onSurfaceVariant,

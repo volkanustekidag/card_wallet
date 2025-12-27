@@ -6,7 +6,6 @@ import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_co
 import 'package:wallet_app/feature/add_credit_card/widgets/add_credit_app_bar.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/credit_form.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AddCreditCardPage extends StatefulWidget {
   final CreditCard? creditCard; // Opsiyonel parametresi
@@ -104,7 +103,7 @@ class _AddCardPreview extends StatelessWidget {
                     bankName,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(fontFamily: 'Poppins', 
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -114,7 +113,7 @@ class _AddCardPreview extends StatelessWidget {
                   const Spacer(),
                   Text(
                     _maskCardNumber(card.creditCardNumber),
-                    style: GoogleFonts.robotoMono(
+                    style: TextStyle(fontFamily: 'Poppins', 
                       color: Colors.white,
                       fontSize: 22,
                       letterSpacing: 2,
@@ -179,7 +178,7 @@ class _PreviewLabelValue extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.robotoMono(
+          style: TextStyle(fontFamily: 'Poppins', 
             color: Colors.white70,
             fontSize: 11,
             letterSpacing: 1.1,
@@ -190,7 +189,7 @@ class _PreviewLabelValue extends StatelessWidget {
           value,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.robotoMono(
+          style: TextStyle(fontFamily: 'Poppins', 
             color: Colors.white,
             fontSize: 14,
             letterSpacing: 1.4,

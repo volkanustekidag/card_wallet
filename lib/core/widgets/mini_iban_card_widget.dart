@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -81,7 +80,7 @@ class MiniIbanCardWidget extends StatelessWidget {
               children: [
                 Text(
                   ibanCard.cardHolder,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Poppins', 
                     fontSize: 11.5.sp,
                     fontWeight: FontWeight.w600,
                     color: primaryTextColor,
@@ -98,7 +97,7 @@ class MiniIbanCardWidget extends StatelessWidget {
                       children: [
                         Text(
                           'IBAN',
-                          style: GoogleFonts.inter(
+                          style: TextStyle(fontFamily: 'Poppins', 
                             fontSize: 7.8.sp,
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
@@ -124,7 +123,7 @@ class MiniIbanCardWidget extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       _formatIBAN(ibanCard.iban),
-                      style: GoogleFonts.robotoMono(
+                      style: TextStyle(fontFamily: 'Poppins', 
                         fontSize: 10.2.sp,
                         fontWeight: FontWeight.w600,
                         color: primaryTextColor,
@@ -144,7 +143,7 @@ class MiniIbanCardWidget extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   '${ibanCard.bankName} • Swift: ${ibanCard.swiftCode}',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(fontFamily: 'Poppins', 
                     fontSize: 7.6.sp,
                     fontWeight: FontWeight.w500,
                     color: secondaryTextColor,
@@ -221,7 +220,7 @@ class MiniIbanCardWidget extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: GoogleFonts.inter(
+                style: TextStyle(fontFamily: 'Poppins', 
                   fontSize: 8.sp,
                   fontWeight: FontWeight.w600,
                   color: color,

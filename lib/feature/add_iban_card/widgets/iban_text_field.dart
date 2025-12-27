@@ -7,7 +7,6 @@ import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_contro
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class IbanTextField extends StatelessWidget {
   const IbanTextField({
@@ -38,7 +37,7 @@ class IbanTextField extends StatelessWidget {
       label: 'IBAN',
       iconData: Icons.credit_card_rounded,
       emphasize: true,
-      textStyle: GoogleFonts.robotoMono(
+      textStyle: TextStyle(fontFamily: 'Poppins', 
         fontSize: 16,
         fontWeight: FontWeight.w600,
         letterSpacing: 1.2,

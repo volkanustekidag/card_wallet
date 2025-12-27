@@ -1,7 +1,6 @@
 // feature/credit_cards/widgets/app_bar.dart - GetX Version
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
@@ -60,7 +59,7 @@ class CCAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
         title: Text(
           "CC".tr(),
-          style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w500),
         ),
       ),
     );

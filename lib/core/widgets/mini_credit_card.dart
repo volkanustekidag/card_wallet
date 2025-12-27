@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/constants/paddings.dart';
@@ -29,7 +28,7 @@ class MiniCreditCard extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(creditCard.bankName,
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(fontFamily: 'Poppins', 
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
                     fontSize: 14.sp,
@@ -45,7 +44,7 @@ class MiniCreditCard extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(creditCard.creditCardNumber,
-                  style: GoogleFonts.courierPrime(
+                  style: TextStyle(fontFamily: 'Poppins', 
                       color: Colors.white,
                       fontWeight: FontWeight.w500,
                       fontSize: 16.sp)),
@@ -69,7 +68,7 @@ class MiniCreditCard extends StatelessWidget {
       children: [
         Text(
           title,
-          style: GoogleFonts.courierPrime(
+          style: TextStyle(fontFamily: 'Poppins', 
               color: Colors.white,
               letterSpacing: 1,
               fontWeight: FontWeight.w500,
@@ -77,7 +76,7 @@ class MiniCreditCard extends StatelessWidget {
         ),
         Text(
           value,
-          style: GoogleFonts.courierPrime(
+          style: TextStyle(fontFamily: 'Poppins', 
               color: Colors.white,
               letterSpacing: 1,
               fontWeight: FontWeight.w500,

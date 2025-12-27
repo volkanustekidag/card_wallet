@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:google_fonts/google_fonts.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart'; // pubspec.yaml'a ekleyin
 import 'package:wallet_app/core/extensions/snack_bars.dart';
@@ -136,7 +135,7 @@ class QRDialog extends StatelessWidget {
               children: [
                 Text(
                   'qrCode'.tr(),
-                  style: GoogleFonts.poppins(
+                  style: TextStyle(fontFamily: 'Poppins', 
                     fontSize: 20,
                     color: Theme.of(context).primaryColor,
                     fontWeight: FontWeight.bold,
@@ -245,7 +244,7 @@ class QRDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('paymentDetails'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(fontFamily: 'Poppins', 
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).primaryColor,
@@ -273,7 +272,7 @@ class QRDialog extends StatelessWidget {
             width: 80,
             child: Text(
               '$label:',
-              style: GoogleFonts.poppins(
+              style: TextStyle(fontFamily: 'Poppins', 
                 fontWeight: FontWeight.w500,
                 color: Colors.grey[600],
                 fontSize: 14,
@@ -283,7 +282,7 @@ class QRDialog extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: GoogleFonts.poppins(
+              style: TextStyle(fontFamily: 'Poppins', 
                 fontWeight: FontWeight.w400,
                 color: Colors.grey[800],
                 fontSize: 14,

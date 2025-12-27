@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 extension SnackBars on BuildContext {
@@ -10,7 +9,7 @@ extension SnackBars on BuildContext {
         duration: const Duration(seconds: 1),
         content: Text(
           "${content}".tr(),
-          style: GoogleFonts.poppins(
+          style: TextStyle(fontFamily: 'Poppins', 
               color: Colors.white, fontWeight: FontWeight.w400),
         ),
       ),
@@ -27,7 +26,7 @@ extension SnackBars on BuildContext {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         content: Text(
           message.tr(),
-          style: GoogleFonts.poppins(
+          style: TextStyle(fontFamily: 'Poppins', 
             color: Colors.white,
             fontWeight: FontWeight.w400,
             fontSize: 14,
@@ -46,7 +45,7 @@ extension SnackBars on BuildContext {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         content: Text(
           message.tr(),
-          style: GoogleFonts.poppins(
+          style: TextStyle(fontFamily: 'Poppins', 
             color: Colors.white,
             fontWeight: FontWeight.w400,
             fontSize: 14,
@@ -65,7 +64,7 @@ extension SnackBars on BuildContext {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         content: Text(
           message.tr(),
-          style: GoogleFonts.poppins(
+          style: TextStyle(fontFamily: 'Poppins', 
             color: Colors.white,
             fontWeight: FontWeight.w400,
             fontSize: 14,
@@ -84,7 +83,7 @@ extension SnackBars on BuildContext {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         content: Text(
           message.tr(),
-          style: GoogleFonts.poppins(
+          style: TextStyle(fontFamily: 'Poppins', 
             color: Colors.white,
             fontWeight: FontWeight.w400,
             fontSize: 14,

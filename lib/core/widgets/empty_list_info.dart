@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'package:get/get.dart' hide Trans;
 
@@ -23,7 +22,7 @@ class EmptyListInfo extends StatelessWidget {
           ),
           Text(
             "emptyList".tr(),
-            style: GoogleFonts.poppins(
+            style: TextStyle(fontFamily: 'Poppins', 
               fontSize: 16,
               fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.onSurface,

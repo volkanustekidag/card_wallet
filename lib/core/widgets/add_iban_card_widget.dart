@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:easy_localization/easy_localization.dart';
 
@@ -98,7 +97,7 @@ class AddIbanCardWidget extends StatelessWidget {
                 children: [
                   Text(
                     'ibanPreview'.tr(),
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(fontFamily: 'Poppins', 
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: baseTextColor.withOpacity(0.9),
@@ -123,7 +122,7 @@ class AddIbanCardWidget extends StatelessWidget {
                         const SizedBox(width: 6),
                         Text(
                           'secure'.tr(),
-                          style: GoogleFonts.poppins(
+                          style: TextStyle(fontFamily: 'Poppins', 
                             fontSize: 11,
                             color: secondaryTextColor,
                             fontWeight: FontWeight.w500,
@@ -186,7 +185,7 @@ class AddIbanCardWidget extends StatelessWidget {
           children: [
             Text(
               'ibanPreviewPlaceholder'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(fontFamily: 'Poppins', 
                 fontSize: 13,
                 color: textColor.withOpacity(0.9),
                 fontWeight: FontWeight.w500,
@@ -195,7 +194,7 @@ class AddIbanCardWidget extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'ibanFlowHint'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(fontFamily: 'Poppins', 
                 fontSize: 12,
                 color: secondaryTextColor.withOpacity(0.75),
               ),
@@ -221,7 +220,7 @@ class AddIbanCardWidget extends StatelessWidget {
       children: [
         Text(
           'IBAN',
-          style: GoogleFonts.poppins(
+          style: TextStyle(fontFamily: 'Poppins', 
             fontSize: 12,
             fontWeight: FontWeight.w600,
             color: secondaryTextColor,
@@ -231,7 +230,7 @@ class AddIbanCardWidget extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           _formatIban(ibanCard.iban),
-          style: GoogleFonts.robotoMono(
+          style: TextStyle(fontFamily: 'Poppins', 
             fontSize: 18,
             letterSpacing: 1.4,
             fontWeight: FontWeight.w600,
@@ -244,7 +243,7 @@ class AddIbanCardWidget extends StatelessWidget {
         const SizedBox(height: 18),
         Text(
           hasHolder ? ibanCard.cardHolder : 'holderPlaceholder'.tr(),
-          style: GoogleFonts.poppins(
+          style: TextStyle(fontFamily: 'Poppins', 
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: primaryTextColor,
@@ -331,7 +330,7 @@ class _InfoPill extends StatelessWidget {
         children: [
           Text(
             label,
-            style: GoogleFonts.poppins(
+            style: TextStyle(fontFamily: 'Poppins', 
               fontSize: 11,
               color: captionColor,
               fontWeight: FontWeight.w500,
@@ -341,7 +340,7 @@ class _InfoPill extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             value,
-            style: GoogleFonts.poppins(
+            style: TextStyle(fontFamily: 'Poppins', 
               fontSize: 13,
               color: textColor,
               fontWeight: FontWeight.w600,

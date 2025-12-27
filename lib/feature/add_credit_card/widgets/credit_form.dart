@@ -14,7 +14,6 @@ import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/upper_case_formatter.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class CreditTextFieldForms extends StatefulWidget {
   const CreditTextFieldForms({Key? key}) : super(key: key);
@@ -246,7 +245,7 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
             ],
             iconData: Icons.credit_card_rounded,
             textInputType: TextInputType.number,
-            textStyle: GoogleFonts.robotoMono(
+            textStyle: TextStyle(fontFamily: 'Poppins', 
               fontSize: 18,
               letterSpacing: 1.5,
               color: theme.colorScheme.onSurface,
@@ -363,7 +362,7 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
             children: [
               Text(
                 "scanCardOptional".tr(),
-                style: GoogleFonts.poppins(
+                style: TextStyle(fontFamily: 'Poppins', 
                   fontWeight: FontWeight.w600,
                   color: theme.colorScheme.primary,
                 ),

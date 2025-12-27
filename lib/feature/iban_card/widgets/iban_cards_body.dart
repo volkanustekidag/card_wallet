@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/core/constants/paddings.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
@@ -108,7 +107,7 @@ class IbanCardsBody extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
                     ibanCard.cardHolder,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(fontFamily: 'Poppins', 
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
@@ -120,7 +119,7 @@ class IbanCardsBody extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
                     ibanCard.bankName,
-                    style: GoogleFonts.inter(
+                    style: TextStyle(fontFamily: 'Poppins', 
                       fontSize: 14,
                       color: Colors.grey[600],
                     ),
@@ -219,14 +218,14 @@ class IbanCardsBody extends StatelessWidget {
       leading: Icon(icon, color: color),
       title: Text(
         title,
-        style: GoogleFonts.inter(
+        style: TextStyle(fontFamily: 'Poppins', 
           fontWeight: FontWeight.w600,
           color: color,
         ),
       ),
       subtitle: Text(
         subtitle,
-        style: GoogleFonts.inter(
+        style: TextStyle(fontFamily: 'Poppins', 
           fontSize: 12,
           color: isDestructive
               ? Colors.red.withValues(alpha: 0.7)
@@ -251,7 +250,7 @@ class IbanCardsBody extends StatelessWidget {
             SizedBox(width: 8),
             Text(
               'qrCodeGenerate'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(fontFamily: 'Poppins', 
                 fontWeight: FontWeight.w600,
                 fontSize: 18,
               ),
@@ -387,7 +386,7 @@ class IbanCardsBody extends StatelessWidget {
             ),
             child: Text(
               'cancel'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(fontFamily: 'Poppins', 
                 fontWeight: FontWeight.w500,
                 color: Colors.grey[600],
               ),
@@ -420,7 +419,7 @@ class IbanCardsBody extends StatelessWidget {
             ),
             child: Text(
               'qrCodeGenerate'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(fontFamily: 'Poppins', 
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -652,7 +651,7 @@ class IbanCardsBody extends StatelessWidget {
             SizedBox(width: 8),
             Text(
               'qrCodeError'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(fontFamily: 'Poppins', 
                 fontWeight: FontWeight.w600,
                 fontSize: 18,
               ),
@@ -665,7 +664,7 @@ class IbanCardsBody extends StatelessWidget {
           children: [
             Text(
               'qrCodeErrorMessage'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(fontFamily: 'Poppins', 
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
@@ -675,7 +674,7 @@ class IbanCardsBody extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 2),
                   child: Text(
                     '• $error',
-                    style: GoogleFonts.poppins(
+                    style: TextStyle(fontFamily: 'Poppins', 
                       color: Colors.red[700],
                       fontSize: 14,
                     ),
@@ -695,7 +694,7 @@ class IbanCardsBody extends StatelessWidget {
             ),
             child: Text(
               'ok'.tr(),
-              style: GoogleFonts.poppins(
+              style: TextStyle(fontFamily: 'Poppins', 
                 fontWeight: FontWeight.w500,
               ),
             ),
