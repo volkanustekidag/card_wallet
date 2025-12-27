@@ -290,6 +290,11 @@
     "editCard": "Edit Card",
     "editCardSubtitle": "Modify card information",
     "deleteCard": "Delete Card",
-    "deleteCardSubtitle": "Remove this card permanently"
+    "deleteCardSubtitle": "Remove this card permanently",
+
+    "qrCodePremiumDescription": "QR code generation is available only for Premium members. Upgrade to Premium for unlimited QR code generation and more features.",
+    "backupPremiumDescription": "Data backup feature is available only for Premium members. Upgrade to Premium to protect your data from loss.",
+    "restorePremiumDescription": "Data restore feature is available only for Premium members. Upgrade to Premium to restore your backup data.",
+    "errorGeneratingQR": "Error occurred while generating QR code"
 
 }

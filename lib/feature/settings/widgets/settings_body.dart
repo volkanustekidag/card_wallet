@@ -128,24 +128,38 @@ class _SettingsBodyState extends State<SettingsBody> {
                   size: 16,
                 ),
                 onTap: () => showPrivacyPolicyBottomSheet(context)),
-            SettingsCard(
-              iconData: Icons.backup,
-              title: "backupData".tr(),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-              ),
-              onTap: () => _createBackup(context),
-            ),
-            SettingsCard(
-              iconData: Icons.restore,
-              title: "restoreData".tr(),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-              ),
-              onTap: () => _restoreBackup(context),
-            ),
+            Obx(() {
+              final premiumController = Get.find<PremiumController>();
+              final isPremium = premiumController.isPremium;
+
+              return SettingsCard(
+                iconData: Icons.backup,
+                title: "backupData".tr(),
+                subtitle: isPremium ? null : "premiumUpgrade".tr(),
+                trailing: isPremium
+                    ? Icon(Icons.arrow_forward_ios, size: 16)
+                    : Icon(Icons.workspace_premium, color: Colors.amber.shade600),
+                onTap: isPremium
+                    ? () => _createBackup(context)
+                    : () => _showPremiumDialog(context, 'backupPremiumDescription'),
+              );
+            }),
+            Obx(() {
+              final premiumController = Get.find<PremiumController>();
+              final isPremium = premiumController.isPremium;
+
+              return SettingsCard(
+                iconData: Icons.restore,
+                title: "restoreData".tr(),
+                subtitle: isPremium ? null : "premiumUpgrade".tr(),
+                trailing: isPremium
+                    ? Icon(Icons.arrow_forward_ios, size: 16)
+                    : Icon(Icons.workspace_premium, color: Colors.amber.shade600),
+                onTap: isPremium
+                    ? () => _restoreBackup(context)
+                    : () => _showPremiumDialog(context, 'restorePremiumDescription'),
+              );
+            }),
             SettingsCard(
               iconData: Icons.delete,
               title: "clearAllD".tr(),
@@ -170,6 +184,29 @@ class _SettingsBodyState extends State<SettingsBody> {
         ),
       ),
     );
+  }
+
+  Future<void> _showPremiumDialog(BuildContext context, String descriptionKey) async {
+    final shouldUpgrade = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('premiumFeatureLockedTitle'.tr()),
+        content: Text(descriptionKey.tr()),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('maybeLater'.tr()),
+          ),
+          ElevatedButton(
+            onPressed: () => Get.back(result: true),
+            child: Text('goPremium'.tr()),
+          ),
+        ],
+      ),
+    ) ?? false;
+
+    if (shouldUpgrade) {
+      Get.toNamed('/premium');
+    }
   }
 
   Future<void> _createBackup(BuildContext context) async {

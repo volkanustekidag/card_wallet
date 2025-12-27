@@ -12,6 +12,7 @@ import 'package:wallet_app/feature/add_iban_card/add_iban_card_page.dart';
 import 'package:wallet_app/feature/iban_card/utils/iban_card_utils.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_qr_generator.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
+import 'package:wallet_app/core/controllers/premium_controller.dart';
 
 class IbanCardsBody extends StatelessWidget {
   final IbanCardController controller;
@@ -43,7 +44,7 @@ class IbanCardsBody extends StatelessWidget {
                     _copyIBAN(context, ibanCard);
                   },
                   onQRTap: () {
-                    _showQRGenerationDialog(context, ibanCard);
+                    _checkPremiumAndShowQR(context, ibanCard);
                   },
                   onLongPress: () {
                     _showCardActionsBottomSheet(context, ibanCard);
@@ -60,6 +61,36 @@ class IbanCardsBody extends StatelessWidget {
   void _copyIBAN(BuildContext context, IbanCard ibanCard) {
     Clipboard.setData(ClipboardData(text: ibanCard.iban));
     _showAutoHideSnackBar(context, 'ibanCopied'.tr());
+  }
+
+  void _checkPremiumAndShowQR(BuildContext context, IbanCard ibanCard) async {
+    final premiumController = Get.find<PremiumController>();
+
+    if (!premiumController.isPremium) {
+      final shouldUpgrade = await Get.dialog<bool>(
+        AlertDialog(
+          title: Text('premiumFeatureLockedTitle'.tr()),
+          content: Text('qrCodePremiumDescription'.tr()),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: false),
+              child: Text('maybeLater'.tr()),
+            ),
+            ElevatedButton(
+              onPressed: () => Get.back(result: true),
+              child: Text('goPremium'.tr()),
+            ),
+          ],
+        ),
+      ) ?? false;
+
+      if (shouldUpgrade) {
+        Get.toNamed('/premium');
+      }
+      return;
+    }
+
+    _showQRGenerationDialog(context, ibanCard);
   }
 
   void _showAutoHideSnackBar(BuildContext context, String message) {
@@ -158,7 +189,7 @@ class IbanCardsBody extends StatelessWidget {
                   subtitle: 'showQrCodeSubtitle'.tr(),
                   onTap: () {
                     Navigator.pop(context);
-                    _showQRGenerationDialog(context, ibanCard);
+                    _checkPremiumAndShowQR(context, ibanCard);
                   },
                 ),
                 if (ibanCard.id != 1)
