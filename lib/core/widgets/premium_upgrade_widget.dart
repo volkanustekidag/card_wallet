@@ -20,7 +20,7 @@ class PremiumUpgradeWidget extends StatelessWidget {
     return Obx(() {
       final premiumController = Get.find<PremiumController>();
 
-      if (!premiumController.isPremium) {
+      if (premiumController.isPremium) {
         return const SizedBox.shrink();
       }
 

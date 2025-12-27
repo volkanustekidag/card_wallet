@@ -87,7 +87,8 @@ class BiometricService {
         options: AuthenticationOptions(
           useErrorDialogs: useErrorDialogs,
           stickyAuth: stickyAuth,
-          biometricOnly: false, // Allow all available authentication methods
+          biometricOnly: true, // Only use biometric authentication
+          sensitiveTransaction: false, // Don't require device credential fallback
         ),
       );
 

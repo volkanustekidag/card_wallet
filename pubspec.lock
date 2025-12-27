@@ -353,11 +353,9 @@ packages:
   flutter_iban_scanner:
     dependency: "direct main"
     description:
-      path: "."
-      ref: master
-      resolved-ref: "535380b90f5fcdff2058490fe81aabbaf4394b6e"
-      url: "https://github.com/volkanustekidag/flutter_iban_scanner.git"
-    source: git
+      path: "../flutter_iban_scanner"
+      relative: true
+    source: path
     version: "0.2.0"
   flutter_launcher_icons:
     dependency: "direct main"

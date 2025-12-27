@@ -103,7 +103,7 @@ class _PremiumPageState extends State<PremiumPage> {
     );
   }
 
-  Widget _buildFeaturesList(ColorScheme colorScheme) {
+  Widget _buildBenefitsList(ColorScheme colorScheme) {
     const benefits = [
       'Unlimited credit cards',
       'Unlimited IBAN cards',
@@ -172,6 +172,17 @@ class _PremiumPageState extends State<PremiumPage> {
   }
 
   Widget _buildYearlyPlan(ColorScheme colorScheme) {
+    final yearlyProduct = _premiumController.yearlyProduct;
+    if (yearlyProduct == null) return const SizedBox.shrink();
+
+    // Calculate monthly price
+    final yearlyPriceValue = double.tryParse(
+          yearlyProduct.price.replaceAll(RegExp(r'[^\d,.]'), '').replaceAll(',', '.'),
+        ) ??
+        0;
+    final monthlyPrice = yearlyPriceValue / 12;
+    final currencySymbol = yearlyProduct.price.contains('₺') ? '₺' : '\$';
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -227,7 +238,7 @@ class _PremiumPageState extends State<PremiumPage> {
           ),
           const SizedBox(height: 12),
           Text(
-            '₺719,99 / year',
+            '${yearlyProduct.price} / year',
             style: TextStyle(
               fontFamily: 'Poppins',
               fontSize: 30,
@@ -237,7 +248,7 @@ class _PremiumPageState extends State<PremiumPage> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Only ₺59,99 per month',
+            'Only $currencySymbol${monthlyPrice.toStringAsFixed(2)} per month',
             style: TextStyle(
               fontFamily: 'Poppins',
               fontSize: 14,
@@ -328,7 +339,7 @@ class _PremiumPageState extends State<PremiumPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            '₺51,99 / week',
+            '${weeklyProduct.price} / week',
             style: TextStyle(
               fontFamily: 'Poppins',
               fontSize: 22,
