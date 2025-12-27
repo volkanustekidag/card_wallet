@@ -33,12 +33,17 @@ class _HomePageState extends State<HomePage> {
           if (_homeController.isLoading.value) {
             return const LoadingWidget();
           }
-          return Column(
+          return Stack(
             children: [
-              Expanded(
-                child: HomeBody(controller: _homeController),
+              HomeBody(controller: _homeController),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: SafeArea(
+                  child: const PremiumBannerAdWidget(),
+                ),
               ),
-              const PremiumBannerAdWidget(),
             ],
           );
         }),

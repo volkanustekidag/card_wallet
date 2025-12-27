@@ -18,6 +18,7 @@ import 'package:wallet_app/core/widgets/premium_crown_widget.dart';
 import 'package:wallet_app/core/widgets/premium_upgrade_widget.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/iban_card/utils/iban_card_utils.dart';
+import 'package:wallet_app/feature/home/widgets/dashed_empty_card.dart';
 
 class HomeBody extends StatelessWidget {
   final HomeController controller;
@@ -86,6 +87,19 @@ class HomeBody extends StatelessWidget {
                   const SizedBox(height: 8),
                   _buildCreditCardPreview(latestCreditCard),
                   const SizedBox(height: 32),
+                ] else ...[
+                  _buildSectionHeaderRow(
+                    context: context,
+                    title: 'lastAddedCreditCard'.tr(),
+                    actionLabel: 'seeAllCreditCardsAction'.tr(),
+                    route: '/creditCards',
+                  ),
+                  const SizedBox(height: 8),
+                  DashedEmptyCard(
+                    route: '/addCreditCard',
+                    text: 'addCC'.tr(),
+                  ),
+                  const SizedBox(height: 32),
                 ],
                 if (latestIbanCard != null) ...[
                   _buildSectionHeaderRow(
@@ -95,8 +109,19 @@ class HomeBody extends StatelessWidget {
                     route: '/ibanCards',
                   ),
                   _buildIbanCardPreview(context, latestIbanCard),
+                ] else ...[
+                  _buildSectionHeaderRow(
+                    context: context,
+                    title: 'lastAddedIbanCard'.tr(),
+                    actionLabel: 'seeAllIbanCardsAction'.tr(),
+                    route: '/ibanCards',
+                  ),
+                  const SizedBox(height: 8),
+                  DashedEmptyCard(
+                    route: '/addIbanCard',
+                    text: 'addIC'.tr(),
+                  ),
                 ],
-                const SizedBox(height: 32),
               ],
             ),
           ],

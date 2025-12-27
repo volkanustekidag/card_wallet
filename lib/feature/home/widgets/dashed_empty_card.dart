@@ -22,7 +22,7 @@ class DashedEmptyCard extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 38),
+      padding: EdgeInsets.symmetric(horizontal: 24),
       child: GestureDetector(
         onTap: () async {
           final premiumController = Get.find<PremiumController>();
@@ -30,8 +30,8 @@ class DashedEmptyCard extends StatelessWidget {
           CardLimitType? rewardUnlockType;
 
           if (route == '/addCreditCard') {
-            final currentCount =
-                await premiumController.getStoredCardCount(CardLimitType.credit);
+            final currentCount = await premiumController
+                .getStoredCardCount(CardLimitType.credit);
             if (!premiumController.canAddMoreCreditCards(currentCount)) {
               canProceed =
                   await showCardLimitDialog(context, CardLimitType.credit);
@@ -69,7 +69,7 @@ class DashedEmptyCard extends StatelessWidget {
           child: DottedBorder(
             color: theme.colorScheme.onSurface.withOpacity(0.8),
             borderType: BorderType.RRect,
-            strokeWidth: 2,
+            strokeWidth: 1.5,
             dashPattern: const [12, 6],
             radius: const Radius.circular(16),
             child: Container(
@@ -97,7 +97,8 @@ class DashedEmptyCard extends StatelessWidget {
                   SizedBox(height: 16),
                   Text(
                     text,
-                    style: TextStyle(fontFamily: 'Poppins', 
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       color: theme.colorScheme.onSurface,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -107,7 +108,8 @@ class DashedEmptyCard extends StatelessWidget {
                   SizedBox(height: 8),
                   Text(
                     "tapToAdd".tr(),
-                    style: TextStyle(fontFamily: 'Poppins', 
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
                       color: theme.colorScheme.onSurface.withOpacity(0.7),
                       fontSize: 14,
                       fontWeight: FontWeight.w400,

@@ -33,7 +33,6 @@ dependencies:
   dotted_border: ^2.0.0+2
   easy_localization: ^3.0.7+1
   flip_card: ^0.7.0
-  # fluro: ^2.0.5  # Not used - removed
   flutter:
     sdk: flutter
   flutter_launcher_icons: ^0.10.0
