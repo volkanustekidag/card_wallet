@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
@@ -14,7 +13,7 @@ class PremiumUpgradeWidget extends StatelessWidget {
     Key? key,
     this.customText,
     this.onTap,
-    this.margin = const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+    this.margin = const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
   }) : super(key: key);
 
   @override

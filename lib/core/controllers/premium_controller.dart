@@ -7,12 +7,16 @@ import 'package:wallet_app/core/services/premium_service.dart';
 class PremiumController extends GetxController {
   final RxBool _isPremium = false.obs;
   final RxBool _isLoading = false.obs;
-  final Rx<ProductDetails?> _premiumProduct = Rx<ProductDetails?>(null);
+  final RxList<ProductDetails> _availableProducts = <ProductDetails>[].obs;
   bool _skipNextInterstitial = false;
 
   bool get isPremium => _isPremium.value;
   bool get isLoading => _isLoading.value;
-  ProductDetails? get premiumProduct => _premiumProduct.value;
+  List<ProductDetails> get availableProducts => _availableProducts;
+  ProductDetails? get weeklyProduct =>
+      _getProductById(PremiumService.weeklyProductId);
+  ProductDetails? get yearlyProduct =>
+      _getProductById(PremiumService.yearlyProductId);
   bool get shouldSkipInterstitial => _skipNextInterstitial;
 
   @override
@@ -37,26 +41,35 @@ class PremiumController extends GetxController {
     });
     
     // Load premium product details
-    await _loadPremiumProduct();
+    await _loadPremiumProducts();
     
     _isLoading.value = false;
   }
 
-  Future<void> _loadPremiumProduct() async {
+  Future<void> _loadPremiumProducts() async {
     try {
-      print('🔄 [PremiumController] Loading premium product...');
-      final product = await PremiumService.getPremiumProductDetails();
-      _premiumProduct.value = product;
-      print('🔄 [PremiumController] Premium product result: ${product?.id ?? "NULL"}');
+      print('🔄 [PremiumController] Loading premium products...');
+      final products = await PremiumService.getPremiumProductDetails();
+      _availableProducts.assignAll(products);
+      print(
+          '🔄 [PremiumController] Loaded ${products.length} premium products.');
     } catch (e) {
       print('❌ [PremiumController] Error loading premium product: $e');
     }
   }
 
-  Future<bool> purchasePremium() async {
+  ProductDetails? _getProductById(String productId) {
+    try {
+      return _availableProducts.firstWhere((product) => product.id == productId);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<bool> purchase(ProductDetails product) async {
     _isLoading.value = true;
     try {
-      final success = await PremiumService.purchasePremium();
+      final success = await PremiumService.purchaseProduct(product);
       return success;
     } catch (e) {
       print('Error purchasing premium: $e');

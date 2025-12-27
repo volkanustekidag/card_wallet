@@ -1,11 +1,12 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:easy_localization/easy_localization.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
-import 'package:wallet_app/core/widgets/loading_widget.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/widgets/loading_widget.dart';
 
 class PremiumPage extends StatefulWidget {
   const PremiumPage({Key? key}) : super(key: key);
@@ -110,17 +111,8 @@ class _PremiumPageState extends State<PremiumPage> {
                 _buildFeaturesList(colorScheme),
                 SizedBox(height: 4.h),
 
-                // Purchase Button
-                if (_premiumController.premiumProduct != null)
-                  _buildPurchaseButton(colorScheme)
-                else
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 2.h),
-                    child: Text(
-                      'Loading product... (${_premiumController.premiumProduct == null ? "Product not loaded" : "Loaded"})',
-                      style: TextStyle(color: colorScheme.error),
-                    ),
-                  ),
+                // Subscription plans
+                _buildPlanOptions(colorScheme),
 
                 SizedBox(height: 2.h),
 
@@ -200,51 +192,6 @@ class _PremiumPageState extends State<PremiumPage> {
     );
   }
 
-  Widget _buildPurchaseButton(ColorScheme colorScheme) {
-    final product = _premiumController.premiumProduct!;
-    
-    return Container(
-      width: double.infinity,
-      height: 56,
-      child: ElevatedButton(
-        onPressed: () async {
-          final success = await _premiumController.purchasePremium();
-          if (success) {
-            // Sadece başarılı olursa sayfadan çık
-            Get.back();
-            context.showSuccessSnackBar('premiumActivated');
-          } else {
-            // Başarısız olursa sayfada kal ve hata göster
-            context.showErrorSnackBar('purchaseFailed');
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.amber,
-          foregroundColor: Colors.white,
-          elevation: 8,
-          shadowColor: Colors.amber.withOpacity(0.5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.workspace_premium, size: 24),
-            const SizedBox(width: 12),
-            Text(
-              '${'getPremium'.tr()} - ${product.price}',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildRestoreButton(ColorScheme colorScheme) {
     return TextButton(
       onPressed: () async {
@@ -260,5 +207,177 @@ class _PremiumPageState extends State<PremiumPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildPlanOptions(ColorScheme colorScheme) {
+    final plans = <Widget>[];
+    final weeklyProduct = _premiumController.weeklyProduct;
+    final yearlyProduct = _premiumController.yearlyProduct;
+
+    if (weeklyProduct != null) {
+      plans.add(
+        _buildPlanCard(
+          colorScheme: colorScheme,
+          product: weeklyProduct,
+          title: 'weeklyPlanTitle'.tr(),
+          description: 'weeklyPlanDescription'.tr(),
+        ),
+      );
+    }
+
+    if (yearlyProduct != null) {
+      plans.add(
+        _buildPlanCard(
+          colorScheme: colorScheme,
+          product: yearlyProduct,
+          title: 'yearlyPlanTitle'.tr(),
+          description: 'yearlyPlanDescription'.tr(),
+          highlight: true,
+        ),
+      );
+    }
+
+    if (plans.isEmpty) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 2.h),
+        child: Text(
+          'premiumProductsUnavailable'.tr(),
+          style: GoogleFonts.poppins(
+            color: colorScheme.error,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        ...plans,
+        SizedBox(height: 2.h),
+      ],
+    );
+  }
+
+  Widget _buildPlanCard({
+    required ColorScheme colorScheme,
+    required ProductDetails product,
+    required String title,
+    required String description,
+    bool highlight = false,
+  }) {
+    final backgroundColor = highlight
+        ? colorScheme.primary.withOpacity(0.12)
+        : colorScheme.surface;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: highlight
+              ? colorScheme.primary
+              : colorScheme.outline.withOpacity(0.2),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withOpacity(0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+              ),
+              if (highlight)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'planBestValue'.tr(),
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onPrimary,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            description,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: colorScheme.onSurface.withOpacity(0.7),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Text(
+                product.price,
+                style: GoogleFonts.poppins(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
+              ),
+              const Spacer(),
+              ElevatedButton(
+                onPressed: () => _handlePurchase(product),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Text(
+                  'choosePlan'.tr(),
+                  style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handlePurchase(ProductDetails product) async {
+    final success = await _premiumController.purchase(product);
+    if (!mounted) return;
+
+    if (success) {
+      Get.back();
+      final messengerContext = Get.context ?? context;
+      messengerContext.showSuccessSnackBar('premiumActivated');
+    } else {
+      context.showErrorSnackBar('purchaseFailed');
+    }
   }
 }

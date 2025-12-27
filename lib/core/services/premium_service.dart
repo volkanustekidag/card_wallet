@@ -5,7 +5,18 @@ import 'package:wallet_app/core/data/local_services/card_services/credi_card/cre
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 
 class PremiumService {
-  static const String _premiumProductId = 'premium';
+  static const String weeklyProductId = 'com.volkan.walletapp.weekly';
+  static const String yearlyProductId = 'com.volkan.walletapp.yearly';
+  static const String _legacyLifetimeProductId = 'premium';
+  static const Set<String> _subscriptionProductIds = {
+    weeklyProductId,
+    yearlyProductId,
+  };
+  static const Set<String> _allSupportedProductIds = {
+    weeklyProductId,
+    yearlyProductId,
+    _legacyLifetimeProductId,
+  };
   static const String _premiumStatusKey = 'premium_status';
   static const _storage = FlutterSecureStorage();
 
@@ -44,6 +55,12 @@ class PremiumService {
       final premiumStatus = await _storage.read(key: _premiumStatusKey);
       _isPremium = premiumStatus == 'true';
       _premiumStatusController.add(_isPremium);
+      if (_isPremium) {
+        print(
+            '📦 [Premium] Loaded stored premium status (likely legacy lifetime fallback). Waiting for store validation.');
+      } else {
+        print('📦 [Premium] No stored premium status found.');
+      }
     } catch (e) {
       _isPremium = false;
       _premiumStatusController.add(_isPremium);
@@ -58,24 +75,16 @@ class PremiumService {
     } catch (e) {}
   }
 
-  static Future<bool> purchasePremium() async {
+  static Future<bool> purchaseProduct(ProductDetails productDetails) async {
     try {
       final bool available = await _iap.isAvailable();
       if (!available) {
         return false;
       }
 
-      const Set<String> productIds = {_premiumProductId};
-      final ProductDetailsResponse response =
-          await _iap.queryProductDetails(productIds);
-
-      if (response.notFoundIDs.isNotEmpty) {
-        return false;
-      }
-
-      final ProductDetails productDetails = response.productDetails.first;
-      final PurchaseParam purchaseParam =
-          PurchaseParam(productDetails: productDetails);
+      final PurchaseParam purchaseParam = PurchaseParam(
+        productDetails: productDetails,
+      );
 
       final bool success =
           await _iap.buyNonConsumable(purchaseParam: purchaseParam);
@@ -100,7 +109,11 @@ class PremiumService {
       } else if (purchaseDetails.status == PurchaseStatus.purchased ||
           purchaseDetails.status == PurchaseStatus.restored) {
         // Handle successful purchase or restore
-        if (purchaseDetails.productID == _premiumProductId) {
+        if (_allSupportedProductIds.contains(purchaseDetails.productID)) {
+          if (purchaseDetails.productID == _legacyLifetimeProductId) {
+            print(
+                '🔁 [Premium] Detected legacy lifetime purchase (${purchaseDetails.productID}). Keeping premium unlocked.');
+          }
           _savePremiumStatus(true);
         }
       }
@@ -111,7 +124,7 @@ class PremiumService {
     }
   }
 
-  static Future<ProductDetails?> getPremiumProductDetails() async {
+  static Future<List<ProductDetails>> getPremiumProductDetails() async {
     try {
       print('🔍 [Premium] Checking if IAP is available...');
       final bool available = await _iap.isAvailable();
@@ -119,29 +132,30 @@ class PremiumService {
 
       if (!available) {
         print('❌ [Premium] IAP not available on this device');
-        return null;
+        return [];
       }
 
-      const Set<String> productIds = {_premiumProductId};
-      print('🔍 [Premium] Querying product: $_premiumProductId');
+      print(
+          '🔍 [Premium] Querying products: ${_subscriptionProductIds.join(", ")}');
 
       final ProductDetailsResponse response =
-          await _iap.queryProductDetails(productIds);
+          await _iap.queryProductDetails(_subscriptionProductIds);
 
       print('🔍 [Premium] Products found: ${response.productDetails.length}');
       print('🔍 [Premium] Not found IDs: ${response.notFoundIDs}');
 
-      if (response.productDetails.isNotEmpty) {
-        final product = response.productDetails.first;
-        print('✅ [Premium] Product loaded: ${product.id} - ${product.price}');
-        return product;
+      if (response.productDetails.isEmpty) {
+        print('❌ [Premium] No products found');
+        return [];
       }
 
-      print('❌ [Premium] No products found');
-      return null;
+      for (final product in response.productDetails) {
+        print('✅ [Premium] Product loaded: ${product.id} - ${product.price}');
+      }
+      return response.productDetails;
     } catch (e) {
       print('❌ [Premium] Error loading product: $e');
-      return null;
+      return [];
     }
   }
 
