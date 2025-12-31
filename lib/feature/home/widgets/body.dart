@@ -30,19 +30,20 @@ class HomeBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: CustomPaint(
-              painter: BackgroundShapesPainter(),
-            ),
-          ),
-          Obx(() {
-            final latestCreditCard = controller.latestCreditCard.value;
-            final latestIbanCard = controller.latestIbanCard.value;
+    return Obx(() {
+      final latestCreditCard =
+          _getLatestCreditCard(controller.creditCards.toList());
+      final latestIbanCard = _getLatestIbanCard(controller.ibanCards.toList());
 
-            return ListView(
+      return SafeArea(
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: CustomPaint(
+                painter: BackgroundShapesPainter(),
+              ),
+            ),
+            ListView(
               padding: const EdgeInsets.only(bottom: 40),
               children: [
                 AppBar(
@@ -122,11 +123,11 @@ class HomeBody extends StatelessWidget {
                   ),
                 ],
               ],
-            );
-          }),
-        ],
-      ),
-    );
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildQuickAddShortcuts(BuildContext context) {
@@ -180,7 +181,8 @@ class HomeBody extends StatelessWidget {
             CardLimitType? rewardUnlockType;
 
             if (route == "/addCreditCard") {
-              final currentCount = premiumController.creditCardCount;
+              final currentCount = await premiumController
+                  .getStoredCardCount(CardLimitType.credit);
               print(
                   'Credit Card - Premium: ${premiumController.isPremium}, Count: $currentCount, CanAdd: ${premiumController.canAddMoreCreditCards(currentCount)}');
               if (!premiumController.canAddMoreCreditCards(currentCount)) {
@@ -192,7 +194,8 @@ class HomeBody extends StatelessWidget {
                 rewardUnlockType = CardLimitType.credit;
               }
             } else if (route == "/addIbanCard") {
-              final currentCount = premiumController.ibanCardCount;
+              final currentCount = await premiumController
+                  .getStoredCardCount(CardLimitType.iban);
               print(
                   'IBAN Card - Premium: ${premiumController.isPremium}, Count: $currentCount, CanAdd: ${premiumController.canAddMoreIbanCards(currentCount)}');
               if (!premiumController.canAddMoreIbanCards(currentCount)) {
@@ -322,6 +325,36 @@ class HomeBody extends StatelessWidget {
 
   void _handleSeeAllNavigation(String route) {
     Get.toNamed(route)?.then((_) => controller.refreshData());
+  }
+
+  CreditCard? _getLatestCreditCard(List<CreditCard> cards) {
+    if (cards.isEmpty) return null;
+    try {
+      final sorted = List<CreditCard>.from(cards);
+      sorted.sort((a, b) {
+        final aId = int.tryParse(a.id.toString()) ?? 0;
+        final bId = int.tryParse(b.id.toString()) ?? 0;
+        return bId.compareTo(aId);
+      });
+      return sorted.isNotEmpty ? sorted.first : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  IbanCard? _getLatestIbanCard(List<IbanCard> cards) {
+    if (cards.isEmpty) return null;
+    try {
+      final sorted = List<IbanCard>.from(cards);
+      sorted.sort((a, b) {
+        final aId = int.tryParse(a.id.toString()) ?? 0;
+        final bId = int.tryParse(b.id.toString()) ?? 0;
+        return bId.compareTo(aId);
+      });
+      return sorted.isNotEmpty ? sorted.first : null;
+    } catch (e) {
+      return null;
+    }
   }
 
   void _copyIBAN(BuildContext context, IbanCard ibanCard) {

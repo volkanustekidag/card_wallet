@@ -312,5 +312,9 @@
     "editCard": "Karte bearbeiten",
     "editCardSubtitle": "Kartendaten ändern",
     "deleteCard": "Karte löschen",
-    "deleteCardSubtitle": "Diese Karte dauerhaft entfernen"
+    "deleteCardSubtitle": "Diese Karte dauerhaft entfernen",
+
+    "termsOfUse": "Nutzungsbedingungen",
+    "privacyPolicy": "Datenschutzrichtlinie",
+    "couldNotLaunchUrl": "Link konnte nicht geöffnet werden"
 }

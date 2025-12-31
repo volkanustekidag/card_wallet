@@ -311,6 +311,10 @@
     "editCard": "Modifier la carte",
     "editCardSubtitle": "Mettre à jour les informations de la carte",
     "deleteCard": "Supprimer la carte",
-    "deleteCardSubtitle": "Supprimer définitivement cette carte"
+    "deleteCardSubtitle": "Supprimer définitivement cette carte",
+
+    "termsOfUse": "Conditions d'utilisation",
+    "privacyPolicy": "Politique de confidentialité",
+    "couldNotLaunchUrl": "Impossible d'ouvrir le lien"
 
 }

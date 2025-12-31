@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
@@ -122,6 +123,9 @@ class _PremiumPageState extends State<PremiumPage> {
                     weeklyProduct: weeklyProduct,
                     yearlyProduct: yearlyProduct,
                   ),
+                  const SizedBox(height: 8),
+                  _buildLegalLinks(colorScheme),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
@@ -394,8 +398,6 @@ class _PremiumPageState extends State<PremiumPage> {
             ),
           const SizedBox(height: 16),
           _buildPrimaryCta(colorScheme),
-          const SizedBox(height: 8),
-          _buildTrustText(colorScheme),
         ],
       ),
     );
@@ -573,17 +575,6 @@ class _PremiumPageState extends State<PremiumPage> {
     );
   }
 
-  Widget _buildTrustText(ColorScheme colorScheme) {
-    return Text(
-      'premiumTrustCopy'.tr(),
-      style: TextStyle(
-        fontFamily: 'Poppins',
-        fontSize: 12,
-        color: colorScheme.onSurface.withOpacity(0.65),
-      ),
-    );
-  }
-
   Widget _buildRestoreButton(ColorScheme colorScheme) {
     return GestureDetector(
       onTap: () async {
@@ -663,6 +654,62 @@ class _PremiumPageState extends State<PremiumPage> {
     final trimmed = price.trim();
     final match = RegExp(r'[^\d\s.,]+').firstMatch(trimmed);
     return match?.group(0);
+  }
+
+  Widget _buildLegalLinks(ColorScheme colorScheme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        GestureDetector(
+          onTap: () => _launchUrl(
+              'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'),
+          child: Text(
+            'termsOfUse'.tr(),
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 12,
+              color: Colors.blue,
+              decoration: TextDecoration.underline,
+              decorationColor: colorScheme.primary,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Text(
+            '•',
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 12,
+              color: colorScheme.onSurface.withOpacity(0.5),
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: () => _launchUrl(
+              'https://sites.google.com/view/wallet-app-privacy-policy/ana-sayfa'),
+          child: Text(
+            'privacyPolicy'.tr(),
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 12,
+              color: colorScheme.primary,
+              decoration: TextDecoration.underline,
+              decorationColor: colorScheme.primary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _launchUrl(String urlString) async {
+    final url = Uri.parse(urlString);
+    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+      if (mounted) {
+        context.showErrorSnackBar('couldNotLaunchUrl');
+      }
+    }
   }
 }
 

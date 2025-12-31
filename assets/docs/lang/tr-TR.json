@@ -313,6 +313,10 @@
     "qrCodePremiumDescription": "QR kod oluşturma özelliği sadece Premium üyeler için kullanılabilir. Sınırsız QR kod oluşturma ve daha fazla özellik için Premium'a geçin.",
     "backupPremiumDescription": "Veri yedekleme özelliği sadece Premium üyeler için kullanılabilir. Verilerinizi kaybetmemek için Premium'a geçin.",
     "restorePremiumDescription": "Veri geri yükleme özelliği sadece Premium üyeler için kullanılabilir. Yedek verilerinizi geri yüklemek için Premium'a geçin.",
-    "errorGeneratingQR": "QR kod oluşturulurken hata oluştu"
+    "errorGeneratingQR": "QR kod oluşturulurken hata oluştu",
+
+    "termsOfUse": "Kullanım Koşulları",
+    "privacyPolicy": "Gizlilik Politikası",
+    "couldNotLaunchUrl": "Bağlantı açılamadı"
 
 }
