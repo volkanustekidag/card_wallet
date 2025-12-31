@@ -1,18 +1,31 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 
 class PremiumService {
-  static const String weeklyProductId = 'com.volkan.walletapp.weekly';
-  static const String yearlyProductId = 'com.volkan.walletapp.yearly';
+  // Android product IDs
+  static const String _androidWeeklyProductId = 'com.volkan.walletapp.weekly';
+  static const String _androidYearlyProductId = 'com.volkan.walletapp.yearly';
+
+  // iOS product IDs
+  static const String _iosWeeklyProductId = 'com.volkan.walletapp.weekly_premium';
+  static const String _iosYearlyProductId = 'com.volkan.walletapp.yearly_premium';
+
+  // Platform-specific product IDs
+  static String get weeklyProductId => Platform.isIOS ? _iosWeeklyProductId : _androidWeeklyProductId;
+  static String get yearlyProductId => Platform.isIOS ? _iosYearlyProductId : _androidYearlyProductId;
+
   static const String _legacyLifetimeProductId = 'premium';
-  static const Set<String> _subscriptionProductIds = {
+
+  static Set<String> get _subscriptionProductIds => {
     weeklyProductId,
     yearlyProductId,
   };
-  static const Set<String> _allSupportedProductIds = {
+
+  static Set<String> get _allSupportedProductIds => {
     weeklyProductId,
     yearlyProductId,
     _legacyLifetimeProductId,
