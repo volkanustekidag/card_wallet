@@ -1,44 +1,59 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
-import 'package:wallet_app/core/constants/paddings.dart';
-import 'package:wallet_app/feature/add_credit_card/bloc/add_credit_bloc.dart';
-import 'package:sizer/sizer.dart';
+import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_controller.dart';
 
 class ColorsListView extends StatelessWidget {
-  const ColorsListView({
-    Key? key,
-  }) : super(key: key);
+  const ColorsListView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.center,
-      child: SizedBox(
-        height: 50,
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: LinearGradients().linearGradientList.length,
-          padding: PaddingConstants.normal(),
-          scrollDirection: Axis.horizontal,
-          itemBuilder: (context, index) {
-            return GestureDetector(
-              onTap: () {
-                BlocProvider.of<AddCreditBloc>(context).add(
-                  UpdateCreditCardEvent(index, "cardColorId"),
-                );
-              },
-              child: Container(
-                width: 10.w,
-                decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white, width: 1),
-                    gradient: LinearGradients().linearGradientList[index],
-                    shape: BoxShape.circle),
+    final controller = Get.find<AddCreditCardController>();
+    final gradients = LinearGradients().linearGradientList;
+
+    return Obx(() {
+      final selectedId = controller.currentCard.value.cardColorId;
+      return Wrap(
+        spacing: 10,
+        runSpacing: 10,
+        children: List.generate(gradients.length, (index) {
+          final isSelected = index == selectedId;
+          return GestureDetector(
+            onTap: () => controller.updateCardField("cardColorId", index),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: gradients[index],
+                border: Border.all(
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.primary
+                      : const Color(0x66FFFFFF),
+                  width: isSelected ? 2 : 1,
+                ),
+                boxShadow: isSelected
+                    ? const [
+                        BoxShadow(
+                          color: Color(0x26000000),
+                          blurRadius: 10,
+                          offset: Offset(0, 4),
+                        ),
+                      ]
+                    : null,
               ),
-            );
-          },
-        ),
-      ),
-    );
+              child: isSelected
+                  ? const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 18,
+                    )
+                  : null,
+            ),
+          );
+        }),
+      );
+    });
   }
 }

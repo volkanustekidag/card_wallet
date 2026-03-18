@@ -1,47 +1,65 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wallet_app/core/constants/paddings.dart';
-import 'package:wallet_app/feature/home/bloc/home_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:sizer/sizer.dart';
 
 class RowTitles extends StatelessWidget {
-  final title;
-  final route;
+  final String title;
+  final String route;
+  final String iconPath;
   const RowTitles({
     Key? key,
     required this.title,
     required this.route,
+    required this.iconPath,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: PaddingConstants.high(),
+      padding: EdgeInsets.symmetric(horizontal: 38),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            "${title}".tr(),
-            style: TextStyle(
-                fontWeight: FontWeight.w400,
-                color: Colors.white,
-                fontSize: 13.sp),
+          SvgPicture.asset(
+            iconPath,
+            height: 24,
+            width: 24,
+            color: context.theme.colorScheme.onSurface,
           ),
+          SizedBox(width: 8),
+          Text(
+            title.tr(),
+            style: TextStyle(fontFamily: 'Poppins', 
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: context.theme.colorScheme.onSurface,
+            ),
+          ),
+          const Spacer(),
           GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, route).then(
-                (value) => BlocProvider.of<HomeBloc>(context).add(
-                  LoadHomeContentEvent(),
-                ),
+              Get.toNamed(route)?.then(
+                (value) => Get.find<HomeController>().refreshData(),
               );
             },
-            child: Text(
-              "seeAll".tr(),
-              style: TextStyle(
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                  fontSize: 12.sp),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "seeAll".tr(),
+                  style: TextStyle(fontFamily: 'Poppins', 
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: context.theme.colorScheme.onSurface,
+                  ),
+                ),
+                SizedBox(width: 4),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 12,
+                ),
+              ],
             ),
           ),
         ],

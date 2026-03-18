@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
-import 'package:wallet_app/core/constants/paddings.dart';
-import 'package:wallet_app/domain/models/credit_card_model/credit_card.dart';
+import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class CreditCardFront extends StatelessWidget {
@@ -12,49 +9,55 @@ class CreditCardFront extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: PaddingConstants.normal(),
-      child: Container(
-        height: 28.h,
-        width: 90.h,
+    final gradient =
+        LinearGradients().linearGradientList[creditCard.cardColorId];
+    final bankName = creditCard.bankName.isNotEmpty
+        ? creditCard.bankName
+        : 'unknownBank'.tr();
+
+    final cardNumber = _formatCardNumber(creditCard.creditCardNumber);
+    final cardHolder =
+        creditCard.cardHolder.isNotEmpty ? creditCard.cardHolder : '----';
+    final expiration = creditCard.expirationDate.isNotEmpty
+        ? creditCard.expirationDate
+        : 'MM/YY';
+
+    return SizedBox.expand(
+      child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient:
-              LinearGradients().linearGradientList[creditCard.cardColorId],
-          borderRadius: BorderRadius.circular(15),
+          gradient: gradient,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.12), width: 0.6),
         ),
         child: Padding(
-          padding: PaddingConstants.extraHigh(),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(creditCard.bankName,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        letterSpacing: 1,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 20)),
+              _buildHeader(bankName),
+              const SizedBox(height: 10),
+              Image.asset(
+                "assets/images/chip.png",
+                width: 48,
               ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Image.asset(
-                  "assets/images/chip.png",
-                  width: 15.w,
+              const SizedBox(height: 16),
+              Text(
+                cardNumber,
+                style: TextStyle(fontFamily: 'Poppins', 
+                  fontSize: 26,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.25),
+                      offset: const Offset(0, 2),
+                      blurRadius: 6,
+                    ),
+                  ],
                 ),
               ),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(creditCard.creditCardNumber,
-                    style: GoogleFonts.courierPrime(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 25)),
-              ),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                _buildDetailColumn("hName".tr(), creditCard.cardHolder),
-                _buildDetailColumn("valid".tr(), creditCard.expirationDate),
-              ]),
+              const SizedBox(height: 8),
+              _buildMetaInformation(cardHolder, expiration),
             ],
           ),
         ),
@@ -62,23 +65,100 @@ class CreditCardFront extends StatelessWidget {
     );
   }
 
-  Column _buildDetailColumn(title, value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildHeader(String bankName) {
+    return Row(
       children: [
-        Text(title,
-            style: GoogleFonts.courierPrime(
-                color: Colors.white,
-                letterSpacing: 1,
-                fontWeight: FontWeight.w500,
-                fontSize: 10)),
-        Text(value,
-            style: GoogleFonts.courierPrime(
-                color: Colors.white,
-                letterSpacing: 1,
-                fontWeight: FontWeight.w500,
-                fontSize: 16)),
+        Expanded(
+          child: Text(
+            bankName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontFamily: 'Poppins', 
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+              letterSpacing: 0.4,
+            ),
+          ),
+        ),
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(Icons.wifi_rounded, color: Colors.white),
+        ),
       ],
     );
+  }
+
+  Widget _buildMetaInformation(String cardHolder, String expiration) {
+    final labelStyle = TextStyle(fontFamily: 'Poppins', 
+      color: Colors.white,
+      fontSize: 11,
+      letterSpacing: 1.2,
+      fontWeight: FontWeight.w500,
+    );
+    final valueStyle = TextStyle(fontFamily: 'Poppins', 
+      color: Colors.white,
+      fontSize: 16,
+      letterSpacing: 1.5,
+      fontWeight: FontWeight.w600,
+    );
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                "hName".tr().toUpperCase(),
+                style: labelStyle,
+              ),
+            ),
+            Text(
+              "valid".tr().toUpperCase(),
+              style: labelStyle,
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Expanded(
+              child: Text(
+                cardHolder,
+                style: valueStyle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Text(
+              expiration,
+              style: valueStyle,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  String _formatCardNumber(String number) {
+    final sanitized = number.replaceAll(RegExp(r'\s+'), '');
+    if (sanitized.isEmpty) return '•••• •••• •••• ••••';
+
+    final buffer = StringBuffer();
+    for (var i = 0; i < sanitized.length; i++) {
+      buffer.write(sanitized[i]);
+      final isLast = i == sanitized.length - 1;
+      if (!isLast && (i + 1) % 4 == 0) {
+        buffer.write(' ');
+      }
+    }
+    return buffer.toString();
   }
 }

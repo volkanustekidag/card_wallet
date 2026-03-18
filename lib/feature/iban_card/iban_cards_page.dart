@@ -1,10 +1,10 @@
-import 'package:wallet_app/core/constants/colors.dart';
-import 'package:wallet_app/core/widgets/loading_widget.dart';
-import 'package:wallet_app/feature/iban_card/bloc/iban_card_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
+import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
+import 'package:wallet_app/core/widgets/loading_widget.dart';
+import 'package:wallet_app/core/widgets/premium_banner_ad_widget.dart';
 import 'package:wallet_app/feature/iban_card/widgets/app_bar.dart';
-import 'package:wallet_app/feature/iban_card/widgets/body.dart';
+import 'package:wallet_app/feature/iban_card/widgets/iban_cards_body.dart';
 
 class IbanCardsPage extends StatefulWidget {
   const IbanCardsPage({Key? key}) : super(key: key);
@@ -14,24 +14,32 @@ class IbanCardsPage extends StatefulWidget {
 }
 
 class _IbanCardsPageState extends State<IbanCardsPage> {
+  late final IbanCardController _controller = Get.find<IbanCardController>();
+
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<IbanCardBloc>(context).add(LoadIbanCardEvent());
   }
-
-  bool _checkState(IbanCardState state) => state is IbanCardLoadedState;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: ColorConstants.primaryColor,
-      appBar: IbanCardsAppBar(),
-      body: BlocBuilder<IbanCardBloc, IbanCardState>(
-        builder: (context, state) =>
-            _checkState(state) ? Body(state: state) : LoadingWidget(),
-      ),
+      backgroundColor: context.theme.scaffoldBackgroundColor,
+      appBar: const IbanCardsAppBar(),
+      body: Obx(() {
+        if (_controller.isLoading.value) {
+          return const LoadingWidget();
+        }
+        return Column(
+          children: [
+            Expanded(
+              child: IbanCardsBody(controller: _controller),
+            ),
+            const PremiumBannerAdWidget(),
+          ],
+        );
+      }),
     );
   }
 }

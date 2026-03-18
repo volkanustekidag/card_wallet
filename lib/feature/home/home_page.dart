@@ -1,11 +1,9 @@
-import 'package:wallet_app/core/constants/colors.dart';
-import 'package:wallet_app/core/widgets/loading_widget.dart';
-import 'package:wallet_app/feature/home/bloc/home_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
+import 'package:wallet_app/feature/home/controller/home_controller.dart';
+import 'package:wallet_app/core/widgets/loading_widget.dart';
+import 'package:wallet_app/core/widgets/premium_banner_ad_widget.dart';
 import 'package:wallet_app/feature/home/widgets/body.dart';
-import 'package:wallet_app/feature/home/widgets/home_app_bar.dart';
-import 'package:wallet_app/feature/home/widgets/speed_dial_floating.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -15,28 +13,40 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late final HomeController _homeController;
+
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<HomeBloc>(context).add(LoadHomeContentEvent());
+    _homeController = Get.find<HomeController>();
   }
-
-  _checkState(HomeState state) => state is LoadedHomeContent;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return WillPopScope(
-      onWillPop: () async {
-        return false;
-      },
+      onWillPop: () async => false,
       child: Scaffold(
-        backgroundColor: ColorConstants.primaryColor,
-        floatingActionButton: SpeedDialFloating(),
-        appBar: HomeAppBar(),
-        body: BlocBuilder<HomeBloc, HomeState>(
-          builder: (context, state) =>
-              _checkState(state) ? HomeBody(state: state) : LoadingWidget(),
-        ),
+        backgroundColor: colorScheme.surface,
+        body: Obx(() {
+          if (_homeController.isLoading.value) {
+            return const LoadingWidget();
+          }
+          return Stack(
+            children: [
+              HomeBody(controller: _homeController),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: SafeArea(
+                  child: const PremiumBannerAdWidget(),
+                ),
+              ),
+            ],
+          );
+        }),
       ),
     );
   }

@@ -3,25 +3,34 @@ import 'package:flutter/services.dart';
 class CardValidThruFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-    final newValueString = newValue.text;
-    String valueToReturn = '';
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    var digitsOnly = newValue.text.replaceAll(RegExp(r'[^0-9]'), '');
+    if (digitsOnly.length > 4) {
+      digitsOnly = digitsOnly.substring(0, 4);
+    }
 
-    for (int i = 0; i < newValueString.length; i++) {
-      if (newValueString[i] != '/') valueToReturn += newValueString[i];
-      var nonZeroIndex = i + 1;
-      final contains = valueToReturn.contains(RegExp(r'\/'));
-      if (nonZeroIndex % 2 == 0 &&
-          nonZeroIndex != newValueString.length &&
-          !(contains)) {
-        valueToReturn += '/';
+    var buffer = StringBuffer();
+    for (var i = 0; i < digitsOnly.length; i++) {
+      buffer.write(digitsOnly[i]);
+      if (i == 1 && digitsOnly.length > 2) {
+        buffer.write(' / ');
       }
     }
-    return newValue.copyWith(
-      text: valueToReturn,
-      selection: TextSelection.fromPosition(
-        TextPosition(offset: valueToReturn.length),
-      ),
+
+    var formatted = buffer.toString();
+    if (digitsOnly.length > 2 && !formatted.contains(' / ')) {
+      formatted =
+          '${digitsOnly.substring(0, 2)} / ${digitsOnly.substring(2)}';
+    } else if (digitsOnly.length > 2) {
+      formatted =
+          '${digitsOnly.substring(0, 2)} / ${digitsOnly.substring(2)}';
+    }
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }

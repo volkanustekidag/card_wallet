@@ -1,42 +1,81 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sizer/sizer.dart';
-import 'package:wallet_app/core/constants/provider_list.dart';
-import 'package:wallet_app/core/router/router.dart';
-import 'package:wallet_app/data/local_services/card_services/credit_card_service.dart';
-import 'package:wallet_app/data/local_services/card_services/iban_card_service.dart';
-import 'package:wallet_app/data/local_services/auth_services/authentication_service.dart';
+import 'package:wallet_app/core/router/getx_bindings.dart';
+import 'package:wallet_app/core/router/getx_routes.dart';
+import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
+import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
+import 'package:wallet_app/core/controllers/theme_controller.dart';
+import 'package:wallet_app/core/data/local_services/theme_services/theme_services.dart';
+import 'package:wallet_app/core/styles/app_themes.dart';
+import 'package:wallet_app/core/data/services/admob_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 
+  // Hive initialization
   await Hive.initFlutter();
-  await CreditCardService().init();
-  await IbanCardService().init();
-  await AuthenticationService().init();
 
-  RouterFluro.initRoutes();
+  // Service initializations
+  await Future.wait([
+    CreditCardService().init(),
+    IbanCardService().init(),
+    AuthenticationService().init(),
+    ThemeService().init(),
+  ]);
 
+  // Screen orientation settings
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
+
+  // Kick off AdMob initialization without blocking first frame
+  _initializeAdMobInBackground();
 
   runApp(
     EasyLocalization(
       supportedLocales: const [
         Locale("tr", "TR"),
         Locale("en", "US"),
+        Locale("de", "DE"),
+        Locale("fr", "FR"),
       ],
       saveLocale: true,
       path: "assets/docs/lang",
-      child: const MyApp(),
+      child: const AppWrapper(),
     ),
   );
+}
+
+class AppWrapper extends StatelessWidget {
+  const AppWrapper({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MyApp();
+  }
+}
+
+void _initializeAdMobInBackground() {
+  unawaited(Future(() async {
+    try {
+      await AdMobService.initialize();
+      await Future.wait([
+        AdMobService.loadInterstitialAd(),
+        AdMobService.loadRewardedAd(),
+      ]);
+    } catch (e) {
+      // Keep silent in release; initialization retry is handled internally
+    }
+  }));
 }
 
 class MyApp extends StatelessWidget {
@@ -44,19 +83,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: ProviderList().providers,
-      child: Sizer(
-        builder: (context, orientation, deviceType) => MaterialApp(
-          initialRoute: "/",
-          onGenerateRoute: RouterFluro.fluroRouter.generator,
+    final themeController = Get.put(ThemeController());
+
+    return Sizer(
+      builder: (context, orientation, deviceType) {
+        return GetMaterialApp(
+          initialRoute: AppRoutes.splash,
+          getPages: AppRoutes.routes,
+          initialBinding: AppBindings(),
           locale: context.locale,
           localizationsDelegates: context.localizationDelegates,
           supportedLocales: context.supportedLocales,
           title: 'Card Wallet',
           debugShowCheckedModeBanner: false,
-        ),
-      ),
+          theme: AppThemes.lightTheme,
+          darkTheme: AppThemes.darkTheme,
+          themeMode: themeController.themeMode,
+        );
+      },
     );
   }
 }

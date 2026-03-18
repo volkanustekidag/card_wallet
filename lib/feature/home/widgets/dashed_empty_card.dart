@@ -1,12 +1,16 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:wallet_app/feature/home/bloc/home_bloc.dart';
-import 'package:sizer/sizer.dart';
+import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/controllers/premium_controller.dart';
+import 'package:wallet_app/feature/home/controller/home_controller.dart';
+import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
+import 'package:wallet_app/core/enums/card_limit_type.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class DashedEmptyCard extends StatelessWidget {
-  final route;
-  final text;
+  final String route;
+  final String text;
+
   const DashedEmptyCard({
     Key? key,
     required this.route,
@@ -15,33 +19,107 @@ class DashedEmptyCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, route).then(
-        (value) => BlocProvider.of<HomeBloc>(context).add(
-          LoadHomeContentEvent(),
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24),
+      child: GestureDetector(
+        onTap: () async {
+          final premiumController = Get.find<PremiumController>();
+          bool canProceed = true;
+          CardLimitType? rewardUnlockType;
+
+          if (route == '/addCreditCard') {
+            final currentCount = premiumController.creditCardCount;
+            if (!premiumController.canAddMoreCreditCards(currentCount)) {
+              canProceed =
+                  await showCardLimitDialog(context, CardLimitType.credit);
+              if (canProceed) {
+                rewardUnlockType = CardLimitType.credit;
+              }
+            }
+          } else if (route == '/addIbanCard') {
+            final currentCount = premiumController.ibanCardCount;
+            if (!premiumController.canAddMoreIbanCards(currentCount)) {
+              canProceed =
+                  await showCardLimitDialog(context, CardLimitType.iban);
+              if (canProceed) {
+                rewardUnlockType = CardLimitType.iban;
+              }
+            }
+          }
+
+          if (!canProceed) {
+            return;
+          }
+          await premiumController.showInterstitialIfNeeded();
+          final arguments = rewardUnlockType != null
+              ? {'rewardUnlock': rewardUnlockType.name}
+              : null;
+          Get.toNamed(route, arguments: arguments)?.then(
+            (value) => Get.find<HomeController>().refreshData(),
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: DottedBorder(
+            color: theme.colorScheme.onSurface.withOpacity(0.8),
+            borderType: BorderType.RRect,
+            strokeWidth: 1.5,
+            dashPattern: const [12, 6],
+            radius: const Radius.circular(16),
+            child: Container(
+              width: double.infinity,
+              height: 200,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.onSurface.withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.add_rounded,
+                      color: theme.colorScheme.onSurface,
+                      size: 32,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    text,
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: theme.colorScheme.onSurface,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    "tapToAdd".tr(),
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
-      child: DottedBorder(
-          strokeCap: StrokeCap.round,
-          color: Colors.white,
-          dashPattern: const [12, 4],
-          radius: const Radius.circular(15),
-          child: SizedBox(
-            width: 90.w,
-            height: 28.h,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 20.sp,
-                ),
-                Text(text,
-                    style: TextStyle(color: Colors.white, fontSize: 14.sp))
-              ],
-            ),
-          )),
     );
   }
 }

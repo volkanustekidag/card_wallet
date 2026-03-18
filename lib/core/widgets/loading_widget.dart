@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:wallet_app/core/constants/colors.dart';
+import 'package:get/get.dart';
 
 class LoadingWidget extends StatelessWidget {
   const LoadingWidget({
@@ -8,9 +8,9 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: CircularProgressIndicator(
-        color: ColorConstants.secondaryColor,
+        color: context.theme.primaryColor,
       ),
     );
   }

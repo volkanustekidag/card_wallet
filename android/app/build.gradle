@@ -30,6 +30,12 @@ def keystoreProperties = new Properties()
        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+// 16 KB sayfa boyutunu desteklemeyen ML Kit modüllerini tamamen hariç tut
+configurations.all {
+    exclude group: "com.google.mlkit", module: "digital-ink-recognition"
+    exclude group: "com.google.mlkit", module: "entity-extraction"
+}
+
 android {
     namespace 'com.volkan.wallet_app'
     compileSdk = 35
@@ -74,6 +80,14 @@ android {
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    packagingOptions {
+        jniLibs {
+            excludes += ["**/libdigitalink.so", "**/libtextclassifier3_jni_tclib.so"]
+            // Paket içinde .so'ların ZIP içinde tutulmasını engelle (uncompressed native libs kapatma)
+            useLegacyPackaging true
+        }
     }
 }
 
