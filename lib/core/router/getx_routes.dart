@@ -45,7 +45,7 @@ class AppRoutes {
     ),
     GetPage(
       name: changePin,
-      page: () => ChangePinPage(),
+      page: () => const ChangePinPage(),
       binding: ChangePinBindings(),
     ),
     GetPage(
@@ -67,11 +67,6 @@ class AppRoutes {
       name: addIbanCard,
       page: () => const AddIbanCardPage(),
       binding: AddIbanCardBindings(),
-    ),
-    GetPage(
-      name: changePin,
-      page: () => ChangePinPage(),
-      binding: ChangePinBindings(),
     ),
     GetPage(
       name: premium,

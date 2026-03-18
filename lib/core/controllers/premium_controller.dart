@@ -1,6 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:wallet_app/core/data/services/admob_service.dart';
+// import 'package:wallet_app/core/data/services/admob_service.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 
@@ -10,7 +11,7 @@ class PremiumController extends GetxController {
   final RxList<ProductDetails> _availableProducts = <ProductDetails>[].obs;
   final RxInt _creditCardCount = 0.obs;
   final RxInt _ibanCardCount = 0.obs;
-  bool _skipNextInterstitial = false;
+  // bool _skipNextInterstitial = false;
   bool _creditCountInitialized = false;
   bool _ibanCountInitialized = false;
 
@@ -22,7 +23,7 @@ class PremiumController extends GetxController {
       _getProductById(PremiumService.weeklyProductId);
   ProductDetails? get yearlyProduct =>
       _getProductById(PremiumService.yearlyProductId);
-  bool get shouldSkipInterstitial => _skipNextInterstitial;
+  // bool get shouldSkipInterstitial => _skipNextInterstitial;
   int get creditCardCount => _creditCardCount.value;
   int get ibanCardCount => _ibanCardCount.value;
 
@@ -55,13 +56,13 @@ class PremiumController extends GetxController {
 
   Future<void> _loadPremiumProducts() async {
     try {
-      print('🔄 [PremiumController] Loading premium products...');
+      debugPrint('🔄 [PremiumController] Loading premium products...');
       final products = await PremiumService.getPremiumProductDetails();
       _availableProducts.assignAll(products);
-      print(
+      debugPrint(
           '🔄 [PremiumController] Loaded ${products.length} premium products.');
     } catch (e) {
-      print('❌ [PremiumController] Error loading premium product: $e');
+      debugPrint('❌ [PremiumController] Error loading premium product: $e');
     }
   }
 
@@ -80,7 +81,7 @@ class PremiumController extends GetxController {
       final success = await PremiumService.purchaseProduct(product);
       return success;
     } catch (e) {
-      print('Error purchasing premium: $e');
+      debugPrint('Error purchasing premium: $e');
       return false;
     } finally {
       _isLoading.value = false;
@@ -92,7 +93,7 @@ class PremiumController extends GetxController {
     try {
       await PremiumService.restorePurchases();
     } catch (e) {
-      print('Error restoring purchases: $e');
+      debugPrint('Error restoring purchases: $e');
     } finally {
       _isLoading.value = false;
     }
@@ -109,29 +110,29 @@ class PremiumController extends GetxController {
 
   int get maxCardsForFree => PremiumService.maxCardsForFree;
 
-  Future<bool> requestRewardedSlot(CardLimitType type) async {
-    try {
-      final rewarded = await AdMobService.showRewardedAd();
-      if (rewarded) {
-        _skipNextInterstitial = true;
-      }
-      return rewarded;
-    } catch (e) {
-      print('Error showing rewarded ad: $e');
-      return false;
-    }
-  }
+  // Future<bool> requestRewardedSlot(CardLimitType type) async {
+  //   try {
+  //     final rewarded = await AdMobService.showRewardedAd();
+  //     if (rewarded) {
+  //       _skipNextInterstitial = true;
+  //     }
+  //     return rewarded;
+  //   } catch (e) {
+  //     debugPrint('Error showing rewarded ad: $e');
+  //     return false;
+  //   }
+  // }
 
-  Future<void> showInterstitialIfNeeded() async {
-    if (isPremium) return;
-
-    if (_skipNextInterstitial) {
-      _skipNextInterstitial = false;
-      return;
-    }
-
-    await AdMobService.showInterstitialAd();
-  }
+  // Future<void> showInterstitialIfNeeded() async {
+  //   if (isPremium) return;
+  //
+  //   if (_skipNextInterstitial) {
+  //     _skipNextInterstitial = false;
+  //     return;
+  //   }
+  //
+  //   await AdMobService.showInterstitialAd();
+  // }
 
   Future<int> getStoredCardCount(CardLimitType type) async {
     if (type == CardLimitType.credit) {

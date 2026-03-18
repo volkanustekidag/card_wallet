@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
@@ -52,7 +53,7 @@ class AddCreditCardController extends GetxController {
     // Trigger refresh to ensure UI updates
     currentCard.refresh();
 
-    print(
+    debugPrint(
         'Edit mode initialized for card: ${card.bankName} - ${card.creditCardNumber}');
   }
 
@@ -107,19 +108,12 @@ class AddCreditCardController extends GetxController {
       await _creditCardService.openBox();
 
       // Premium kontrolü sadece yeni kart eklerken
-      bool rewardUnlockActive = false;
-
       if (!isEditMode.value) {
         final premiumController = Get.find<PremiumController>();
         final currentCount =
             await premiumController.getStoredCardCount(CardLimitType.credit);
-        final args = Get.arguments;
-        rewardUnlockActive = args != null &&
-            args is Map &&
-            args['rewardUnlock'] == CardLimitType.credit.name;
 
-        if (!premiumController.canAddMoreCreditCards(currentCount) &&
-            !rewardUnlockActive) {
+        if (!premiumController.canAddMoreCreditCards(currentCount)) {
           final dialogContext = Get.context;
           if (dialogContext == null) {
             Get.toNamed('/premium');
@@ -131,15 +125,13 @@ class AddCreditCardController extends GetxController {
           if (!unlocked) {
             return;
           }
-
-          rewardUnlockActive = true;
         }
       }
 
       if (isEditMode.value && _originalCard != null) {
-        // Güncelleme işlemi
+        // Güncelleme işlemi - orijinal ID'yi koru
         final updatedCard = CreditCard(
-          id: _generateNewId(),
+          id: _originalCard!.id,
           bankName: currentCard.value.bankName,
           creditCardNumber: currentCard.value.creditCardNumber,
           cardHolder: currentCard.value.cardHolder,
@@ -172,7 +164,7 @@ class AddCreditCardController extends GetxController {
       creditCardController.loadCreditCards();
       resetCard();
     } catch (e) {
-      print('Error saving card: $e');
+      debugPrint('Error saving card: $e');
       Get.context?.showErrorSnackBar(
           "failedToSaveCreditCard".tr(args: [e.toString()]));
     } finally {
@@ -203,6 +195,7 @@ class AddCreditCardController extends GetxController {
         sanitizedNumber.length >= 16 &&
         card.cardHolder.trim().isNotEmpty &&
         expirationPattern.hasMatch(card.expirationDate.trim()) &&
-        card.cvc2.trim().length == 3;
+        card.cvc2.trim().length >= 3 &&
+        card.cvc2.trim().length <= 4;
   }
 }

@@ -1,4 +1,4 @@
-import 'dart:async';
+// import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +14,7 @@ import 'package:wallet_app/core/data/local_services/auth_services/authentication
 import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/data/local_services/theme_services/theme_services.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
-import 'package:wallet_app/core/data/services/admob_service.dart';
+// import 'package:wallet_app/core/data/services/admob_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,8 +37,8 @@ void main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  // Kick off AdMob initialization without blocking first frame
-  _initializeAdMobInBackground();
+  // // Kick off AdMob initialization without blocking first frame
+  // _initializeAdMobInBackground();
 
   runApp(
     EasyLocalization(
@@ -64,19 +64,19 @@ class AppWrapper extends StatelessWidget {
   }
 }
 
-void _initializeAdMobInBackground() {
-  unawaited(Future(() async {
-    try {
-      await AdMobService.initialize();
-      await Future.wait([
-        AdMobService.loadInterstitialAd(),
-        AdMobService.loadRewardedAd(),
-      ]);
-    } catch (e) {
-      // Keep silent in release; initialization retry is handled internally
-    }
-  }));
-}
+// void _initializeAdMobInBackground() {
+//   unawaited(Future(() async {
+//     try {
+//       await AdMobService.initialize();
+//       await Future.wait([
+//         AdMobService.loadInterstitialAd(),
+//         AdMobService.loadRewardedAd(),
+//       ]);
+//     } catch (e) {
+//       // Keep silent in release; initialization retry is handled internally
+//     }
+//   }));
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
@@ -56,7 +57,7 @@ class PremiumService {
     _subscription = purchaseUpdated.listen(
       _handlePurchaseUpdate,
       onDone: () => _subscription.cancel(),
-      onError: (error) => print('Purchase stream error: $error'),
+      onError: (error) => debugPrint('Purchase stream error: $error'),
     );
 
     // Restore purchases on app start
@@ -69,10 +70,10 @@ class PremiumService {
       _isPremium = premiumStatus == 'true';
       _premiumStatusController.add(_isPremium);
       if (_isPremium) {
-        print(
+        debugPrint(
             '📦 [Premium] Loaded stored premium status (likely legacy lifetime fallback). Waiting for store validation.');
       } else {
-        print('📦 [Premium] No stored premium status found.');
+        debugPrint('📦 [Premium] No stored premium status found.');
       }
     } catch (e) {
       _isPremium = false;
@@ -85,7 +86,9 @@ class PremiumService {
       await _storage.write(key: _premiumStatusKey, value: status.toString());
       _isPremium = status;
       _premiumStatusController.add(_isPremium);
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('Error saving premium status: $e');
+    }
   }
 
   static Future<bool> purchaseProduct(ProductDetails productDetails) async {
@@ -124,7 +127,7 @@ class PremiumService {
         // Handle successful purchase or restore
         if (_allSupportedProductIds.contains(purchaseDetails.productID)) {
           if (purchaseDetails.productID == _legacyLifetimeProductId) {
-            print(
+            debugPrint(
                 '🔁 [Premium] Detected legacy lifetime purchase (${purchaseDetails.productID}). Keeping premium unlocked.');
           }
           _savePremiumStatus(true);
@@ -139,35 +142,35 @@ class PremiumService {
 
   static Future<List<ProductDetails>> getPremiumProductDetails() async {
     try {
-      print('🔍 [Premium] Checking if IAP is available...');
+      debugPrint('🔍 [Premium] Checking if IAP is available...');
       final bool available = await _iap.isAvailable();
-      print('🔍 [Premium] IAP available: $available');
+      debugPrint('🔍 [Premium] IAP available: $available');
 
       if (!available) {
-        print('❌ [Premium] IAP not available on this device');
+        debugPrint('❌ [Premium] IAP not available on this device');
         return [];
       }
 
-      print(
+      debugPrint(
           '🔍 [Premium] Querying products: ${_subscriptionProductIds.join(", ")}');
 
       final ProductDetailsResponse response =
           await _iap.queryProductDetails(_subscriptionProductIds);
 
-      print('🔍 [Premium] Products found: ${response.productDetails.length}');
-      print('🔍 [Premium] Not found IDs: ${response.notFoundIDs}');
+      debugPrint('🔍 [Premium] Products found: ${response.productDetails.length}');
+      debugPrint('🔍 [Premium] Not found IDs: ${response.notFoundIDs}');
 
       if (response.productDetails.isEmpty) {
-        print('❌ [Premium] No products found');
+        debugPrint('❌ [Premium] No products found');
         return [];
       }
 
       for (final product in response.productDetails) {
-        print('✅ [Premium] Product loaded: ${product.id} - ${product.price}');
+        debugPrint('✅ [Premium] Product loaded: ${product.id} - ${product.price}');
       }
       return response.productDetails;
     } catch (e) {
-      print('❌ [Premium] Error loading product: $e');
+      debugPrint('❌ [Premium] Error loading product: $e');
       return [];
     }
   }

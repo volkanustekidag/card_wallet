@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -21,11 +22,11 @@ class BiometricService {
     try {
       final bool isAvailable = await _localAuth.canCheckBiometrics;
       final bool isDeviceSupported = await _localAuth.isDeviceSupported();
-      print('Can check biometrics: $isAvailable');
-      print('Device supported: $isDeviceSupported');
+      debugPrint('Can check biometrics: $isAvailable');
+      debugPrint('Device supported: $isDeviceSupported');
       return isAvailable && isDeviceSupported;
     } catch (e) {
-      print('Error checking biometric availability: $e');
+      debugPrint('Error checking biometric availability: $e');
       return false;
     }
   }
@@ -34,10 +35,10 @@ class BiometricService {
   Future<List<BiometricType>> getAvailableBiometrics() async {
     try {
       final biometrics = await _localAuth.getAvailableBiometrics();
-      print('Raw biometrics from device: $biometrics');
+      debugPrint('Raw biometrics from device: $biometrics');
       return biometrics;
     } catch (e) {
-      print('Error getting biometrics: $e');
+      debugPrint('Error getting biometrics: $e');
       return [];
     }
   }

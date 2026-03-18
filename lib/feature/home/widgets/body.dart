@@ -177,46 +177,25 @@ class HomeBody extends StatelessWidget {
             // Kart limiti kontrolü
             final premiumController = Get.find<PremiumController>();
 
-            bool canProceed = true;
-            CardLimitType? rewardUnlockType;
-
             if (route == "/addCreditCard") {
               final currentCount = await premiumController
                   .getStoredCardCount(CardLimitType.credit);
-              print(
-                  'Credit Card - Premium: ${premiumController.isPremium}, Count: $currentCount, CanAdd: ${premiumController.canAddMoreCreditCards(currentCount)}');
               if (!premiumController.canAddMoreCreditCards(currentCount)) {
-                canProceed =
+                final canProceed =
                     await showCardLimitDialog(context, CardLimitType.credit);
-                if (!canProceed) {
-                  return;
-                }
-                rewardUnlockType = CardLimitType.credit;
+                if (!canProceed) return;
               }
             } else if (route == "/addIbanCard") {
               final currentCount = await premiumController
                   .getStoredCardCount(CardLimitType.iban);
-              print(
-                  'IBAN Card - Premium: ${premiumController.isPremium}, Count: $currentCount, CanAdd: ${premiumController.canAddMoreIbanCards(currentCount)}');
               if (!premiumController.canAddMoreIbanCards(currentCount)) {
-                canProceed =
+                final canProceed =
                     await showCardLimitDialog(context, CardLimitType.iban);
-                if (!canProceed) {
-                  return;
-                }
-                rewardUnlockType = CardLimitType.iban;
+                if (!canProceed) return;
               }
             }
 
-            if (!canProceed) {
-              return;
-            }
-
-            await premiumController.showInterstitialIfNeeded();
-            final arguments = rewardUnlockType != null
-                ? {'rewardUnlock': rewardUnlockType.name}
-                : null;
-            Get.toNamed(route, arguments: arguments)?.then(
+            Get.toNamed(route)?.then(
               (value) => Get.find<HomeController>().refreshData(),
             );
           },

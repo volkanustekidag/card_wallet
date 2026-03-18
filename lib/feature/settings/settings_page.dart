@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:wallet_app/core/widgets/premium_banner_ad_widget.dart';
+// import 'package:wallet_app/core/widgets/premium_banner_ad_widget.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_app_bar.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_body.dart';
 
@@ -27,7 +27,7 @@ class _SettingsPageState extends State<SettingsPage> {
     // Check if language changed and force rebuild if needed
     final currentLang = context.locale.languageCode;
     if (_currentLanguage != currentLang) {
-      print('Language changed from $_currentLanguage to $currentLang');
+      debugPrint('Language changed from $_currentLanguage to $currentLang');
       _currentLanguage = currentLang;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -39,7 +39,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(
+    debugPrint(
         'SettingsPage rebuilding with language: ${context.locale.languageCode}');
 
     return Scaffold(
@@ -47,14 +47,7 @@ class _SettingsPageState extends State<SettingsPage> {
           'settings_${context.locale.languageCode}'), // Force rebuild on language change
       backgroundColor: context.theme.scaffoldBackgroundColor,
       appBar: const SettingsAppBar(),
-      body: const Column(
-        children: [
-          Expanded(
-            child: SettingsBody(),
-          ),
-          PremiumBannerAdWidget(),
-        ],
-      ),
+      body: const SettingsBody(),
     );
   }
 }

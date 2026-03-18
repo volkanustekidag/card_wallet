@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
@@ -49,6 +50,7 @@ class HomeController extends GetxController {
         );
       }
     } catch (e) {
+      debugPrint('Error loading home content: $e');
     } finally {
       isLoading.value = false;
     }

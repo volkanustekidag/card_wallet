@@ -30,16 +30,16 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
             });
           }
           if (useTestAd) {
-            print('Banner: Fallback test ad loaded successfully');
+            debugPrint('Banner: Fallback test ad loaded successfully');
           }
         },
         onAdFailedToLoad: (ad, error) {
-          print('Banner ad failed to load: $error');
+          debugPrint('Banner ad failed to load: $error');
           ad.dispose();
 
           // iOS'ta gerçek reklam yüklenemezse test reklamını dene
           if (!_hasTriedFallback && !useTestAd) {
-            print('Banner: Trying fallback to test ad...');
+            debugPrint('Banner: Trying fallback to test ad...');
             _hasTriedFallback = true;
             AdMobService.enableTestAdsForBanner();
             _loadAd(useTestAd: true);

@@ -1,0 +1,2 @@
+/Users/volkanustekidag/conductor/workspaces/card_wallet/copenhagen/android/app/.cxx/Debug/d153g2h4/x86_64/CMakeFiles/edit_cache.dir
+/Users/volkanustekidag/conductor/workspaces/card_wallet/copenhagen/android/app/.cxx/Debug/d153g2h4/x86_64/CMakeFiles/rebuild_cache.dir

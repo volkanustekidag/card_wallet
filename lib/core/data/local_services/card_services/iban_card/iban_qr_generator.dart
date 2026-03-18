@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 /// Banking Standard IBAN QR Code Generator for Flutter
@@ -853,7 +854,7 @@ class BankingCompliantExample {
       turkishStaticPayment,
       format: IBANQRGenerator.formatTRKareKod,
     );
-    print(
+    debugPrint(
         'Turkish Static QR (${turkishStaticResult.metadata?.standard}): ${turkishStaticResult.data}');
 
     // Turkish IBAN example - Dynamic QR with amount (TR-FAST format)
@@ -870,7 +871,7 @@ class BankingCompliantExample {
       turkishDynamicPayment,
       format: IBANQRGenerator.formatTRFast,
     );
-    print(
+    debugPrint(
         'Turkish Dynamic QR (${turkishDynamicResult.metadata?.standard}): ${turkishDynamicResult.data}');
 
     // Auto-detection example (will choose appropriate format)
@@ -882,7 +883,7 @@ class BankingCompliantExample {
     );
 
     final autoResult = IBANQRGenerator.generateQRCode(autoPayment);
-    print(
+    debugPrint(
         'Auto-detected QR (${autoResult.metadata?.standard}): ${autoResult.data}');
 
     // European IBAN example (EPC format)
@@ -896,17 +897,17 @@ class BankingCompliantExample {
     );
 
     final europeanResult = IBANQRGenerator.generateQRCode(europeanPayment);
-    print(
+    debugPrint(
         'European QR (${europeanResult.metadata?.standard}): ${europeanResult.data}');
 
     // Validation examples
-    print(
+    debugPrint(
         'IBAN Valid: ${IBANQRGenerator.validateIBAN('TR330006100519786457841326')}');
-    print('BIC Valid: ${IBANQRGenerator.validateBIC('COBADEFFXXX')}');
-    print(
+    debugPrint('BIC Valid: ${IBANQRGenerator.validateBIC('COBADEFFXXX')}');
+    debugPrint(
         'Formatted IBAN: ${IBANQRGenerator.formatIBANForDisplay('TR330006100519786457841326')}');
 
     // Bank name lookup
-    print('Bank Name: ${IBANQRGenerator.getTurkishBankName('0006')}');
+    debugPrint('Bank Name: ${IBANQRGenerator.getTurkishBankName('0006')}');
   }
 }
