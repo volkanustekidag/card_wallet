@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
@@ -29,7 +30,7 @@ class BackupService {
         );
       }
     } catch (e) {
-      print('Error opening credit cards box with encryption: $e');
+      debugPrint('Error opening credit cards box with encryption: $e');
     }
     return await Hive.openBox<CreditCard>(C_CARD_BOX_NAME);
   }
@@ -50,7 +51,9 @@ class BackupService {
           encryptionCipher: HiveAesCipher(encryptionKey),
         );
       }
-    } catch (e) {}
+    } catch (e) {
+      debugPrint('Error opening IBAN cards box with encryption: $e');
+    }
     return await Hive.openBox<IbanCard>(I_CARD_BOX_NAME);
   }
 
@@ -58,8 +61,8 @@ class BackupService {
     final creditCardsBox = await _getCreditCardsBox();
     final ibanCardsBox = await _getIbanCardsBox();
 
-    print('Credit cards count: ${creditCardsBox.length}');
-    print('IBAN cards count: ${ibanCardsBox.length}');
+    debugPrint('Credit cards count: ${creditCardsBox.length}');
+    debugPrint('IBAN cards count: ${ibanCardsBox.length}');
 
     Map<String, dynamic> backup = {
       'version': '1.0',

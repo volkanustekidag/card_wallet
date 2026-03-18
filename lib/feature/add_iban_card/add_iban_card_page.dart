@@ -54,9 +54,9 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
           cameras = availableCams;
         });
       }
-      print('✅ Loaded ${cameras.length} cameras');
+      debugPrint('✅ Loaded ${cameras.length} cameras');
     } catch (e) {
-      print('❌ Camera initialization error: $e');
+      debugPrint('❌ Camera initialization error: $e');
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
@@ -41,7 +42,7 @@ class QRIbanScannerService {
       // İlk QR kodu parse et
       return _parseQRContent(barcodes.first.rawValue ?? '');
     } catch (e) {
-      print('QR scan error: $e');
+      debugPrint('QR scan error: $e');
       Get.context?.showErrorSnackBar('${'qrScanError'.tr()}: ${e.toString()}');
       return null;
     }
@@ -68,7 +69,7 @@ class QRIbanScannerService {
 
       return _parseQRContent(barcodes.first.rawValue ?? '');
     } catch (e) {
-      print('Gallery QR scan error: $e');
+      debugPrint('Gallery QR scan error: $e');
       Get.context?.showErrorSnackBar(
           '${'failedToScanQRFromGallery'.tr()}: ${e.toString()}');
       return null;
@@ -84,11 +85,11 @@ class QRIbanScannerService {
       'swiftCode': '',
     };
 
-    print('QR Content: $qrContent');
+    debugPrint('QR Content: $qrContent');
 
     // HTML entity decode işlemi
     String cleanContent = _decodeHtmlEntities(qrContent);
-    print('Decoded QR Content: $cleanContent');
+    debugPrint('Decoded QR Content: $cleanContent');
 
     try {
       // Format 1: IBAN direkt QR kod olarak
@@ -132,7 +133,7 @@ class QRIbanScannerService {
         ibanInfo['bankName'] = bankName;
       }
     } catch (e) {
-      print('QR parse error: $e');
+      debugPrint('QR parse error: $e');
     }
 
     return ibanInfo;
@@ -169,7 +170,7 @@ class QRIbanScannerService {
         }
       }
     } catch (e) {
-      print('JSON QR parse error: $e');
+      debugPrint('JSON QR parse error: $e');
     }
     return ibanInfo;
   }
@@ -299,7 +300,7 @@ class QRIbanScannerService {
         ibanInfo['iban'] = _formatIban(pathIban.group(0)!);
       }
     } catch (e) {
-      print('URL QR parse error: $e');
+      debugPrint('URL QR parse error: $e');
 
       // URL parse edilemezse manuel olarak parameter arama
       if (qrContent.contains('?')) {

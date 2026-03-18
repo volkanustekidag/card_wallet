@@ -1,4 +1,5 @@
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
+import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 
@@ -23,10 +24,10 @@ class ChangePinController extends GetxController {
         verificationFailed.value = false;
       } else {
         verificationFailed.value = true;
-        Get.context?.showErrorSnackBar('Current PIN is incorrect');
+        Get.context?.showErrorSnackBar('currentPinIncorrect'.tr());
       }
     } catch (e) {
-      Get.context?.showErrorSnackBar('An error occurred during verification');
+      Get.context?.showErrorSnackBar('verificationError'.tr());
     } finally {
       isLoading.value = false;
     }
@@ -39,9 +40,9 @@ class ChangePinController extends GetxController {
       pinChangeCompleted.value = true;
 
       Get.back();
-      Get.context?.showSuccessSnackBar('PIN changed successfully');
+      Get.context?.showSuccessSnackBar('pinChangedSuccessfully'.tr());
     } catch (e) {
-      Get.context?.showErrorSnackBar('Failed to change PIN');
+      Get.context?.showErrorSnackBar('failedToChangePin'.tr());
     } finally {
       isLoading.value = false;
     }

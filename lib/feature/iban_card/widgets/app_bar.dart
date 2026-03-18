@@ -32,23 +32,16 @@ class IbanCardsAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: IconButton(
                 onPressed: () async {
                   final premiumController = Get.find<PremiumController>();
-                  CardLimitType? rewardUnlockType;
                   final currentCount = await premiumController
                       .getStoredCardCount(CardLimitType.iban);
 
                   if (!premiumController.canAddMoreIbanCards(currentCount)) {
                     final canProceed =
                         await showCardLimitDialog(context, CardLimitType.iban);
-                    if (!canProceed) {
-                      return;
-                    }
-                    rewardUnlockType = CardLimitType.iban;
+                    if (!canProceed) return;
                   }
-                  await premiumController.showInterstitialIfNeeded();
-                  final arguments = rewardUnlockType != null
-                      ? {'rewardUnlock': rewardUnlockType.name}
-                      : null;
-                  Get.toNamed('/addIbanCard', arguments: arguments)?.then(
+
+                  Get.toNamed('/addIbanCard')?.then(
                       (value) =>
                           Get.find<IbanCardController>().loadIbanCards());
                 },

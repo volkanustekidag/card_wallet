@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdMobService {
@@ -83,17 +84,17 @@ class AdMobService {
   // Enable test ads for fallback
   static void enableTestAdsForBanner() {
     _useTestAdsForBanner = true;
-    print('Enabled test ads for banner');
+    debugPrint('Enabled test ads for banner');
   }
 
   static void enableTestAdsForInterstitial() {
     _useTestAdsForInterstitial = true;
-    print('Enabled test ads for interstitial');
+    debugPrint('Enabled test ads for interstitial');
   }
 
   static void enableTestAdsForRewarded() {
     _useTestAdsForRewarded = true;
-    print('Enabled test ads for rewarded');
+    debugPrint('Enabled test ads for rewarded');
   }
 
   // Banner Ad
@@ -130,7 +131,7 @@ class AdMobService {
           _isInterstitialAdReady = true;
           _isInterstitialLoading = false;
           _interstitialLoadAttempts = 0;
-          print('Interstitial ad loaded successfully');
+          debugPrint('Interstitial ad loaded successfully');
 
           _interstitialAd!.fullScreenContentCallback =
               FullScreenContentCallback(
@@ -149,13 +150,13 @@ class AdMobService {
           );
         },
         onAdFailedToLoad: (error) {
-          print('Interstitial ad failed to load: $error');
+          debugPrint('Interstitial ad failed to load: $error');
           _isInterstitialLoading = false;
           _isInterstitialAdReady = false;
 
           // İlk denemede başarısız olursa test reklamını dene
           if (_interstitialLoadAttempts == 0 && !_useTestAdsForInterstitial) {
-            print('Interstitial: Trying fallback to test ad...');
+            debugPrint('Interstitial: Trying fallback to test ad...');
             _interstitialLoadAttempts++;
             enableTestAdsForInterstitial();
             loadInterstitialAd();
@@ -187,16 +188,16 @@ class AdMobService {
           _rewardedAd = ad;
           _isRewardedAdReady = true;
           _rewardedLoadAttempts = 0;
-          print('Rewarded ad loaded successfully');
+          debugPrint('Rewarded ad loaded successfully');
         },
         onAdFailedToLoad: (error) {
-          print('Rewarded ad failed to load: $error');
+          debugPrint('Rewarded ad failed to load: $error');
           _rewardedAd = null;
           _isRewardedAdReady = false;
 
           // İlk denemede başarısız olursa test reklamını dene
           if (_rewardedLoadAttempts == 0 && !_useTestAdsForRewarded) {
-            print('Rewarded: Trying fallback to test ad...');
+            debugPrint('Rewarded: Trying fallback to test ad...');
             _rewardedLoadAttempts++;
             enableTestAdsForRewarded();
             loadRewardedAd();
@@ -231,7 +232,7 @@ class AdMobService {
           // Fallback: bazı cihazlarda onUserEarnedReward tetiklenmediği için
           // reklam tamamlanıp kapandıysa ödülü kazandırıyoruz.
           if (!rewardEarned) {
-            print('Reward fallback triggered after ad dismissed.');
+            debugPrint('Reward fallback triggered after ad dismissed.');
             rewardEarned = true;
           }
 

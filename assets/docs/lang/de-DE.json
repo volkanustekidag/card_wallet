@@ -181,7 +181,7 @@
     "premiumFeatureLockedTitle": "Premium-Funktion",
     "premiumFeatureLockedDescription": "Diese Funktion ist nur für Premium-Mitglieder verfügbar. Führen Sie ein Upgrade durch, um fortzufahren.",
     "cardLimitReachedTitle": "Kartenlimit erreicht",
-    "cardLimitReachedDescription": "Im Gratis-Tarif kannst du pro %s nur 1 Karte hinzufügen. Wechsel zu Premium für unbegrenzte Karten und eine werbefreie Erfahrung oder sieh dir eine belohnte Anzeige an, um einmalig eine weitere Karte hinzuzufügen.",
+    "cardLimitReachedDescription": "Im Gratis-Tarif kannst du pro {} nur 1 Karte hinzufügen. Wechsel zu Premium für unbegrenzte Karten.",
     "cardLimitCardTypeCredit": "Kreditkarte",
     "cardLimitCardTypeIban": "IBAN-Karte",
     "watchRewardedAd": "Belohnte Anzeige ansehen",

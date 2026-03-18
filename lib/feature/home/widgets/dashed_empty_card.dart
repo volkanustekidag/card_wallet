@@ -26,37 +26,24 @@ class DashedEmptyCard extends StatelessWidget {
       child: GestureDetector(
         onTap: () async {
           final premiumController = Get.find<PremiumController>();
-          bool canProceed = true;
-          CardLimitType? rewardUnlockType;
 
           if (route == '/addCreditCard') {
             final currentCount = premiumController.creditCardCount;
             if (!premiumController.canAddMoreCreditCards(currentCount)) {
-              canProceed =
+              final canProceed =
                   await showCardLimitDialog(context, CardLimitType.credit);
-              if (canProceed) {
-                rewardUnlockType = CardLimitType.credit;
-              }
+              if (!canProceed) return;
             }
           } else if (route == '/addIbanCard') {
             final currentCount = premiumController.ibanCardCount;
             if (!premiumController.canAddMoreIbanCards(currentCount)) {
-              canProceed =
+              final canProceed =
                   await showCardLimitDialog(context, CardLimitType.iban);
-              if (canProceed) {
-                rewardUnlockType = CardLimitType.iban;
-              }
+              if (!canProceed) return;
             }
           }
 
-          if (!canProceed) {
-            return;
-          }
-          await premiumController.showInterstitialIfNeeded();
-          final arguments = rewardUnlockType != null
-              ? {'rewardUnlock': rewardUnlockType.name}
-              : null;
-          Get.toNamed(route, arguments: arguments)?.then(
+          Get.toNamed(route)?.then(
             (value) => Get.find<HomeController>().refreshData(),
           );
         },

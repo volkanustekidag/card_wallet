@@ -24,7 +24,7 @@ class ThemeController extends GetxController {
       Get.changeThemeMode(themeMode);
     } catch (e) {
       _isDarkMode.value = false;
-      print('Theme yükleme hatası: $e');
+      debugPrint('Theme yükleme hatası: $e');
     }
   }
 
@@ -44,7 +44,7 @@ class ThemeController extends GetxController {
     try {
       await _themeBox?.put('isDarkMode', _isDarkMode.value);
     } catch (e) {
-      print('Theme kaydetme hatası: $e');
+      debugPrint('Theme kaydetme hatası: $e');
     }
   }
 }

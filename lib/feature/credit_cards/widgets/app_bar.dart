@@ -31,23 +31,16 @@ class CCAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: IconButton(
                 onPressed: () async {
                   final premiumController = Get.find<PremiumController>();
-                  CardLimitType? rewardUnlockType;
                   final currentCount = await premiumController
                       .getStoredCardCount(CardLimitType.credit);
 
                   if (!premiumController.canAddMoreCreditCards(currentCount)) {
                     final canProceed = await showCardLimitDialog(
                         context, CardLimitType.credit);
-                    if (!canProceed) {
-                      return;
-                    }
-                    rewardUnlockType = CardLimitType.credit;
+                    if (!canProceed) return;
                   }
-                  await premiumController.showInterstitialIfNeeded();
-                  final arguments = rewardUnlockType != null
-                      ? {'rewardUnlock': rewardUnlockType.name}
-                      : null;
-                  Get.toNamed('/addCreditCard', arguments: arguments)?.then(
+
+                  Get.toNamed('/addCreditCard')?.then(
                       (value) =>
                           Get.find<CreditCardController>().loadCreditCards());
                 },

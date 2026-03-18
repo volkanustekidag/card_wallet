@@ -214,11 +214,11 @@ class _SettingsBodyState extends State<SettingsBody> {
       final backupService = BackupService();
       final filePath = await backupService.createBackupFile();
 
-      print(filePath); // For debugging purposes
+      debugPrint(filePath); // For debugging purposes
 
       context.showSuccessSnackBar('${'backupSuccess'.tr()} $filePath');
     } catch (e) {
-      print('Yedekleme hatası: $e');
+      debugPrint('Yedekleme hatası: $e');
       context.showErrorSnackBar('${'backupError'.tr()} $e');
     }
   }

@@ -56,7 +56,7 @@ class _LanguageBottomSheetBodyState extends State<LanguageBottomSheetBody> {
       _selectedIndex = 0; // Default to English
     }
 
-    print('Current locale: $currentLocale, Selected index: $_selectedIndex');
+    debugPrint('Current locale: $currentLocale, Selected index: $_selectedIndex');
   }
 
   void _onConfirm() async {

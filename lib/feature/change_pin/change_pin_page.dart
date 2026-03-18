@@ -4,10 +4,21 @@ import 'package:wallet_app/core/components/auth_component.dart';
 import 'package:wallet_app/core/controllers/change_pin_controller.dart';
 import 'package:wallet_app/feature/change_pin/widgets/app_bar.dart';
 
-class ChangePinPage extends StatelessWidget {
-  ChangePinPage({super.key});
+class ChangePinPage extends StatefulWidget {
+  const ChangePinPage({super.key});
 
+  @override
+  State<ChangePinPage> createState() => _ChangePinPageState();
+}
+
+class _ChangePinPageState extends State<ChangePinPage> {
   final TextEditingController _textEditingController = TextEditingController();
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -181,7 +181,7 @@
     "premiumFeatureLockedTitle": "Premium özelliği",
     "premiumFeatureLockedDescription": "Bu özellik yalnızca Premium üyeler tarafından kullanılabilir. Devam etmek için yükseltin.",
     "cardLimitReachedTitle": "Kart limiti doldu",
-    "cardLimitReachedDescription": "Ücretsiz planda her %s için sadece 1 kart ekleyebilirsin. Premium'a geçerek sınırsız kart ve reklamsız deneyim yaşayabilir ya da ödüllü reklam izleyerek bir kart ekleme hakkı kazanabilirsin.",
+    "cardLimitReachedDescription": "Ücretsiz planda her {} için sadece 1 kart ekleyebilirsin. Premium'a geçerek sınırsız kart ekleyebilirsin.",
     "cardLimitCardTypeCredit": "kredi kartı",
     "cardLimitCardTypeIban": "IBAN kartı",
     "watchRewardedAd": "Ödüllü reklam izle",

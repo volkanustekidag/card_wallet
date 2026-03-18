@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
@@ -45,7 +46,7 @@ class AddIbanCardController extends GetxController {
     // Trigger refresh
     currentCard.refresh();
 
-    print(
+    debugPrint(
         'Edit mode initialized for IBAN card: ${card.cardHolder} - ${card.iban}');
   }
 
@@ -64,7 +65,7 @@ class AddIbanCardController extends GetxController {
     // Trigger refresh
     currentCard.refresh();
 
-    print('Create mode initialized for IBAN card');
+    debugPrint('Create mode initialized for IBAN card');
   }
 
   void updateCardField(String fieldName, String value) {
@@ -94,20 +95,13 @@ class AddIbanCardController extends GetxController {
       await _ibanCardService.openBox();
 
       // Premium kontrolü sadece yeni kart eklerken
-      bool rewardUnlockActive = false;
-
       if (!isEditMode.value) {
         final premiumController = Get.find<PremiumController>();
 
         final currentCount =
             await premiumController.getStoredCardCount(CardLimitType.iban);
-        final args = Get.arguments;
-        rewardUnlockActive = args != null &&
-            args is Map &&
-            args['rewardUnlock'] == CardLimitType.iban.name;
 
-        if (!premiumController.canAddMoreIbanCards(currentCount) &&
-            !rewardUnlockActive) {
+        if (!premiumController.canAddMoreIbanCards(currentCount)) {
           final dialogContext = Get.context;
           if (dialogContext == null) {
             Get.toNamed('/premium');
@@ -119,8 +113,6 @@ class AddIbanCardController extends GetxController {
           if (!unlocked) {
             return;
           }
-
-          rewardUnlockActive = true;
         }
       }
 
@@ -147,7 +139,7 @@ class AddIbanCardController extends GetxController {
           bankName: currentCard.value.bankName,
         );
 
-        print('Adding new IBAN card with ID: ${newCard.id}');
+        debugPrint('Adding new IBAN card with ID: ${newCard.id}');
 
         await _ibanCardService.addIbanCard(newCard);
         Get.back();
@@ -159,7 +151,7 @@ class AddIbanCardController extends GetxController {
       ibanCardController.loadIbanCards();
       resetCard();
     } catch (e) {
-      print('Error saving IBAN card: $e');
+      debugPrint('Error saving IBAN card: $e');
       Get.context
           ?.showErrorSnackBar('Failed to save IBAN card: ${e.toString()}');
     } finally {
