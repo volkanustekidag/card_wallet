@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-// import 'package:wallet_app/core/data/services/admob_service.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 
@@ -11,7 +10,6 @@ class PremiumController extends GetxController {
   final RxList<ProductDetails> _availableProducts = <ProductDetails>[].obs;
   final RxInt _creditCardCount = 0.obs;
   final RxInt _ibanCardCount = 0.obs;
-  // bool _skipNextInterstitial = false;
   bool _creditCountInitialized = false;
   bool _ibanCountInitialized = false;
 
@@ -23,7 +21,6 @@ class PremiumController extends GetxController {
       _getProductById(PremiumService.weeklyProductId);
   ProductDetails? get yearlyProduct =>
       _getProductById(PremiumService.yearlyProductId);
-  // bool get shouldSkipInterstitial => _skipNextInterstitial;
   int get creditCardCount => _creditCardCount.value;
   int get ibanCardCount => _ibanCardCount.value;
 
@@ -109,30 +106,6 @@ class PremiumController extends GetxController {
   }
 
   int get maxCardsForFree => PremiumService.maxCardsForFree;
-
-  // Future<bool> requestRewardedSlot(CardLimitType type) async {
-  //   try {
-  //     final rewarded = await AdMobService.showRewardedAd();
-  //     if (rewarded) {
-  //       _skipNextInterstitial = true;
-  //     }
-  //     return rewarded;
-  //   } catch (e) {
-  //     debugPrint('Error showing rewarded ad: $e');
-  //     return false;
-  //   }
-  // }
-
-  // Future<void> showInterstitialIfNeeded() async {
-  //   if (isPremium) return;
-  //
-  //   if (_skipNextInterstitial) {
-  //     _skipNextInterstitial = false;
-  //     return;
-  //   }
-  //
-  //   await AdMobService.showInterstitialAd();
-  // }
 
   Future<int> getStoredCardCount(CardLimitType type) async {
     if (type == CardLimitType.credit) {

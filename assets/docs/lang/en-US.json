@@ -320,6 +320,22 @@
 
     "termsOfUse": "Terms of Use",
     "privacyPolicy": "Privacy Policy",
-    "couldNotLaunchUrl": "Could not open link"
-
+    "couldNotLaunchUrl": "Could not open link",
+    "pressBackAgainToExit": "Press back again to exit",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "validationWarningTitle": "Check your details",
+    "validationWarningSubtitle": "We noticed something unusual:",
+    "warningInvalidCardNumber": "The card number doesn't pass standard validation.",
+    "warningInvalidExpiration": "Expiration date looks invalid or already passed.",
+    "warningInvalidIban": "The IBAN doesn't pass standard validation.",
+    "reviewAgain": "Review",
+    "saveAnyway": "Save anyway",
+    "addFirstCard": "Add your first card",
+    "sectionAppearance": "Appearance",
+    "sectionSecurity": "Security",
+    "sectionData": "Data",
+    "sectionAbout": "About",
+    "seeAll": "See all"
 }

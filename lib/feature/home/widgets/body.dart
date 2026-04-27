@@ -299,6 +299,7 @@ class HomeBody extends StatelessWidget {
       ibanCard: ibanCard,
       onCopyTap: () => _copyIBAN(context, ibanCard),
       onQRTap: () => _showQRGenerationDialog(context, ibanCard),
+      onLongPress: () => _handleSeeAllNavigation('/ibanCards'),
     );
   }
 
@@ -338,6 +339,7 @@ class HomeBody extends StatelessWidget {
 
   void _copyIBAN(BuildContext context, IbanCard ibanCard) {
     Clipboard.setData(ClipboardData(text: ibanCard.iban));
+    HapticFeedback.lightImpact();
     _showAutoHideSnackBar(context, 'ibanCopied'.tr());
   }
 

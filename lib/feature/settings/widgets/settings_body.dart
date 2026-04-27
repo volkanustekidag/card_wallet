@@ -1,20 +1,21 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:easy_localization/easy_localization.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:wallet_app/core/controllers/theme_controller.dart';
+import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
+import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
+import 'package:wallet_app/core/data/services/backup_service.dart';
+import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/widgets/premium_status_widget.dart';
 import 'package:wallet_app/core/widgets/premium_upgrade_widget.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/lang_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/privacy_policy_bottom_sheet.dart';
-import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
+import 'package:wallet_app/feature/settings/bottom_sheet/theme_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_card.dart';
-import 'package:wallet_app/core/data/services/backup_service.dart';
-import 'package:wallet_app/core/extensions/snack_bars.dart';
 
 class SettingsBody extends StatefulWidget {
   const SettingsBody({Key? key}) : super(key: key);
@@ -39,6 +40,17 @@ class _SettingsBodyState extends State<SettingsBody> {
     }
   }
 
+  String _themeLabel(AppThemeMode mode) {
+    switch (mode) {
+      case AppThemeMode.light:
+        return 'themeLight'.tr();
+      case AppThemeMode.dark:
+        return 'themeDark'.tr();
+      case AppThemeMode.system:
+        return 'themeSystem'.tr();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final AuthController authController = Get.isRegistered<AuthController>()
@@ -47,162 +59,201 @@ class _SettingsBodyState extends State<SettingsBody> {
 
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            PremiumUpgradeWidget(margin: EdgeInsets.only(bottom: 16)),
-            PremiumStatusWidget(margin: EdgeInsets.only(bottom: 16)),
-            SettingsCard(
-              iconData: Icons.lightbulb,
-              title: "theme".tr(),
-              trailing: GetX<ThemeController>(
-                builder: (controller) {
-                  return Switch(
-                    value: controller.isDarkMode,
-                    onChanged: (value) {
-                      controller.setDarkMode(value);
-                    },
-                    activeColor: Colors.blue,
-                  );
-                },
-              ),
-              onTap: () {},
-            ),
-            SettingsCard(
-              iconData: Icons.language,
-              title: _getCurrentLanguageName(context),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-              ),
-              onTap: () async {
-                final languageChanged =
-                    await showLangChoseeBottomSheet(context);
-                if (languageChanged == true && mounted) {
-                  setState(() {});
-                }
-              },
-            ),
-
-            // Biometric Authentication Setting (shows for everyone but premium unlocks it)
-            Obx(() {
-              final premiumController = Get.find<PremiumController>();
-              if (!authController.isBiometricAvailable.value) {
-                return const SizedBox.shrink();
-              }
-
-              final isPremium = premiumController.isPremium;
-
-              return SettingsCard(
-                iconData: Icons.fingerprint,
-                title: authController.getBiometricDisplayName(),
-                subtitle: isPremium ? null : "premiumUpgrade".tr(),
-                trailing: isPremium
-                    ? Switch(
-                        value: authController.isBiometricEnabled.value,
-                        onChanged: (value) {
-                          authController.toggleBiometric(value);
-                        },
-                        activeColor: Colors.blue,
-                      )
-                    : Icon(
-                        Icons.workspace_premium,
-                        color: Colors.amber.shade600,
-                      ),
-                onTap: isPremium
-                    ? () {
-                        authController.toggleBiometric(
-                            !authController.isBiometricEnabled.value);
-                      }
-                    : () {
-                        Get.toNamed('/premium');
-                      },
-              );
-            }),
-
-            SettingsCard(
-                iconData: Icons.privacy_tip,
-                title: "PP".tr(),
-                trailing: Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                ),
-                onTap: () => showPrivacyPolicyBottomSheet(context)),
-            Obx(() {
-              final premiumController = Get.find<PremiumController>();
-              final isPremium = premiumController.isPremium;
-
-              return SettingsCard(
-                iconData: Icons.backup,
-                title: "backupData".tr(),
-                subtitle: isPremium ? null : "premiumUpgrade".tr(),
-                trailing: isPremium
-                    ? Icon(Icons.arrow_forward_ios, size: 16)
-                    : Icon(Icons.workspace_premium, color: Colors.amber.shade600),
-                onTap: isPremium
-                    ? () => _createBackup(context)
-                    : () => _showPremiumDialog(context, 'backupPremiumDescription'),
-              );
-            }),
-            Obx(() {
-              final premiumController = Get.find<PremiumController>();
-              final isPremium = premiumController.isPremium;
-
-              return SettingsCard(
-                iconData: Icons.restore,
-                title: "restoreData".tr(),
-                subtitle: isPremium ? null : "premiumUpgrade".tr(),
-                trailing: isPremium
-                    ? Icon(Icons.arrow_forward_ios, size: 16)
-                    : Icon(Icons.workspace_premium, color: Colors.amber.shade600),
-                onTap: isPremium
-                    ? () => _restoreBackup(context)
-                    : () => _showPremiumDialog(context, 'restorePremiumDescription'),
-              );
-            }),
-            SettingsCard(
-              iconData: Icons.delete,
-              title: "clearAllD".tr(),
-              trailing: Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-              ),
-              onTap: () => showDialogDeleteData(context),
-            ),
-            SettingsCard(
-                iconData: Icons.rate_review,
-                title: "rateApp".tr(),
-                trailing: Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                ),
-                onTap: () {
-                  launchUrl(Uri.parse(
-                      'https://play.google.com/store/apps/details?id=com.volkan.wallet_app'));
-                }),
+            const PremiumUpgradeWidget(margin: EdgeInsets.only(bottom: 8)),
+            const PremiumStatusWidget(margin: EdgeInsets.only(bottom: 8)),
+            _buildAppearanceSection(context),
+            _buildSecuritySection(context, authController),
+            _buildDataSection(context),
+            _buildAboutSection(context),
+            const SizedBox(height: 8),
           ],
         ),
       ),
     );
   }
 
-  Future<void> _showPremiumDialog(BuildContext context, String descriptionKey) async {
+  Widget _buildAppearanceSection(BuildContext context) {
+    return _Section(
+      title: 'sectionAppearance'.tr(),
+      children: [
+        GetX<ThemeController>(
+          builder: (controller) {
+            return SettingsCard(
+              iconData: Icons.lightbulb,
+              title: 'theme'.tr(),
+              subtitle: _themeLabel(controller.appThemeMode),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () => showThemeBottomSheet(context),
+            );
+          },
+        ),
+        SettingsCard(
+          iconData: Icons.language,
+          title: _getCurrentLanguageName(context),
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: () async {
+            final languageChanged = await showLangChoseeBottomSheet(context);
+            if (languageChanged == true && mounted) {
+              setState(() {});
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSecuritySection(
+    BuildContext context,
+    AuthController authController,
+  ) {
+    return _Section(
+      title: 'sectionSecurity'.tr(),
+      children: [
+        Obx(() {
+          final premiumController = Get.find<PremiumController>();
+          if (!authController.isBiometricAvailable.value) {
+            return const SizedBox.shrink();
+          }
+
+          final isPremium = premiumController.isPremium;
+
+          return SettingsCard(
+            iconData: Icons.fingerprint,
+            title: authController.getBiometricDisplayName(),
+            subtitle: isPremium ? null : 'premiumUpgrade'.tr(),
+            trailing: isPremium
+                ? Switch(
+                    value: authController.isBiometricEnabled.value,
+                    onChanged: (value) {
+                      authController.toggleBiometric(value);
+                    },
+                    activeColor: Colors.blue,
+                  )
+                : Icon(
+                    Icons.workspace_premium,
+                    color: Colors.amber.shade600,
+                  ),
+            onTap: isPremium
+                ? () {
+                    authController.toggleBiometric(
+                      !authController.isBiometricEnabled.value,
+                    );
+                  }
+                : () {
+                    Get.toNamed('/premium');
+                  },
+          );
+        }),
+        SettingsCard(
+          iconData: Icons.pin,
+          title: 'chanPIN'.tr(),
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: () => Get.toNamed('/changePin'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDataSection(BuildContext context) {
+    return _Section(
+      title: 'sectionData'.tr(),
+      children: [
+        Obx(() {
+          final premiumController = Get.find<PremiumController>();
+          final isPremium = premiumController.isPremium;
+          return SettingsCard(
+            iconData: Icons.backup,
+            title: 'backupData'.tr(),
+            subtitle: isPremium ? null : 'premiumUpgrade'.tr(),
+            trailing: isPremium
+                ? const Icon(Icons.arrow_forward_ios, size: 16)
+                : Icon(Icons.workspace_premium,
+                    color: Colors.amber.shade600),
+            onTap: isPremium
+                ? () => _createBackup(context)
+                : () =>
+                    _showPremiumDialog(context, 'backupPremiumDescription'),
+          );
+        }),
+        Obx(() {
+          final premiumController = Get.find<PremiumController>();
+          final isPremium = premiumController.isPremium;
+          return SettingsCard(
+            iconData: Icons.restore,
+            title: 'restoreData'.tr(),
+            subtitle: isPremium ? null : 'premiumUpgrade'.tr(),
+            trailing: isPremium
+                ? const Icon(Icons.arrow_forward_ios, size: 16)
+                : Icon(Icons.workspace_premium,
+                    color: Colors.amber.shade600),
+            onTap: isPremium
+                ? () => _restoreBackup(context)
+                : () =>
+                    _showPremiumDialog(context, 'restorePremiumDescription'),
+          );
+        }),
+        SettingsCard(
+          iconData: Icons.delete,
+          title: 'clearAllD'.tr(),
+          isDestructive: true,
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: () => showDialogDeleteData(context),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAboutSection(BuildContext context) {
+    return _Section(
+      title: 'sectionAbout'.tr(),
+      children: [
+        SettingsCard(
+          iconData: Icons.privacy_tip,
+          title: 'PP'.tr(),
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: () => showPrivacyPolicyBottomSheet(context),
+        ),
+        SettingsCard(
+          iconData: Icons.rate_review,
+          title: 'rateApp'.tr(),
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: () {
+            launchUrl(
+              Uri.parse(
+                'https://play.google.com/store/apps/details?id=com.volkan.wallet_app',
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Future<void> _showPremiumDialog(
+    BuildContext context,
+    String descriptionKey,
+  ) async {
     final shouldUpgrade = await Get.dialog<bool>(
-      AlertDialog(
-        title: Text('premiumFeatureLockedTitle'.tr()),
-        content: Text(descriptionKey.tr()),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: Text('maybeLater'.tr()),
+          AlertDialog(
+            title: Text('premiumFeatureLockedTitle'.tr()),
+            content: Text(descriptionKey.tr()),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(result: false),
+                child: Text('maybeLater'.tr()),
+              ),
+              ElevatedButton(
+                onPressed: () => Get.back(result: true),
+                child: Text('goPremium'.tr()),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Get.back(result: true),
-            child: Text('goPremium'.tr()),
-          ),
-        ],
-      ),
-    ) ?? false;
+        ) ??
+        false;
 
     if (shouldUpgrade) {
       Get.toNamed('/premium');
@@ -213,12 +264,10 @@ class _SettingsBodyState extends State<SettingsBody> {
     try {
       final backupService = BackupService();
       final filePath = await backupService.createBackupFile();
-
-      debugPrint(filePath); // For debugging purposes
-
+      debugPrint(filePath);
       context.showSuccessSnackBar('${'backupSuccess'.tr()} $filePath');
     } catch (e) {
-      debugPrint('Yedekleme hatası: $e');
+      debugPrint('Backup error: $e');
       context.showErrorSnackBar('${'backupError'.tr()} $e');
     }
   }
@@ -228,13 +277,12 @@ class _SettingsBodyState extends State<SettingsBody> {
       context: context,
       builder: (context) {
         return CustomDialog(
-          title: "restoreTitle".tr(),
-          content: "restoreContent".tr(),
+          title: 'restoreTitle'.tr(),
+          content: 'restoreContent'.tr(),
           onConfirm: () async {
             try {
               final backupService = BackupService();
               await backupService.restoreFromFile();
-
               context.showSuccessSnackBar('restoreSuccess');
             } catch (e) {
               context.showErrorSnackBar('${'restoreError'.tr()} $e');
@@ -250,18 +298,53 @@ class _SettingsBodyState extends State<SettingsBody> {
       context: context,
       builder: (context) {
         return CustomDialog(
-          title: "areUSure".tr(),
-          cancelText: "cancel".tr(),
+          title: 'areUSure'.tr(),
+          cancelText: 'cancel'.tr(),
           onConfirm: () async {
             await CreditCardService().deleteAllData();
-
             await IbanCardService().deleteAllData();
-
             // ignore: use_build_context_synchronously
             Navigator.pop(context);
           },
         );
       },
+    );
+  }
+}
+
+class _Section extends StatelessWidget {
+  final String title;
+  final List<Widget> children;
+  const _Section({required this.title, required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered =
+        children.where((c) => c is! SizedBox || (c as SizedBox).height != 0).toList();
+    if (filtered.isEmpty) return const SizedBox.shrink();
+
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, bottom: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 6, bottom: 8, top: 4),
+            child: Text(
+              title.toUpperCase(),
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.8,
+                color: colorScheme.onSurface.withValues(alpha: 0.55),
+              ),
+            ),
+          ),
+          ...children,
+        ],
+      ),
     );
   }
 }

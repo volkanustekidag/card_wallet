@@ -151,7 +151,14 @@ class _BodyState extends State<Body> {
             );
           },
         ),
-        if (_cards.isEmpty) const Positioned.fill(child: EmptyListInfo()),
+        if (_cards.isEmpty)
+          const Positioned.fill(
+            child: EmptyListInfo(
+              ctaRoute: '/addCreditCard',
+              ctaLabel: 'addFirstCC',
+              ctaIcon: Icons.credit_card,
+            ),
+          ),
       ],
     );
   }
@@ -338,6 +345,7 @@ class _BodyState extends State<Body> {
                     Clipboard.setData(
                       ClipboardData(text: creditCard.creditCardNumber),
                     );
+                    HapticFeedback.lightImpact();
                     Navigator.of(sheetContext).pop();
                     context.showSuccessSnackBar('copyInfo');
                   },

@@ -1,5 +1,3 @@
-// import 'dart:async';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,16 +12,13 @@ import 'package:wallet_app/core/data/local_services/auth_services/authentication
 import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/data/local_services/theme_services/theme_services.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
-// import 'package:wallet_app/core/data/services/admob_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 
-  // Hive initialization
   await Hive.initFlutter();
 
-  // Service initializations
   await Future.wait([
     CreditCardService().init(),
     IbanCardService().init(),
@@ -31,14 +26,10 @@ void main() async {
     ThemeService().init(),
   ]);
 
-  // Screen orientation settings
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-
-  // // Kick off AdMob initialization without blocking first frame
-  // _initializeAdMobInBackground();
 
   runApp(
     EasyLocalization(
@@ -63,20 +54,6 @@ class AppWrapper extends StatelessWidget {
     return MyApp();
   }
 }
-
-// void _initializeAdMobInBackground() {
-//   unawaited(Future(() async {
-//     try {
-//       await AdMobService.initialize();
-//       await Future.wait([
-//         AdMobService.loadInterstitialAd(),
-//         AdMobService.loadRewardedAd(),
-//       ]);
-//     } catch (e) {
-//       // Keep silent in release; initialization retry is handled internally
-//     }
-//   }));
-// }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);

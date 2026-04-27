@@ -317,6 +317,21 @@
 
     "termsOfUse": "Kullanım Koşulları",
     "privacyPolicy": "Gizlilik Politikası",
-    "couldNotLaunchUrl": "Bağlantı açılamadı"
-
+    "couldNotLaunchUrl": "Bağlantı açılamadı",
+    "pressBackAgainToExit": "Çıkmak için tekrar basın",
+    "themeLight": "Açık",
+    "themeDark": "Koyu",
+    "themeSystem": "Sistem",
+    "validationWarningTitle": "Bilgileri kontrol et",
+    "validationWarningSubtitle": "Olağandışı bir durum fark ettik:",
+    "warningInvalidCardNumber": "Kart numarası standart doğrulamayı geçmiyor.",
+    "warningInvalidExpiration": "Son kullanma tarihi geçersiz veya geçmiş.",
+    "warningInvalidIban": "IBAN standart doğrulamayı geçmiyor.",
+    "reviewAgain": "Düzenle",
+    "saveAnyway": "Yine de kaydet",
+    "addFirstCard": "İlk kartını ekle",
+    "sectionAppearance": "Görünüm",
+    "sectionSecurity": "Güvenlik",
+    "sectionData": "Veri",
+    "sectionAbout": "Hakkında"
 }

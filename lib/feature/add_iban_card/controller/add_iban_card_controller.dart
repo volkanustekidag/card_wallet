@@ -1,11 +1,15 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
+import 'package:wallet_app/core/utils/validators.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 
 class AddIbanCardController extends GetxController {
@@ -92,6 +96,17 @@ class AddIbanCardController extends GetxController {
   Future<void> saveCard() async {
     try {
       isLoading.value = true;
+
+      // Soft IBAN validation: warn but allow saving anyway.
+      if (!IbanValidator.isValid(currentCard.value.iban)) {
+        final shouldProceed = await _confirmSaveDespiteWarnings(
+          ['warningInvalidIban'.tr()],
+        );
+        if (shouldProceed != true) {
+          return;
+        }
+      }
+
       await _ibanCardService.openBox();
 
       // Premium kontrolü sadece yeni kart eklerken
@@ -127,6 +142,7 @@ class AddIbanCardController extends GetxController {
         );
 
         await _ibanCardService.updateIbanCard(_originalCard!, updatedCard);
+        HapticFeedback.mediumImpact();
         Get.back();
         Get.context?.showSuccessSnackBar('IBAN card updated successfully');
       } else {
@@ -142,6 +158,7 @@ class AddIbanCardController extends GetxController {
         debugPrint('Adding new IBAN card with ID: ${newCard.id}');
 
         await _ibanCardService.addIbanCard(newCard);
+        HapticFeedback.mediumImpact();
         Get.back();
         Get.context?.showSuccessSnackBar('IBAN card added successfully');
       }
@@ -170,5 +187,69 @@ class AddIbanCardController extends GetxController {
     isEditMode.value = false;
     _originalCard = null;
     currentCard.refresh();
+  }
+
+  Future<bool?> _confirmSaveDespiteWarnings(List<String> warnings) {
+    final dialogContext = Get.context;
+    if (dialogContext == null) return Future.value(true);
+    return Get.dialog<bool>(
+      AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Row(
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'validationWarningTitle'.tr(),
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'validationWarningSubtitle'.tr(),
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 8),
+            for (final w in warnings)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Text(
+                  '• $w',
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('reviewAgain'.tr()),
+          ),
+          ElevatedButton(
+            onPressed: () => Get.back(result: true),
+            child: Text('saveAnyway'.tr()),
+          ),
+        ],
+      ),
+      barrierDismissible: false,
+    );
   }
 }

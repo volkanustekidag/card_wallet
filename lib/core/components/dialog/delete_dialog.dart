@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomDialog extends StatelessWidget {
   const CustomDialog({
@@ -54,6 +55,7 @@ class CustomDialog extends StatelessWidget {
         ),
         ElevatedButton(
           onPressed: () {
+            HapticFeedback.heavyImpact();
             if (onConfirm != null) {
               onConfirm!();
             }
@@ -67,7 +69,7 @@ class CustomDialog extends StatelessWidget {
           ),
           child: Text(
             confirmText.tr(),
-            style: TextStyle(fontFamily: 'Poppins', 
+            style: TextStyle(fontFamily: 'Poppins',
               fontWeight: FontWeight.w500,
             ),
           ),

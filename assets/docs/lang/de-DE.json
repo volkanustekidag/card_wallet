@@ -316,5 +316,25 @@
 
     "termsOfUse": "Nutzungsbedingungen",
     "privacyPolicy": "Datenschutzrichtlinie",
-    "couldNotLaunchUrl": "Link konnte nicht geöffnet werden"
+    "couldNotLaunchUrl": "Link konnte nicht geöffnet werden",
+    "pressBackAgainToExit": "Zum Beenden erneut drücken",
+    "themeLight": "Hell",
+    "themeDark": "Dunkel",
+    "themeSystem": "System",
+    "validationWarningTitle": "Angaben prüfen",
+    "validationWarningSubtitle": "Etwas Ungewöhnliches ist uns aufgefallen:",
+    "warningInvalidCardNumber": "Die Kartennummer besteht die Standardprüfung nicht.",
+    "warningInvalidExpiration": "Ablaufdatum sieht ungültig aus oder ist bereits abgelaufen.",
+    "warningInvalidIban": "Die IBAN besteht die Standardprüfung nicht.",
+    "reviewAgain": "Überprüfen",
+    "saveAnyway": "Trotzdem speichern",
+    "addFirstCard": "Erste Karte hinzufügen",
+    "sectionAppearance": "Erscheinungsbild",
+    "sectionSecurity": "Sicherheit",
+    "sectionData": "Daten",
+    "sectionAbout": "Über",
+    "backupPremiumDescription": "Die Datensicherung ist nur für Premium-Nutzer verfügbar. Wechseln Sie zu Premium, um Ihre Daten zu schützen.",
+    "errorGeneratingQR": "Beim Erstellen des QR-Codes ist ein Fehler aufgetreten",
+    "qrCodePremiumDescription": "Die QR-Code-Erstellung ist nur für Premium-Nutzer verfügbar. Wechseln Sie zu Premium für unbegrenzte QR-Codes und weitere Funktionen.",
+    "restorePremiumDescription": "Die Datenwiederherstellung ist nur für Premium-Nutzer verfügbar. Wechseln Sie zu Premium, um Ihre Sicherungsdaten wiederherzustellen."
 }

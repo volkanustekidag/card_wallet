@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:intl/intl.dart';
@@ -25,7 +26,7 @@ class _PremiumPageState extends State<PremiumPage> {
   int _currentFeatureIndex = 0;
   ProductDetails? _selectedProduct;
 
-  static const _autoSlideInterval = Duration(seconds: 3);
+  static const _autoSlideInterval = Duration(seconds: 5);
   static const _autoSlideAnimation = Duration(milliseconds: 450);
 
   static const List<_FeatureCardData> _featureCards = [
@@ -598,9 +599,11 @@ class _PremiumPageState extends State<PremiumPage> {
     if (!mounted) return;
 
     if (success) {
+      HapticFeedback.mediumImpact();
       final messengerContext = Get.context ?? context;
       messengerContext.showSuccessSnackBar('premiumActivated');
     } else {
+      HapticFeedback.heavyImpact();
       context.showErrorSnackBar('purchaseFailed');
     }
   }

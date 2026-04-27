@@ -26,7 +26,11 @@ class IbanCardsBody extends StatelessWidget {
         padding: const PaddingConstants.extraHigh(),
         child: Obx(() {
           if (controller.ibanCards.isEmpty) {
-            return const EmptyListInfo();
+            return const EmptyListInfo(
+              ctaRoute: '/addIbanCard',
+              ctaLabel: 'addFirstIC',
+              ctaIcon: Icons.account_balance,
+            );
           }
 
           return ListView.builder(
@@ -60,6 +64,7 @@ class IbanCardsBody extends StatelessWidget {
 
   void _copyIBAN(BuildContext context, IbanCard ibanCard) {
     Clipboard.setData(ClipboardData(text: ibanCard.iban));
+    HapticFeedback.lightImpact();
     _showAutoHideSnackBar(context, 'ibanCopied'.tr());
   }
 

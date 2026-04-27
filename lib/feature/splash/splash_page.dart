@@ -15,16 +15,9 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    _navigateToAuth();
-  }
-
-  _navigateToAuth() {
-    Future.delayed(
-      const Duration(milliseconds: 2000),
-      () {
-        Get.offAllNamed(AppRoutes.auth);
-      },
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.offAllNamed(AppRoutes.auth);
+    });
   }
 
   @override

@@ -315,6 +315,25 @@
 
     "termsOfUse": "Conditions d'utilisation",
     "privacyPolicy": "Politique de confidentialité",
-    "couldNotLaunchUrl": "Impossible d'ouvrir le lien"
-
+    "couldNotLaunchUrl": "Impossible d'ouvrir le lien",
+    "pressBackAgainToExit": "Appuyez à nouveau pour quitter",
+    "themeLight": "Clair",
+    "themeDark": "Sombre",
+    "themeSystem": "Système",
+    "validationWarningTitle": "Vérifiez vos informations",
+    "validationWarningSubtitle": "Nous avons remarqué quelque chose d'inhabituel :",
+    "warningInvalidCardNumber": "Le numéro de carte ne passe pas la vérification standard.",
+    "warningInvalidExpiration": "La date d'expiration semble invalide ou déjà passée.",
+    "warningInvalidIban": "L'IBAN ne passe pas la vérification standard.",
+    "reviewAgain": "Vérifier",
+    "saveAnyway": "Enregistrer quand même",
+    "addFirstCard": "Ajouter votre première carte",
+    "sectionAppearance": "Apparence",
+    "sectionSecurity": "Sécurité",
+    "sectionData": "Données",
+    "sectionAbout": "À propos",
+    "backupPremiumDescription": "La sauvegarde des données est réservée aux membres Premium. Passez à Premium pour ne pas perdre vos données.",
+    "errorGeneratingQR": "Une erreur s'est produite lors de la génération du QR code",
+    "qrCodePremiumDescription": "La génération de QR code est réservée aux membres Premium. Passez à Premium pour générer des QR codes illimités et plus.",
+    "restorePremiumDescription": "La restauration des données est réservée aux membres Premium. Passez à Premium pour restaurer vos sauvegardes."
 }
