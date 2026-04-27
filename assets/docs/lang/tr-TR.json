@@ -382,5 +382,15 @@
     "colorLabel": "Renk",
     "save": "Kaydet",
     "addAction": "Ekle",
-    "updateAction": "Güncelle"
+    "updateAction": "Güncelle",
+    "tagsLabel": "Etiketler",
+    "tagsHint": "Etiket ekle ve Enter'a bas (ör. iş, eş)",
+    "searchCardsHint": "Kartlarda ara…",
+    "searchNoResults": "Aramanla eşleşen kart yok.",
+    "sortBy": "Sıralama",
+    "sortNewest": "En yeni önce",
+    "sortOldest": "En eski önce",
+    "sortNameAsc": "İsim (A-Z)",
+    "sortNameDesc": "İsim (Z-A)",
+    "sortByBank": "Banka / markaya göre"
 }

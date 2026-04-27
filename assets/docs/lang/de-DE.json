@@ -385,5 +385,15 @@
     "colorLabel": "Farbe",
     "save": "Speichern",
     "addAction": "Hinzufügen",
-    "updateAction": "Aktualisieren"
+    "updateAction": "Aktualisieren",
+    "tagsLabel": "Tags",
+    "tagsHint": "Tag hinzufügen und Enter drücken (z. B. Arbeit, Familie)",
+    "searchCardsHint": "Karten suchen…",
+    "searchNoResults": "Keine Karten passen zu Ihrer Suche.",
+    "sortBy": "Sortieren nach",
+    "sortNewest": "Neueste zuerst",
+    "sortOldest": "Älteste zuerst",
+    "sortNameAsc": "Name (A-Z)",
+    "sortNameDesc": "Name (Z-A)",
+    "sortByBank": "Nach Bank / Marke"
 }

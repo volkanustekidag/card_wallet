@@ -12,6 +12,7 @@ import 'package:wallet_app/feature/add_credit_card/widgets/colors_list_view.dart
 import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
+import 'package:wallet_app/core/widgets/notes_and_tags_section.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/upper_case_formatter.dart';
 
@@ -323,6 +324,13 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
           const SizedBox(height: 16),
           const SizedBox(height: 24),
           _buildColorPickerSection(theme),
+          const SizedBox(height: 24),
+          NotesAndTagsSection(
+            initialNotes: controller.currentCard.value.notes,
+            initialTags: controller.currentCard.value.tags,
+            onNotesChanged: (val) => controller.updateCardField('notes', val),
+            onTagsChanged: (val) => controller.updateCardField('tags', val),
+          ),
           const SizedBox(height: 24),
           Text(
             "secureStorageInfo".tr(),

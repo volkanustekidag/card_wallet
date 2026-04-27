@@ -45,6 +45,8 @@ class AddIbanCardController extends GetxController {
       swiftCode: card.swiftCode,
       bankName: card.bankName,
       createdAt: card.createdAt,
+      notes: card.notes,
+      tags: card.tags == null ? null : List<String>.from(card.tags!),
     );
     isEditMode.value = true;
 
@@ -73,21 +75,27 @@ class AddIbanCardController extends GetxController {
     debugPrint('Create mode initialized for IBAN card');
   }
 
-  void updateCardField(String fieldName, String value) {
+  void updateCardField(String fieldName, dynamic value) {
     final card = currentCard.value;
 
     switch (fieldName) {
       case "cardHolder":
-        card.cardHolder = value;
+        card.cardHolder = value as String;
         break;
       case "iban":
-        card.iban = value;
+        card.iban = value as String;
         break;
       case "swiftCode":
-        card.swiftCode = value;
+        card.swiftCode = value as String;
         break;
       case "bankName":
-        card.bankName = value;
+        card.bankName = value as String;
+        break;
+      case "notes":
+        card.notes = value as String?;
+        break;
+      case "tags":
+        card.tags = value as List<String>?;
         break;
     }
 
@@ -141,6 +149,8 @@ class AddIbanCardController extends GetxController {
           swiftCode: currentCard.value.swiftCode,
           bankName: currentCard.value.bankName,
           createdAt: _originalCard!.createdAt ?? DateTime.now(),
+          notes: currentCard.value.notes,
+          tags: currentCard.value.tags,
         );
 
         await _ibanCardService.updateIbanCard(_originalCard!, updatedCard);
@@ -156,6 +166,8 @@ class AddIbanCardController extends GetxController {
           swiftCode: currentCard.value.swiftCode,
           bankName: currentCard.value.bankName,
           createdAt: DateTime.now(),
+          notes: currentCard.value.notes,
+          tags: currentCard.value.tags,
         );
 
         debugPrint('Adding new IBAN card with ID: ${newCard.id}');

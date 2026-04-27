@@ -5,6 +5,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/core/constants/paddings.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
+import 'package:wallet_app/core/utils/card_sorting.dart';
+import 'package:wallet_app/core/widgets/card_search_bar.dart';
 import 'package:wallet_app/core/widgets/empty_list_info.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/widgets/mini_iban_card_widget.dart';
@@ -14,50 +16,139 @@ import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban
 import 'package:wallet_app/core/router/getx_bindings.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 
-class IbanCardsBody extends StatelessWidget {
+class IbanCardsBody extends StatefulWidget {
   final IbanCardController controller;
 
   const IbanCardsBody({super.key, required this.controller});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Padding(
-        padding: const PaddingConstants.extraHigh(),
-        child: Obx(() {
-          if (controller.ibanCards.isEmpty) {
-            return const EmptyListInfo(
-              ctaRoute: '/addIbanCard',
-              ctaLabel: 'addFirstIC',
-              ctaIcon: Icons.account_balance,
-            );
-          }
+  State<IbanCardsBody> createState() => _IbanCardsBodyState();
+}
 
-          return ListView.builder(
-            shrinkWrap: true,
-            clipBehavior: Clip.none,
-            itemCount: controller.ibanCards.length,
-            itemBuilder: (context, index) {
-              final ibanCard = controller.ibanCards[index];
-              return AnimatedSwitcher(
-                duration: Duration(milliseconds: 300),
-                child: MiniIbanCardWidget(
-                  key: ValueKey(ibanCard.id),
-                  ibanCard: ibanCard,
-                  onCopyTap: () {
-                    _copyIBAN(context, ibanCard);
-                  },
-                  onQRTap: () {
-                    _checkPremiumAndShowQR(context, ibanCard);
-                  },
-                  onLongPress: () {
-                    _showCardActionsBottomSheet(context, ibanCard);
-                  },
-                ),
-              );
-            },
+class _IbanCardsBodyState extends State<IbanCardsBody> {
+  String _searchQuery = '';
+  CardSortOption _sortOption = CardSortOption.newest;
+
+  IbanCardController get controller => widget.controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const PaddingConstants.extraHigh(),
+      child: Obx(() {
+        if (controller.ibanCards.isEmpty) {
+          return const EmptyListInfo(
+            ctaRoute: '/addIbanCard',
+            ctaLabel: 'addFirstIC',
+            ctaIcon: Icons.account_balance,
           );
-        }),
+        }
+
+        final filtered = _filterAndSort(controller.ibanCards.toList());
+
+        return Column(
+          children: [
+            CardSearchBar(
+              query: _searchQuery,
+              sort: _sortOption,
+              onQueryChanged: (q) => setState(() => _searchQuery = q),
+              onSortChanged: (s) => setState(() => _sortOption = s),
+            ),
+            Expanded(
+              child: filtered.isEmpty
+                  ? _buildNoSearchResults(context)
+                  : ListView.builder(
+                      clipBehavior: Clip.none,
+                      itemCount: filtered.length,
+                      itemBuilder: (context, index) {
+                        final ibanCard = filtered[index];
+                        return MiniIbanCardWidget(
+                          key: ValueKey(ibanCard.id),
+                          ibanCard: ibanCard,
+                          onCopyTap: () => _copyIBAN(context, ibanCard),
+                          onQRTap: () =>
+                              _checkPremiumAndShowQR(context, ibanCard),
+                          onLongPress: () =>
+                              _showCardActionsBottomSheet(context, ibanCard),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        );
+      }),
+    );
+  }
+
+  List<IbanCard> _filterAndSort(List<IbanCard> cards) {
+    final filtered = _searchQuery.trim().isEmpty
+        ? List<IbanCard>.from(cards)
+        : cards.where((c) => _matchesQuery(c, _searchQuery)).toList();
+
+    switch (_sortOption) {
+      case CardSortOption.newest:
+        filtered.sort((a, b) => compareNewestFirst(
+              aCreatedAt: a.createdAt,
+              aId: a.id,
+              bCreatedAt: b.createdAt,
+              bId: b.id,
+            ));
+        break;
+      case CardSortOption.oldest:
+        filtered.sort((a, b) => compareNewestFirst(
+              aCreatedAt: b.createdAt,
+              aId: b.id,
+              bCreatedAt: a.createdAt,
+              bId: a.id,
+            ));
+        break;
+      case CardSortOption.nameAsc:
+        filtered.sort((a, b) =>
+            a.cardHolder.toLowerCase().compareTo(b.cardHolder.toLowerCase()));
+        break;
+      case CardSortOption.nameDesc:
+        filtered.sort((a, b) =>
+            b.cardHolder.toLowerCase().compareTo(a.cardHolder.toLowerCase()));
+        break;
+      case CardSortOption.bank:
+        filtered.sort((a, b) =>
+            a.bankName.toLowerCase().compareTo(b.bankName.toLowerCase()));
+        break;
+    }
+    return filtered;
+  }
+
+  bool _matchesQuery(IbanCard card, String query) {
+    final q = query.toLowerCase();
+    return card.bankName.toLowerCase().contains(q) ||
+        card.cardHolder.toLowerCase().contains(q) ||
+        card.iban.toLowerCase().replaceAll(' ', '').contains(q) ||
+        (card.notes?.toLowerCase().contains(q) ?? false) ||
+        (card.tags?.any((t) => t.toLowerCase().contains(q)) ?? false);
+  }
+
+  Widget _buildNoSearchResults(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off_rounded,
+                size: 56,
+                color: colorScheme.onSurface.withValues(alpha: 0.4)),
+            const SizedBox(height: 12),
+            Text(
+              'searchNoResults'.tr(),
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

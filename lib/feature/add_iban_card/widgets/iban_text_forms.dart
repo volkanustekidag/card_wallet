@@ -8,6 +8,7 @@ import 'package:wallet_app/feature/add_iban_card/widgets/iban_text_field.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
+import 'package:wallet_app/core/widgets/notes_and_tags_section.dart';
 
 class IbanTextFieldForms extends StatefulWidget {
   final TextEditingController ibanController;
@@ -300,6 +301,14 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
               },
               iconData: Icons.numbers,
               hintText: "00000000",
+            ),
+            const SizedBox(height: 24),
+            NotesAndTagsSection(
+              initialNotes: controller.currentCard.value.notes,
+              initialTags: controller.currentCard.value.tags,
+              onNotesChanged: (val) =>
+                  controller.updateCardField('notes', val),
+              onTagsChanged: (val) => controller.updateCardField('tags', val),
             ),
             const SizedBox(height: 28),
             _buildSecurityMessage(context),

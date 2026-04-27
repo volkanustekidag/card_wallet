@@ -5,6 +5,7 @@ import 'package:flip_card/flip_card.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
+import 'package:wallet_app/core/widgets/card_search_bar.dart';
 import 'package:wallet_app/core/widgets/credit_card_back.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
 import 'package:wallet_app/core/widgets/empty_list_info.dart';
@@ -36,15 +37,18 @@ class _BodyState extends State<Body> {
   List<CreditCard> _cards = [];
   late final int _initialItemCount;
   Worker? _cardsWorker;
+  String _searchQuery = '';
+  CardSortOption _sortOption = CardSortOption.newest;
 
   @override
   void initState() {
     super.initState();
     _firstCardKey = GlobalKey<FlipCardState>();
-    _cards = _sortCards(widget.controller.creditCards);
+    _cards = _filterAndSort(widget.controller.creditCards);
     _initialItemCount = _cards.length;
     _cardsWorker = ever<List<CreditCard>>(
-        widget.controller.creditCards, _syncAnimatedList);
+        widget.controller.creditCards,
+        (incoming) => _syncAnimatedList(_filterAndSort(incoming)));
 
     if (_cards.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _scheduleFlipDemo());
@@ -129,38 +133,91 @@ class _BodyState extends State<Body> {
   Widget build(BuildContext context) {
     _firstCardKey ??= GlobalKey<FlipCardState>();
 
-    return Stack(
+    return Column(
       children: [
-        AnimatedList(
-          key: _listKey,
-          physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics()),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 48),
-          initialItemCount: _initialItemCount,
-          itemBuilder: (context, index, animation) {
-            if (_cards.isEmpty || index >= _cards.length) {
-              return const SizedBox.shrink();
-            }
-            final creditCard = _cards[index];
-            final isFirstCard = index == 0;
+        Obx(() {
+          if (widget.controller.creditCards.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return CardSearchBar(
+            query: _searchQuery,
+            sort: _sortOption,
+            onQueryChanged: (q) {
+              setState(() => _searchQuery = q);
+              _syncAnimatedList(
+                  _filterAndSort(widget.controller.creditCards));
+            },
+            onSortChanged: (s) {
+              setState(() => _sortOption = s);
+              _syncAnimatedList(
+                  _filterAndSort(widget.controller.creditCards));
+            },
+          );
+        }),
+        Expanded(
+          child: Stack(
+            children: [
+              AnimatedList(
+                key: _listKey,
+                physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics()),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 48),
+                initialItemCount: _initialItemCount,
+                itemBuilder: (context, index, animation) {
+                  if (_cards.isEmpty || index >= _cards.length) {
+                    return const SizedBox.shrink();
+                  }
+                  final creditCard = _cards[index];
+                  final isFirstCard = index == 0;
 
-            return _buildAnimatedCard(
-              context: context,
-              creditCard: creditCard,
-              animation: animation,
-              highlight: isFirstCard,
-            );
-          },
-        ),
-        if (_cards.isEmpty)
-          const Positioned.fill(
-            child: EmptyListInfo(
-              ctaRoute: '/addCreditCard',
-              ctaLabel: 'addFirstCC',
-              ctaIcon: Icons.credit_card,
-            ),
+                  return _buildAnimatedCard(
+                    context: context,
+                    creditCard: creditCard,
+                    animation: animation,
+                    highlight: isFirstCard,
+                  );
+                },
+              ),
+              if (widget.controller.creditCards.isEmpty)
+                const Positioned.fill(
+                  child: EmptyListInfo(
+                    ctaRoute: '/addCreditCard',
+                    ctaLabel: 'addFirstCC',
+                    ctaIcon: Icons.credit_card,
+                  ),
+                )
+              else if (_cards.isEmpty)
+                _buildNoSearchResults(),
+            ],
           ),
+        ),
       ],
+    );
+  }
+
+  Widget _buildNoSearchResults() {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off_rounded,
+                size: 56,
+                color: colorScheme.onSurface.withValues(alpha: 0.4)),
+            const SizedBox(height: 12),
+            Text(
+              'searchNoResults'.tr(),
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -291,15 +348,51 @@ class _BodyState extends State<Body> {
     setState(() {});
   }
 
-  List<CreditCard> _sortCards(List<CreditCard> cards) {
-    final sorted = List<CreditCard>.from(cards);
-    sorted.sort((a, b) => compareNewestFirst(
-          aCreatedAt: a.createdAt,
-          aId: a.id,
-          bCreatedAt: b.createdAt,
-          bId: b.id,
-        ));
-    return sorted;
+  List<CreditCard> _filterAndSort(List<CreditCard> cards) {
+    final filtered = _searchQuery.trim().isEmpty
+        ? List<CreditCard>.from(cards)
+        : cards.where((c) => _matchesQuery(c, _searchQuery)).toList();
+
+    switch (_sortOption) {
+      case CardSortOption.newest:
+        filtered.sort((a, b) => compareNewestFirst(
+              aCreatedAt: a.createdAt,
+              aId: a.id,
+              bCreatedAt: b.createdAt,
+              bId: b.id,
+            ));
+        break;
+      case CardSortOption.oldest:
+        filtered.sort((a, b) => compareNewestFirst(
+              aCreatedAt: b.createdAt,
+              aId: b.id,
+              bCreatedAt: a.createdAt,
+              bId: a.id,
+            ));
+        break;
+      case CardSortOption.nameAsc:
+        filtered.sort(
+            (a, b) => a.cardHolder.toLowerCase().compareTo(b.cardHolder.toLowerCase()));
+        break;
+      case CardSortOption.nameDesc:
+        filtered.sort(
+            (a, b) => b.cardHolder.toLowerCase().compareTo(a.cardHolder.toLowerCase()));
+        break;
+      case CardSortOption.bank:
+        filtered.sort(
+            (a, b) => a.bankName.toLowerCase().compareTo(b.bankName.toLowerCase()));
+        break;
+    }
+    return filtered;
+  }
+
+  bool _matchesQuery(CreditCard card, String query) {
+    final q = query.toLowerCase();
+    return card.bankName.toLowerCase().contains(q) ||
+        card.cardHolder.toLowerCase().contains(q) ||
+        card.creditCardNumber.replaceAll(' ', '').contains(q) ||
+        (card.notes?.toLowerCase().contains(q) ?? false) ||
+        (card.tags?.any((t) => t.toLowerCase().contains(q)) ?? false);
   }
 
   Future<void> _showCardActionsSheet(CreditCard creditCard) async {

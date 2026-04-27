@@ -20,6 +20,10 @@ class CreditCard extends HiveObject {
   late int cardColorId;
   @HiveField(7)
   DateTime? createdAt;
+  @HiveField(8)
+  String? notes;
+  @HiveField(9)
+  List<String>? tags;
 
   CreditCard({
     required this.id,
@@ -30,5 +34,7 @@ class CreditCard extends HiveObject {
     required this.cvc2,
     required this.cardColorId,
     this.createdAt,
+    this.notes,
+    this.tags,
   });
 }

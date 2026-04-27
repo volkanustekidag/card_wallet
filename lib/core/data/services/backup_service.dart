@@ -125,6 +125,8 @@ class BackupService {
         'expirationDate': card.expirationDate,
         'cardColorId': card.cardColorId,
         'createdAt': card.createdAt?.toIso8601String(),
+        'notes': card.notes,
+        'tags': card.tags,
       });
     }
 
@@ -139,6 +141,8 @@ class BackupService {
         'iban': card.iban,
         'swiftCode': card.swiftCode,
         'createdAt': card.createdAt?.toIso8601String(),
+        'notes': card.notes,
+        'tags': card.tags,
       });
     }
 
@@ -412,6 +416,8 @@ class BackupService {
             cvc2: (raw['cvc2'] ?? '') as String,
             cardColorId: (raw['cardColorId'] as int?) ?? 0,
             createdAt: _parseDate(raw['createdAt']),
+            notes: raw['notes'] as String?,
+            tags: _parseStringList(raw['tags']),
           ),
         );
       }
@@ -426,6 +432,8 @@ class BackupService {
             iban: (raw['iban'] ?? '') as String,
             swiftCode: (raw['swiftCode'] ?? '') as String,
             createdAt: _parseDate(raw['createdAt']),
+            notes: raw['notes'] as String?,
+            tags: _parseStringList(raw['tags']),
           ),
         );
       }
@@ -470,6 +478,13 @@ class BackupService {
   DateTime? _parseDate(dynamic value) {
     if (value is String && value.isNotEmpty) {
       return DateTime.tryParse(value);
+    }
+    return null;
+  }
+
+  List<String>? _parseStringList(dynamic value) {
+    if (value is List) {
+      return value.map((e) => e.toString()).toList();
     }
     return null;
   }

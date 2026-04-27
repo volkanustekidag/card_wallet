@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
+import 'package:wallet_app/core/widgets/card_network_badge.dart';
+import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 class CreditCardFront extends StatelessWidget {
@@ -65,7 +67,9 @@ class CreditCardFront extends StatelessWidget {
     );
   }
 
+
   Widget _buildHeader(String bankName) {
+    final network = CardBankDetector.networkFor(creditCard.creditCardNumber);
     return Row(
       children: [
         Expanded(
@@ -73,7 +77,7 @@ class CreditCardFront extends StatelessWidget {
             bankName,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontFamily: 'Poppins', 
+            style: TextStyle(fontFamily: 'Poppins',
               color: Colors.white,
               fontWeight: FontWeight.w600,
               fontSize: 18,
@@ -81,6 +85,10 @@ class CreditCardFront extends StatelessWidget {
             ),
           ),
         ),
+        if (network != CardNetwork.unknown) ...[
+          CardNetworkBadge(network: network, height: 22),
+          const SizedBox(width: 8),
+        ],
         Container(
           width: 34,
           height: 34,

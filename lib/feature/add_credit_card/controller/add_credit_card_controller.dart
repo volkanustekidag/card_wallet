@@ -50,6 +50,8 @@ class AddCreditCardController extends GetxController {
       cvc2: card.cvc2,
       cardColorId: card.cardColorId,
       createdAt: card.createdAt,
+      notes: card.notes,
+      tags: card.tags == null ? null : List<String>.from(card.tags!),
     );
 
     isEditMode.value = true;
@@ -100,6 +102,12 @@ class AddCreditCardController extends GetxController {
         break;
       case "cvc2":
         card.cvc2 = value as String;
+        break;
+      case "notes":
+        card.notes = value as String?;
+        break;
+      case "tags":
+        card.tags = value as List<String>?;
         break;
     }
 
@@ -153,6 +161,8 @@ class AddCreditCardController extends GetxController {
           cvc2: currentCard.value.cvc2,
           cardColorId: currentCard.value.cardColorId,
           createdAt: _originalCard!.createdAt ?? DateTime.now(),
+          notes: currentCard.value.notes,
+          tags: currentCard.value.tags,
         );
 
         await _creditCardService.updateCreditCard(_originalCard!, updatedCard);
@@ -170,6 +180,8 @@ class AddCreditCardController extends GetxController {
           cvc2: currentCard.value.cvc2,
           cardColorId: currentCard.value.cardColorId,
           createdAt: DateTime.now(),
+          notes: currentCard.value.notes,
+          tags: currentCard.value.tags,
         );
 
         await _creditCardService.addToCreditCard(newCard);
