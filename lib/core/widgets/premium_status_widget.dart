@@ -32,7 +32,7 @@ class PremiumStatusWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.amber.withOpacity(0.3),
+              color: Colors.amber.withValues(alpha: 0.3),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),

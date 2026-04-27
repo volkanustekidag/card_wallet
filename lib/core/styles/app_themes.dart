@@ -86,7 +86,7 @@ class AppThemes {
     // Card Theme
     cardTheme: CardThemeData(
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.08),
+      shadowColor: Colors.black.withValues(alpha: 0.08),
       surfaceTintColor: Colors.white,
       color: Colors.white,
       margin: const EdgeInsets.all(8),
@@ -101,7 +101,7 @@ class AppThemes {
         elevation: 0,
         backgroundColor: lightPrimary,
         foregroundColor: Colors.white,
-        shadowColor: lightPrimary.withOpacity(0.3),
+        shadowColor: lightPrimary.withValues(alpha: 0.3),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -230,7 +230,7 @@ class AppThemes {
     // Chip Theme
     chipTheme: ChipThemeData(
       backgroundColor: const Color(0xFFF3F4F6),
-      selectedColor: lightPrimary.withOpacity(0.2),
+      selectedColor: lightPrimary.withValues(alpha: 0.2),
       disabledColor: const Color(0xFFE5E7EB),
       labelStyle: const TextStyle(color: Color(0xFF374151)),
       shape: RoundedRectangleBorder(
@@ -255,7 +255,7 @@ class AppThemes {
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected))
-          return lightPrimary.withOpacity(0.5);
+          return lightPrimary.withValues(alpha: 0.5);
         return const Color(0xFFD1D5DB);
       }),
     ),
@@ -263,9 +263,9 @@ class AppThemes {
     // Slider Theme
     sliderTheme: SliderThemeData(
       activeTrackColor: lightPrimary,
-      inactiveTrackColor: lightPrimary.withOpacity(0.3),
+      inactiveTrackColor: lightPrimary.withValues(alpha: 0.3),
       thumbColor: lightPrimary,
-      overlayColor: lightPrimary.withOpacity(0.2),
+      overlayColor: lightPrimary.withValues(alpha: 0.2),
     ),
 
     // Progress Indicator Theme
@@ -358,7 +358,7 @@ class AppThemes {
     // Card Theme
     cardTheme: CardThemeData(
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.3),
+      shadowColor: Colors.black.withValues(alpha: 0.3),
       surfaceTintColor: const Color(0xFF1E293B),
       color: const Color(0xFF1E293B),
       margin: const EdgeInsets.all(8),
@@ -373,7 +373,7 @@ class AppThemes {
         elevation: 0,
         backgroundColor: darkPrimary,
         foregroundColor: const Color(0xFF1E293B),
-        shadowColor: darkPrimary.withOpacity(0.3),
+        shadowColor: darkPrimary.withValues(alpha: 0.3),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -502,7 +502,7 @@ class AppThemes {
     // Chip Theme
     chipTheme: ChipThemeData(
       backgroundColor: const Color(0xFF334155),
-      selectedColor: darkPrimary.withOpacity(0.2),
+      selectedColor: darkPrimary.withValues(alpha: 0.2),
       disabledColor: const Color(0xFF475569),
       labelStyle: const TextStyle(color: Color(0xFFE2E8F0)),
       shape: RoundedRectangleBorder(
@@ -527,7 +527,7 @@ class AppThemes {
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected))
-          return darkPrimary.withOpacity(0.5);
+          return darkPrimary.withValues(alpha: 0.5);
         return const Color(0xFF334155);
       }),
     ),
@@ -535,9 +535,9 @@ class AppThemes {
     // Slider Theme
     sliderTheme: SliderThemeData(
       activeTrackColor: darkPrimary,
-      inactiveTrackColor: darkPrimary.withOpacity(0.3),
+      inactiveTrackColor: darkPrimary.withValues(alpha: 0.3),
       thumbColor: darkPrimary,
-      overlayColor: darkPrimary.withOpacity(0.2),
+      overlayColor: darkPrimary.withValues(alpha: 0.2),
     ),
 
     // Progress Indicator Theme

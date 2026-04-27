@@ -94,8 +94,8 @@ class _TextFieldCardState extends State<TextFieldCard> {
     final theme = Theme.of(context);
     final accent = theme.colorScheme.primary;
     final fillColor = theme.colorScheme.surfaceContainerHighest
-        .withOpacity(widget.emphasize ? 0.55 : 0.45);
-    final labelColor = theme.colorScheme.onSurfaceVariant.withOpacity(0.8);
+        .withValues(alpha: widget.emphasize ? 0.55 : 0.45);
+    final labelColor = theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8);
     final iconColor = _isFocused ? accent : theme.colorScheme.onSurfaceVariant;
 
     return AnimatedContainer(
@@ -108,7 +108,7 @@ class _TextFieldCardState extends State<TextFieldCard> {
         boxShadow: _isFocused
             ? [
                 BoxShadow(
-                  color: accent.withOpacity(0.18),
+                  color: accent.withValues(alpha: 0.18),
                   blurRadius: 18,
                   offset: const Offset(0, 6),
                 ),
@@ -143,7 +143,7 @@ class _TextFieldCardState extends State<TextFieldCard> {
           hintStyle: TextStyle(fontFamily: 'Poppins', 
             fontSize: 14,
             fontWeight: FontWeight.w400,
-            color: theme.colorScheme.onSurface.withOpacity(0.4),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
           ),
           helperText: widget.helperText,
           helperStyle: TextStyle(fontFamily: 'Poppins', 

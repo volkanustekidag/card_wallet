@@ -253,7 +253,7 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
               'ibanFlowLead'.tr(),
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w400,
-                color: theme.colorScheme.onSurface.withOpacity(0.85),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.85),
               ),
             ),
             const SizedBox(height: 20),
@@ -327,9 +327,9 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
       onPressed: _isScanning ? null : _handleQRButtonPressed,
       style: OutlinedButton.styleFrom(
         minimumSize: const Size.fromHeight(50),
-        backgroundColor: theme.colorScheme.surface.withOpacity(0.35),
+        backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.35),
         side: BorderSide(
-          color: theme.colorScheme.outline.withOpacity(0.4),
+          color: theme.colorScheme.outline.withValues(alpha: 0.4),
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
@@ -387,7 +387,7 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.45),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -402,7 +402,7 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
             child: Text(
               'ibanSecurityMessage'.tr(),
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.9),
+                color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w500,
               ),
             ),

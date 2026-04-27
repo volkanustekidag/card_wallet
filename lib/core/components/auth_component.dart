@@ -113,7 +113,7 @@ class _AuthViewsState extends State<AuthViews> {
                           fieldHeight: 50,
                           fieldWidth: 50,
                           activeColor: color.primary,
-                          inactiveColor: color.outline.withOpacity(0.5),
+                          inactiveColor: color.outline.withValues(alpha: 0.5),
                           selectedColor: color.secondary,
                           activeFillColor: Colors.transparent,
                           inactiveFillColor: Colors.transparent,

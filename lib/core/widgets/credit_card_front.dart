@@ -29,7 +29,7 @@ class CreditCardFront extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: gradient,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.12), width: 0.6),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.6),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
@@ -51,7 +51,7 @@ class CreditCardFront extends StatelessWidget {
                   color: Colors.white,
                   shadows: [
                     Shadow(
-                      color: Colors.black.withOpacity(0.25),
+                      color: Colors.black.withValues(alpha: 0.25),
                       offset: const Offset(0, 2),
                       blurRadius: 6,
                     ),
@@ -93,7 +93,7 @@ class CreditCardFront extends StatelessWidget {
           width: 34,
           height: 34,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
+            color: Colors.white.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(Icons.wifi_rounded, color: Colors.white),

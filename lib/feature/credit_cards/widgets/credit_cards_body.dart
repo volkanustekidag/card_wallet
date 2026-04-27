@@ -254,7 +254,7 @@ class _BodyState extends State<Body> {
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: highlight ? 30 : 18,
                     spreadRadius: highlight ? 1 : 0,
                     offset: const Offset(0, 12),
@@ -418,7 +418,7 @@ class _BodyState extends State<Body> {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.2),
+                        .withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),

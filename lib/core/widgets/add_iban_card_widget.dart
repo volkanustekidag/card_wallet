@@ -33,28 +33,28 @@ class AddIbanCardWidget extends StatelessWidget {
     final hasIban = ibanCard.iban.trim().isNotEmpty;
     final hasHolder = ibanCard.cardHolder.trim().isNotEmpty;
     final glowColor =
-        theme.colorScheme.primary.withOpacity(hasIban ? 0.28 : 0.12);
-    final accentColor = theme.colorScheme.secondary.withOpacity(0.6);
+        theme.colorScheme.primary.withValues(alpha: hasIban ? 0.28 : 0.12);
+    final accentColor = theme.colorScheme.secondary.withValues(alpha: 0.6);
 
     final surfaceOverlay = isDark
-        ? Colors.white.withOpacity(0.06)
-        : theme.colorScheme.onSurface.withOpacity(0.05);
+        ? Colors.white.withValues(alpha: 0.06)
+        : theme.colorScheme.onSurface.withValues(alpha: 0.05);
     final baseTextColor =
         isDark ? Colors.white : theme.colorScheme.onPrimaryContainer;
     final secondaryTextColor =
-        isDark ? Colors.white70 : theme.colorScheme.onSurface.withOpacity(0.72);
+        isDark ? Colors.white70 : theme.colorScheme.onSurface.withValues(alpha: 0.72);
     final placeholderBackground = isDark
-        ? Colors.white.withOpacity(0.03)
-        : theme.colorScheme.surfaceContainerHighest.withOpacity(0.9);
+        ? Colors.white.withValues(alpha: 0.03)
+        : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.9);
     final placeholderBorder = isDark
-        ? Colors.white.withOpacity(0.04)
-        : theme.colorScheme.outlineVariant.withOpacity(0.4);
+        ? Colors.white.withValues(alpha: 0.04)
+        : theme.colorScheme.outlineVariant.withValues(alpha: 0.4);
     final infoPillBackground = isDark
-        ? Colors.white.withOpacity(0.05)
-        : theme.colorScheme.onSurface.withOpacity(0.04);
+        ? Colors.white.withValues(alpha: 0.05)
+        : theme.colorScheme.onSurface.withValues(alpha: 0.04);
     final infoPillBorder = isDark
-        ? Colors.white.withOpacity(0.08)
-        : theme.colorScheme.outlineVariant.withOpacity(0.6);
+        ? Colors.white.withValues(alpha: 0.08)
+        : theme.colorScheme.outlineVariant.withValues(alpha: 0.6);
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 420),
@@ -70,7 +70,7 @@ class AddIbanCardWidget extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             glowColor,
-            theme.colorScheme.primary.withOpacity(hasIban ? 0.16 : 0.06),
+            theme.colorScheme.primary.withValues(alpha: hasIban ? 0.16 : 0.06),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -81,7 +81,7 @@ class AddIbanCardWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(26),
           border: Border.all(
             color: isDark
-                ? Colors.white.withOpacity(0.08)
+                ? Colors.white.withValues(alpha: 0.08)
                 : theme.colorScheme.outlineVariant,
             width: 1,
           ),
@@ -146,7 +146,7 @@ class AddIbanCardWidget extends StatelessWidget {
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 13,
-                color: textColor.withOpacity(0.9),
+                color: textColor.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -156,7 +156,7 @@ class AddIbanCardWidget extends StatelessWidget {
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 12,
-                color: secondaryTextColor.withOpacity(0.75),
+                color: secondaryTextColor.withValues(alpha: 0.75),
               ),
             ),
           ],
@@ -220,7 +220,7 @@ class AddIbanCardWidget extends StatelessWidget {
             gradient: LinearGradient(
               colors: [
                 accentColor,
-                primaryTextColor.withOpacity(0.15),
+                primaryTextColor.withValues(alpha: 0.15),
               ],
             ),
           ),

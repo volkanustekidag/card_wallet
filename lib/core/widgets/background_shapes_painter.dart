@@ -4,16 +4,16 @@ class BackgroundShapesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint1 = Paint()
-      ..color = Colors.blue.withOpacity(0.05)
+      ..color = Colors.blue.withValues(alpha: 0.05)
       ..style = PaintingStyle.fill;
     final paint2 = Paint()
-      ..color = const Color.fromARGB(255, 39, 64, 176).withOpacity(0.04)
+      ..color = const Color.fromARGB(255, 39, 64, 176).withValues(alpha: 0.04)
       ..style = PaintingStyle.fill;
     final paint3 = Paint()
-      ..color = const Color.fromARGB(255, 48, 76, 216).withOpacity(0.05)
+      ..color = const Color.fromARGB(255, 48, 76, 216).withValues(alpha: 0.05)
       ..style = PaintingStyle.fill;
     final paint4 = Paint()
-      ..color = const Color(0xFF0C1118).withOpacity(0.05)
+      ..color = const Color(0xFF0C1118).withValues(alpha: 0.05)
       ..style = PaintingStyle.fill;
 
     // Top left circle

@@ -52,7 +52,7 @@ class DashedEmptyCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
           child: DottedBorder(
-            color: theme.colorScheme.onSurface.withOpacity(0.8),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
             borderType: BorderType.RRect,
             strokeWidth: 1.5,
             dashPattern: const [12, 6],
@@ -61,7 +61,7 @@ class DashedEmptyCard extends StatelessWidget {
               width: double.infinity,
               height: 200,
               decoration: BoxDecoration(
-                color: theme.colorScheme.surface.withOpacity(0.1),
+                color: theme.colorScheme.surface.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -70,7 +70,7 @@ class DashedEmptyCard extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.onSurface.withOpacity(0.2),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -95,7 +95,7 @@ class DashedEmptyCard extends StatelessWidget {
                     "tapToAdd".tr(),
                     style: TextStyle(
                       fontFamily: 'Poppins',
-                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                       fontSize: 14,
                       fontWeight: FontWeight.w400,
                     ),

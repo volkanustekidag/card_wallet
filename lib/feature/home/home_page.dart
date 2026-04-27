@@ -2,8 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
+import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/body.dart';
 
 class HomePage extends StatefulWidget {
@@ -23,7 +23,8 @@ class _HomePageState extends State<HomePage> {
     _homeController = Get.find<HomeController>();
   }
 
-  Future<bool> _handleBackPress() async {
+  void _handlePopInvoked(bool didPop) {
+    if (didPop) return;
     final now = DateTime.now();
     final last = _lastBackPressTime;
     if (last == null || now.difference(last) > const Duration(seconds: 2)) {
@@ -41,18 +42,18 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         );
-      return false;
+      return;
     }
     SystemNavigator.pop();
-    return true;
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    return WillPopScope(
-      onWillPop: _handleBackPress,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) => _handlePopInvoked(didPop),
       child: Scaffold(
         backgroundColor: colorScheme.surface,
         body: Obx(() {

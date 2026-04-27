@@ -41,13 +41,13 @@ class MiniIbanCardWidget extends StatelessWidget {
         ? [Color(0xFF1F232A), Color(0xFF181B20)]
         : [Color(0xFFFFFBF5), Color(0xFFF3EDE3)];
     final borderColor =
-        isDark ? Colors.white.withOpacity(0.08) : const Color(0xFFDCD3C6);
+        isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFDCD3C6);
     final dividerColor =
-        isDark ? Colors.white.withOpacity(0.08) : const Color(0xFFE7DDD0);
+        isDark ? Colors.white.withValues(alpha: 0.08) : const Color(0xFFE7DDD0);
     final primaryTextColor =
-        isDark ? Colors.white.withOpacity(0.95) : const Color(0xFF11151B);
+        isDark ? Colors.white.withValues(alpha: 0.95) : const Color(0xFF11151B);
     final secondaryTextColor =
-        isDark ? Colors.white.withOpacity(0.64) : const Color(0xFF7A7F87);
+        isDark ? Colors.white.withValues(alpha: 0.64) : const Color(0xFF7A7F87);
     return GestureDetector(
       onTap: onTap,
       onLongPress: onLongPress,
@@ -63,7 +63,7 @@ class MiniIbanCardWidget extends StatelessWidget {
           border: Border.all(color: borderColor, width: 1),
           boxShadow: [
             BoxShadow(
-              color: isDark ? Colors.black.withOpacity(0.35) : Colors.black12,
+              color: isDark ? Colors.black.withValues(alpha: 0.35) : Colors.black12,
               blurRadius: 22,
               offset: const Offset(0, 14),
             ),
@@ -112,7 +112,7 @@ class MiniIbanCardWidget extends StatelessWidget {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  secondaryTextColor.withOpacity(0.0),
+                                  secondaryTextColor.withValues(alpha: 0.0),
                                   secondaryTextColor,
                                 ],
                               ),
@@ -208,12 +208,12 @@ class MiniIbanCardWidget extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: borderColor.withOpacity(isDark ? 1 : 0.8),
+              color: borderColor.withValues(alpha: isDark ? 1 : 0.8),
               width: 1,
             ),
             color: isDark
-                ? Colors.white.withOpacity(0.02)
-                : Colors.white.withOpacity(0.25),
+                ? Colors.white.withValues(alpha: 0.02)
+                : Colors.white.withValues(alpha: 0.25),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

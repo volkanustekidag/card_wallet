@@ -44,7 +44,7 @@ class AddCreditAppBar extends StatelessWidget implements PreferredSizeWidget {
                 final canSave = controller.isFormValid && !isBusy;
                 final iconColor = canSave
                     ? colorScheme.primary
-                    : colorScheme.onSurface.withOpacity(0.4);
+                    : colorScheme.onSurface.withValues(alpha: 0.4);
                 return IconButton(
                   onPressed: canSave ? controller.saveCard : null,
                   icon: isBusy

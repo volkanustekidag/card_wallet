@@ -21,7 +21,7 @@ class CreditCardBack extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: gradient,
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: Colors.white.withOpacity(0.12), width: 0.6),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.6),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -31,7 +31,7 @@ class CreditCardBack extends StatelessWidget {
               Container(
                 height: 44,
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.8),
+                  color: Colors.black.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
@@ -40,7 +40,7 @@ class CreditCardBack extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.4),
+                  color: Colors.black.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
@@ -49,7 +49,7 @@ class CreditCardBack extends StatelessWidget {
                       child: Container(
                         height: 38,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.85),
+                          color: Colors.white.withValues(alpha: 0.85),
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -62,7 +62,7 @@ class CreditCardBack extends StatelessWidget {
                         Text(
                           'CVC2'.tr(),
                           style: TextStyle(fontFamily: 'Poppins', 
-                            color: Colors.white.withOpacity(0.7),
+                            color: Colors.white.withValues(alpha: 0.7),
                             fontSize: 10,
                             letterSpacing: 1.2,
                           ),
