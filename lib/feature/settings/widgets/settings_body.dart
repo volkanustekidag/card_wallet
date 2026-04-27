@@ -8,6 +8,7 @@ import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/data/services/backup_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/widgets/premium_status_widget.dart';
@@ -434,6 +435,7 @@ class _SettingsBodyState extends State<SettingsBody> {
           onConfirm: () async {
             await CreditCardService().deleteAllData();
             await IbanCardService().deleteAllData();
+            await LoyaltyCardService().deleteAllData();
             // ignore: use_build_context_synchronously
             Navigator.pop(context);
           },

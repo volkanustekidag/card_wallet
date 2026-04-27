@@ -8,6 +8,7 @@ import 'package:wallet_app/core/router/getx_bindings.dart';
 import 'package:wallet_app/core/router/getx_routes.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/data/local_services/theme_services/theme_services.dart';
@@ -23,6 +24,7 @@ void main() async {
   await Future.wait([
     CreditCardService().init(),
     IbanCardService().init(),
+    LoyaltyCardService().init(),
     AuthenticationService().init(),
     ThemeService().init(),
     PremiumService.initialize(),

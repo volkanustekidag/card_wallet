@@ -8,6 +8,9 @@ Future<bool> showCardLimitDialog(
   BuildContext rootContext,
   CardLimitType type,
 ) async {
+  final limit = type == CardLimitType.loyalty
+      ? PremiumService.maxLoyaltyCardsForFree
+      : PremiumService.maxCardsForFree;
   final result = await showDialog<bool>(
     context: rootContext,
     barrierDismissible: false,
@@ -18,7 +21,7 @@ Future<bool> showCardLimitDialog(
         content: Text(
           'cardLimitReachedDescription'.tr(
             args: [
-              PremiumService.maxCardsForFree.toString(),
+              limit.toString(),
               type.localizationKey.tr(),
             ],
           ),

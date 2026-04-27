@@ -14,6 +14,7 @@ import 'package:pointycastle/export.dart' as pc;
 import '../../constants/keys.dart';
 import '../../domain/models/credit_card_model/credit_card.dart';
 import '../../domain/models/iban_card_model/iban_card.dart';
+import '../../domain/models/loyalty_card_model/loyalty_card.dart';
 
 /// Errors surfaced by [BackupService]. The UI layer maps these to user-facing
 /// localized strings.
@@ -63,6 +64,27 @@ class BackupService {
     return await Hive.openBox<CreditCard>(C_CARD_BOX_NAME);
   }
 
+  Future<Box<LoyaltyCard>> _getLoyaltyCardsBox() async {
+    if (Hive.isBoxOpen(LOYALTY_CARD_BOX_NAME)) {
+      return Hive.box<LoyaltyCard>(LOYALTY_CARD_BOX_NAME);
+    }
+    try {
+      final secureKey =
+          await _secureStorage.read(key: LOYALTY_CARD_SECURE_STORAGE_KEY);
+      if (secureKey != null) {
+        final encryptionKey =
+            (json.decode(secureKey) as List<dynamic>).cast<int>();
+        return await Hive.openBox<LoyaltyCard>(
+          LOYALTY_CARD_BOX_NAME,
+          encryptionCipher: HiveAesCipher(encryptionKey),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error opening loyalty cards box: $e');
+    }
+    return await Hive.openBox<LoyaltyCard>(LOYALTY_CARD_BOX_NAME);
+  }
+
   Future<Box<IbanCard>> _getIbanCardsBox() async {
     if (Hive.isBoxOpen(I_CARD_BOX_NAME)) {
       return Hive.box<IbanCard>(I_CARD_BOX_NAME);
@@ -87,6 +109,7 @@ class BackupService {
   Future<Map<String, dynamic>> _exportPlainData() async {
     final creditCardsBox = await _getCreditCardsBox();
     final ibanCardsBox = await _getIbanCardsBox();
+    final loyaltyCardsBox = await _getLoyaltyCardsBox();
 
     final creditCards = <Map<String, dynamic>>[];
     for (var i = 0; i < creditCardsBox.length; i++) {
@@ -119,9 +142,27 @@ class BackupService {
       });
     }
 
+    final loyaltyCards = <Map<String, dynamic>>[];
+    for (var i = 0; i < loyaltyCardsBox.length; i++) {
+      final card = loyaltyCardsBox.getAt(i);
+      if (card == null) continue;
+      loyaltyCards.add({
+        'id': card.id,
+        'name': card.name,
+        'brand': card.brand,
+        'barcode': card.barcode,
+        'barcodeFormat': card.barcodeFormat,
+        'colorId': card.colorId,
+        'notes': card.notes,
+        'createdAt': card.createdAt?.toIso8601String(),
+        'logoAsset': card.logoAsset,
+      });
+    }
+
     return {
       'creditCards': creditCards,
       'ibanCards': ibanCards,
+      'loyaltyCards': loyaltyCards,
     };
   }
 
@@ -265,16 +306,24 @@ class BackupService {
 
     final creditCardsData = data['creditCards'];
     final ibanCardsData = data['ibanCards'];
+    final loyaltyCardsData = data['loyaltyCards'] ?? const <dynamic>[];
     if (creditCardsData is! List || ibanCardsData is! List) {
       throw BackupError(
         BackupErrorKind.invalidFormat,
         'Backup payload missing card lists',
       );
     }
+    if (loyaltyCardsData is! List) {
+      throw BackupError(
+        BackupErrorKind.invalidFormat,
+        'Backup loyalty cards must be a list',
+      );
+    }
 
     await _atomicReplace(
       newCreditCards: creditCardsData,
       newIbanCards: ibanCardsData,
+      newLoyaltyCards: loyaltyCardsData,
     );
   }
 
@@ -334,17 +383,21 @@ class BackupService {
   Future<void> _atomicReplace({
     required List<dynamic> newCreditCards,
     required List<dynamic> newIbanCards,
+    required List<dynamic> newLoyaltyCards,
   }) async {
     final creditCardsBox = await _getCreditCardsBox();
     final ibanCardsBox = await _getIbanCardsBox();
+    final loyaltyCardsBox = await _getLoyaltyCardsBox();
 
     // Snapshot existing data before destruction so we can roll back on failure.
     final creditSnapshot = creditCardsBox.values.toList();
     final ibanSnapshot = ibanCardsBox.values.toList();
+    final loyaltySnapshot = loyaltyCardsBox.values.toList();
 
     try {
       await creditCardsBox.clear();
       await ibanCardsBox.clear();
+      await loyaltyCardsBox.clear();
 
       for (final raw in newCreditCards) {
         if (raw is! Map) continue;
@@ -376,15 +429,36 @@ class BackupService {
           ),
         );
       }
+
+      for (final raw in newLoyaltyCards) {
+        if (raw is! Map) continue;
+        await loyaltyCardsBox.add(
+          LoyaltyCard(
+            id: (raw['id'] ?? '') as String,
+            name: (raw['name'] ?? '') as String,
+            brand: raw['brand'] as String?,
+            barcode: (raw['barcode'] ?? '') as String,
+            barcodeFormat: (raw['barcodeFormat'] ?? 'CODE_128') as String,
+            colorId: (raw['colorId'] as int?) ?? 0,
+            notes: raw['notes'] as String?,
+            createdAt: _parseDate(raw['createdAt']),
+            logoAsset: raw['logoAsset'] as String?,
+          ),
+        );
+      }
     } catch (e) {
       // Roll back to the pre-restore snapshot so the user keeps their data.
       await creditCardsBox.clear();
       await ibanCardsBox.clear();
+      await loyaltyCardsBox.clear();
       for (final card in creditSnapshot) {
         await creditCardsBox.add(card);
       }
       for (final card in ibanSnapshot) {
         await ibanCardsBox.add(card);
+      }
+      for (final card in loyaltySnapshot) {
+        await loyaltyCardsBox.add(card);
       }
       throw BackupError(
         BackupErrorKind.io,
@@ -403,8 +477,10 @@ class BackupService {
   Future<void> clearAllData() async {
     final creditCardsBox = await _getCreditCardsBox();
     final ibanCardsBox = await _getIbanCardsBox();
+    final loyaltyCardsBox = await _getLoyaltyCardsBox();
     await creditCardsBox.clear();
     await ibanCardsBox.clear();
+    await loyaltyCardsBox.clear();
   }
 
   // PBKDF2-HMAC-SHA256

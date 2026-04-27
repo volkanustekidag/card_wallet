@@ -9,6 +9,7 @@ import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban
 import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
+import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/utils/card_sorting.dart';
 import 'package:wallet_app/core/widgets/background_shapes_painter.dart';
@@ -20,6 +21,8 @@ import 'package:wallet_app/core/widgets/premium_upgrade_widget.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/iban_card/utils/iban_card_utils.dart';
 import 'package:wallet_app/feature/home/widgets/dashed_empty_card.dart';
+import 'package:wallet_app/feature/loyalty_card/loyalty_card_detail_page.dart';
+import 'package:wallet_app/feature/loyalty_card/widgets/loyalty_card_widget.dart';
 
 class HomeBody extends StatelessWidget {
   final HomeController controller;
@@ -35,6 +38,8 @@ class HomeBody extends StatelessWidget {
       final latestCreditCard =
           _getLatestCreditCard(controller.creditCards.toList());
       final latestIbanCard = _getLatestIbanCard(controller.ibanCards.toList());
+      final latestLoyaltyCard =
+          _getLatestLoyaltyCard(controller.loyaltyCards.toList());
 
       return SafeArea(
         child: Stack(
@@ -123,12 +128,48 @@ class HomeBody extends StatelessWidget {
                     text: 'addIC'.tr(),
                   ),
                 ],
+                const SizedBox(height: 32),
+                _buildSectionHeaderRow(
+                  context: context,
+                  title: 'lastAddedLoyaltyCard'.tr(),
+                  actionLabel: 'seeAllLoyaltyCardsAction'.tr(),
+                  route: '/loyaltyCards',
+                ),
+                if (latestLoyaltyCard != null)
+                  _buildLoyaltyPreview(context, latestLoyaltyCard)
+                else ...[
+                  const SizedBox(height: 8),
+                  DashedEmptyCard(
+                    route: '/addLoyaltyCard',
+                    text: 'addLC'.tr(),
+                  ),
+                ],
               ],
             ),
           ],
         ),
       );
     });
+  }
+
+  Widget _buildLoyaltyPreview(BuildContext context, LoyaltyCard card) {
+    return LoyaltyCardWidget(
+      card: card,
+      onTap: () => Get.to(() => LoyaltyCardDetailPage(card: card))
+          ?.then((_) => controller.refreshData()),
+      onLongPress: () => _handleSeeAllNavigation('/loyaltyCards'),
+    );
+  }
+
+  LoyaltyCard? _getLatestLoyaltyCard(List<LoyaltyCard> cards) {
+    if (cards.isEmpty) return null;
+    final sorted = [...cards]..sort((a, b) => compareNewestFirst(
+          aCreatedAt: a.createdAt,
+          aId: a.id,
+          bCreatedAt: b.createdAt,
+          bId: b.id,
+        ));
+    return sorted.first;
   }
 
   Widget _buildQuickAddShortcuts(BuildContext context) {
@@ -145,7 +186,7 @@ class HomeBody extends StatelessWidget {
               route: "/addCreditCard",
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 8),
           Expanded(
             child: _buildQuickAddCard(
               context,
@@ -153,6 +194,16 @@ class HomeBody extends StatelessWidget {
               icon: Icons.account_balance,
               color: Colors.green,
               route: "/addIbanCard",
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildQuickAddCard(
+              context,
+              title: "addLC".tr(),
+              icon: Icons.local_offer,
+              color: Colors.deepOrange,
+              route: "/addLoyaltyCard",
             ),
           ),
         ],
@@ -192,6 +243,14 @@ class HomeBody extends StatelessWidget {
               if (!premiumController.canAddMoreIbanCards(currentCount)) {
                 final canProceed =
                     await showCardLimitDialog(context, CardLimitType.iban);
+                if (!canProceed) return;
+              }
+            } else if (route == "/addLoyaltyCard") {
+              final currentCount = await premiumController
+                  .getStoredCardCount(CardLimitType.loyalty);
+              if (!premiumController.canAddMoreLoyaltyCards(currentCount)) {
+                final canProceed = await showCardLimitDialog(
+                    context, CardLimitType.loyalty);
                 if (!canProceed) return;
               }
             }

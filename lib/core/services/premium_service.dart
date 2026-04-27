@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 
 /// Single source of truth for premium entitlement, IAP product loading and
 /// subscription expiry handling.
@@ -107,6 +108,7 @@ class PremiumService {
   static StreamSubscription<List<PurchaseDetails>>? _subscription;
   static final CreditCardService _creditCardService = CreditCardService();
   static final IbanCardService _ibanCardService = IbanCardService();
+  static final LoyaltyCardService _loyaltyCardService = LoyaltyCardService();
 
   static bool _hasLifetime = false;
   static bool _hasActiveSubscription = false;
@@ -216,6 +218,9 @@ class PremiumService {
   // Card limit checks — bumped from 1 to 3 in M3 so users can sample value
   // before hitting the paywall.
   static const int maxCardsForFree = 3;
+  // Loyalty cards are typically used in higher quantities; allow more before
+  // gating.
+  static const int maxLoyaltyCardsForFree = 5;
 
   static bool canAddMoreCreditCards(int currentCount) {
     if (isPremium) return true;
@@ -225,6 +230,11 @@ class PremiumService {
   static bool canAddMoreIbanCards(int currentCount) {
     if (isPremium) return true;
     return currentCount < maxCardsForFree;
+  }
+
+  static bool canAddMoreLoyaltyCards(int currentCount) {
+    if (isPremium) return true;
+    return currentCount < maxLoyaltyCardsForFree;
   }
 
   static Future<int> getStoredCreditCardCount() async {
@@ -241,6 +251,16 @@ class PremiumService {
     try {
       await _ibanCardService.openBox();
       final cards = await _ibanCardService.getAllIbanCards();
+      return cards.length;
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  static Future<int> getStoredLoyaltyCardCount() async {
+    try {
+      await _loyaltyCardService.openBox();
+      final cards = await _loyaltyCardService.getAllLoyaltyCards();
       return cards.length;
     } catch (_) {
       return 0;

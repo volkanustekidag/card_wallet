@@ -10,8 +10,10 @@ class PremiumController extends GetxController {
   final RxList<ProductDetails> _availableProducts = <ProductDetails>[].obs;
   final RxInt _creditCardCount = 0.obs;
   final RxInt _ibanCardCount = 0.obs;
+  final RxInt _loyaltyCardCount = 0.obs;
   bool _creditCountInitialized = false;
   bool _ibanCountInitialized = false;
+  bool _loyaltyCountInitialized = false;
 
   bool get isPremium => _isPremium.value;
   bool get isLoading => _isLoading.value;
@@ -25,6 +27,7 @@ class PremiumController extends GetxController {
       _getProductById(PremiumService.lifetimeProductId);
   int get creditCardCount => _creditCardCount.value;
   int get ibanCardCount => _ibanCardCount.value;
+  int get loyaltyCardCount => _loyaltyCardCount.value;
 
   @override
   void onInit() {
@@ -104,33 +107,49 @@ class PremiumController extends GetxController {
     return PremiumService.canAddMoreIbanCards(currentCount);
   }
 
-  int get maxCardsForFree => PremiumService.maxCardsForFree;
-
-  Future<int> getStoredCardCount(CardLimitType type) async {
-    if (type == CardLimitType.credit) {
-      if (_creditCountInitialized) {
-        return creditCardCount;
-      }
-      final count = await PremiumService.getStoredCreditCardCount();
-      _creditCardCount.value = count;
-      _creditCountInitialized = true;
-      return count;
-    }
-
-    if (_ibanCountInitialized) {
-      return ibanCardCount;
-    }
-    final count = await PremiumService.getStoredIbanCardCount();
-    _ibanCardCount.value = count;
-    _ibanCountInitialized = true;
-    return count;
+  bool canAddMoreLoyaltyCards(int currentCount) {
+    return PremiumService.canAddMoreLoyaltyCards(currentCount);
   }
 
-  void setCardCounts({required int creditCount, required int ibanCount}) {
+  int get maxCardsForFree => PremiumService.maxCardsForFree;
+  int get maxLoyaltyCardsForFree => PremiumService.maxLoyaltyCardsForFree;
+
+  Future<int> getStoredCardCount(CardLimitType type) async {
+    switch (type) {
+      case CardLimitType.credit:
+        if (_creditCountInitialized) return creditCardCount;
+        final count = await PremiumService.getStoredCreditCardCount();
+        _creditCardCount.value = count;
+        _creditCountInitialized = true;
+        return count;
+      case CardLimitType.iban:
+        if (_ibanCountInitialized) return ibanCardCount;
+        final count = await PremiumService.getStoredIbanCardCount();
+        _ibanCardCount.value = count;
+        _ibanCountInitialized = true;
+        return count;
+      case CardLimitType.loyalty:
+        if (_loyaltyCountInitialized) return loyaltyCardCount;
+        final count = await PremiumService.getStoredLoyaltyCardCount();
+        _loyaltyCardCount.value = count;
+        _loyaltyCountInitialized = true;
+        return count;
+    }
+  }
+
+  void setCardCounts({
+    required int creditCount,
+    required int ibanCount,
+    int? loyaltyCount,
+  }) {
     _creditCardCount.value = creditCount;
     _ibanCardCount.value = ibanCount;
     _creditCountInitialized = true;
     _ibanCountInitialized = true;
+    if (loyaltyCount != null) {
+      _loyaltyCardCount.value = loyaltyCount;
+      _loyaltyCountInitialized = true;
+    }
   }
 
   @override

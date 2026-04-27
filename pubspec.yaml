@@ -44,12 +44,13 @@ dependencies:
   pin_code_fields: ^8.0.1
   sizer: ^2.0.15
   flutter_iban_scanner:
-    path: ../flutter_iban_scanner
+    path: /Users/volkanustekidag/flutter_iban_scanner
   get: ^4.7.2
   url_launcher: ^6.3.2
   uuid: ^4.5.1
   permission_handler: ^12.0.1
   qr_flutter: ^4.1.0
+  barcode_widget: ^2.0.4
   share_plus: ^11.0.0
   file_picker: ^10.2.0
   encrypt: ^5.0.3
