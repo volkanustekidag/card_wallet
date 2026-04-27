@@ -5,6 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
 import 'package:wallet_app/core/domain/models/verification_model/verification.dart';
+import 'package:wallet_app/core/utils/pin_hasher.dart';
 
 class AuthenticationService {
   AuthenticationService._internal();
@@ -53,20 +54,64 @@ class AuthenticationService {
     return null;
   }
 
-  Future<void> updatePin(final String pin) async {
-    final box = await _ensureBoxReady();
-    await box.put(1, Verification(pin));
-  }
-
-  Future<bool?> authenticate(final String password) async {
+  /// Authenticates the entered [pin]. Returns true on match. Transparently
+  /// migrates legacy plaintext PINs to a hashed form on first successful
+  /// authentication.
+  Future<bool?> authenticate(String pin) async {
     final box = await _ensureBoxReady();
     if (box.values.isEmpty) return null;
-    return box.values.first.password == password;
+    final stored = box.values.first;
+    final key = stored.key;
+
+    final salt = stored.salt;
+    if (salt == null || stored.isLegacyPin) {
+      // Legacy v1 record: stored.password is the PIN in plaintext.
+      final matches = stored.password == pin;
+      if (matches) {
+        await _writeHashedPin(box, key, pin);
+      }
+      return matches;
+    }
+
+    final candidate = PinHasher.hash(pin, salt);
+    return PinHasher.constantTimeEquals(candidate, stored.password);
   }
 
-  Future<void> creatPassword(final String password) async {
+  /// Hashes [pin] with a fresh salt and persists it. Used for first-time PIN
+  /// creation and for changing the PIN.
+  Future<void> creatPassword(String pin) async {
     final box = await _ensureBoxReady();
-    await box.put(1, Verification(password));
+    final salt = PinHasher.generateSalt();
+    final hash = PinHasher.hash(pin, salt);
+    await box.put(
+      1,
+      Verification(hash, salt: salt, isLegacyPin: false),
+    );
+  }
+
+  /// Replaces the existing PIN with [pin]. Mirrors [creatPassword] but is
+  /// kept under the original name used by ChangePinController.
+  Future<void> updatePin(String pin) async {
+    final box = await _ensureBoxReady();
+    final salt = PinHasher.generateSalt();
+    final hash = PinHasher.hash(pin, salt);
+    await box.put(
+      1,
+      Verification(hash, salt: salt, isLegacyPin: false),
+    );
+  }
+
+  Future<void> _writeHashedPin(
+    Box<Verification> box,
+    dynamic key,
+    String pin,
+  ) async {
+    final salt = PinHasher.generateSalt();
+    final hash = PinHasher.hash(pin, salt);
+    await box.put(
+      key ?? 1,
+      Verification(hash, salt: salt, isLegacyPin: false),
+    );
   }
 
   Future<Box<Verification>> _ensureBoxReady() async {

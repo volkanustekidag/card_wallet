@@ -44,6 +44,7 @@ class AddIbanCardController extends GetxController {
       iban: card.iban,
       swiftCode: card.swiftCode,
       bankName: card.bankName,
+      createdAt: card.createdAt,
     );
     isEditMode.value = true;
 
@@ -132,13 +133,14 @@ class AddIbanCardController extends GetxController {
       }
 
       if (isEditMode.value && _originalCard != null) {
-        // Güncelleme işlemi - orijinal ID'yi koru
+        // Güncelleme işlemi - orijinal ID ve createdAt korunur
         final updatedCard = IbanCard(
           id: _originalCard!.id, // Orijinal ID'yi koru
           cardHolder: currentCard.value.cardHolder,
           iban: currentCard.value.iban,
           swiftCode: currentCard.value.swiftCode,
           bankName: currentCard.value.bankName,
+          createdAt: _originalCard!.createdAt ?? DateTime.now(),
         );
 
         await _ibanCardService.updateIbanCard(_originalCard!, updatedCard);
@@ -153,6 +155,7 @@ class AddIbanCardController extends GetxController {
           iban: currentCard.value.iban,
           swiftCode: currentCard.value.swiftCode,
           bankName: currentCard.value.bankName,
+          createdAt: DateTime.now(),
         );
 
         debugPrint('Adding new IBAN card with ID: ${newCard.id}');

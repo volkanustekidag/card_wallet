@@ -24,13 +24,14 @@ class CreditCardAdapter extends TypeAdapter<CreditCard> {
       expirationDate: fields[4] as String,
       cvc2: fields[5] as String,
       cardColorId: fields[6] as int,
+      createdAt: fields[7] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, CreditCard obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class CreditCardAdapter extends TypeAdapter<CreditCard> {
       ..writeByte(5)
       ..write(obj.cvc2)
       ..writeByte(6)
-      ..write(obj.cardColorId);
+      ..write(obj.cardColorId)
+      ..writeByte(7)
+      ..write(obj.createdAt);
   }
 
   @override

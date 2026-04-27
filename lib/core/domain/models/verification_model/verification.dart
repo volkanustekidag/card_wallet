@@ -4,8 +4,21 @@ part 'verification.g.dart';
 
 @HiveType(typeId: 1)
 class Verification extends HiveObject {
+  /// In v1.x this stored the PIN in plaintext. From v2.x onward this stores
+  /// the base64 PBKDF2-HMAC-SHA256 hash of the PIN. [salt] is non-null and
+  /// [isLegacyPin] is false for hashed records.
   @HiveField(0)
-  final String password;
+  String password;
 
-  Verification(this.password);
+  @HiveField(1)
+  String? salt;
+
+  @HiveField(2)
+  bool isLegacyPin;
+
+  Verification(
+    this.password, {
+    this.salt,
+    this.isLegacyPin = true,
+  });
 }

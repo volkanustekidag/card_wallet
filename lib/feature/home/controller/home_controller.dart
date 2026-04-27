@@ -5,6 +5,7 @@ import 'package:wallet_app/core/data/local_services/card_services/credi_card/cre
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
+import 'package:wallet_app/core/utils/card_sorting.dart';
 
 class HomeController extends GetxController {
   final CreditCardService _creditCardService = CreditCardService();
@@ -62,31 +63,23 @@ class HomeController extends GetxController {
 
   CreditCard? _findLatestCreditCard(List<CreditCard> cards) {
     if (cards.isEmpty) return null;
-    CreditCard? latest;
-    int latestId = -1;
-
-    for (final card in cards) {
-      final parsedId = int.tryParse(card.id.toString()) ?? 0;
-      if (parsedId > latestId) {
-        latest = card;
-        latestId = parsedId;
-      }
-    }
-    return latest ?? cards.first;
+    final sorted = [...cards]..sort((a, b) => compareNewestFirst(
+          aCreatedAt: a.createdAt,
+          aId: a.id,
+          bCreatedAt: b.createdAt,
+          bId: b.id,
+        ));
+    return sorted.first;
   }
 
   IbanCard? _findLatestIbanCard(List<IbanCard> cards) {
     if (cards.isEmpty) return null;
-    IbanCard? latest;
-    int latestId = -1;
-
-    for (final card in cards) {
-      final parsedId = int.tryParse(card.id.toString()) ?? 0;
-      if (parsedId > latestId) {
-        latest = card;
-        latestId = parsedId;
-      }
-    }
-    return latest ?? cards.first;
+    final sorted = [...cards]..sort((a, b) => compareNewestFirst(
+          aCreatedAt: a.createdAt,
+          aId: a.id,
+          bCreatedAt: b.createdAt,
+          bId: b.id,
+        ));
+    return sorted.first;
   }
 }

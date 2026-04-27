@@ -22,13 +22,14 @@ class IbanCardAdapter extends TypeAdapter<IbanCard> {
       cardHolder: fields[2] as String,
       iban: fields[3] as String,
       swiftCode: fields[4] as String,
+      createdAt: fields[5] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, IbanCard obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class IbanCardAdapter extends TypeAdapter<IbanCard> {
       ..writeByte(3)
       ..write(obj.iban)
       ..writeByte(4)
-      ..write(obj.swiftCode);
+      ..write(obj.swiftCode)
+      ..writeByte(5)
+      ..write(obj.createdAt);
   }
 
   @override

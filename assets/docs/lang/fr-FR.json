@@ -332,8 +332,21 @@
     "sectionSecurity": "Sécurité",
     "sectionData": "Données",
     "sectionAbout": "À propos",
+    "backupPasswordTitle": "Définir le mot de passe de sauvegarde",
+    "backupPasswordDescription": "Votre sauvegarde est chiffrée en AES-256. Conservez ce mot de passe en lieu sûr — sans lui, personne (nous compris) ne peut restaurer vos données.",
+    "restorePasswordTitle": "Mot de passe de sauvegarde",
+    "restorePasswordDescription": "Saisissez le mot de passe utilisé lors de la création de cette sauvegarde.",
+    "backupPasswordLabel": "Mot de passe",
+    "backupPasswordConfirmLabel": "Confirmer le mot de passe",
+    "backupPasswordTooShort": "Le mot de passe doit comporter au moins 6 caractères.",
+    "backupPasswordMismatch": "Les mots de passe ne correspondent pas.",
+    "backupPasswordRequired": "Un mot de passe est requis pour restaurer cette sauvegarde.",
+    "backupWrongPassword": "Mot de passe incorrect ou fichier de sauvegarde endommagé.",
+    "backupInvalidFormat": "Ce fichier n'est pas une sauvegarde CardWallet valide.",
+    "backupIoError": "Impossible de lire ou d'écrire le fichier de sauvegarde.",
     "backupPremiumDescription": "La sauvegarde des données est réservée aux membres Premium. Passez à Premium pour ne pas perdre vos données.",
     "errorGeneratingQR": "Une erreur s'est produite lors de la génération du QR code",
     "qrCodePremiumDescription": "La génération de QR code est réservée aux membres Premium. Passez à Premium pour générer des QR codes illimités et plus.",
-    "restorePremiumDescription": "La restauration des données est réservée aux membres Premium. Passez à Premium pour restaurer vos sauvegardes."
+    "restorePremiumDescription": "La restauration des données est réservée aux membres Premium. Passez à Premium pour restaurer vos sauvegardes.",
+    "pinLockedMessage": "Trop de codes PIN incorrects. Réessayez dans {}."
 }

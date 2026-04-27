@@ -1,28 +1,56 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
+
+import 'package:encrypt/encrypt.dart' as enc;
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:pointycastle/export.dart' as pc;
+
+import '../../constants/keys.dart';
 import '../../domain/models/credit_card_model/credit_card.dart';
 import '../../domain/models/iban_card_model/iban_card.dart';
-import '../../constants/keys.dart';
+
+/// Errors surfaced by [BackupService]. The UI layer maps these to user-facing
+/// localized strings.
+enum BackupErrorKind {
+  passwordRequired,
+  wrongPassword,
+  invalidFormat,
+  io,
+}
+
+class BackupError implements Exception {
+  final BackupErrorKind kind;
+  final String message;
+  BackupError(this.kind, this.message);
+
+  @override
+  String toString() => 'BackupError(${kind.name}): $message';
+}
 
 class BackupService {
   static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+
+  static const String _currentBackupVersion = '2.0';
+  static const int _pbkdf2Iterations = 100000;
+  static const int _keyLengthBytes = 32;
+  static const int _saltLengthBytes = 16;
+  static const int _ivLengthBytes = 16;
 
   Future<Box<CreditCard>> _getCreditCardsBox() async {
     if (Hive.isBoxOpen(C_CARD_BOX_NAME)) {
       return Hive.box<CreditCard>(C_CARD_BOX_NAME);
     }
-
     try {
       final secureKey =
           await _secureStorage.read(key: C_CARD_SECURE_STORAGE_KEY);
       if (secureKey != null) {
-        List<int> encryptionKey =
+        final encryptionKey =
             (json.decode(secureKey) as List<dynamic>).cast<int>();
         return await Hive.openBox<CreditCard>(
           C_CARD_BOX_NAME,
@@ -30,7 +58,7 @@ class BackupService {
         );
       }
     } catch (e) {
-      debugPrint('Error opening credit cards box with encryption: $e');
+      debugPrint('Error opening credit cards box: $e');
     }
     return await Hive.openBox<CreditCard>(C_CARD_BOX_NAME);
   }
@@ -39,12 +67,11 @@ class BackupService {
     if (Hive.isBoxOpen(I_CARD_BOX_NAME)) {
       return Hive.box<IbanCard>(I_CARD_BOX_NAME);
     }
-
     try {
       final secureKey =
           await _secureStorage.read(key: I_CARD_SECURE_STORAGE_KEY);
       if (secureKey != null) {
-        List<int> encryptionKey =
+        final encryptionKey =
             (json.decode(secureKey) as List<dynamic>).cast<int>();
         return await Hive.openBox<IbanCard>(
           I_CARD_BOX_NAME,
@@ -52,92 +79,117 @@ class BackupService {
         );
       }
     } catch (e) {
-      debugPrint('Error opening IBAN cards box with encryption: $e');
+      debugPrint('Error opening IBAN cards box: $e');
     }
     return await Hive.openBox<IbanCard>(I_CARD_BOX_NAME);
   }
 
-  Future<Map<String, dynamic>> exportAllData() async {
+  Future<Map<String, dynamic>> _exportPlainData() async {
     final creditCardsBox = await _getCreditCardsBox();
     final ibanCardsBox = await _getIbanCardsBox();
 
-    debugPrint('Credit cards count: ${creditCardsBox.length}');
-    debugPrint('IBAN cards count: ${ibanCardsBox.length}');
-
-    Map<String, dynamic> backup = {
-      'version': '1.0',
-      'timestamp': DateTime.now().toIso8601String(),
-      'data': {
-        'creditCards': [],
-        'ibanCards': [],
-        'verification': null,
-      }
-    };
-
+    final creditCards = <Map<String, dynamic>>[];
     for (var i = 0; i < creditCardsBox.length; i++) {
       final card = creditCardsBox.getAt(i);
-      if (card != null) {
-        backup['data']['creditCards'].add({
-          'id': card.id,
-          'bankName': card.bankName,
-          'creditCardNumber': card.creditCardNumber,
-          'cardHolder': card.cardHolder,
-          'expirationDate': card.expirationDate,
-          'cvc2': card.cvc2,
-          'cardColorId': card.cardColorId,
-        });
-      }
+      if (card == null) continue;
+      // Note: cvc2 is intentionally omitted. Storing/exporting CVC is a
+      // PCI-DSS violation; users will re-enter it on restore.
+      creditCards.add({
+        'id': card.id,
+        'bankName': card.bankName,
+        'creditCardNumber': card.creditCardNumber,
+        'cardHolder': card.cardHolder,
+        'expirationDate': card.expirationDate,
+        'cardColorId': card.cardColorId,
+        'createdAt': card.createdAt?.toIso8601String(),
+      });
     }
 
+    final ibanCards = <Map<String, dynamic>>[];
     for (var i = 0; i < ibanCardsBox.length; i++) {
       final card = ibanCardsBox.getAt(i);
-      if (card != null) {
-        backup['data']['ibanCards'].add({
-          'id': card.id,
-          'bankName': card.bankName,
-          'cardHolder': card.cardHolder,
-          'iban': card.iban,
-          'swiftCode': card.swiftCode,
-        });
-      }
+      if (card == null) continue;
+      ibanCards.add({
+        'id': card.id,
+        'bankName': card.bankName,
+        'cardHolder': card.cardHolder,
+        'iban': card.iban,
+        'swiftCode': card.swiftCode,
+        'createdAt': card.createdAt?.toIso8601String(),
+      });
     }
 
-    return backup;
+    return {
+      'creditCards': creditCards,
+      'ibanCards': ibanCards,
+    };
   }
 
-  Future<String> createBackupFile() async {
+  /// Creates an encrypted JSON backup file at the platform default location
+  /// and returns its path. The data is encrypted with AES-256-CBC using a key
+  /// derived from [password] via PBKDF2-HMAC-SHA256.
+  Future<String> createBackupFile({required String password}) async {
+    if (password.length < 6) {
+      throw BackupError(
+        BackupErrorKind.passwordRequired,
+        'Password must be at least 6 characters.',
+      );
+    }
     try {
       await _requestStoragePermission();
 
-      final backupData = await exportAllData();
-      final jsonString = JsonEncoder.withIndent('  ').convert(backupData);
+      final plainData = await _exportPlainData();
+      final plaintext = jsonEncode(plainData);
 
-      Directory? directory;
-      if (Platform.isAndroid) {
-        directory = await getExternalStorageDirectory();
-        if (directory != null) {
-          directory = Directory('${directory.path}/Download');
-          if (!await directory.exists()) {
-            await directory.create(recursive: true);
-          }
-        }
-      } else {
-        directory = await getApplicationDocumentsDirectory();
-      }
+      final salt = _randomBytes(_saltLengthBytes);
+      final iv = _randomBytes(_ivLengthBytes);
+      final key = _deriveKey(password, salt);
 
-      if (directory == null) {
-        throw Exception('Dosya dizini bulunamadı');
-      }
+      final encrypter = enc.Encrypter(
+        enc.AES(enc.Key(key), mode: enc.AESMode.cbc, padding: 'PKCS7'),
+      );
+      final encrypted = encrypter.encrypt(plaintext, iv: enc.IV(iv));
 
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final fileName = 'card_wallet_backup_$timestamp.json';
+      final envelope = <String, dynamic>{
+        'version': _currentBackupVersion,
+        'encrypted': true,
+        'algorithm': 'AES-256-CBC',
+        'kdf': 'PBKDF2-HMAC-SHA256',
+        'iterations': _pbkdf2Iterations,
+        'salt': base64Encode(salt),
+        'iv': base64Encode(iv),
+        'data': encrypted.base64,
+        'timestamp': DateTime.now().toIso8601String(),
+      };
+
+      final directory = await _resolveBackupDirectory();
+      final fileName =
+          'card_wallet_backup_${DateTime.now().millisecondsSinceEpoch}.json';
       final file = File('${directory.path}/$fileName');
-
-      await file.writeAsString(jsonString);
+      await file.writeAsString(jsonEncode(envelope));
       return file.path;
+    } on BackupError {
+      rethrow;
     } catch (e) {
-      throw Exception('Yedekleme oluşturulurken hata: $e');
+      throw BackupError(
+        BackupErrorKind.io,
+        'Failed to create backup: $e',
+      );
     }
+  }
+
+  Future<Directory> _resolveBackupDirectory() async {
+    if (Platform.isAndroid) {
+      final ext = await getExternalStorageDirectory();
+      if (ext != null) {
+        final downloads = Directory('${ext.path}/Download');
+        if (!await downloads.exists()) {
+          await downloads.create(recursive: true);
+        }
+        return downloads;
+      }
+    }
+    return await getApplicationDocumentsDirectory();
   }
 
   Future<void> _requestStoragePermission() async {
@@ -149,84 +201,235 @@ class BackupService {
     }
   }
 
-  Future<void> restoreFromFile() async {
+  /// Picks a backup file and restores its contents. [passwordProvider] is
+  /// invoked when the file is encrypted (v2.0+). Returns true on success.
+  Future<void> restoreFromFile({
+    required Future<String?> Function() passwordProvider,
+  }) async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
 
-      if (result != null && result.files.single.path != null) {
-        final file = File(result.files.single.path!);
-        await restoreFromFileContent(file);
+      if (result == null || result.files.single.path == null) {
+        throw BackupError(BackupErrorKind.io, 'No file selected');
       }
+
+      final file = File(result.files.single.path!);
+      await restoreFromFileContent(file, passwordProvider: passwordProvider);
+    } on BackupError {
+      rethrow;
     } catch (e) {
-      throw Exception('Geri yükleme sırasında hata: $e');
+      throw BackupError(BackupErrorKind.io, 'Restore failed: $e');
     }
   }
 
-  Future<void> restoreFromFileContent(File file) async {
+  Future<void> restoreFromFileContent(
+    File file, {
+    required Future<String?> Function() passwordProvider,
+  }) async {
+    final raw = await file.readAsString();
+    Map<String, dynamic> decoded;
     try {
-      final jsonString = await file.readAsString();
-      final backupData = jsonDecode(jsonString) as Map<String, dynamic>;
+      decoded = jsonDecode(raw) as Map<String, dynamic>;
+    } catch (_) {
+      throw BackupError(BackupErrorKind.invalidFormat, 'Invalid JSON');
+    }
 
-      if (!backupData.containsKey('version') ||
-          !backupData.containsKey('data')) {
-        throw Exception('Geçersiz yedekleme dosyası formatı');
+    if (!decoded.containsKey('version')) {
+      throw BackupError(
+        BackupErrorKind.invalidFormat,
+        'Backup is missing version metadata',
+      );
+    }
+
+    final version = decoded['version'].toString();
+    Map<String, dynamic> data;
+
+    if (version == '1.0') {
+      // Legacy unencrypted format.
+      final legacy = decoded['data'];
+      if (legacy is! Map<String, dynamic>) {
+        throw BackupError(BackupErrorKind.invalidFormat, 'Bad legacy data');
+      }
+      data = legacy;
+    } else if (version.startsWith('2.')) {
+      data = await _decryptV2(decoded, passwordProvider);
+    } else {
+      throw BackupError(
+        BackupErrorKind.invalidFormat,
+        'Unsupported backup version: $version',
+      );
+    }
+
+    final creditCardsData = data['creditCards'];
+    final ibanCardsData = data['ibanCards'];
+    if (creditCardsData is! List || ibanCardsData is! List) {
+      throw BackupError(
+        BackupErrorKind.invalidFormat,
+        'Backup payload missing card lists',
+      );
+    }
+
+    await _atomicReplace(
+      newCreditCards: creditCardsData,
+      newIbanCards: ibanCardsData,
+    );
+  }
+
+  Future<Map<String, dynamic>> _decryptV2(
+    Map<String, dynamic> envelope,
+    Future<String?> Function() passwordProvider,
+  ) async {
+    final encryptedFlag = envelope['encrypted'] == true;
+    if (!encryptedFlag) {
+      // Allow unencrypted v2 envelopes for forward-compat (not currently
+      // produced by this app, but harmless).
+      final inline = envelope['data'];
+      if (inline is Map<String, dynamic>) return inline;
+      throw BackupError(
+        BackupErrorKind.invalidFormat,
+        'Encrypted flag missing on v2 backup',
+      );
+    }
+
+    final saltStr = envelope['salt'];
+    final ivStr = envelope['iv'];
+    final dataStr = envelope['data'];
+    final iterations = (envelope['iterations'] as int?) ?? _pbkdf2Iterations;
+    if (saltStr is! String || ivStr is! String || dataStr is! String) {
+      throw BackupError(
+        BackupErrorKind.invalidFormat,
+        'Encrypted backup missing salt/iv/data',
+      );
+    }
+
+    final password = await passwordProvider();
+    if (password == null || password.isEmpty) {
+      throw BackupError(
+        BackupErrorKind.passwordRequired,
+        'Password is required to restore this backup',
+      );
+    }
+
+    final salt = base64Decode(saltStr);
+    final iv = base64Decode(ivStr);
+    final key = _deriveKey(password, salt, iterations: iterations);
+
+    try {
+      final encrypter = enc.Encrypter(
+        enc.AES(enc.Key(key), mode: enc.AESMode.cbc, padding: 'PKCS7'),
+      );
+      final decrypted = encrypter.decrypt64(dataStr, iv: enc.IV(iv));
+      return jsonDecode(decrypted) as Map<String, dynamic>;
+    } catch (e) {
+      throw BackupError(
+        BackupErrorKind.wrongPassword,
+        'Decryption failed (wrong password or corrupted file)',
+      );
+    }
+  }
+
+  Future<void> _atomicReplace({
+    required List<dynamic> newCreditCards,
+    required List<dynamic> newIbanCards,
+  }) async {
+    final creditCardsBox = await _getCreditCardsBox();
+    final ibanCardsBox = await _getIbanCardsBox();
+
+    // Snapshot existing data before destruction so we can roll back on failure.
+    final creditSnapshot = creditCardsBox.values.toList();
+    final ibanSnapshot = ibanCardsBox.values.toList();
+
+    try {
+      await creditCardsBox.clear();
+      await ibanCardsBox.clear();
+
+      for (final raw in newCreditCards) {
+        if (raw is! Map) continue;
+        await creditCardsBox.add(
+          CreditCard(
+            id: raw['id'],
+            bankName: (raw['bankName'] ?? '') as String,
+            creditCardNumber: (raw['creditCardNumber'] ?? '') as String,
+            cardHolder: (raw['cardHolder'] ?? '') as String,
+            expirationDate: (raw['expirationDate'] ?? '') as String,
+            // CVC is no longer stored in backups; users must re-enter it.
+            cvc2: (raw['cvc2'] ?? '') as String,
+            cardColorId: (raw['cardColorId'] as int?) ?? 0,
+            createdAt: _parseDate(raw['createdAt']),
+          ),
+        );
       }
 
-      await clearAllData();
-
-      final data = backupData['data'] as Map<String, dynamic>;
-
-      await _restoreCreditCards(data['creditCards']);
-      await _restoreIbanCards(data['ibanCards']);
+      for (final raw in newIbanCards) {
+        if (raw is! Map) continue;
+        await ibanCardsBox.add(
+          IbanCard(
+            id: raw['id'],
+            bankName: (raw['bankName'] ?? '') as String,
+            cardHolder: (raw['cardHolder'] ?? '') as String,
+            iban: (raw['iban'] ?? '') as String,
+            swiftCode: (raw['swiftCode'] ?? '') as String,
+            createdAt: _parseDate(raw['createdAt']),
+          ),
+        );
+      }
     } catch (e) {
-      throw Exception('Geri yükleme sırasında hata: $e');
+      // Roll back to the pre-restore snapshot so the user keeps their data.
+      await creditCardsBox.clear();
+      await ibanCardsBox.clear();
+      for (final card in creditSnapshot) {
+        await creditCardsBox.add(card);
+      }
+      for (final card in ibanSnapshot) {
+        await ibanCardsBox.add(card);
+      }
+      throw BackupError(
+        BackupErrorKind.io,
+        'Restore aborted; previous data was kept: $e',
+      );
     }
   }
 
-  Future<void> _restoreCreditCards(List<dynamic>? creditCardsData) async {
-    if (creditCardsData == null) return;
-
-    final box = await _getCreditCardsBox();
-
-    for (var cardData in creditCardsData) {
-      final card = CreditCard(
-        id: cardData['id'],
-        bankName: cardData['bankName'],
-        creditCardNumber: cardData['creditCardNumber'],
-        cardHolder: cardData['cardHolder'],
-        expirationDate: cardData['expirationDate'],
-        cvc2: cardData['cvc2'],
-        cardColorId: cardData['cardColorId'],
-      );
-      await box.add(card);
+  DateTime? _parseDate(dynamic value) {
+    if (value is String && value.isNotEmpty) {
+      return DateTime.tryParse(value);
     }
-  }
-
-  Future<void> _restoreIbanCards(List<dynamic>? ibanCardsData) async {
-    if (ibanCardsData == null) return;
-
-    final box = await _getIbanCardsBox();
-
-    for (var cardData in ibanCardsData) {
-      final card = IbanCard(
-        id: cardData['id'],
-        bankName: cardData['bankName'],
-        cardHolder: cardData['cardHolder'],
-        iban: cardData['iban'],
-        swiftCode: cardData['swiftCode'],
-      );
-      await box.add(card);
-    }
+    return null;
   }
 
   Future<void> clearAllData() async {
     final creditCardsBox = await _getCreditCardsBox();
     final ibanCardsBox = await _getIbanCardsBox();
-
     await creditCardsBox.clear();
     await ibanCardsBox.clear();
+  }
+
+  // PBKDF2-HMAC-SHA256
+  static Uint8List _deriveKey(
+    String password,
+    List<int> salt, {
+    int iterations = _pbkdf2Iterations,
+  }) {
+    final params = pc.Pbkdf2Parameters(
+      Uint8List.fromList(salt),
+      iterations,
+      _keyLengthBytes,
+    );
+    final derivator = pc.PBKDF2KeyDerivator(
+      pc.HMac(pc.SHA256Digest(), 64),
+    )..init(params);
+    return derivator.process(Uint8List.fromList(utf8.encode(password)));
+  }
+
+  static Uint8List _randomBytes(int length) {
+    final rand = Random.secure();
+    final bytes = Uint8List(length);
+    for (var i = 0; i < length; i++) {
+      bytes[i] = rand.nextInt(256);
+    }
+    return bytes;
   }
 }

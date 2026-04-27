@@ -261,36 +261,167 @@ class _SettingsBodyState extends State<SettingsBody> {
   }
 
   Future<void> _createBackup(BuildContext context) async {
+    final password = await _promptPassword(
+      context,
+      title: 'backupPasswordTitle'.tr(),
+      description: 'backupPasswordDescription'.tr(),
+      confirmRequired: true,
+    );
+    if (password == null) return;
+
     try {
       final backupService = BackupService();
-      final filePath = await backupService.createBackupFile();
+      final filePath =
+          await backupService.createBackupFile(password: password);
       debugPrint(filePath);
+      if (!mounted) return;
       context.showSuccessSnackBar('${'backupSuccess'.tr()} $filePath');
+    } on BackupError catch (e) {
+      if (!mounted) return;
+      context.showErrorSnackBar(_localizeBackupError(e));
     } catch (e) {
-      debugPrint('Backup error: $e');
+      if (!mounted) return;
       context.showErrorSnackBar('${'backupError'.tr()} $e');
     }
   }
 
   Future<void> _restoreBackup(BuildContext context) async {
-    showDialog(
+    final confirmed = await Get.dialog<bool>(
+          AlertDialog(
+            title: Text('restoreTitle'.tr()),
+            content: Text('restoreContent'.tr()),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(result: false),
+                child: Text('cancel'.tr()),
+              ),
+              ElevatedButton(
+                onPressed: () => Get.back(result: true),
+                child: Text('confirm'.tr()),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+    if (!confirmed) return;
+
+    try {
+      final backupService = BackupService();
+      await backupService.restoreFromFile(
+        passwordProvider: () async => _promptPassword(
+          Get.context ?? context,
+          title: 'restorePasswordTitle'.tr(),
+          description: 'restorePasswordDescription'.tr(),
+          confirmRequired: false,
+        ),
+      );
+      if (!mounted) return;
+      context.showSuccessSnackBar('restoreSuccess');
+    } on BackupError catch (e) {
+      if (!mounted) return;
+      context.showErrorSnackBar(_localizeBackupError(e));
+    } catch (e) {
+      if (!mounted) return;
+      context.showErrorSnackBar('${'restoreError'.tr()} $e');
+    }
+  }
+
+  String _localizeBackupError(BackupError e) {
+    switch (e.kind) {
+      case BackupErrorKind.passwordRequired:
+        return 'backupPasswordRequired'.tr();
+      case BackupErrorKind.wrongPassword:
+        return 'backupWrongPassword'.tr();
+      case BackupErrorKind.invalidFormat:
+        return 'backupInvalidFormat'.tr();
+      case BackupErrorKind.io:
+        return 'backupIoError'.tr();
+    }
+  }
+
+  Future<String?> _promptPassword(
+    BuildContext context, {
+    required String title,
+    required String description,
+    required bool confirmRequired,
+  }) async {
+    final passwordController = TextEditingController();
+    final confirmController = TextEditingController();
+    String? errorText;
+
+    final result = await showDialog<String?>(
       context: context,
-      builder: (context) {
-        return CustomDialog(
-          title: 'restoreTitle'.tr(),
-          content: 'restoreContent'.tr(),
-          onConfirm: () async {
-            try {
-              final backupService = BackupService();
-              await backupService.restoreFromFile();
-              context.showSuccessSnackBar('restoreSuccess');
-            } catch (e) {
-              context.showErrorSnackBar('${'restoreError'.tr()} $e');
-            }
-          },
-        );
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return StatefulBuilder(builder: (ctx, setLocal) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Text(title),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(description, style: const TextStyle(fontSize: 13)),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'backupPasswordLabel'.tr(),
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                  if (confirmRequired) ...[
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: confirmController,
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        labelText: 'backupPasswordConfirmLabel'.tr(),
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
+                  if (errorText != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      errorText!,
+                      style: const TextStyle(color: Colors.red, fontSize: 12),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext, null),
+                child: Text('cancel'.tr()),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final pw = passwordController.text;
+                  if (pw.length < 6) {
+                    setLocal(() => errorText = 'backupPasswordTooShort'.tr());
+                    return;
+                  }
+                  if (confirmRequired && pw != confirmController.text) {
+                    setLocal(() => errorText = 'backupPasswordMismatch'.tr());
+                    return;
+                  }
+                  Navigator.pop(dialogContext, pw);
+                },
+                child: Text('confirm'.tr()),
+              ),
+            ],
+          );
+        });
       },
     );
+
+    return result;
   }
 
   Future<void> showDialogDeleteData(BuildContext context) async {

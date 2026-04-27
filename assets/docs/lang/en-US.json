@@ -337,5 +337,18 @@
     "sectionSecurity": "Security",
     "sectionData": "Data",
     "sectionAbout": "About",
-    "seeAll": "See all"
+    "seeAll": "See all",
+    "backupPasswordTitle": "Set backup password",
+    "backupPasswordDescription": "Your backup is encrypted with AES-256. Keep this password safe — without it nobody (including us) can restore your data.",
+    "restorePasswordTitle": "Backup password",
+    "restorePasswordDescription": "Enter the password you used when creating this backup.",
+    "backupPasswordLabel": "Password",
+    "backupPasswordConfirmLabel": "Confirm password",
+    "backupPasswordTooShort": "Password must be at least 6 characters.",
+    "backupPasswordMismatch": "Passwords do not match.",
+    "backupPasswordRequired": "A password is required to restore this backup.",
+    "backupWrongPassword": "Wrong password or corrupted backup file.",
+    "backupInvalidFormat": "This file is not a valid CardWallet backup.",
+    "backupIoError": "Could not read or write the backup file.",
+    "pinLockedMessage": "Too many wrong PINs. Try again in {}."
 }

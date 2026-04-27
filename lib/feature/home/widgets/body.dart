@@ -10,6 +10,7 @@ import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
+import 'package:wallet_app/core/utils/card_sorting.dart';
 import 'package:wallet_app/core/widgets/background_shapes_painter.dart';
 import 'package:wallet_app/core/widgets/credit_card_back.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
@@ -309,32 +310,24 @@ class HomeBody extends StatelessWidget {
 
   CreditCard? _getLatestCreditCard(List<CreditCard> cards) {
     if (cards.isEmpty) return null;
-    try {
-      final sorted = List<CreditCard>.from(cards);
-      sorted.sort((a, b) {
-        final aId = int.tryParse(a.id.toString()) ?? 0;
-        final bId = int.tryParse(b.id.toString()) ?? 0;
-        return bId.compareTo(aId);
-      });
-      return sorted.isNotEmpty ? sorted.first : null;
-    } catch (e) {
-      return null;
-    }
+    final sorted = [...cards]..sort((a, b) => compareNewestFirst(
+          aCreatedAt: a.createdAt,
+          aId: a.id,
+          bCreatedAt: b.createdAt,
+          bId: b.id,
+        ));
+    return sorted.first;
   }
 
   IbanCard? _getLatestIbanCard(List<IbanCard> cards) {
     if (cards.isEmpty) return null;
-    try {
-      final sorted = List<IbanCard>.from(cards);
-      sorted.sort((a, b) {
-        final aId = int.tryParse(a.id.toString()) ?? 0;
-        final bId = int.tryParse(b.id.toString()) ?? 0;
-        return bId.compareTo(aId);
-      });
-      return sorted.isNotEmpty ? sorted.first : null;
-    } catch (e) {
-      return null;
-    }
+    final sorted = [...cards]..sort((a, b) => compareNewestFirst(
+          aCreatedAt: a.createdAt,
+          aId: a.id,
+          bCreatedAt: b.createdAt,
+          bId: b.id,
+        ));
+    return sorted.first;
   }
 
   void _copyIBAN(BuildContext context, IbanCard ibanCard) {

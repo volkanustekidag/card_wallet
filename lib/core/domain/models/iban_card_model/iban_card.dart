@@ -19,11 +19,15 @@ class IbanCard extends HiveObject {
   @HiveField(4)
   late String swiftCode;
 
+  @HiveField(5)
+  DateTime? createdAt;
+
   IbanCard({
     required this.id,
     required this.bankName,
     required this.cardHolder,
     required this.iban,
     required this.swiftCode,
+    this.createdAt,
   });
 }

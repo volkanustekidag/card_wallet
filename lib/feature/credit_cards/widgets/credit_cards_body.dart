@@ -9,6 +9,7 @@ import 'package:wallet_app/core/widgets/credit_card_back.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
 import 'package:wallet_app/core/widgets/empty_list_info.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
+import 'package:wallet_app/core/utils/card_sorting.dart';
 import 'package:wallet_app/feature/add_credit_card/add_credit_card_page.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
@@ -292,11 +293,12 @@ class _BodyState extends State<Body> {
 
   List<CreditCard> _sortCards(List<CreditCard> cards) {
     final sorted = List<CreditCard>.from(cards);
-    sorted.sort((a, b) {
-      final aId = int.tryParse(a.id.toString()) ?? 0;
-      final bId = int.tryParse(b.id.toString()) ?? 0;
-      return bId.compareTo(aId);
-    });
+    sorted.sort((a, b) => compareNewestFirst(
+          aCreatedAt: a.createdAt,
+          aId: a.id,
+          bCreatedAt: b.createdAt,
+          bId: b.id,
+        ));
     return sorted;
   }
 

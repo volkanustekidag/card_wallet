@@ -50,39 +50,62 @@ class AuthViews extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
-              PinCodeTextField(
-                backgroundColor: Colors.transparent,
-                appContext: context,
-                length: 4,
-                controller: _textEditingController,
-                obscureText: true,
-                obscuringCharacter: '●',
-                animationType: AnimationType.fade,
-                cursorColor: color.primary,
-                keyboardType: TextInputType.number,
-                autoFocus: true,
-                cursorHeight: 16,
-                textStyle: TextStyle(
-                  fontSize: 16.sp,
-                  color: color.onSurface,
-                  fontWeight: FontWeight.w600,
-                ),
-                pinTheme: PinTheme(
-                  shape: PinCodeFieldShape.box,
-                  borderRadius: BorderRadius.circular(12),
-                  fieldHeight: 50,
-                  fieldWidth: 50,
-                  activeColor: color.primary,
-                  inactiveColor: color.outline.withOpacity(0.5),
-                  selectedColor: color.secondary,
-                  activeFillColor: Colors.transparent,
-                  inactiveFillColor: Colors.transparent,
-                  selectedFillColor: Colors.transparent,
-                  borderWidth: 1.5,
-                ),
-                enableActiveFill: false,
-                onChanged: (_) {},
-                onCompleted: onCompleted,
+              GetX<AuthController>(
+                builder: (authController) {
+                  final locked = authController.isPinLocked;
+                  return Column(
+                    children: [
+                      PinCodeTextField(
+                        backgroundColor: Colors.transparent,
+                        appContext: context,
+                        length: 4,
+                        controller: _textEditingController,
+                        obscureText: true,
+                        obscuringCharacter: '●',
+                        animationType: AnimationType.fade,
+                        cursorColor: color.primary,
+                        keyboardType: TextInputType.number,
+                        autoFocus: !locked,
+                        enabled: !locked,
+                        cursorHeight: 16,
+                        textStyle: TextStyle(
+                          fontSize: 16.sp,
+                          color: color.onSurface,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        pinTheme: PinTheme(
+                          shape: PinCodeFieldShape.box,
+                          borderRadius: BorderRadius.circular(12),
+                          fieldHeight: 50,
+                          fieldWidth: 50,
+                          activeColor: color.primary,
+                          inactiveColor: color.outline.withOpacity(0.5),
+                          selectedColor: color.secondary,
+                          activeFillColor: Colors.transparent,
+                          inactiveFillColor: Colors.transparent,
+                          selectedFillColor: Colors.transparent,
+                          borderWidth: 1.5,
+                        ),
+                        enableActiveFill: false,
+                        onChanged: (_) {},
+                        onCompleted: locked ? null : onCompleted,
+                      ),
+                      if (locked) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          'pinLockedMessage'.tr(args: [
+                            _formatRemaining(authController.pinLockRemaining),
+                          ]),
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.error,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ],
+                  );
+                },
               ),
 
               // Biometric Button (only show for login, not registration)
@@ -158,5 +181,14 @@ class AuthViews extends StatelessWidget {
     } else {
       return Icons.security; // Default security icon
     }
+  }
+
+  String _formatRemaining(Duration d) {
+    final secs = d.inSeconds;
+    if (secs >= 60) {
+      final minutes = (secs / 60).ceil();
+      return '$minutes min';
+    }
+    return '$secs s';
   }
 }

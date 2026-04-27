@@ -49,6 +49,7 @@ class AddCreditCardController extends GetxController {
       expirationDate: card.expirationDate,
       cvc2: card.cvc2,
       cardColorId: card.cardColorId,
+      createdAt: card.createdAt,
     );
 
     isEditMode.value = true;
@@ -142,7 +143,7 @@ class AddCreditCardController extends GetxController {
       }
 
       if (isEditMode.value && _originalCard != null) {
-        // Güncelleme işlemi - orijinal ID'yi koru
+        // Güncelleme işlemi - orijinal ID ve createdAt korunur
         final updatedCard = CreditCard(
           id: _originalCard!.id,
           bankName: currentCard.value.bankName,
@@ -151,6 +152,7 @@ class AddCreditCardController extends GetxController {
           expirationDate: currentCard.value.expirationDate,
           cvc2: currentCard.value.cvc2,
           cardColorId: currentCard.value.cardColorId,
+          createdAt: _originalCard!.createdAt ?? DateTime.now(),
         );
 
         await _creditCardService.updateCreditCard(_originalCard!, updatedCard);
@@ -167,6 +169,7 @@ class AddCreditCardController extends GetxController {
           expirationDate: currentCard.value.expirationDate,
           cvc2: currentCard.value.cvc2,
           cardColorId: currentCard.value.cardColorId,
+          createdAt: DateTime.now(),
         );
 
         await _creditCardService.addToCreditCard(newCard);

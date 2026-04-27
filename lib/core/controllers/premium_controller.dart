@@ -33,19 +33,16 @@ class PremiumController extends GetxController {
   Future<void> _initializePremium() async {
     _isLoading.value = true;
 
-    // Initialize premium service
-    await PremiumService.initialize();
-
-    // Set initial premium status
+    // PremiumService is initialized in main.dart so the UI sees the
+    // correct premium state on first frame. We just sync status here
+    // and start listening for runtime changes.
     _isPremium.value = PremiumService.isPremium;
 
-    // Listen to premium status changes
     PremiumService.premiumStatusStream.listen((status) {
       _isPremium.value = status;
-      update(); // GetBuilder için güncelleme tetikle
+      update();
     });
 
-    // Load premium product details
     await _loadPremiumProducts();
 
     _isLoading.value = false;

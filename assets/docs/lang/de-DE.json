@@ -333,8 +333,21 @@
     "sectionSecurity": "Sicherheit",
     "sectionData": "Daten",
     "sectionAbout": "Über",
+    "backupPasswordTitle": "Backup-Passwort festlegen",
+    "backupPasswordDescription": "Ihr Backup wird mit AES-256 verschlüsselt. Bewahren Sie das Passwort sicher auf — ohne es kann niemand (auch wir nicht) Ihre Daten wiederherstellen.",
+    "restorePasswordTitle": "Backup-Passwort",
+    "restorePasswordDescription": "Geben Sie das Passwort ein, das Sie beim Erstellen dieses Backups verwendet haben.",
+    "backupPasswordLabel": "Passwort",
+    "backupPasswordConfirmLabel": "Passwort bestätigen",
+    "backupPasswordTooShort": "Das Passwort muss mindestens 6 Zeichen haben.",
+    "backupPasswordMismatch": "Die Passwörter stimmen nicht überein.",
+    "backupPasswordRequired": "Für die Wiederherstellung wird ein Passwort benötigt.",
+    "backupWrongPassword": "Falsches Passwort oder beschädigte Sicherungsdatei.",
+    "backupInvalidFormat": "Diese Datei ist keine gültige CardWallet-Sicherung.",
+    "backupIoError": "Die Sicherungsdatei konnte nicht gelesen oder geschrieben werden.",
     "backupPremiumDescription": "Die Datensicherung ist nur für Premium-Nutzer verfügbar. Wechseln Sie zu Premium, um Ihre Daten zu schützen.",
     "errorGeneratingQR": "Beim Erstellen des QR-Codes ist ein Fehler aufgetreten",
     "qrCodePremiumDescription": "Die QR-Code-Erstellung ist nur für Premium-Nutzer verfügbar. Wechseln Sie zu Premium für unbegrenzte QR-Codes und weitere Funktionen.",
-    "restorePremiumDescription": "Die Datenwiederherstellung ist nur für Premium-Nutzer verfügbar. Wechseln Sie zu Premium, um Ihre Sicherungsdaten wiederherzustellen."
+    "restorePremiumDescription": "Die Datenwiederherstellung ist nur für Premium-Nutzer verfügbar. Wechseln Sie zu Premium, um Ihre Sicherungsdaten wiederherzustellen.",
+    "pinLockedMessage": "Zu viele falsche PINs. Versuchen Sie es in {} erneut."
 }

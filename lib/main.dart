@@ -11,6 +11,7 @@ import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/data/local_services/theme_services/theme_services.dart';
+import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 
 void main() async {
@@ -24,6 +25,7 @@ void main() async {
     IbanCardService().init(),
     AuthenticationService().init(),
     ThemeService().init(),
+    PremiumService.initialize(),
   ]);
 
   await SystemChrome.setPreferredOrientations([

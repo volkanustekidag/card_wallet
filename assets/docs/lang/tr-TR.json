@@ -333,5 +333,18 @@
     "sectionAppearance": "Görünüm",
     "sectionSecurity": "Güvenlik",
     "sectionData": "Veri",
-    "sectionAbout": "Hakkında"
+    "sectionAbout": "Hakkında",
+    "backupPasswordTitle": "Yedek parolası belirle",
+    "backupPasswordDescription": "Yedeğin AES-256 ile şifrelenir. Bu parolayı saklı tut — onsuz kimse (biz dahil) verilerini geri yükleyemez.",
+    "restorePasswordTitle": "Yedek parolası",
+    "restorePasswordDescription": "Bu yedeği oluştururken kullandığın parolayı gir.",
+    "backupPasswordLabel": "Parola",
+    "backupPasswordConfirmLabel": "Parolayı doğrula",
+    "backupPasswordTooShort": "Parola en az 6 karakter olmalı.",
+    "backupPasswordMismatch": "Parolalar eşleşmiyor.",
+    "backupPasswordRequired": "Bu yedeği geri yüklemek için parola gerekli.",
+    "backupWrongPassword": "Yanlış parola veya bozuk yedek dosyası.",
+    "backupInvalidFormat": "Bu dosya geçerli bir CardWallet yedeği değil.",
+    "backupIoError": "Yedek dosyası okunamadı veya yazılamadı.",
+    "pinLockedMessage": "Çok fazla yanlış PIN. {} sonra tekrar dene."
 }
