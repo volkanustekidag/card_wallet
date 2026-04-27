@@ -17,10 +17,12 @@ class PremiumController extends GetxController {
   bool get isLoading => _isLoading.value;
   List<ProductDetails> get availableProducts => _availableProducts;
   RxList<ProductDetails> get availableProductsRx => _availableProducts;
-  ProductDetails? get weeklyProduct =>
-      _getProductById(PremiumService.weeklyProductId);
+  ProductDetails? get monthlyProduct =>
+      _getProductById(PremiumService.monthlyProductId);
   ProductDetails? get yearlyProduct =>
       _getProductById(PremiumService.yearlyProductId);
+  ProductDetails? get lifetimeProduct =>
+      _getProductById(PremiumService.lifetimeProductId);
   int get creditCardCount => _creditCardCount.value;
   int get ibanCardCount => _ibanCardCount.value;
 

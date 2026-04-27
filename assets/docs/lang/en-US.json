@@ -180,7 +180,7 @@
     "premiumFeatureLockedTitle": "Premium feature",
     "premiumFeatureLockedDescription": "This feature is only available to Premium members. Upgrade to continue.",
     "cardLimitReachedTitle": "Card limit reached",
-    "cardLimitReachedDescription": "Free plan allows adding 1 {}. Upgrade to Premium for unlimited cards.",
+    "cardLimitReachedDescription": "Free plan allows up to {} {}. Upgrade to Premium for unlimited cards.",
     "cardLimitCardTypeCredit": "credit card",
     "cardLimitCardTypeIban": "IBAN card",
     "watchRewardedAd": "Watch rewarded ad",
@@ -350,5 +350,13 @@
     "backupWrongPassword": "Wrong password or corrupted backup file.",
     "backupInvalidFormat": "This file is not a valid CardWallet backup.",
     "backupIoError": "Could not read or write the backup file.",
-    "pinLockedMessage": "Too many wrong PINs. Try again in {}."
+    "pinLockedMessage": "Too many wrong PINs. Try again in {}.",
+    "monthlyPlanTitle": "Monthly",
+    "lifetimePlanTitle": "Lifetime",
+    "perMonth": "/ month",
+    "oneTimePayment": "one-time payment",
+    "unlimitedAccess": "Lifetime access, no recurring fees",
+    "freeTrial3Days": "3-day free trial",
+    "savingsPercent": "Save {}%",
+    "startFreeTrial": "Start free trial"
 }

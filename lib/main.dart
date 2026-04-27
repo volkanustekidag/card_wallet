@@ -48,8 +48,43 @@ void main() async {
   );
 }
 
-class AppWrapper extends StatelessWidget {
+class AppWrapper extends StatefulWidget {
   const AppWrapper({Key? key}) : super(key: key);
+
+  @override
+  State<AppWrapper> createState() => _AppWrapperState();
+}
+
+class _AppWrapperState extends State<AppWrapper> with WidgetsBindingObserver {
+  static const Duration _refreshInterval = Duration(hours: 12);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      _maybeRefreshSubscription();
+    }
+  }
+
+  void _maybeRefreshSubscription() {
+    final last = PremiumService.lastVerifiedAt;
+    if (last != null && DateTime.now().difference(last) < _refreshInterval) {
+      return;
+    }
+    PremiumService.refreshSubscriptionState();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,6 @@
 /// Centralised sort helpers so credit cards and IBAN cards order by
 /// the most recently added first. Falls back to numeric id parsing for
 /// legacy rows that predate the `createdAt` field.
-library;
 
 DateTime _legacyTimestamp(dynamic id) {
   // ID format used since v1.x is `${millisecondsSinceEpoch}${4-digit suffix}`

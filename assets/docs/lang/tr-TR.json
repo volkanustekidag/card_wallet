@@ -181,7 +181,7 @@
     "premiumFeatureLockedTitle": "Premium özelliği",
     "premiumFeatureLockedDescription": "Bu özellik yalnızca Premium üyeler tarafından kullanılabilir. Devam etmek için yükseltin.",
     "cardLimitReachedTitle": "Kart limiti doldu",
-    "cardLimitReachedDescription": "Ücretsiz planda her {} için sadece 1 kart ekleyebilirsin. Premium'a geçerek sınırsız kart ekleyebilirsin.",
+    "cardLimitReachedDescription": "Ücretsiz planda en fazla {} {} ekleyebilirsin. Premium'a geçerek sınırsız kart ekleyebilirsin.",
     "cardLimitCardTypeCredit": "kredi kartı",
     "cardLimitCardTypeIban": "IBAN kartı",
     "watchRewardedAd": "Ödüllü reklam izle",
@@ -346,5 +346,13 @@
     "backupWrongPassword": "Yanlış parola veya bozuk yedek dosyası.",
     "backupInvalidFormat": "Bu dosya geçerli bir CardWallet yedeği değil.",
     "backupIoError": "Yedek dosyası okunamadı veya yazılamadı.",
-    "pinLockedMessage": "Çok fazla yanlış PIN. {} sonra tekrar dene."
+    "pinLockedMessage": "Çok fazla yanlış PIN. {} sonra tekrar dene.",
+    "monthlyPlanTitle": "Aylık",
+    "lifetimePlanTitle": "Ömür Boyu",
+    "perMonth": "/ ay",
+    "oneTimePayment": "tek seferlik ödeme",
+    "unlimitedAccess": "Ömür boyu erişim, tekrar ödeme yok",
+    "freeTrial3Days": "3 gün ücretsiz deneme",
+    "savingsPercent": "%{} tasarruf",
+    "startFreeTrial": "Ücretsiz dene"
 }

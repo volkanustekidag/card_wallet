@@ -180,7 +180,7 @@
     "premiumFeatureLockedTitle": "Fonctionnalité Premium",
     "premiumFeatureLockedDescription": "Cette fonctionnalité est réservée aux membres Premium. Passez à Premium pour continuer.",
     "cardLimitReachedTitle": "Limite de carte atteinte",
-    "cardLimitReachedDescription": "Le plan gratuit permet d'ajouter seulement 1 {}. Passez à Premium pour des cartes illimitées.",
+    "cardLimitReachedDescription": "Le plan gratuit permet d'ajouter jusqu'à {} {}. Passez à Premium pour des cartes illimitées.",
     "cardLimitCardTypeCredit": "carte de crédit",
     "cardLimitCardTypeIban": "carte IBAN",
     "watchRewardedAd": "Regarder une publicité récompensée",
@@ -348,5 +348,13 @@
     "errorGeneratingQR": "Une erreur s'est produite lors de la génération du QR code",
     "qrCodePremiumDescription": "La génération de QR code est réservée aux membres Premium. Passez à Premium pour générer des QR codes illimités et plus.",
     "restorePremiumDescription": "La restauration des données est réservée aux membres Premium. Passez à Premium pour restaurer vos sauvegardes.",
-    "pinLockedMessage": "Trop de codes PIN incorrects. Réessayez dans {}."
+    "pinLockedMessage": "Trop de codes PIN incorrects. Réessayez dans {}.",
+    "monthlyPlanTitle": "Mensuel",
+    "lifetimePlanTitle": "À vie",
+    "perMonth": "/ mois",
+    "oneTimePayment": "paiement unique",
+    "unlimitedAccess": "Accès à vie, pas de frais récurrents",
+    "freeTrial3Days": "Essai gratuit de 3 jours",
+    "savingsPercent": "Économisez {}%",
+    "startFreeTrial": "Essai gratuit"
 }

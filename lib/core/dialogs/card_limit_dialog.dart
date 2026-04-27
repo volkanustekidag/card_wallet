@@ -1,9 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
-// import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
-// import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/services/premium_service.dart';
 
 Future<bool> showCardLimitDialog(
   BuildContext rootContext,
@@ -18,7 +17,10 @@ Future<bool> showCardLimitDialog(
         title: Text('cardLimitReachedTitle'.tr()),
         content: Text(
           'cardLimitReachedDescription'.tr(
-            args: [type.localizationKey.tr()],
+            args: [
+              PremiumService.maxCardsForFree.toString(),
+              type.localizationKey.tr(),
+            ],
           ),
         ),
         actions: [

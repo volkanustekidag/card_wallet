@@ -181,7 +181,7 @@
     "premiumFeatureLockedTitle": "Premium-Funktion",
     "premiumFeatureLockedDescription": "Diese Funktion ist nur für Premium-Mitglieder verfügbar. Führen Sie ein Upgrade durch, um fortzufahren.",
     "cardLimitReachedTitle": "Kartenlimit erreicht",
-    "cardLimitReachedDescription": "Im Gratis-Tarif kannst du pro {} nur 1 Karte hinzufügen. Wechsel zu Premium für unbegrenzte Karten.",
+    "cardLimitReachedDescription": "Im Gratis-Tarif kannst du bis zu {} {} hinzufügen. Wechsel zu Premium für unbegrenzte Karten.",
     "cardLimitCardTypeCredit": "Kreditkarte",
     "cardLimitCardTypeIban": "IBAN-Karte",
     "watchRewardedAd": "Belohnte Anzeige ansehen",
@@ -349,5 +349,13 @@
     "errorGeneratingQR": "Beim Erstellen des QR-Codes ist ein Fehler aufgetreten",
     "qrCodePremiumDescription": "Die QR-Code-Erstellung ist nur für Premium-Nutzer verfügbar. Wechseln Sie zu Premium für unbegrenzte QR-Codes und weitere Funktionen.",
     "restorePremiumDescription": "Die Datenwiederherstellung ist nur für Premium-Nutzer verfügbar. Wechseln Sie zu Premium, um Ihre Sicherungsdaten wiederherzustellen.",
-    "pinLockedMessage": "Zu viele falsche PINs. Versuchen Sie es in {} erneut."
+    "pinLockedMessage": "Zu viele falsche PINs. Versuchen Sie es in {} erneut.",
+    "monthlyPlanTitle": "Monatlich",
+    "lifetimePlanTitle": "Lebenslang",
+    "perMonth": "/ Monat",
+    "oneTimePayment": "einmalige Zahlung",
+    "unlimitedAccess": "Lebenslanger Zugriff, keine wiederkehrenden Gebühren",
+    "freeTrial3Days": "3 Tage kostenlos testen",
+    "savingsPercent": "{}% sparen",
+    "startFreeTrial": "Gratis testen"
 }
