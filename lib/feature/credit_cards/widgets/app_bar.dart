@@ -1,12 +1,10 @@
-// feature/credit_cards/widgets/app_bar.dart - GetX Version
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
-import 'package:sizer/sizer.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 class CCAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CCAppBar({Key? key}) : super(key: key);
@@ -44,9 +42,9 @@ class CCAppBar extends StatelessWidget implements PreferredSizeWidget {
                       (value) =>
                           Get.find<CreditCardController>().loadCreditCards());
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.add,
-                  size: 8.w,
+                  size: 28,
                 )),
           )
         ],
@@ -59,5 +57,5 @@ class CCAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(6.h);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

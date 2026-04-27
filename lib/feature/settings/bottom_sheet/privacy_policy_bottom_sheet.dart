@@ -1,37 +1,30 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:sizer/sizer.dart';
-import 'package:easy_localization/easy_localization.dart';
 
 Future<dynamic> showPrivacyPolicyBottomSheet(BuildContext context) {
   return showModalBottomSheet(
     elevation: 0,
-    backgroundColor: Color.fromRGBO(0, 0, 0, 0),
+    backgroundColor: const Color.fromRGBO(0, 0, 0, 0),
     isScrollControlled: true,
     context: context,
     builder: (context) {
-      return PrivacyPolicyBottomSheetBody();
+      return const PrivacyPolicyBottomSheetBody();
     },
   );
 }
 
-class PrivacyPolicyBottomSheetBody extends StatefulWidget {
+class PrivacyPolicyBottomSheetBody extends StatelessWidget {
   const PrivacyPolicyBottomSheetBody({super.key});
 
   @override
-  State<PrivacyPolicyBottomSheetBody> createState() =>
-      _PrivacyPolicyBottomSheetBodyState();
-}
-
-class _PrivacyPolicyBottomSheetBodyState
-    extends State<PrivacyPolicyBottomSheetBody> {
-  @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Container(
-      height: 70.h,
+      height: size.height * 0.7,
       decoration: BoxDecoration(
         color: context.theme.scaffoldBackgroundColor,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
@@ -39,10 +32,8 @@ class _PrivacyPolicyBottomSheetBodyState
       child: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            child: Text(
-              "PPT".tr(),
-            ),
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            child: Text("PPT".tr()),
           ),
         ),
       ),

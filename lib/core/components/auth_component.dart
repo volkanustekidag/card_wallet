@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:pin_code_fields/pin_code_fields.dart';
-import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/widgets/background_shapes_painter.dart';
 
@@ -57,6 +56,7 @@ class _AuthViewsState extends State<AuthViews> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final color = theme.colorScheme;
+    final size = MediaQuery.of(context).size;
 
     return Stack(
       children: [
@@ -64,17 +64,19 @@ class _AuthViewsState extends State<AuthViews> {
           child: CustomPaint(painter: BackgroundShapesPainter()),
         ),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+          padding: EdgeInsets.symmetric(
+            horizontal: size.width * 0.08,
+            vertical: size.height * 0.06,
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.lock_outline_rounded,
-                  size: 42.sp, color: color.primary),
+              Icon(Icons.lock_outline_rounded, size: 48, color: color.primary),
               const SizedBox(height: 24),
               Text(
                 widget.text.tr(),
                 style: theme.textTheme.titleMedium?.copyWith(
-                  fontSize: 18.sp,
+                  fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: color.onSurface,
                 ),
@@ -101,7 +103,7 @@ class _AuthViewsState extends State<AuthViews> {
                         cursorHeight: 16,
                         errorAnimationController: _errorAnimationController,
                         textStyle: TextStyle(
-                          fontSize: 16.sp,
+                          fontSize: 18,
                           color: color.onSurface,
                           fontWeight: FontWeight.w600,
                         ),

@@ -1,9 +1,8 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:sizer/sizer.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_controller.dart';
 
@@ -72,5 +71,5 @@ class AddCreditAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(6.h);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

@@ -1,11 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 
 class ChangePinAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const ChangePinAppBar({
-    Key? key,
-  }) : super(key: key);
+  const ChangePinAppBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,11 +11,12 @@ class ChangePinAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       title: Text(
         "chanPIN".tr(),
-        style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w500),
+        style: const TextStyle(
+            fontFamily: 'Poppins', fontWeight: FontWeight.w500),
       ),
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(6.h);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

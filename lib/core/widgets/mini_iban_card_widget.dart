@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart';
-import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 
 class MiniIbanCardWidget extends StatelessWidget {
   final IbanCard ibanCard;
@@ -80,8 +79,9 @@ class MiniIbanCardWidget extends StatelessWidget {
               children: [
                 Text(
                   ibanCard.cardHolder,
-                  style: TextStyle(fontFamily: 'Poppins', 
-                    fontSize: 11.5.sp,
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 15,
                     fontWeight: FontWeight.w600,
                     color: primaryTextColor,
                     letterSpacing: 0.4,
@@ -97,8 +97,9 @@ class MiniIbanCardWidget extends StatelessWidget {
                       children: [
                         Text(
                           'IBAN',
-                          style: TextStyle(fontFamily: 'Poppins', 
-                            fontSize: 7.8.sp,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: secondaryTextColor,
                             letterSpacing: 1.1,
@@ -123,8 +124,9 @@ class MiniIbanCardWidget extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       _formatIBAN(ibanCard.iban),
-                      style: TextStyle(fontFamily: 'Poppins', 
-                        fontSize: 10.2.sp,
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: primaryTextColor,
                         letterSpacing: 1.1,
@@ -143,8 +145,9 @@ class MiniIbanCardWidget extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   '${ibanCard.bankName} • Swift: ${ibanCard.swiftCode}',
-                  style: TextStyle(fontFamily: 'Poppins', 
-                    fontSize: 7.6.sp,
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: secondaryTextColor,
                     letterSpacing: 0.2,
@@ -220,8 +223,9 @@ class MiniIbanCardWidget extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: TextStyle(fontFamily: 'Poppins', 
-                  fontSize: 8.sp,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: color,
                   letterSpacing: 0.3,

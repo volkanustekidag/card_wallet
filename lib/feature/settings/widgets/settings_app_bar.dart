@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:sizer/sizer.dart';
+import 'package:flutter/material.dart';
 
 class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
   const SettingsAppBar({Key? key}) : super(key: key);
@@ -11,7 +10,7 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
     final colorScheme = theme.colorScheme;
 
     return ClipRRect(
-      borderRadius: BorderRadius.only(
+      borderRadius: const BorderRadius.only(
         bottomLeft: Radius.circular(24),
         bottomRight: Radius.circular(24),
       ),
@@ -20,21 +19,19 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
         centerTitle: true,
         backgroundColor: colorScheme.surface,
         surfaceTintColor: Colors.transparent,
-        // Title
         title: Text(
           "settings".tr(),
-          style: TextStyle(fontFamily: 'Poppins', 
+          style: TextStyle(
+            fontFamily: 'Poppins',
             color: colorScheme.onSurface,
             fontWeight: FontWeight.w600,
             fontSize: 18,
           ),
         ),
-
-        // Actions - Theme indicator
       ),
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(6.h);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

@@ -3,7 +3,6 @@ import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_qr_generator.dart';
 import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
@@ -57,7 +56,7 @@ class HomeBody extends StatelessWidget {
                   centerTitle: true,
                   forceMaterialTransparency: true,
                   leading: IconButton(
-                    icon: Icon(Icons.menu_rounded, size: 20.sp),
+                    icon: const Icon(Icons.menu_rounded, size: 24),
                     onPressed: () {
                       Get.toNamed('/settings')?.then(
                         (value) => controller.refreshData(),

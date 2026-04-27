@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:sizer/sizer.dart';
 import 'package:wallet_app/core/constants/app_images.dart';
 import 'package:wallet_app/core/router/getx_routes.dart';
 import 'package:wallet_app/feature/onboarding/onboarding_page.dart';
@@ -27,6 +26,7 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: context.theme.scaffoldBackgroundColor,
       body: Center(
@@ -34,7 +34,7 @@ class _SplashPageState extends State<SplashPage> {
           borderRadius: BorderRadius.circular(100),
           child: Image.asset(
             AppImages.logo,
-            width: 30.w,
+            width: size.width * 0.3,
           ),
         ),
       ),
