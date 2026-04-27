@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
+import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/feature/add_loyalty_card/controller/add_loyalty_card_controller.dart';
@@ -382,8 +383,10 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
 
   Widget _buildColorPicker() {
     final gradients = LinearGradients().linearGradientList;
+    final premium = Get.find<PremiumController>();
     return Obx(() {
       final selected = _controller.currentCard.value.colorId;
+      final isPremium = premium.isPremium;
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -404,8 +407,16 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final isSelected = index == selected;
+                final locked =
+                    !isPremium && GradientCatalogue.isPremium(index);
                 return GestureDetector(
-                  onTap: () => _controller.updateField('colorId', index),
+                  onTap: () {
+                    if (locked) {
+                      Get.toNamed('/premium');
+                      return;
+                    }
+                    _controller.updateField('colorId', index);
+                  },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
                     width: 50,
@@ -417,6 +428,15 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                         width: 2,
                       ),
                     ),
+                    child: locked
+                        ? const Center(
+                            child: Icon(
+                              Icons.lock_rounded,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          )
+                        : null,
                   ),
                 );
               },

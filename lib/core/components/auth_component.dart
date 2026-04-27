@@ -1,23 +1,57 @@
+import 'dart:async';
+
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:sizer/sizer.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:get/get.dart' hide Trans;
-import 'package:wallet_app/core/widgets/background_shapes_painter.dart';
 import 'package:wallet_app/core/controllers/auth_controller.dart';
+import 'package:wallet_app/core/widgets/background_shapes_painter.dart';
 
-class AuthViews extends StatelessWidget {
+class AuthViews extends StatefulWidget {
   final String text;
   final void Function(String)? onCompleted;
-  final TextEditingController _textEditingController;
+  final TextEditingController textEditingController;
 
   const AuthViews({
     Key? key,
     required this.text,
-    required TextEditingController textEditingController,
+    required this.textEditingController,
     required this.onCompleted,
-  })  : _textEditingController = textEditingController,
-        super(key: key);
+  }) : super(key: key);
+
+  @override
+  State<AuthViews> createState() => _AuthViewsState();
+}
+
+class _AuthViewsState extends State<AuthViews> {
+  final StreamController<ErrorAnimationType> _errorAnimationController =
+      StreamController<ErrorAnimationType>.broadcast();
+  Worker? _failureWorker;
+
+  @override
+  void initState() {
+    super.initState();
+    final authController =
+        Get.isRegistered<AuthController>() ? Get.find<AuthController>() : null;
+    if (authController != null) {
+      _failureWorker =
+          ever<bool>(authController.authenticationFailed, (failed) {
+        if (!failed) return;
+        _errorAnimationController.add(ErrorAnimationType.shake);
+        HapticFeedback.heavyImpact();
+        widget.textEditingController.clear();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _failureWorker?.dispose();
+    _errorAnimationController.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +60,8 @@ class AuthViews extends StatelessWidget {
 
     return Stack(
       children: [
-        // Background Shapes
         Positioned.fill(
-          child: CustomPaint(
-            painter: BackgroundShapesPainter(),
-          ),
+          child: CustomPaint(painter: BackgroundShapesPainter()),
         ),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
@@ -41,7 +72,7 @@ class AuthViews extends StatelessWidget {
                   size: 42.sp, color: color.primary),
               const SizedBox(height: 24),
               Text(
-                text.tr(),
+                widget.text.tr(),
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
@@ -59,7 +90,7 @@ class AuthViews extends StatelessWidget {
                         backgroundColor: Colors.transparent,
                         appContext: context,
                         length: 4,
-                        controller: _textEditingController,
+                        controller: widget.textEditingController,
                         obscureText: true,
                         obscuringCharacter: '●',
                         animationType: AnimationType.fade,
@@ -68,6 +99,7 @@ class AuthViews extends StatelessWidget {
                         autoFocus: !locked,
                         enabled: !locked,
                         cursorHeight: 16,
+                        errorAnimationController: _errorAnimationController,
                         textStyle: TextStyle(
                           fontSize: 16.sp,
                           color: color.onSurface,
@@ -88,7 +120,7 @@ class AuthViews extends StatelessWidget {
                         ),
                         enableActiveFill: false,
                         onChanged: (_) {},
-                        onCompleted: locked ? null : onCompleted,
+                        onCompleted: locked ? null : widget.onCompleted,
                       ),
                       if (locked) ...[
                         const SizedBox(height: 12),
@@ -108,60 +140,14 @@ class AuthViews extends StatelessWidget {
                 },
               ),
 
-              // Biometric Button (only show for login, not registration)
-              if (text == "enterPin") ...[
-                const SizedBox(height: 32),
+              if (widget.text == "enterPin") ...[
+                const SizedBox(height: 28),
                 GetX<AuthController>(
                   builder: (authController) {
                     if (!authController.showBiometricButton.value) {
                       return const SizedBox.shrink();
                     }
-
-                    return Column(
-                      children: [
-                        Text(
-                          "or".tr(),
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: color.onSurface.withValues(alpha: 0.6),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: color.primary.withValues(alpha: 0.3),
-                              width: 2,
-                            ),
-                          ),
-                          child: IconButton(
-                            onPressed: () {
-                              authController.authenticateWithBiometric();
-                            },
-                            icon: Icon(
-                              _getBiometricIcon(
-                                  authController.availableBiometrics),
-                              size: 32,
-                              color: color.primary,
-                            ),
-                            iconSize: 32,
-                            padding: const EdgeInsets.all(16),
-                            constraints: const BoxConstraints(
-                              minWidth: 64,
-                              minHeight: 64,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          authController.getBiometricDisplayName(),
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: color.onSurface.withValues(alpha: 0.6),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    );
+                    return _buildBiometricButton(theme, color, authController);
                   },
                 ),
               ],
@@ -172,15 +158,72 @@ class AuthViews extends StatelessWidget {
     );
   }
 
+  Widget _buildBiometricButton(
+    ThemeData theme,
+    ColorScheme color,
+    AuthController authController,
+  ) {
+    return Column(
+      children: [
+        Text(
+          "or".tr(),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: color.onSurface.withValues(alpha: 0.6),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(40),
+            onTap: () => authController.authenticateWithBiometric(),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    color.primary,
+                    color.primary.withValues(alpha: 0.85),
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.primary.withValues(alpha: 0.35),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Icon(
+                _getBiometricIcon(authController.availableBiometrics),
+                size: 36,
+                color: color.onPrimary,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          authController.getBiometricDisplayName(),
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: color.onSurface.withValues(alpha: 0.7),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
   IconData _getBiometricIcon(List biometrics) {
-    // Check for specific biometric types and return appropriate icon
     if (biometrics.any((b) => b.toString().contains('face'))) {
       return Icons.face;
     } else if (biometrics.any((b) => b.toString().contains('fingerprint'))) {
       return Icons.fingerprint;
-    } else {
-      return Icons.security; // Default security icon
     }
+    return Icons.security;
   }
 
   String _formatRemaining(Duration d) {

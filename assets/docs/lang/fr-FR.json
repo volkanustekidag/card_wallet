@@ -394,5 +394,16 @@
     "sortOldest": "Plus ancien en premier",
     "sortNameAsc": "Nom (A-Z)",
     "sortNameDesc": "Nom (Z-A)",
-    "sortByBank": "Par banque / marque"
+    "sortByBank": "Par banque / marque",
+    "onboardingSkip": "Passer",
+    "onboardingNext": "Suivant",
+    "onboardingGetStarted": "Commencer",
+    "onboardingSlide1Title": "Toutes vos cartes au même endroit",
+    "onboardingSlide1Desc": "Cartes bancaires, IBAN et cartes de fidélité — fini de fouiller dans le portefeuille.",
+    "onboardingSlide2Title": "Chiffré, hors ligne par conception",
+    "onboardingSlide2Desc": "Chiffrement AES-256 sur l'appareil. Nous ne voyons pas vos données — aucun serveur à pirater.",
+    "onboardingSlide3Title": "Ouvert en quelques secondes",
+    "onboardingSlide3Desc": "Face ID ou empreinte déverrouille instantanément. Les PIN incorrects déclenchent un délai.",
+    "onboardingSlide4Title": "Essayez Premium gratuitement",
+    "onboardingSlide4Desc": "Cartes illimitées, sauvegardes chiffrées, thèmes premium. 3 jours offerts — annulez à tout moment."
 }

@@ -395,5 +395,16 @@
     "sortOldest": "Älteste zuerst",
     "sortNameAsc": "Name (A-Z)",
     "sortNameDesc": "Name (Z-A)",
-    "sortByBank": "Nach Bank / Marke"
+    "sortByBank": "Nach Bank / Marke",
+    "onboardingSkip": "Überspringen",
+    "onboardingNext": "Weiter",
+    "onboardingGetStarted": "Loslegen",
+    "onboardingSlide1Title": "Alle Karten an einem Ort",
+    "onboardingSlide1Desc": "Bankkarten, IBANs und Bonuskarten — nie mehr im Geldbeutel kramen.",
+    "onboardingSlide2Title": "Verschlüsselt, ohne Internet",
+    "onboardingSlide2Desc": "AES-256-Verschlüsselung auf dem Gerät. Wir sehen Ihre Daten nicht — kein Server, der lecken kann.",
+    "onboardingSlide3Title": "In Sekunden geöffnet",
+    "onboardingSlide3Desc": "Face ID oder Fingerabdruck entsperrt sofort. Falsche PINs lösen eine Wartezeit aus.",
+    "onboardingSlide4Title": "Premium kostenlos testen",
+    "onboardingSlide4Desc": "Unbegrenzte Karten, verschlüsselte Sicherungen, Premium-Designs. 3 Tage gratis — jederzeit kündbar."
 }

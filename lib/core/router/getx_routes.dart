@@ -9,12 +9,14 @@ import 'package:wallet_app/feature/credit_cards/credit_cards_page.dart';
 import 'package:wallet_app/feature/home/home_page.dart';
 import 'package:wallet_app/feature/iban_card/iban_cards_page.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_cards_page.dart';
+import 'package:wallet_app/feature/onboarding/onboarding_page.dart';
 import 'package:wallet_app/feature/premium/premium_page.dart';
 import 'package:wallet_app/feature/settings/settings_page.dart';
 import 'package:wallet_app/feature/splash/splash_page.dart';
 
 class AppRoutes {
   static const String splash = '/';
+  static const String onboarding = '/onboarding';
   static const String auth = '/auth';
   static const String home = '/home';
   static const String settings = '/settings';
@@ -34,9 +36,17 @@ class AppRoutes {
       binding: AppBindings(),
     ),
     GetPage(
+      name: onboarding,
+      page: () => const OnboardingPage(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 350),
+    ),
+    GetPage(
       name: auth,
       page: () => const AuthenticationPage(),
       binding: AuthBindings(),
+      transition: Transition.fadeIn,
+      transitionDuration: const Duration(milliseconds: 350),
     ),
     GetPage(
       name: home,

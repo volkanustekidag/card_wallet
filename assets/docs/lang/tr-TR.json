@@ -392,5 +392,16 @@
     "sortOldest": "En eski önce",
     "sortNameAsc": "İsim (A-Z)",
     "sortNameDesc": "İsim (Z-A)",
-    "sortByBank": "Banka / markaya göre"
+    "sortByBank": "Banka / markaya göre",
+    "onboardingSkip": "Atla",
+    "onboardingNext": "Devam",
+    "onboardingGetStarted": "Başlayalım",
+    "onboardingSlide1Title": "Tüm kartların tek yerde",
+    "onboardingSlide1Desc": "Banka kartı, IBAN ve sadakat kartı — cüzdanını karıştırmaya son.",
+    "onboardingSlide2Title": "Şifreli, internet gerekmez",
+    "onboardingSlide2Desc": "Cihazda AES-256 şifreleme. Verilerini biz görmüyoruz, sızdıracak sunucu yok.",
+    "onboardingSlide3Title": "Saniyeler içinde aç",
+    "onboardingSlide3Desc": "Face ID veya parmak izi ile anında kilidi aç. Yanlış PIN'de otomatik bekleme süresi.",
+    "onboardingSlide4Title": "Premium'u ücretsiz dene",
+    "onboardingSlide4Desc": "Sınırsız kart, şifreli yedek, premium temalar. 3 gün bizden — istediğin zaman iptal et."
 }

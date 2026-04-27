@@ -396,5 +396,16 @@
     "sortOldest": "Oldest first",
     "sortNameAsc": "Name (A-Z)",
     "sortNameDesc": "Name (Z-A)",
-    "sortByBank": "By bank / brand"
+    "sortByBank": "By bank / brand",
+    "onboardingSkip": "Skip",
+    "onboardingNext": "Next",
+    "onboardingGetStarted": "Get started",
+    "onboardingSlide1Title": "All your cards in one place",
+    "onboardingSlide1Desc": "Bank cards, IBANs and loyalty cards — never dig through your wallet again.",
+    "onboardingSlide2Title": "Encrypted, offline by design",
+    "onboardingSlide2Desc": "AES-256 encryption on device. We never see your data — there is no server to leak.",
+    "onboardingSlide3Title": "Open in seconds",
+    "onboardingSlide3Desc": "Face ID or fingerprint unlocks the app instantly. Wrong PIN attempts trigger a cooldown.",
+    "onboardingSlide4Title": "Try Premium for free",
+    "onboardingSlide4Desc": "Unlimited cards, encrypted backups, premium themes. 3 days on us — cancel anytime."
 }
