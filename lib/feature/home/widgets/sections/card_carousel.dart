@@ -12,13 +12,13 @@ import 'package:wallet_app/feature/home/widgets/sections/card_kind.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/loyalty_card_widget.dart';
 
-/// Horizontal snap carousel for one card category. Apple-Wallet-ish peek
-/// (viewportFraction 0.86), max 5 cards + a trailing AddCardTile sentinel,
-/// dot indicator below.
+/// Horizontal snap carousel for one card category. PageView with
+/// viewportFraction = kCarouselViewport gives that Apple-Wallet peek;
+/// width and height are both derived from the actual screen width so
+/// the cards never overflow on small phones or shrink on tablets.
 class CardCarousel extends StatefulWidget {
   final HomeCardKind kind;
   final List<dynamic> cards;
-  final double itemHeight;
   final Color accent;
   final String addLabel;
 
@@ -26,7 +26,6 @@ class CardCarousel extends StatefulWidget {
     Key? key,
     required this.kind,
     required this.cards,
-    required this.itemHeight,
     required this.accent,
     required this.addLabel,
   }) : super(key: key);
@@ -78,15 +77,35 @@ class _CardCarouselState extends State<CardCarousel> {
     return '';
   }
 
+  /// Aspect ratio (width / height) per kind. CC matches the ISO 7810
+  /// 1.586 ratio, IBAN slimmer, loyalty wider/shorter so the wallet
+  /// feels mixed-media instead of three identical boxes.
+  double _aspectFor(HomeCardKind kind) {
+    switch (kind) {
+      case HomeCardKind.credit:
+        return 1.586;
+      case HomeCardKind.iban:
+        return 1.85;
+      case HomeCardKind.loyalty:
+        return 2.6;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cards = _sortedCards();
     final itemCount = cards.length + 1; // +1 for the AddCardTile sentinel
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final pageWidth = screenWidth * kCarouselViewport;
+    final cardWidth = pageWidth - kCarouselItemGap * 2;
+    final cardHeight = cardWidth / _aspectFor(widget.kind);
+
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
-          height: widget.itemHeight,
+          height: cardHeight,
           child: PageView.builder(
             controller: _controller,
             physics: const PageScrollPhysics(),
@@ -101,16 +120,21 @@ class _CardCarouselState extends State<CardCarousel> {
                 return AddCardTile(
                   type: widget.kind.limitType,
                   accent: widget.accent,
-                  height: widget.itemHeight,
+                  height: cardHeight,
                   label: widget.addLabel,
                 );
               }
-              return _buildCardItem(context, cards[index]);
+              return _buildCardItem(
+                context,
+                cards[index],
+                cardWidth: cardWidth,
+                cardHeight: cardHeight,
+              );
             },
           ),
         ),
         if (itemCount > 1) ...[
-          const SizedBox(height: kSpaceMd),
+          const SizedBox(height: kSpaceSm),
           _CarouselDots(
             count: itemCount,
             activeIndex: _index,
@@ -121,14 +145,20 @@ class _CardCarouselState extends State<CardCarousel> {
     );
   }
 
-  Widget _buildCardItem(BuildContext context, dynamic card) {
+  Widget _buildCardItem(
+    BuildContext context,
+    dynamic card, {
+    required double cardWidth,
+    required double cardHeight,
+  }) {
     switch (widget.kind) {
       case HomeCardKind.credit:
         return _CarouselFrame(
           tag: 'home-card-credit-${(card as CreditCard).id}',
           onTap: () => Get.toNamed(widget.kind.listRoute),
-          child: AspectRatio(
-            aspectRatio: kPaymentCardAspect,
+          child: SizedBox(
+            width: cardWidth,
+            height: cardHeight,
             child: CreditCardFront(creditCard: card),
           ),
         );
@@ -175,7 +205,7 @@ class _CarouselFrame extends StatelessWidget {
               MaterialRectArcTween(begin: begin, end: end),
           child: Material(
             color: Colors.transparent,
-            child: child,
+            child: Center(child: child),
           ),
         ),
       ),

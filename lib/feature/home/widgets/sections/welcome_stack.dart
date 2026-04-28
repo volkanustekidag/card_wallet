@@ -14,26 +14,27 @@ class WelcomeStack extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final size = MediaQuery.of(context).size;
-    final cardWidth = size.width.clamp(280, 400) * 0.62;
+    final cardWidth = (size.width.clamp(280, 400) * 0.46).toDouble();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: kSpaceLg,
-        vertical: kSpaceLg,
+      padding: const EdgeInsets.fromLTRB(
+        kSpaceLg,
+        kSpaceMd,
+        kSpaceLg,
+        kSpaceSm,
       ),
       child: Column(
         children: [
           SizedBox(
-            height: kWelcomeStackHeight,
+            height: 168,
             child: Stack(
               alignment: Alignment.center,
               children: [
-                // Back card — loyalty (right-tilted, dimmer)
                 _PhantomCard(
-                  width: cardWidth.toDouble(),
+                  width: cardWidth,
                   rotation: 0.08,
-                  offsetY: -4,
-                  offsetX: 32,
+                  offsetY: -6,
+                  offsetX: 26,
                   alpha: 0.42,
                   gradient: LinearGradient(
                     colors: [
@@ -45,12 +46,11 @@ class WelcomeStack extends StatelessWidget {
                   ),
                   icon: Icons.local_offer_rounded,
                 ),
-                // Mid card — IBAN (left-tilted)
                 _PhantomCard(
-                  width: cardWidth.toDouble(),
+                  width: cardWidth,
                   rotation: -0.07,
-                  offsetY: 24,
-                  offsetX: -28,
+                  offsetY: 14,
+                  offsetX: -22,
                   alpha: 0.7,
                   gradient: LinearGradient(
                     colors: [
@@ -62,11 +62,10 @@ class WelcomeStack extends StatelessWidget {
                   ),
                   icon: Icons.account_balance_rounded,
                 ),
-                // Front card — credit (centered, fully opaque)
                 _PhantomCard(
-                  width: cardWidth.toDouble(),
+                  width: cardWidth,
                   rotation: 0,
-                  offsetY: 56,
+                  offsetY: 36,
                   offsetX: 0,
                   alpha: 1,
                   gradient: LinearGradient(
@@ -82,7 +81,7 @@ class WelcomeStack extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: kSpaceLg),
+          const SizedBox(height: kSpaceMd),
           Text(
             'walletAwaits'.tr(),
             textAlign: TextAlign.center,
@@ -92,7 +91,7 @@ class WelcomeStack extends StatelessWidget {
                   color: colorScheme.onSurface,
                 ),
           ),
-          const SizedBox(height: kSpaceXS),
+          const SizedBox(height: 2),
           Text(
             'walletAwaitsSub'.tr(),
             textAlign: TextAlign.center,

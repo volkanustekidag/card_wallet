@@ -8,8 +8,11 @@ const double kSpaceLg = 16;
 const double kSpaceXL = 24;
 const double kSpaceXXL = 32;
 
-/// Hero header layout.
-const double kHeroExpandedHeight = 196;
+/// Hero header layout. Slim now that the stat-chip row is gone:
+///   collapsed bar (64) + 4 gap + greeting (~30) + 4 + subline (~18)
+///   + 12 bottom padding ≈ 132 dp. Wallet-like calm rather than a
+///   dashboard with stats.
+const double kHeroExpandedHeight = 138;
 const double kHeroCollapsedHeight = 64;
 
 /// Card carousel.

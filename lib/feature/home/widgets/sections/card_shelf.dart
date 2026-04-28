@@ -5,17 +5,16 @@ import 'package:wallet_app/feature/home/widgets/sections/add_card_tile.dart';
 import 'package:wallet_app/feature/home/widgets/sections/card_carousel.dart';
 import 'package:wallet_app/feature/home/widgets/sections/card_kind.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
-import 'package:wallet_app/feature/home/widgets/sections/home_formatters.dart';
 
 /// One category row (CC, IBAN or Loyalty). Header + carousel (or empty
-/// placeholder). Kept generic so all three shelves share a single
-/// implementation — the previous body.dart copied this layout three times.
+/// placeholder). Header is intentionally minimal — title + a slim "see
+/// all" affordance — to keep visual noise low across three repeating
+/// shelves.
 class CardShelf extends StatelessWidget {
   final HomeCardKind kind;
   final List<dynamic> cards;
   final String titleKey;
   final String addLabelKey;
-  final double itemHeight;
 
   const CardShelf({
     Key? key,
@@ -23,7 +22,6 @@ class CardShelf extends StatelessWidget {
     required this.cards,
     required this.titleKey,
     required this.addLabelKey,
-    required this.itemHeight,
   }) : super(key: key);
 
   @override
@@ -32,7 +30,7 @@ class CardShelf extends StatelessWidget {
     final accent = kind.accentOf(colorScheme);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: kSpaceLg),
+      padding: const EdgeInsets.only(bottom: kSpaceMd),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -42,26 +40,63 @@ class CardShelf extends StatelessWidget {
             accent: accent,
             onSeeAll: () => Get.toNamed(kind.listRoute),
           ),
-          const SizedBox(height: kSpaceMd),
+          const SizedBox(height: kSpaceSm),
           if (cards.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: kSpaceLg),
-              child: AddCardTile(
-                type: kind.limitType,
-                accent: accent,
-                height: itemHeight,
-                label: addLabelKey.tr(),
-              ),
-            )
+            _EmptyShelfTile(kind: kind, accent: accent, addLabelKey: addLabelKey)
           else
             CardCarousel(
               kind: kind,
               cards: cards,
-              itemHeight: itemHeight,
               accent: accent,
               addLabel: addLabelKey.tr(),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _EmptyShelfTile extends StatelessWidget {
+  final HomeCardKind kind;
+  final Color accent;
+  final String addLabelKey;
+  const _EmptyShelfTile({
+    required this.kind,
+    required this.accent,
+    required this.addLabelKey,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    // Mirror the carousel's geometry so the empty placeholder lines up
+    // visually with non-empty shelves of the same kind.
+    final pageWidth = screenWidth * kCarouselViewport;
+    final cardWidth = pageWidth - kCarouselItemGap * 2;
+    double aspect;
+    switch (kind) {
+      case HomeCardKind.credit:
+        aspect = 1.586;
+        break;
+      case HomeCardKind.iban:
+        aspect = 1.85;
+        break;
+      case HomeCardKind.loyalty:
+        aspect = 2.6;
+        break;
+    }
+    final cardHeight = cardWidth / aspect;
+
+    return Center(
+      child: SizedBox(
+        width: cardWidth,
+        height: cardHeight,
+        child: AddCardTile(
+          type: kind.limitType,
+          accent: accent,
+          height: cardHeight,
+          label: addLabelKey.tr(),
+        ),
       ),
     );
   }
@@ -89,62 +124,33 @@ class _ShelfHeader extends StatelessWidget {
         children: [
           Text(
             title,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                  color: colorScheme.onSurface,
-                ),
-          ),
-          if (count > 0) ...[
-            const SizedBox(width: kSpaceSm),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: kSpaceSm,
-                vertical: 2,
-              ),
-              decoration: BoxDecoration(
-                color: accent.withValues(alpha: 0.14),
-                borderRadius: BorderRadius.circular(99),
-              ),
-              child: Text(
-                compactCount(count),
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: accent,
-                ),
-              ),
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w700,
+              fontSize: 15,
+              color: colorScheme.onSurface,
+              letterSpacing: 0.1,
             ),
-          ],
+          ),
           const Spacer(),
-          if (count > 0)
-            TextButton(
-              onPressed: onSeeAll,
-              style: TextButton.styleFrom(
+          if (count > 1)
+            InkWell(
+              onTap: onSeeAll,
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: kSpaceSm,
-                  vertical: 0,
+                  vertical: kSpaceXS,
                 ),
-                minimumSize: Size.zero,
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity.compact,
-                foregroundColor: accent,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'seeAll'.tr(),
-                    style: const TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
+                child: Text(
+                  'seeAll'.tr(),
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: accent,
                   ),
-                  const Icon(Icons.chevron_right_rounded, size: 18),
-                ],
+                ),
               ),
             ),
         ],

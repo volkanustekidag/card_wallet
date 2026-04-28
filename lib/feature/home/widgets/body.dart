@@ -29,40 +29,34 @@ class HomeBody extends StatelessWidget {
               controller.ibanCards.isNotEmpty ||
               controller.loyaltyCards.isNotEmpty;
 
-          return RefreshIndicator(
-            onRefresh: () async => controller.refreshData(),
-            edgeOffset: kHeroExpandedHeight - kSpaceLg,
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
+          // Local-only app — no remote refresh needed, so we drop the
+          // RefreshIndicator. Reactive state already rebuilds when data
+          // changes.
+          return CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              HomeHeroSliver(controller: controller),
+              SliverToBoxAdapter(
+                child: PremiumStatusStrip(controller: controller),
               ),
-              slivers: [
-                HomeHeroSliver(controller: controller),
+              if (!hasAnyCard) ...[
+                const SliverToBoxAdapter(child: WelcomeStack()),
                 SliverToBoxAdapter(
-                  child: PremiumStatusStrip(controller: controller),
+                  child: QuickActionRail(controller: controller),
                 ),
-                if (!hasAnyCard) ...[
-                  const SliverToBoxAdapter(
-                    child: SizedBox(height: kSpaceLg),
-                  ),
-                  const SliverToBoxAdapter(child: WelcomeStack()),
-                  SliverToBoxAdapter(
-                    child: QuickActionRail(controller: controller),
-                  ),
-                ] else ...[
-                  SliverToBoxAdapter(
-                    child: QuickActionRail(controller: controller),
-                  ),
-                  CardShelvesSliver(controller: controller),
-                  SliverToBoxAdapter(
-                    child: SmartSuggestionCard(controller: controller),
-                  ),
-                ],
-                const SliverPadding(
-                  padding: EdgeInsets.only(bottom: kSpaceXXL),
+              ] else ...[
+                SliverToBoxAdapter(
+                  child: QuickActionRail(controller: controller),
+                ),
+                CardShelvesSliver(controller: controller),
+                SliverToBoxAdapter(
+                  child: SmartSuggestionCard(controller: controller),
                 ),
               ],
-            ),
+              const SliverPadding(
+                padding: EdgeInsets.only(bottom: kSpaceXXL),
+              ),
+            ],
           );
         }),
       ],
