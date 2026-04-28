@@ -11,6 +11,7 @@ import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/utils/card_sorting.dart';
+import 'package:wallet_app/core/utils/iban_country_meta.dart';
 import 'package:wallet_app/core/widgets/background_shapes_painter.dart';
 import 'package:wallet_app/core/widgets/credit_card_back.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
@@ -604,13 +605,15 @@ class HomeBody extends StatelessWidget {
         iban: ibanCard.iban,
         beneficiaryName: ibanCard.cardHolder,
         amount: amount,
-        currency: 'TRY',
+        currency: currencyForIban(ibanCard.iban),
         reference: reference ?? '',
         description: reference?.isNotEmpty == true
             ? reference
-            : 'IBAN Kartı QR Kodu - ${ibanCard.bankName}',
+            : ibanCard.bankName,
       );
 
+      // Format defaults to 'auto' so the generator picks the right standard
+      // (TR-KAREKOD for TR, EPC QR for SEPA, ISO 20022 elsewhere).
       final qrResult = IBANQRGenerator.generateQRCode(paymentData);
 
       if (qrResult.success && qrResult.data != null) {
@@ -663,7 +666,7 @@ class HomeBody extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              qrResult.metadata?.standard ?? 'TR-KAREKOD',
+              qrResult.metadata?.standard ?? 'IBAN QR',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).brightness == Brightness.dark
                         ? Colors.grey[400]

@@ -692,9 +692,9 @@ class _QRGeneratorExampleState extends State<QRGeneratorExample> {
       qrData: qrData,
       beneficiaryName: nameController.text,
       amount: amountController.text,
-      currency: 'TRY',
+      currency: 'EUR',
       reference: 'REF-001',
-      format: 'TR-KAREKOD',
+      format: 'IBAN QR',
     );
   }
 
@@ -707,9 +707,9 @@ class _QRGeneratorExampleState extends State<QRGeneratorExample> {
       qrData: qrData,
       beneficiaryName: nameController.text,
       amount: amountController.text,
-      currency: 'TRY',
+      currency: 'EUR',
       reference: 'REF-001',
-      format: 'TR-KAREKOD',
+      format: 'IBAN QR',
     );
   }
 

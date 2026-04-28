@@ -6,6 +6,7 @@ import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/core/constants/paddings.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/utils/card_sorting.dart';
+import 'package:wallet_app/core/utils/iban_country_meta.dart';
 import 'package:wallet_app/core/widgets/card_search_bar.dart';
 import 'package:wallet_app/core/widgets/empty_list_info.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
@@ -563,19 +564,19 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
     String? reference,
   }) {
     try {
-      // IBAN QR kod verisi oluştur
       final paymentData = IBANQRGenerator.createPaymentData(
         iban: ibanCard.iban,
         beneficiaryName: ibanCard.cardHolder,
         amount: amount,
-        currency: 'TRY',
+        currency: currencyForIban(ibanCard.iban),
         reference: reference ?? '',
         description: reference?.isNotEmpty == true
             ? reference
-            : 'IBAN Kartı QR Kodu - ${ibanCard.bankName}',
+            : ibanCard.bankName,
       );
 
-      // QR kod oluştur (otomatik format seçimi)
+      // Format defaults to 'auto' so the generator picks TR-KAREKOD,
+      // EPC SEPA, or ISO 20022 based on the IBAN's country.
       final qrResult = IBANQRGenerator.generateQRCode(paymentData);
 
       if (qrResult.success && qrResult.data != null) {
@@ -631,7 +632,7 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
             ),
             SizedBox(height: 4),
             Text(
-              qrResult.metadata?.standard ?? 'TR-KAREKOD',
+              qrResult.metadata?.standard ?? 'IBAN QR',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).brightness == Brightness.dark
                         ? Colors.grey[400]
