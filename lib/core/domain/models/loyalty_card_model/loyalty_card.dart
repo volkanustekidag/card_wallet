@@ -9,11 +9,11 @@ class LoyaltyCard extends HiveObject {
   @HiveField(0)
   late String id;
 
-  /// User-facing card name (e.g. "Migros Money").
+  /// User-facing card name (e.g. "Starbucks Rewards").
   @HiveField(1)
   late String name;
 
-  /// Brand / merchant (e.g. "Migros"). May match a known preset for logo
+  /// Brand / merchant (e.g. "Starbucks"). May match a known preset for logo
   /// + colour, otherwise treated as a free-form string.
   @HiveField(2)
   String? brand;

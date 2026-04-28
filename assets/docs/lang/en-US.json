@@ -368,7 +368,7 @@
     "editLoyaltyCardTitle": "Edit Loyalty Card",
     "addLoyaltyCard": "Add loyalty card",
     "loyaltyCardNameLabel": "Card name",
-    "loyaltyCardNamePlaceholder": "e.g. Migros Money",
+    "loyaltyCardNamePlaceholder": "e.g. Starbucks Rewards",
     "loyaltyCardBrandLabel": "Brand (optional)",
     "loyaltyCardBarcodeLabel": "Barcode / membership number",
     "loyaltyCardBarcodePlaceholder": "1234567890",
