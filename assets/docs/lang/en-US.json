@@ -3,7 +3,6 @@
     "createPin": "Create your PIN number",
     "enterPin": "Enter your PIN number",
     "or": "or",
-
     "addCC": "Add Credit Card",
     "addIC": "Add IBAN Card",
     "addCreditCard": "Add new credit card",
@@ -18,7 +17,6 @@
     "lastAddedIbanCard": "IBAN Card",
     "seeAllIbanCardsAction": "See All >",
     "addFirstIC": "Add first IBAN Card",
-
     "settings": "Settings",
     "lang": "Language - ENG",
     "clearAllD": "Delete All Data",
@@ -28,7 +26,6 @@
     "areUSure": "All data will be deleted.\nAre you sure you want to delete?",
     "delete": "Delete",
     "cancel": "Cancel",
-
     "IC": "IBAN Cards",
     "slidableDel": "Delete",
     "copyInfo": "ALL CARD INFORMATION COPYED!",
@@ -37,27 +34,15 @@
     "sCode": "Swift Code",
     "bName": "Bank Name",
     "valid": "VALIDTHRU",
-
     "cNum": "Card Number",
-
     "CC": "Credit Cards",
-
     "succChan": "PIN SUCCESSFULLY CHANGED!",
-
     "addNPIN": "Add your new PIN number",
-
     "addNIC": "ADDED NEW IBAN CARD SUCCESSFULL!",
-
     "addNCC": "ADDED NEW CREDİT CARD SUCCESSFULL!",
-
     "selecetLang": "Select Language.",
-
     "cardDeleteInfo": "DELETED CARD SUCCESSFULL!",
-
-    "PPT": "Privacy Policy for Card Wallet\nAt Card Wallet, one of our main priorities is the privacy of our visitors. This Privacy\n\nPolicy document contains types of information that is collected and recorded by\nCard Wallet and how we use it.\nIf you have additional questions or require more information about our Privacy Policy,\ndo not hesitate to contact us.\nLog Files\nCard Wallet follows a standard procedure of using log files. These files log visitors\n\nwhen they use app. The information collected by log files include internet protocol\n(IP) addresses, browser type, Internet Service Provider (ISP), date and time stamp,\nreferring/exit pages, and possibly the number of clicks. These are not linked to any\ninformation that is personally identifiable. The purpose of the information is for\nanalyzing trends, administering the app, tracking users' movement on the app, and\ngathering demographic information.\nOur Advertising Partners\nSome of advertisers in our app may use cookies and web beacons. Our advertising\npartners are listed below. Each of our advertising partners has their own Privacy\nPolicy for their policies on user data. For easier access, we hyperlinked to their\nPrivacy Policies below.\n● Google\nhttps://policies.google.com/technologies/ads\nPrivacy Policies\nYou may consult this list to find the Privacy Policy for each of the advertising\npartners of Card Wallet.\nThird-party ad servers or ad networks uses technologies like cookies, JavaScript, or\nBeacons that are used in their respective advertisements and links that appear on\nCard Wallet. They automatically receive your IP address when this occurs. These\ntechnologies are used to measure the effectiveness of their advertising campaigns\nand/or to personalize the advertising content that you see on this app or other apps\nor websites.Note that Card Wallet has no access to or control over these cookies that are used\nby third-party advertisers.\nThird Party Privacy Policies\nCard Wallet's Privacy Policy does not apply to other advertisers or websites. Thus,\nwe are advising you to consult the respective Privacy Policies of these third-party ad\nservers for more detailed information. It may include their practices and instructions\nabout how to opt-out of certain options.\nChildren's Information\nAnother part of our priority is adding protection for children while using the internet.\nWe encourage parents and guardians to observe, participate in, and/or monitor and\nguide their online activity.\nCard Wallet does not knowingly collect any Personal Identifiable Information from\nchildren under the age of 13. If you think that your child provided this kind of\ninformation on our App, we strongly encourage you to contact us immediately and\nwe will do our best efforts to promptly remove such information from our records.\nOnline Privacy Policy Only\nThis Privacy Policy applies only to our online activities and is valid for visitors to our\nApp with regards to the information that they shared and/or collect in Card Wallet.\nThis policy is not applicable to any information collected offline or via channels other\nthan this app. Our Privacy Policy was created with the help of the App Privacy Policy\nGenerator from App-Privacy-Policy.com\nConsent\nBy using our app, you hereby consent to our Privacy Policy and agree to its Terms\nand Conditions.",
-
     "emptyList": "You don't have any cards yet!",
-        
     "editCC": "Edit Credit Card",
     "editIC": "Edit IBAN Card",
     "cardActions": "Card actions",
@@ -79,7 +64,6 @@
     "ibanSecurityMessage": "Your IBAN is stored securely on your device.",
     "autoDetectBank": "Detected automatically when possible.",
     "secure": "Secure",
-    
     "theme": "Theme",
     "backupData": "Backup Data",
     "restoreData": "Restore Data",
@@ -87,7 +71,6 @@
     "confirm": "Confirm",
     "ok": "OK",
     "yes": "Yes",
-    
     "qrCodeGenerate": "Generate QR Code",
     "qrCodeOptions": "QR Code Options",
     "qrCodeError": "QR Code Error",
@@ -98,18 +81,15 @@
     "qrScanSuccess": "QR code scanned successfully!",
     "copy": "Copy",
     "share": "Share",
-    
     "paymentDetails": "Payment Details",
     "paymentInfo": "Payment Information",
     "paymentDescription": "Payment description",
     "amount": "Amount",
-    
     "backupSuccess": "Backup created successfully:",
     "backupError": "Backup error:",
     "restoreTitle": "Data Restore",
     "restoreSuccess": "Data restored successfully",
     "restoreError": "Restore error:",
-    
     "scanQR": "Scan QR Code",
     "scanQRSubtitle": "Use camera to scan QR code",
     "chooseFromGallery": "Choose from Gallery",
@@ -118,12 +98,10 @@
     "takePhotoSubtitle": "Use camera to scan card",
     "choosePhotoFromGallery": "Choose from Gallery",
     "choosePhotoSubtitle": "Select existing photo",
-    
     "accountInfo": "Account Information",
     "amountOptional": "Amount ",
     "referenceOptional": "Reference ",
     "currency": "TRY",
-    
     "success": "Success",
     "amountInfo": "If you specify an amount, a TR-FAST (instant payment) QR code will be created. If not, a static QR code will be created.",
     "qrGenerationError": "QR code generation error:",
@@ -133,7 +111,6 @@
     "bottomSheetSubtitle": "Detailed view",
     "fullScreen": "Full Screen",
     "fullScreenSubtitle": "Maximum size - Ideal for payment",
-
     "premiumHeaderTitle": "Unlock unlimited cards",
     "premiumHeaderSubtitle": "Remove ads and save all your credit & IBAN cards securely.",
     "premium": "Premium",
@@ -188,7 +165,6 @@
     "goPremium": "Go Premium",
     "rewardedAdFailed": "Unable to show rewarded ad. Please try again later.",
     "rewardedAdSuccess": "Reward unlocked! You can add one more card now.",
-    
     "tapToAddFirstCard": "Tap to add your first card",
     "creditCardScannedSuccessfully": "Credit card scanned successfully!",
     "failedToScanCreditCard": "Failed to scan credit card",
@@ -196,7 +172,6 @@
     "deleteDataMessage": "All data will be deleted.\nAre you sure you want to delete?",
     "deleteCreditCard": "Delete Credit Card",
     "deleteIbanCard": "Delete IBAN Card",
-    
     "biometricSettingsSaveError": "Biometric setting could not be saved",
     "biometricAuthenticateReason": "Authenticate to access the app",
     "biometricNotSupported": "Biometric authentication is not supported on this device",
@@ -221,12 +196,10 @@
     "biometricUnknownError": "Unknown error",
     "oneMinute": "1 minute",
     "minutes": "minutes",
-    
     "cameraPermissionRequired": "Camera permission is required",
     "noQRCodeFound": "No QR code found in the image",
     "qrScanError": "QR scan error",
     "failedToScanQRFromGallery": "Failed to scan QR from gallery",
-    
     "creditCardAddedSuccessfully": "Credit card added successfully!",
     "creditCardUpdatedSuccessfully": "Credit card updated successfully!",
     "failedToSaveCreditCard": "Failed to save credit card",
@@ -249,13 +222,11 @@
     "cvcNeverSaved": "CVC is never saved and stays on this device.",
     "cvcNotStored": "CVC is not stored",
     "cardHolderPlaceholder": "NAME SURNAME",
-    
     "failedToLoadIbanCards": "Failed to load IBAN cards",
     "ibanCardDeletedSuccessfully": "IBAN card deleted successfully",
     "failedToDeleteIbanCard": "Failed to delete IBAN card",
     "ibanCardAddedSuccessfully": "IBAN card added successfully",
     "failedToAddIbanCard": "Failed to add IBAN card",
-    
     "qrCode": "QR Code",
     "copyQRAction": "Copy",
     "shareQRAction": "Share",
@@ -273,7 +244,6 @@
     "recipientNameLabel": "Recipient Name",
     "amountFieldLabel": "Amount",
     "qrGeneratorDemo": "QR Generator Demo",
-    
     "qrCodeGenerationError": "QR code generation error:",
     "ibanRequired": "IBAN is required",
     "invalidIban": "Invalid IBAN. Please check the correct IBAN format.",
@@ -288,7 +258,6 @@
     "descriptionTooLong": "Description cannot exceed 140 characters",
     "notSpecified": "Not specified",
     "unknownBank": "Unknown Bank",
-    
     "errorCheckingPassword": "An error occurred while checking password",
     "errorDuringAuthentication": "An error occurred during authentication",
     "errorDuringRegistration": "An error occurred during registration",
@@ -312,12 +281,10 @@
     "editCardSubtitle": "Modify card information",
     "deleteCard": "Delete Card",
     "deleteCardSubtitle": "Remove this card permanently",
-
     "qrCodePremiumDescription": "QR code generation is available only for Premium members. Upgrade to Premium for unlimited QR code generation and more features.",
     "backupPremiumDescription": "Data backup feature is available only for Premium members. Upgrade to Premium to protect your data from loss.",
     "restorePremiumDescription": "Data restore feature is available only for Premium members. Upgrade to Premium to restore your backup data.",
     "errorGeneratingQR": "Error occurred while generating QR code",
-
     "termsOfUse": "Terms of Use",
     "privacyPolicy": "Privacy Policy",
     "couldNotLaunchUrl": "Could not open link",

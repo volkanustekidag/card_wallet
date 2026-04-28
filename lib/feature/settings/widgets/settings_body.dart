@@ -14,7 +14,6 @@ import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/widgets/premium_status_widget.dart';
 import 'package:wallet_app/core/widgets/premium_upgrade_widget.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/lang_bottom_sheet.dart';
-import 'package:wallet_app/feature/settings/bottom_sheet/privacy_policy_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/theme_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_card.dart';
 
@@ -215,8 +214,20 @@ class _SettingsBodyState extends State<SettingsBody> {
         SettingsCard(
           iconData: Icons.privacy_tip,
           title: 'PP'.tr(),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () => showPrivacyPolicyBottomSheet(context),
+          trailing: const Icon(Icons.open_in_new, size: 16),
+          onTap: () => launchUrl(
+            Uri.parse('https://www.olkan.dev/privacy/cardwallet'),
+            mode: LaunchMode.externalApplication,
+          ),
+        ),
+        SettingsCard(
+          iconData: Icons.description_outlined,
+          title: 'termsOfUse'.tr(),
+          trailing: const Icon(Icons.open_in_new, size: 16),
+          onTap: () => launchUrl(
+            Uri.parse('https://www.olkan.dev/terms/cardwallet'),
+            mode: LaunchMode.externalApplication,
+          ),
         ),
         SettingsCard(
           iconData: Icons.rate_review,
@@ -227,6 +238,7 @@ class _SettingsBodyState extends State<SettingsBody> {
               Uri.parse(
                 'https://play.google.com/store/apps/details?id=com.volkan.wallet_app',
               ),
+              mode: LaunchMode.externalApplication,
             );
           },
         ),

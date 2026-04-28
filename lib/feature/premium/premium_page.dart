@@ -715,8 +715,8 @@ class _PremiumPageState extends State<PremiumPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         GestureDetector(
-          onTap: () => _launchUrl(
-              'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'),
+          onTap: () =>
+              _launchUrl('https://www.olkan.dev/terms/cardwallet'),
           child: Text(
             'termsOfUse'.tr(),
             style: const TextStyle(
@@ -739,8 +739,8 @@ class _PremiumPageState extends State<PremiumPage> {
           ),
         ),
         GestureDetector(
-          onTap: () => _launchUrl(
-              'https://sites.google.com/view/wallet-app-privacy-policy/ana-sayfa'),
+          onTap: () =>
+              _launchUrl('https://www.olkan.dev/privacy/cardwallet'),
           child: Text(
             'privacyPolicy'.tr(),
             style: TextStyle(
