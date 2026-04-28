@@ -1,16 +1,15 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/sections/add_card_navigator.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 
-/// Four-up shortcut row: add credit / add iban / add loyalty / search.
-/// Replaces the cramped 3-button bar that used 12 sp text and squeezed
-/// icon + text into 72 dp. Now each tile gets a clear circular icon plate
-/// with a bottom label and a clean tap target.
+/// Three-up shortcut row: add credit / add iban / add loyalty. Each
+/// tile gets a circular icon plate and a bottom label with a clean tap
+/// target — replaces the older cramped 12 sp variant. (A search shortcut
+/// used to live here too; removed because each list page already has
+/// its own CardSearchBar at the top.)
 class QuickActionRail extends StatelessWidget {
   final HomeController controller;
   const QuickActionRail({Key? key, required this.controller}) : super(key: key);
@@ -63,23 +62,6 @@ class QuickActionRail extends StatelessWidget {
                   context: context,
                   type: CardLimitType.loyalty,
                 ),
-              ),
-            ),
-            const SizedBox(width: kSpaceSm),
-            Expanded(
-              child: _QuickActionTile(
-                icon: Icons.search_rounded,
-                label: 'search'.tr(),
-                accent: colorScheme.onSurface.withValues(alpha: 0.78),
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  // First milestone: jump into the credit cards list which
-                  // already has CardSearchBar at the top. A standalone
-                  // global search page is a v2 task.
-                  Get.toNamed('/creditCards')?.then(
-                    (_) => controller.refreshData(),
-                  );
-                },
               ),
             ),
           ],

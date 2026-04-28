@@ -1,13 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:wallet_app/core/enums/card_limit_type.dart';
-import 'package:wallet_app/feature/home/widgets/sections/add_card_navigator.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 
 /// Single, illustrated empty state shown when the wallet has zero cards.
-/// Three faux cards stacked at slight angles (the visual cue "this is
-/// where your cards will live") plus a primary CTA. Replaces the three
-/// separate DashedEmptyCards that used to take up ~600 dp.
+/// Three faux cards stacked at slight angles cue the user that "this is
+/// where your cards will live"; the QuickActionRail directly underneath
+/// already exposes the three add-card actions, so no inline CTA is
+/// needed here.
 class WelcomeStack extends StatelessWidget {
   const WelcomeStack({Key? key}) : super(key: key);
 
@@ -101,31 +100,6 @@ class WelcomeStack extends StatelessWidget {
                   fontFamily: 'Poppins',
                   color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
-          ),
-          const SizedBox(height: kSpaceLg),
-          FilledButton.icon(
-            onPressed: () => goToAddCard(
-              context: context,
-              type: CardLimitType.credit,
-            ),
-            icon: const Icon(Icons.add_rounded, size: 20),
-            label: Text(
-              'addFirstCard'.tr(),
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(
-                horizontal: kSpaceXL,
-                vertical: kSpaceMd,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-            ),
           ),
         ],
       ),
