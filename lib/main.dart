@@ -37,11 +37,14 @@ void main() async {
   runApp(
     EasyLocalization(
       supportedLocales: const [
-        Locale("tr", "TR"),
         Locale("en", "US"),
+        Locale("tr", "TR"),
         Locale("de", "DE"),
         Locale("fr", "FR"),
       ],
+      // Anything else (system in ES, IT, AR, ZH, …) falls back to English.
+      // Without this the strings render as raw keys ("loyaltyCardsTitle").
+      fallbackLocale: const Locale("en", "US"),
       saveLocale: true,
       path: "assets/docs/lang",
       child: const AppWrapper(),
