@@ -77,19 +77,12 @@ class _CardCarouselState extends State<CardCarousel> {
     return '';
   }
 
-  /// Aspect ratio (width / height) per kind. CC matches the ISO 7810
-  /// 1.586 ratio, IBAN slimmer, loyalty wider/shorter so the wallet
-  /// feels mixed-media instead of three identical boxes.
-  double _aspectFor(HomeCardKind kind) {
-    switch (kind) {
-      case HomeCardKind.credit:
-        return 1.586;
-      case HomeCardKind.iban:
-        return 1.85;
-      case HomeCardKind.loyalty:
-        return 2.6;
-    }
-  }
+  /// All three card kinds use the ISO 7810 1.586 ratio so they look
+  /// like physical cards in a wallet. The earlier wider-and-shorter
+  /// IBAN/loyalty variants squeezed their inner content (MiniIbanCard
+  /// has a 168 dp minHeight; loyalty has icon + name + brand + barcode)
+  /// and overflowed by 16–51 px on small screens.
+  double _aspectFor(HomeCardKind kind) => 1.586;
 
   @override
   Widget build(BuildContext context) {

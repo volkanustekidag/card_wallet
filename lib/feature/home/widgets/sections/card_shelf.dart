@@ -73,19 +73,10 @@ class _EmptyShelfTile extends StatelessWidget {
     // visually with non-empty shelves of the same kind.
     final pageWidth = screenWidth * kCarouselViewport;
     final cardWidth = pageWidth - kCarouselItemGap * 2;
-    double aspect;
-    switch (kind) {
-      case HomeCardKind.credit:
-        aspect = 1.586;
-        break;
-      case HomeCardKind.iban:
-        aspect = 1.85;
-        break;
-      case HomeCardKind.loyalty:
-        aspect = 2.6;
-        break;
-    }
-    final cardHeight = cardWidth / aspect;
+    // Same ISO 7810 ratio as the carousel — keeps empty/filled shelves
+    // the same visual weight, so adding the first card doesn't shove
+    // the layout around.
+    final cardHeight = cardWidth / 1.586;
 
     return Center(
       child: SizedBox(
