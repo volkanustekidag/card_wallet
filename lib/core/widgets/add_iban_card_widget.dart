@@ -36,9 +36,6 @@ class AddIbanCardWidget extends StatelessWidget {
         theme.colorScheme.primary.withValues(alpha: hasIban ? 0.28 : 0.12);
     final accentColor = theme.colorScheme.secondary.withValues(alpha: 0.6);
 
-    final surfaceOverlay = isDark
-        ? Colors.white.withValues(alpha: 0.06)
-        : theme.colorScheme.onSurface.withValues(alpha: 0.05);
     final baseTextColor =
         isDark ? Colors.white : theme.colorScheme.onPrimaryContainer;
     final secondaryTextColor =

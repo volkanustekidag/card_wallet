@@ -4,7 +4,6 @@ import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
-import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/feature/add_loyalty_card/controller/add_loyalty_card_controller.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_formats.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_brand_presets.dart';

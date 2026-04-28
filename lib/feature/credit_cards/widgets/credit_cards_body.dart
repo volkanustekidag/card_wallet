@@ -286,7 +286,8 @@ class _BodyState extends State<Body> {
   void _syncAnimatedList(List<CreditCard> incomingCards) {
     if (!mounted) return;
 
-    final sorted = _sortCards(incomingCards);
+    // Caller is expected to have already applied search/sort.
+    final sorted = incomingCards;
 
     if (_listKey.currentState == null) {
       _cards = sorted;

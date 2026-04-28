@@ -8,12 +8,11 @@ class CardBankDetector {
     '454360': 'Garanti BBVA',
     '454363': 'Garanti BBVA',
     '450803': 'Garanti BBVA',
-    '450803': 'Garanti BBVA',
     '4546': 'Garanti BBVA',
     // Akbank
     '552608': 'Akbank',
     '435508': 'Akbank',
-    '4022': 'Akbank',
+    '4358': 'Akbank',
     // Ziraat
     '979202': 'Ziraat Bankası',
     '979203': 'Ziraat Bankası',
@@ -53,7 +52,7 @@ class CardBankDetector {
     // Anadolu Bank
     '4011': 'Anadolu Bank',
     // Şekerbank
-    '4022': 'Şekerbank',
+    '4172': 'Şekerbank',
     // Albaraka Türk
     '5491': 'Albaraka Türk',
   };
