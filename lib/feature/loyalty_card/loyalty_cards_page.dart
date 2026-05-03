@@ -50,14 +50,35 @@ class _LoyaltyCardsPageState extends State<LoyaltyCardsPage> {
             color: colorScheme.onSurface,
           ),
         ),
+        titleSpacing: 0,
+        centerTitle: false,
         backgroundColor: colorScheme.surface,
         elevation: 0,
-        centerTitle: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.add_rounded),
-            onPressed: _handleAdd,
-            tooltip: 'addLoyaltyCard'.tr(),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(20),
+              onTap: _handleAdd,
+              child: Container(
+                width: 40,
+                height: 40,
+                margin: EdgeInsets.only(right: 16),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: colorScheme.onSurface.withValues(alpha: 0.06),
+                  ),
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.add_rounded,
+                  size: 22,
+                  color: colorScheme.onSurface.withValues(alpha: 0.8),
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -160,8 +181,7 @@ class _LoyaltyCardsPageState extends State<LoyaltyCardsPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.search_off_rounded,
-                size: 56,
-                color: colorScheme.onSurface.withValues(alpha: 0.4)),
+                size: 56, color: colorScheme.onSurface.withValues(alpha: 0.4)),
             const SizedBox(height: 12),
             Text(
               'searchNoResults'.tr(),
@@ -181,7 +201,8 @@ class _LoyaltyCardsPageState extends State<LoyaltyCardsPage> {
     final premium = Get.find<PremiumController>();
     final count = await premium.getStoredCardCount(CardLimitType.loyalty);
     if (!premium.canAddMoreLoyaltyCards(count)) {
-      final unlocked = await showCardLimitDialog(context, CardLimitType.loyalty);
+      final unlocked =
+          await showCardLimitDialog(context, CardLimitType.loyalty);
       if (!unlocked) return;
     }
     Get.to(

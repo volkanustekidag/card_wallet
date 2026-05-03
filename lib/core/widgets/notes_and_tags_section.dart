@@ -1,9 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/utils/tag_index.dart';
+import 'package:wallet_app/feature/home/controller/home_controller.dart';
 
 /// Reusable Notes + Tags input. Used by both add-credit-card and
-/// add-iban-card forms. Tags are entered as comma-separated values and
-/// stored as a `List<String>`.
+/// add-iban-card forms. Tags are entered by typing and tapping +/Enter,
+/// or by tapping a suggestion chip — suggestions come from every tag
+/// already in use across the wallet (read off HomeController, which is
+/// always alive once the user is past splash).
 class NotesAndTagsSection extends StatefulWidget {
   final String? initialNotes;
   final List<String>? initialTags;
@@ -26,12 +31,17 @@ class _NotesAndTagsSectionState extends State<NotesAndTagsSection> {
   late final TextEditingController _notesController;
   late final TextEditingController _newTagController;
   late List<String> _tags;
+  String _typed = '';
 
   @override
   void initState() {
     super.initState();
     _notesController = TextEditingController(text: widget.initialNotes ?? '');
     _newTagController = TextEditingController();
+    _newTagController.addListener(() {
+      final v = _newTagController.text;
+      if (v != _typed) setState(() => _typed = v);
+    });
     _tags = [...?widget.initialTags];
   }
 
@@ -60,9 +70,31 @@ class _NotesAndTagsSectionState extends State<NotesAndTagsSection> {
     widget.onTagsChanged(_tags.isEmpty ? null : _tags);
   }
 
+  /// Tags that exist on other cards but aren't already on this one. Filters
+  /// by the current prefix the user has typed so the list narrows as they
+  /// type. Returns empty when HomeController isn't around (e.g. unit
+  /// tests) so the autocomplete row just disappears.
+  List<String> _suggestions() {
+    if (!Get.isRegistered<HomeController>()) return const [];
+    final home = Get.find<HomeController>();
+    final pool = collectAllTags(
+      credits: home.creditCards,
+      ibans: home.ibanCards,
+    );
+    final used = _tags.map((t) => t.toLowerCase()).toSet();
+    final prefix = _typed.trim().toLowerCase();
+    final filtered = pool.where((t) {
+      if (used.contains(t.toLowerCase())) return false;
+      if (prefix.isEmpty) return true;
+      return t.toLowerCase().contains(prefix);
+    });
+    return sortedTags(filtered).take(8).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final suggestions = _suggestions();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -123,6 +155,30 @@ class _NotesAndTagsSectionState extends State<NotesAndTagsSection> {
                 OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
+        if (suggestions.isNotEmpty) ...[
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final s in suggestions)
+                ActionChip(
+                  label: Text('+ $s'),
+                  onPressed: () => _addTag(s),
+                  backgroundColor: colorScheme.surfaceContainerHighest,
+                  side: BorderSide(
+                    color: colorScheme.onSurface.withValues(alpha: 0.08),
+                  ),
+                  labelStyle: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface.withValues(alpha: 0.78),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ],
     );
   }

@@ -44,6 +44,11 @@ class IbanCardService {
     await _ensureBoxReady();
   }
 
+  Future<Stream<BoxEvent>> watch() async {
+    final box = await _ensureBoxReady();
+    return box.watch();
+  }
+
   Future<void> deleteAllData() async {
     final box = await _ensureBoxReady();
     await box.deleteAll(box.keys);

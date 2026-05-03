@@ -11,57 +11,40 @@ class IbanCardsAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return ClipRRect(
-      borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(24),
-        bottomRight: Radius.circular(24),
-      ),
-      child: AppBar(
-        elevation: 0,
-        centerTitle: true,
-        backgroundColor: colorScheme.surface,
-        surfaceTintColor: Colors.transparent,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: IconButton(
-                onPressed: () async {
-                  final premiumController = Get.find<PremiumController>();
-                  final currentCount = await premiumController
-                      .getStoredCardCount(CardLimitType.iban);
-
-                  if (!premiumController.canAddMoreIbanCards(currentCount)) {
-                    final canProceed =
-                        await showCardLimitDialog(context, CardLimitType.iban);
-                    if (!canProceed) return;
-                  }
-
-                  Get.toNamed('/addIbanCard')?.then(
-                      (value) =>
-                          Get.find<IbanCardController>().loadIbanCards());
-                },
-                icon: const Icon(
-                  Icons.add,
-                  size: 28,
-                )),
-          )
-        ],
-        leading: IconButton(
-            onPressed: () => Get.back(),
-            icon: const Icon(
-              Icons.arrow_back,
-            )),
-        title: Text(
-          "IC".tr(),
-          style: TextStyle(fontFamily: 'Poppins', 
-            fontWeight: FontWeight.w500,
-            color: colorScheme.onSurface,
-          ),
+    final colorScheme = Theme.of(context).colorScheme;
+    return AppBar(
+      title: Text(
+        "IC".tr(),
+        style: TextStyle(
+          fontFamily: 'Poppins',
+          fontWeight: FontWeight.w600,
+          color: colorScheme.onSurface,
         ),
       ),
+      titleSpacing: 0,
+      centerTitle: false,
+      backgroundColor: colorScheme.surface,
+      elevation: 0,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.add_rounded),
+          tooltip: 'addIbanCard'.tr(),
+          onPressed: () async {
+            final premiumController = Get.find<PremiumController>();
+            final currentCount = await premiumController
+                .getStoredCardCount(CardLimitType.iban);
+
+            if (!premiumController.canAddMoreIbanCards(currentCount)) {
+              final canProceed =
+                  await showCardLimitDialog(context, CardLimitType.iban);
+              if (!canProceed) return;
+            }
+
+            Get.toNamed('/addIbanCard')?.then(
+                (value) => Get.find<IbanCardController>().loadIbanCards());
+          },
+        ),
+      ],
     );
   }
 

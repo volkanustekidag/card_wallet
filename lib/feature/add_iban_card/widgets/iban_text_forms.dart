@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/qr_iban_scanner_service.dart';
+import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
 import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
 import 'package:wallet_app/feature/add_iban_card/widgets/iban_text_field.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
-import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/widgets/notes_and_tags_section.dart';
 
 class IbanTextFieldForms extends StatefulWidget {
@@ -29,7 +29,6 @@ class IbanTextFieldForms extends StatefulWidget {
 class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
   late final AddIbanCardController controller;
   late final QRIbanScannerService _qrScannerService;
-  late final PremiumController _premiumController;
 
   // TextEditingController'lar
   late final TextEditingController cardHolderController;
@@ -43,7 +42,6 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
     super.initState();
     controller = Get.find<AddIbanCardController>();
     _qrScannerService = QRIbanScannerService();
-    _premiumController = Get.find<PremiumController>();
 
     // Controller'ları başlat
     cardHolderController = TextEditingController();
@@ -55,6 +53,20 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
 
     // currentCard değişikliklerini dinle
     ever(controller.currentCard, (_) => _updateTextFields());
+
+    // IBAN değiştiğinde bank-code'undan banka adını otomatik doldur.
+    // Kullanıcı isterse bank field'ı manuel olarak değiştirebilir; bir
+    // sonraki IBAN değişikliği yine üzerine yazar.
+    widget.ibanController.addListener(_autoFillBankFromIban);
+  }
+
+  void _autoFillBankFromIban() {
+    final iban = widget.ibanController.text;
+    final detected = CardBankDetector.detectFromIban(iban);
+    if (detected != null && bankNameController.text != detected) {
+      bankNameController.text = detected;
+      controller.updateCardField('bankName', detected);
+    }
   }
 
   void _updateTextFields() {
@@ -158,81 +170,58 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
   void _showQRScanOptions() {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Container(
-        padding: EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Scan QR Code for IBAN',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+      builder: (context) {
+        final colorScheme = Theme.of(context).colorScheme;
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'scanQR'.tr(),
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            ListTile(
-              leading: Icon(Icons.qr_code_scanner, color: Colors.blue),
-              title: Text('scanQR'.tr()),
-              subtitle: Text('scanQRSubtitle'.tr()),
-              onTap: () {
-                Navigator.pop(context);
-                _scanQRForIban();
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.photo_library, color: Colors.green),
-              title: Text('chooseFromGallery'.tr()),
-              subtitle: Text('chooseFromGallerySubtitle'.tr()),
-              onTap: () {
-                Navigator.pop(context);
-                _scanQRFromGallery();
-              },
-            ),
-            SizedBox(height: 10),
-          ],
-        ),
-      ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading:
+                    Icon(Icons.qr_code_scanner, color: colorScheme.primary),
+                title: Text('scanQR'.tr()),
+                subtitle: Text('scanQRSubtitle'.tr()),
+                onTap: () {
+                  Navigator.pop(context);
+                  _scanQRForIban();
+                },
+              ),
+              ListTile(
+                leading:
+                    Icon(Icons.photo_library, color: colorScheme.secondary),
+                title: Text('chooseFromGallery'.tr()),
+                subtitle: Text('chooseFromGallerySubtitle'.tr()),
+                onTap: () {
+                  Navigator.pop(context);
+                  _scanQRFromGallery();
+                },
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Future<void> _showPremiumRequiredDialog() async {
-    final shouldUpgrade = await Get.dialog<bool>(
-          AlertDialog(
-            title: Text('premiumFeatureLockedTitle'.tr()),
-            content: Text('premiumFeatureLockedDescription'.tr()),
-            actions: [
-              TextButton(
-                onPressed: () => Get.back(result: false),
-                child: Text('maybeLater'.tr()),
-              ),
-              ElevatedButton(
-                onPressed: () => Get.back(result: true),
-                child: Text('goPremium'.tr()),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-
-    if (shouldUpgrade) {
-      Get.toNamed('/premium');
-    }
-  }
-
   Future<void> _handleQRButtonPressed() async {
-    if (!_premiumController.isPremium) {
-      await _showPremiumRequiredDialog();
-      return;
-    }
+    // QR scanner free for everyone — same logic as the credit card
+    // scanner. The 2-card free cap is what funnels upgrades.
     _showQRScanOptions();
   }
 
   @override
   void dispose() {
+    widget.ibanController.removeListener(_autoFillBankFromIban);
     cardHolderController.dispose();
     swiftCodeController.dispose();
     bankNameController.dispose();
@@ -243,85 +232,76 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Expanded(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'ibanFlowLead'.tr(),
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w400,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.85),
-              ),
-            ),
-            const SizedBox(height: 20),
-            IbanTextField(
-              ibanController: widget.ibanController,
-              focusNode: widget.focusNode,
-              cameras: widget.cameras,
-            ),
-            const SizedBox(height: 12),
-            Obx(() {
-              final isPremium = _premiumController.isPremium;
-              return _buildQrButton(context, isPremium);
-            }),
-            const SizedBox(height: 28),
-            _buildSectionLabel(context, 'accountInfo'.tr()),
-            const SizedBox(height: 12),
-            TextFieldCard(
-              controller: cardHolderController,
-              label: "hName".tr(),
-              maxLength: 32,
-              onChanged: (val) {
-                controller.updateCardField("cardHolder", val);
-              },
-              iconData: Icons.person_outline_rounded,
-              hintText: "XXXXXX XXXXXX",
-            ),
-            const SizedBox(height: 16),
-            TextFieldCard(
-              controller: bankNameController,
-              maxLength: 24,
-              label: "bName".tr(),
-              onChanged: (val) {
-                controller.updateCardField("bankName", val);
-              },
-              iconData: Icons.account_balance_rounded,
-              hintText: "XXXXXXX",
-            ),
-            const SizedBox(height: 16),
-            TextFieldCard(
-              controller: swiftCodeController,
-              maxLength: 11,
-              label: "sCode".tr(),
-              onChanged: (val) {
-                controller.updateCardField("swiftCode", val);
-              },
-              iconData: Icons.numbers,
-              hintText: "00000000",
-            ),
-            const SizedBox(height: 24),
-            NotesAndTagsSection(
-              initialNotes: controller.currentCard.value.notes,
-              initialTags: controller.currentCard.value.tags,
-              onNotesChanged: (val) =>
-                  controller.updateCardField('notes', val),
-              onTagsChanged: (val) => controller.updateCardField('tags', val),
-            ),
-            const SizedBox(height: 28),
-            _buildSecurityMessage(context),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'ibanFlowLead'.tr(),
+          style: theme.textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w400,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.85),
+          ),
         ),
-      ),
+        const SizedBox(height: 20),
+        IbanTextField(
+          ibanController: widget.ibanController,
+          focusNode: widget.focusNode,
+          cameras: widget.cameras,
+        ),
+        const SizedBox(height: 12),
+        _buildQrButton(context),
+        const SizedBox(height: 28),
+        _buildSectionLabel(context, 'accountInfo'.tr()),
+        const SizedBox(height: 12),
+        TextFieldCard(
+          controller: cardHolderController,
+          label: "hName".tr(),
+          maxLength: 32,
+          onChanged: (val) {
+            controller.updateCardField("cardHolder", val);
+          },
+          iconData: Icons.person_outline_rounded,
+          hintText: "XXXXXX XXXXXX",
+        ),
+        const SizedBox(height: 16),
+        TextFieldCard(
+          controller: bankNameController,
+          maxLength: 24,
+          label: "bName".tr(),
+          onChanged: (val) {
+            controller.updateCardField("bankName", val);
+          },
+          iconData: Icons.account_balance_rounded,
+          hintText: "XXXXXXX",
+        ),
+        const SizedBox(height: 16),
+        TextFieldCard(
+          controller: swiftCodeController,
+          maxLength: 11,
+          label: "sCode".tr(),
+          onChanged: (val) {
+            controller.updateCardField("swiftCode", val);
+          },
+          iconData: Icons.numbers,
+          hintText: "00000000",
+        ),
+        const SizedBox(height: 24),
+        NotesAndTagsSection(
+          initialNotes: controller.currentCard.value.notes,
+          initialTags: controller.currentCard.value.tags,
+          onNotesChanged: (val) =>
+              controller.updateCardField('notes', val),
+          onTagsChanged: (val) => controller.updateCardField('tags', val),
+        ),
+        const SizedBox(height: 28),
+        _buildSecurityMessage(context),
+      ],
     );
   }
 
-  Widget _buildQrButton(BuildContext context, bool isPremium) {
+  Widget _buildQrButton(BuildContext context) {
     final theme = Theme.of(context);
-    final accent =
-        isPremium ? theme.colorScheme.primary : Colors.amber.shade700;
+    final accent = theme.colorScheme.primary;
 
     return OutlinedButton(
       onPressed: _isScanning ? null : _handleQRButtonPressed,
@@ -352,19 +332,14 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
               textAlign: TextAlign.center,
             ),
           ),
-          const SizedBox(width: 10),
-          if (_isScanning)
+          if (_isScanning) ...[
+            const SizedBox(width: 10),
             const SizedBox(
               width: 18,
               height: 18,
               child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          else if (!isPremium)
-            Icon(
-              Icons.workspace_premium,
-              color: accent,
-              size: 18,
             ),
+          ],
         ],
       ),
     );

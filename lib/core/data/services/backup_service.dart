@@ -15,6 +15,7 @@ import '../../constants/keys.dart';
 import '../../domain/models/credit_card_model/credit_card.dart';
 import '../../domain/models/iban_card_model/iban_card.dart';
 import '../../domain/models/loyalty_card_model/loyalty_card.dart';
+import '../../services/card_reminder_service.dart';
 
 /// Errors surfaced by [BackupService]. The UI layer maps these to user-facing
 /// localized strings.
@@ -37,11 +38,11 @@ class BackupError implements Exception {
 class BackupService {
   static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
 
-  static const String _currentBackupVersion = '2.0';
+  static const String _currentBackupVersion = '2.1';
   static const int _pbkdf2Iterations = 100000;
   static const int _keyLengthBytes = 32;
   static const int _saltLengthBytes = 16;
-  static const int _ivLengthBytes = 16;
+  static const int _gcmNonceLengthBytes = 12;
 
   Future<Box<CreditCard>> _getCreditCardsBox() async {
     if (Hive.isBoxOpen(C_CARD_BOX_NAME)) {
@@ -115,7 +116,7 @@ class BackupService {
     for (var i = 0; i < creditCardsBox.length; i++) {
       final card = creditCardsBox.getAt(i);
       if (card == null) continue;
-      // Note: cvc2 is intentionally omitted. Storing/exporting CVC is a
+      // Note: CVC is intentionally omitted. Storing/exporting CVC is a
       // PCI-DSS violation; users will re-enter it on restore.
       creditCards.add({
         'id': card.id,
@@ -127,6 +128,12 @@ class BackupService {
         'createdAt': card.createdAt?.toIso8601String(),
         'notes': card.notes,
         'tags': card.tags,
+        'expiryReminderEnabled': card.expiryReminderEnabled,
+        'expiryReminderDaysBefore': card.expiryReminderDaysBefore,
+        'paymentReminderEnabled': card.paymentReminderEnabled,
+        'paymentDueDay': card.paymentDueDay,
+        'paymentReminderDaysBefore': card.paymentReminderDaysBefore,
+        'reminderHour': card.reminderHour,
       });
     }
 
@@ -171,7 +178,7 @@ class BackupService {
   }
 
   /// Creates an encrypted JSON backup file at the platform default location
-  /// and returns its path. The data is encrypted with AES-256-CBC using a key
+  /// and returns its path. The data is encrypted with AES-256-GCM using a key
   /// derived from [password] via PBKDF2-HMAC-SHA256.
   Future<String> createBackupFile({required String password}) async {
     if (password.length < 6) {
@@ -187,22 +194,22 @@ class BackupService {
       final plaintext = jsonEncode(plainData);
 
       final salt = _randomBytes(_saltLengthBytes);
-      final iv = _randomBytes(_ivLengthBytes);
+      final nonce = _randomBytes(_gcmNonceLengthBytes);
       final key = _deriveKey(password, salt);
 
       final encrypter = enc.Encrypter(
-        enc.AES(enc.Key(key), mode: enc.AESMode.cbc, padding: 'PKCS7'),
+        enc.AES(enc.Key(key), mode: enc.AESMode.gcm, padding: null),
       );
-      final encrypted = encrypter.encrypt(plaintext, iv: enc.IV(iv));
+      final encrypted = encrypter.encrypt(plaintext, iv: enc.IV(nonce));
 
       final envelope = <String, dynamic>{
         'version': _currentBackupVersion,
         'encrypted': true,
-        'algorithm': 'AES-256-CBC',
+        'algorithm': 'AES-256-GCM',
         'kdf': 'PBKDF2-HMAC-SHA256',
         'iterations': _pbkdf2Iterations,
         'salt': base64Encode(salt),
-        'iv': base64Encode(iv),
+        'nonce': base64Encode(nonce),
         'data': encrypted.base64,
         'timestamp': DateTime.now().toIso8601String(),
       };
@@ -348,13 +355,15 @@ class BackupService {
     }
 
     final saltStr = envelope['salt'];
+    final algorithm = (envelope['algorithm'] as String?) ?? 'AES-256-CBC';
+    final nonceStr = envelope['nonce'];
     final ivStr = envelope['iv'];
     final dataStr = envelope['data'];
     final iterations = (envelope['iterations'] as int?) ?? _pbkdf2Iterations;
-    if (saltStr is! String || ivStr is! String || dataStr is! String) {
+    if (saltStr is! String || dataStr is! String) {
       throw BackupError(
         BackupErrorKind.invalidFormat,
-        'Encrypted backup missing salt/iv/data',
+        'Encrypted backup missing salt/data',
       );
     }
 
@@ -367,14 +376,33 @@ class BackupService {
     }
 
     final salt = base64Decode(saltStr);
-    final iv = base64Decode(ivStr);
     final key = _deriveKey(password, salt, iterations: iterations);
 
     try {
-      final encrypter = enc.Encrypter(
-        enc.AES(enc.Key(key), mode: enc.AESMode.cbc, padding: 'PKCS7'),
-      );
-      final decrypted = encrypter.decrypt64(dataStr, iv: enc.IV(iv));
+      late final enc.Encrypter encrypter;
+      late final enc.IV iv;
+      if (algorithm == 'AES-256-GCM') {
+        if (nonceStr is! String) {
+          throw const FormatException('Encrypted backup missing nonce');
+        }
+        encrypter = enc.Encrypter(
+          enc.AES(enc.Key(key), mode: enc.AESMode.gcm, padding: null),
+        );
+        iv = enc.IV(base64Decode(nonceStr));
+      } else if (algorithm == 'AES-256-CBC') {
+        if (ivStr is! String) {
+          throw const FormatException('Encrypted backup missing iv');
+        }
+        // Legacy v2.0 backup format. New backups use AES-GCM so corrupted or
+        // tampered files fail authentication before restore.
+        encrypter = enc.Encrypter(
+          enc.AES(enc.Key(key), mode: enc.AESMode.cbc, padding: 'PKCS7'),
+        );
+        iv = enc.IV(base64Decode(ivStr));
+      } else {
+        throw FormatException('Unsupported backup algorithm: $algorithm');
+      }
+      final decrypted = encrypter.decrypt64(dataStr, iv: iv);
       return jsonDecode(decrypted) as Map<String, dynamic>;
     } catch (e) {
       throw BackupError(
@@ -412,12 +440,20 @@ class BackupService {
             creditCardNumber: (raw['creditCardNumber'] ?? '') as String,
             cardHolder: (raw['cardHolder'] ?? '') as String,
             expirationDate: (raw['expirationDate'] ?? '') as String,
-            // CVC is no longer stored in backups; users must re-enter it.
-            cvc2: (raw['cvc2'] ?? '') as String,
             cardColorId: (raw['cardColorId'] as int?) ?? 0,
             createdAt: _parseDate(raw['createdAt']),
             notes: raw['notes'] as String?,
             tags: _parseStringList(raw['tags']),
+            expiryReminderEnabled:
+                (raw['expiryReminderEnabled'] as bool?) ?? false,
+            expiryReminderDaysBefore:
+                (raw['expiryReminderDaysBefore'] as int?) ?? 30,
+            paymentReminderEnabled:
+                (raw['paymentReminderEnabled'] as bool?) ?? false,
+            paymentDueDay: raw['paymentDueDay'] as int?,
+            paymentReminderDaysBefore:
+                (raw['paymentReminderDaysBefore'] as int?) ?? 3,
+            reminderHour: (raw['reminderHour'] as int?) ?? 9,
           ),
         );
       }
@@ -454,6 +490,9 @@ class BackupService {
           ),
         );
       }
+      await CardReminderService().scheduleAllCreditCardReminders(
+        creditCardsBox.values.toList(),
+      );
     } catch (e) {
       // Roll back to the pre-restore snapshot so the user keeps their data.
       await creditCardsBox.clear();
@@ -468,6 +507,9 @@ class BackupService {
       for (final card in loyaltySnapshot) {
         await loyaltyCardsBox.add(card);
       }
+      await CardReminderService().scheduleAllCreditCardReminders(
+        creditSnapshot,
+      );
       throw BackupError(
         BackupErrorKind.io,
         'Restore aborted; previous data was kept: $e',

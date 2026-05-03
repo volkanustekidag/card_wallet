@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:get/instance_manager.dart';
 
 Future<bool?> showLangChoseeBottomSheet(BuildContext context) async {
   return showModalBottomSheet<bool>(
     context: context,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-    ),
     builder: (_) => const LanguageBottomSheetBody(),
   );
 }
@@ -29,6 +25,11 @@ class _LanguageBottomSheetBodyState extends State<LanguageBottomSheetBody> {
     const Locale("tr", "TR"),
     const Locale("de", "DE"),
     const Locale("fr", "FR"),
+    const Locale("es", "ES"),
+    const Locale("pt", "BR"),
+    const Locale("it", "IT"),
+    const Locale("nl", "NL"),
+    const Locale("pl", "PL"),
   ];
 
   final List<String> displayNames = [
@@ -36,6 +37,11 @@ class _LanguageBottomSheetBodyState extends State<LanguageBottomSheetBody> {
     "Türkçe",
     "Deutsch",
     "Français",
+    "Español",
+    "Português",
+    "Italiano",
+    "Nederlands",
+    "Polski",
   ];
 
   @override
@@ -56,7 +62,8 @@ class _LanguageBottomSheetBodyState extends State<LanguageBottomSheetBody> {
       _selectedIndex = 0; // Default to English
     }
 
-    debugPrint('Current locale: $currentLocale, Selected index: $_selectedIndex');
+    debugPrint(
+        'Current locale: $currentLocale, Selected index: $_selectedIndex');
   }
 
   void _onConfirm() async {

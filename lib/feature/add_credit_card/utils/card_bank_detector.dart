@@ -1,5 +1,15 @@
 /// Card payment networks identified by [CardBankDetector.networkFor].
-enum CardNetwork { visa, mastercard, amex, discover, dinersClub, jcb, unknown }
+enum CardNetwork {
+  visa,
+  mastercard,
+  amex,
+  unionPay,
+  discover,
+  jcb,
+  troy,
+  dinersClub,
+  unknown,
+}
 
 /// Best-effort BIN → bank lookup. Longest matching prefix wins, so 6-digit
 /// BINs override 4-digit ones. Coverage is curated, not exhaustive — banks
@@ -151,7 +161,138 @@ class CardBankDetector {
     '552608': 'Akbank',
     '435508': 'Akbank',
     '4358': 'Akbank',
+    '521807': 'Akbank',
+    '5218': 'Akbank',
   };
+
+  /// Maps detected bank names to their primary public domain. Used by
+  /// [BankLogo] to fetch the bank's logo from Clearbit's free Logo API
+  /// (`https://logo.clearbit.com/<domain>`). Bank names that aren't in this
+  /// map fall back to a generic icon — that's fine because Clearbit covers
+  /// hundreds of thousands of domains; we just need to point it at the
+  /// right one for each bank we already detect.
+  static final Map<String, String> _bankDomain = {
+    // ─── United States ────────────────────────────────────────────────
+    'Chase': 'chase.com',
+    'Bank of America': 'bankofamerica.com',
+    'Citibank': 'citi.com',
+    'Wells Fargo': 'wellsfargo.com',
+    'Capital One': 'capitalone.com',
+    'Discover': 'discover.com',
+    'American Express': 'americanexpress.com',
+    'US Bank': 'usbank.com',
+    'PNC Bank': 'pnc.com',
+
+    // ─── United Kingdom ───────────────────────────────────────────────
+    'Barclays': 'barclays.co.uk',
+    'HSBC UK': 'hsbc.co.uk',
+    'Lloyds Bank': 'lloydsbank.com',
+    'NatWest': 'natwest.com',
+    'Santander UK': 'santander.co.uk',
+    'Revolut': 'revolut.com',
+    'Monzo': 'monzo.com',
+    'Starling Bank': 'starlingbank.com',
+
+    // ─── Germany / Austria / Switzerland ──────────────────────────────
+    'Deutsche Bank': 'db.com',
+    'Commerzbank': 'commerzbank.de',
+    'Sparkasse': 'sparkasse.de',
+    'N26': 'n26.com',
+
+    // ─── France / Benelux ─────────────────────────────────────────────
+    'BNP Paribas': 'bnpparibas.com',
+    'Société Générale': 'societegenerale.com',
+    'Crédit Agricole': 'credit-agricole.fr',
+    'ING': 'ing.com',
+    'Rabobank': 'rabobank.com',
+
+    // ─── Spain / Italy ────────────────────────────────────────────────
+    'Santander': 'santander.com',
+    'BBVA': 'bbva.com',
+    'CaixaBank': 'caixabank.com',
+    'UniCredit': 'unicreditgroup.eu',
+    'Intesa Sanpaolo': 'intesasanpaolo.com',
+
+    // ─── Fintechs / Multi-country ─────────────────────────────────────
+    'Wise': 'wise.com',
+    'Curve': 'curve.com',
+
+    // ─── Asia / Pacific ───────────────────────────────────────────────
+    'DBS Bank': 'dbs.com',
+    'Standard Chartered': 'sc.com',
+    'HSBC Asia': 'hsbc.com',
+
+    // ─── Türkiye ──────────────────────────────────────────────────────
+    'Garanti BBVA': 'garantibbva.com.tr',
+    'Ziraat Bankası': 'ziraatbank.com.tr',
+    'Yapı Kredi': 'yapikredi.com.tr',
+    'Türkiye İş Bankası': 'isbank.com.tr',
+    'VakıfBank': 'vakifbank.com.tr',
+    'Halkbank': 'halkbank.com.tr',
+    'QNB Finansbank': 'qnbfinansbank.com',
+    'DenizBank': 'denizbank.com',
+    'HSBC TR': 'hsbc.com.tr',
+    'TEB': 'teb.com.tr',
+    'Kuveyt Türk': 'kuveytturk.com.tr',
+    'ING TR': 'ing.com.tr',
+    'Odeabank': 'odeabank.com.tr',
+    'Anadolu Bank': 'anadolubank.com.tr',
+    'Şekerbank': 'sekerbank.com.tr',
+    'Albaraka Türk': 'albaraka.com.tr',
+    'Akbank': 'akbank.com',
+  };
+
+  /// Returns the primary domain for [bankName] (as produced by [detect]),
+  /// or `null` if the bank isn't mapped. Case-insensitive — users often type
+  /// names in ALL CAPS or all-lowercase, but the map is keyed by display
+  /// casing ("Akbank", "Garanti BBVA", etc.).
+  static String? bankDomainFor(String? bankName) {
+    if (bankName == null || bankName.isEmpty) return null;
+    final direct = _bankDomain[bankName];
+    if (direct != null) return direct;
+    final lower = bankName.toLowerCase();
+    for (final entry in _bankDomain.entries) {
+      if (entry.key.toLowerCase() == lower) return entry.value;
+    }
+    return null;
+  }
+
+  /// Turkish-IBAN bank codes — the 5 digits after the country code +
+  /// check-digits (positions 5-9, 0-indexed). Only the major issuers are
+  /// listed here; unknown codes fall back to whatever the user typed in
+  /// the bank-name field.
+  ///
+  /// Sources cross-checked: TCMB clearing list, public bank IBAN docs.
+  static const Map<String, String> _trIbanBankCode = {
+    '00010': 'Ziraat Bankası',
+    '00012': 'Halkbank',
+    '00015': 'VakıfBank',
+    '00032': 'TEB',
+    '00046': 'Akbank',
+    '00059': 'Şekerbank',
+    '00062': 'Garanti BBVA',
+    '00064': 'Türkiye İş Bankası',
+    '00067': 'Yapı Kredi',
+    '00099': 'ING TR',
+    '00111': 'QNB Finansbank',
+    '00134': 'DenizBank',
+    '00203': 'Albaraka Türk',
+    '00205': 'Kuveyt Türk',
+  };
+
+  /// Detects the issuing bank from an IBAN. Currently only Turkish IBANs
+  /// (`TR…`) are decoded — the bank-code position varies by country and
+  /// other coverage isn't worth a half-baked map.
+  static String? detectFromIban(String iban) {
+    final clean = iban.replaceAll(RegExp(r'\s+'), '').toUpperCase();
+    if (clean.length < 9) return null;
+    final country = clean.substring(0, 2);
+    if (country == 'TR') {
+      final bankCode = clean.substring(4, 9);
+      return _trIbanBankCode[bankCode];
+    }
+    return null;
+  }
 
   /// Detects the issuing bank from a partial or full card number. Returns
   /// `null` if no prefix matches.
@@ -175,6 +316,17 @@ class CardBankDetector {
   static CardNetwork networkFor(String cardNumber) {
     final digits = cardNumber.replaceAll(RegExp(r'\D'), '');
     if (digits.isEmpty) return CardNetwork.unknown;
+
+    // Troy (Türkiye): IIN block 9792xx — assigned to Turkish issuers
+    // (Halkbank, Ziraat, VakıfBank, etc). Checked before Visa/MC because
+    // these BINs don't collide with the global ranges.
+    if (digits.startsWith('9792')) return CardNetwork.troy;
+
+    // UnionPay (CN): 62 + a few 81 sub-ranges. Checked before Discover
+    // (which owns 6011/65/644-649) so 62-prefix doesn't fall through.
+    if (digits.startsWith('62') || digits.startsWith('81')) {
+      return CardNetwork.unionPay;
+    }
 
     // Visa: 4
     if (digits.startsWith('4')) return CardNetwork.visa;

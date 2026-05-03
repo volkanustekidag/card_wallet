@@ -7,6 +7,7 @@ import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
+import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/utils/validators.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
@@ -20,7 +21,6 @@ class AddCreditCardController extends GetxController {
     creditCardNumber: "",
     cardHolder: "",
     expirationDate: "",
-    cvc2: "",
     cardColorId: 1,
   ).obs;
   var isLoading = false.obs;
@@ -46,11 +46,16 @@ class AddCreditCardController extends GetxController {
       creditCardNumber: card.creditCardNumber,
       cardHolder: card.cardHolder,
       expirationDate: card.expirationDate,
-      cvc2: card.cvc2,
       cardColorId: card.cardColorId,
       createdAt: card.createdAt,
       notes: card.notes,
       tags: card.tags == null ? null : List<String>.from(card.tags!),
+      expiryReminderEnabled: card.expiryReminderEnabled,
+      expiryReminderDaysBefore: card.expiryReminderDaysBefore,
+      paymentReminderEnabled: card.paymentReminderEnabled,
+      paymentDueDay: card.paymentDueDay,
+      paymentReminderDaysBefore: card.paymentReminderDaysBefore,
+      reminderHour: card.reminderHour,
     );
 
     isEditMode.value = true;
@@ -71,7 +76,6 @@ class AddCreditCardController extends GetxController {
       creditCardNumber: "",
       cardHolder: "",
       expirationDate: "",
-      cvc2: "",
       cardColorId: 1,
     );
     isEditMode.value = false;
@@ -99,14 +103,29 @@ class AddCreditCardController extends GetxController {
       case "expirationDate":
         card.expirationDate = value as String;
         break;
-      case "cvc2":
-        card.cvc2 = value as String;
-        break;
       case "notes":
         card.notes = value as String?;
         break;
       case "tags":
         card.tags = value as List<String>?;
+        break;
+      case "expiryReminderEnabled":
+        card.expiryReminderEnabled = value as bool;
+        break;
+      case "expiryReminderDaysBefore":
+        card.expiryReminderDaysBefore = value as int;
+        break;
+      case "paymentReminderEnabled":
+        card.paymentReminderEnabled = value as bool;
+        break;
+      case "paymentDueDay":
+        card.paymentDueDay = value as int?;
+        break;
+      case "paymentReminderDaysBefore":
+        card.paymentReminderDaysBefore = value as int;
+        break;
+      case "reminderHour":
+        card.reminderHour = value as int;
         break;
     }
 
@@ -157,11 +176,17 @@ class AddCreditCardController extends GetxController {
           creditCardNumber: currentCard.value.creditCardNumber,
           cardHolder: currentCard.value.cardHolder,
           expirationDate: currentCard.value.expirationDate,
-          cvc2: currentCard.value.cvc2,
           cardColorId: currentCard.value.cardColorId,
           createdAt: _originalCard!.createdAt ?? DateTime.now(),
           notes: currentCard.value.notes,
           tags: currentCard.value.tags,
+          expiryReminderEnabled: currentCard.value.expiryReminderEnabled,
+          expiryReminderDaysBefore: currentCard.value.expiryReminderDaysBefore,
+          paymentReminderEnabled: currentCard.value.paymentReminderEnabled,
+          paymentDueDay: currentCard.value.paymentDueDay,
+          paymentReminderDaysBefore:
+              currentCard.value.paymentReminderDaysBefore,
+          reminderHour: currentCard.value.reminderHour,
         );
 
         await _creditCardService.updateCreditCard(_originalCard!, updatedCard);
@@ -176,11 +201,17 @@ class AddCreditCardController extends GetxController {
           creditCardNumber: currentCard.value.creditCardNumber,
           cardHolder: currentCard.value.cardHolder,
           expirationDate: currentCard.value.expirationDate,
-          cvc2: currentCard.value.cvc2,
           cardColorId: currentCard.value.cardColorId,
           createdAt: DateTime.now(),
           notes: currentCard.value.notes,
           tags: currentCard.value.tags,
+          expiryReminderEnabled: currentCard.value.expiryReminderEnabled,
+          expiryReminderDaysBefore: currentCard.value.expiryReminderDaysBefore,
+          paymentReminderEnabled: currentCard.value.paymentReminderEnabled,
+          paymentDueDay: currentCard.value.paymentDueDay,
+          paymentReminderDaysBefore:
+              currentCard.value.paymentReminderDaysBefore,
+          reminderHour: currentCard.value.reminderHour,
         );
 
         await _creditCardService.addToCreditCard(newCard);
@@ -208,7 +239,6 @@ class AddCreditCardController extends GetxController {
       creditCardNumber: "",
       cardHolder: "",
       expirationDate: "",
-      cvc2: "",
       cardColorId: 1,
     );
     isEditMode.value = false;
@@ -217,15 +247,14 @@ class AddCreditCardController extends GetxController {
   }
 
   bool _isCardValid(CreditCard card) {
-    final sanitizedNumber = card.creditCardNumber.replaceAll(RegExp(r'\s+'), '');
+    final sanitizedNumber =
+        card.creditCardNumber.replaceAll(RegExp(r'\s+'), '');
     final expirationPattern = RegExp(r'^\d{2}\s?\/\s?\d{2}$');
 
     return card.bankName.trim().isNotEmpty &&
         sanitizedNumber.length >= 16 &&
         card.cardHolder.trim().isNotEmpty &&
-        expirationPattern.hasMatch(card.expirationDate.trim()) &&
-        card.cvc2.trim().length >= 3 &&
-        card.cvc2.trim().length <= 4;
+        expirationPattern.hasMatch(card.expirationDate.trim());
   }
 
   List<String> _collectValidationWarnings(CreditCard card) {
@@ -244,18 +273,15 @@ class AddCreditCardController extends GetxController {
     if (dialogContext == null) return Future.value(true);
     return Get.dialog<bool>(
       AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
         title: Row(
           children: [
-            const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+            Icon(Icons.warning_amber_rounded,
+                color: AppThemes.warning(dialogContext)),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 'validationWarningTitle'.tr(),
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
                   fontWeight: FontWeight.w600,
                   fontSize: 18,
                 ),

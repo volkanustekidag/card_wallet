@@ -11,48 +11,40 @@ class CCAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    return ClipRRect(
-      borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(24),
-        bottomRight: Radius.circular(24),
-      ),
-      child: AppBar(
-        elevation: 0,
-        centerTitle: true,
-        backgroundColor: colorScheme.surface,
-        surfaceTintColor: Colors.transparent,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: IconButton(
-                onPressed: () async {
-                  final premiumController = Get.find<PremiumController>();
-                  final currentCount = await premiumController
-                      .getStoredCardCount(CardLimitType.credit);
-
-                  if (!premiumController.canAddMoreCreditCards(currentCount)) {
-                    final canProceed = await showCardLimitDialog(
-                        context, CardLimitType.credit);
-                    if (!canProceed) return;
-                  }
-
-                  Get.toNamed('/addCreditCard')?.then(
-                      (value) =>
-                          Get.find<CreditCardController>().loadCreditCards());
-                },
-                icon: const Icon(
-                  Icons.add,
-                  size: 28,
-                )),
-          )
-        ],
-        title: Text(
-          "CC".tr(),
-          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w500),
+    final colorScheme = Theme.of(context).colorScheme;
+    return AppBar(
+      title: Text(
+        "CC".tr(),
+        style: TextStyle(
+          fontFamily: 'Poppins',
+          fontWeight: FontWeight.w600,
+          color: colorScheme.onSurface,
         ),
       ),
+      titleSpacing: 0,
+      centerTitle: false,
+      backgroundColor: colorScheme.surface,
+      elevation: 0,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.add_rounded),
+          tooltip: 'addCreditCard'.tr(),
+          onPressed: () async {
+            final premiumController = Get.find<PremiumController>();
+            final currentCount = await premiumController
+                .getStoredCardCount(CardLimitType.credit);
+
+            if (!premiumController.canAddMoreCreditCards(currentCount)) {
+              final canProceed =
+                  await showCardLimitDialog(context, CardLimitType.credit);
+              if (!canProceed) return;
+            }
+
+            Get.toNamed('/addCreditCard')?.then((value) =>
+                Get.find<CreditCardController>().loadCreditCards());
+          },
+        ),
+      ],
     );
   }
 

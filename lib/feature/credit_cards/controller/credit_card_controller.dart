@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/feature/home/controller/home_controller.dart';
 
 class CreditCardController extends GetxController {
   final CreditCardService _creditCardService = CreditCardService();
@@ -14,23 +16,38 @@ class CreditCardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadCreditCards();
+    // Seed from HomeController so the route transition can render real
+    // content on its first frame instead of waiting on Hive. The reload
+    // happens after the first frame so the fade-in isn't fighting the
+    // box read for UI thread time.
+    if (Get.isRegistered<HomeController>()) {
+      final home = Get.find<HomeController>();
+      if (home.creditCards.isNotEmpty) {
+        creditCards.assignAll(home.creditCards);
+      }
+    }
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      loadCreditCards();
+    });
   }
 
   Future<void> loadCreditCards() async {
     try {
-      isLoading.value = true;
+      // Suppress the spinner when we already have seeded content; the
+      // page should never blank back to a CircularProgressIndicator
+      // during a quiet refresh.
+      if (creditCards.isEmpty) {
+        isLoading.value = true;
+      }
       await _creditCardService.openBox();
 
-      // Service'den güvenli şekilde kartları al
       final result = await _creditCardService.getAllCreditCards();
       creditCards.value = result;
     } catch (e) {
       debugPrint('Error loading credit cards: $e');
-      // Detaylı hata mesajı göster
       Get.context?.showErrorSnackBar(
           "failedToLoadCreditCards".tr(args: [e.toString()]));
-      creditCards.value = []; // Hata durumunda boş liste
+      // Keep whatever was seeded — don't blank the screen on error.
     } finally {
       isLoading.value = false;
     }

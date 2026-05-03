@@ -2,18 +2,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/controllers/auth_controller.dart';
-import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
+import 'package:wallet_app/feature/home/widgets/sections/premium_marks.dart';
 
-/// One contextual nudge at a time, picked by priority:
-///   1. Free tier limit reached → upsell premium.
-///   2. ≥ 5 cards saved and biometric not enabled → suggest biometric.
-///   3. Otherwise hidden (no nudge if there's nothing meaningful to say).
-///
-/// The "backup your wallet" suggestion is intentionally deferred — we
-/// don't currently track whether the user has ever exported a backup,
-/// and showing it permanently would be noise.
+/// Currently a single nudge: suggest enabling biometric lock once the
+/// user has at least 3 cards (so they're invested) and hardware is
+/// available. The premium upsell variant moved to PremiumStatusStrip —
+/// keeping it here too created two near-identical cards stacked.
 class SmartSuggestionCard extends StatelessWidget {
   final HomeController controller;
   const SmartSuggestionCard({Key? key, required this.controller})
@@ -22,62 +18,25 @@ class SmartSuggestionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final premium = Get.find<PremiumController>();
     final auth =
         Get.isRegistered<AuthController>() ? Get.find<AuthController>() : null;
 
     return Obx(() {
-      final isPremium = premium.isPremium;
-      final maxFree = premium.maxCardsForFree;
-      final maxLoyalty = premium.maxLoyaltyCardsForFree;
       final ccCount = controller.creditCards.length;
       final ibanCount = controller.ibanCards.length;
       final loyaltyCount = controller.loyaltyCards.length;
       final totalCards = ccCount + ibanCount + loyaltyCount;
 
-      final atLimit = !isPremium &&
-          (ccCount >= maxFree ||
-              ibanCount >= maxFree ||
-              loyaltyCount >= maxLoyalty);
-
-      // Priority 1: free tier limit reached → upsell premium.
-      if (atLimit) {
-        return _SuggestionTile(
-          colorScheme: colorScheme,
-          icon: Icons.workspace_premium_rounded,
-          title: 'unlockUnlimited'.tr(),
-          subtitle: 'unlockUnlimitedSub'.tr(),
-          gradient: LinearGradient(
-            colors: [
-              colorScheme.primaryContainer,
-              colorScheme.tertiaryContainer,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          foreground: colorScheme.onPrimaryContainer,
-          onTap: () => Get.toNamed('/premium'),
-        );
-      }
-
-      // Priority 2: enough cards saved and biometric not yet on.
       final biometricAvailable = auth?.isBiometricAvailable.value ?? false;
       final biometricEnabled = auth?.isBiometricEnabled.value ?? false;
-      if (totalCards >= 5 && biometricAvailable && !biometricEnabled) {
+      if (totalCards >= 3 && biometricAvailable && !biometricEnabled) {
         return _SuggestionTile(
-          colorScheme: colorScheme,
-          icon: Icons.fingerprint_rounded,
+          mark: ShieldOutlineMark(size: 18, color: colorScheme.primary),
+          eyebrow: 'security'.tr().toUpperCase(),
+          eyebrowColor: colorScheme.primary,
+          accent: colorScheme.primary,
           title: 'suggestBiometricTitle'.tr(),
           subtitle: 'suggestBiometricSub'.tr(),
-          gradient: LinearGradient(
-            colors: [
-              colorScheme.secondaryContainer,
-              colorScheme.primaryContainer,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          foreground: colorScheme.onPrimaryContainer,
           onTap: () => Get.toNamed('/settings'),
         );
       }
@@ -88,26 +47,27 @@ class SmartSuggestionCard extends StatelessWidget {
 }
 
 class _SuggestionTile extends StatelessWidget {
-  final ColorScheme colorScheme;
-  final IconData icon;
+  final Widget mark;
+  final String eyebrow;
+  final Color eyebrowColor;
+  final Color accent;
   final String title;
   final String subtitle;
-  final Gradient gradient;
-  final Color foreground;
   final VoidCallback onTap;
 
   const _SuggestionTile({
-    required this.colorScheme,
-    required this.icon,
+    required this.mark,
+    required this.eyebrow,
+    required this.eyebrowColor,
+    required this.accent,
     required this.title,
     required this.subtitle,
-    required this.gradient,
-    required this.foreground,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         kSpaceLg,
@@ -121,32 +81,35 @@ class _SuggestionTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(18),
           onTap: onTap,
           child: Container(
-            height: kSuggestionHeight,
-            padding: const EdgeInsets.symmetric(
-              horizontal: kSpaceMd,
-              vertical: kSpaceMd,
-            ),
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
             decoration: BoxDecoration(
-              gradient: gradient,
+              color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: accent.withValues(alpha: 0.25),
+              ),
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: foreground.withValues(alpha: 0.16),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, color: foreground, size: 22),
-                ),
-                const SizedBox(width: kSpaceMd),
+                mark,
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      Text(
+                        eyebrow,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.6,
+                          color: eyebrowColor,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
                       Text(
                         title,
                         maxLines: 1,
@@ -155,7 +118,8 @@ class _SuggestionTile extends StatelessWidget {
                           fontFamily: 'Poppins',
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: foreground,
+                          color: colorScheme.onSurface,
+                          height: 1.2,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -166,16 +130,19 @@ class _SuggestionTile extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: foreground.withValues(alpha: 0.78),
+                          fontWeight: FontWeight.w400,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                          height: 1.3,
                         ),
                       ),
                     ],
                   ),
                 ),
+                const SizedBox(width: 10),
                 Icon(
-                  Icons.chevron_right_rounded,
-                  color: foreground.withValues(alpha: 0.7),
+                  Icons.arrow_forward_rounded,
+                  size: 16,
+                  color: accent,
                 ),
               ],
             ),

@@ -8,6 +8,7 @@ import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
+import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/utils/validators.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 
@@ -208,18 +209,15 @@ class AddIbanCardController extends GetxController {
     if (dialogContext == null) return Future.value(true);
     return Get.dialog<bool>(
       AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
         title: Row(
           children: [
-            const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+            Icon(Icons.warning_amber_rounded,
+                color: AppThemes.warning(dialogContext)),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 'validationWarningTitle'.tr(),
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
                   fontWeight: FontWeight.w600,
                   fontSize: 18,
                 ),

@@ -38,7 +38,7 @@ configurations.all {
 
 android {
     namespace 'com.volkan.wallet_app'
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     defaultConfig {
@@ -70,6 +70,7 @@ android {
     }
     
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -96,4 +97,6 @@ flutter {
 }
 
 dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+    implementation 'com.google.android.gms:play-services-pay:16.5.0'
 }

@@ -1,10 +1,15 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
+import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/body.dart';
+import 'package:wallet_app/feature/home/widgets/sheets/credit_card_reminder_sheet.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -15,12 +20,29 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late final HomeController _homeController;
+  StreamSubscription<CardReminderPayload>? _reminderTapSub;
   DateTime? _lastBackPressTime;
+  bool _isReminderSheetOpen = false;
 
   @override
   void initState() {
     super.initState();
     _homeController = Get.find<HomeController>();
+    _reminderTapSub = CardReminderService().reminderPayloads.listen(
+          _openReminderPayload,
+        );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final payload = CardReminderService().takePendingPayload();
+      if (payload != null) {
+        _openReminderPayload(payload);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _reminderTapSub?.cancel();
+    super.dispose();
   }
 
   void _handlePopInvoked(bool didPop) {
@@ -35,16 +57,47 @@ class _HomePageState extends State<HomePage> {
           SnackBar(
             content: Text('pressBackAgainToExit'.tr()),
             duration: const Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
           ),
         );
       return;
     }
     SystemNavigator.pop();
+  }
+
+  Future<void> _openReminderPayload(CardReminderPayload payload) async {
+    if (!mounted || _isReminderSheetOpen) return;
+    CardReminderService().takePendingPayload();
+
+    if (_homeController.isLoading.value) {
+      await _homeController.loadHomeContent();
+    }
+
+    var card = _findCreditCard(payload.cardId);
+    if (card == null) {
+      await _homeController.loadHomeContent();
+      card = _findCreditCard(payload.cardId);
+    }
+    if (card == null || !mounted) return;
+
+    _isReminderSheetOpen = true;
+    try {
+      await showCreditCardReminderSheet(
+        context,
+        card: card,
+        kind: payload.kind,
+      );
+    } finally {
+      _isReminderSheetOpen = false;
+    }
+  }
+
+  CreditCard? _findCreditCard(String id) {
+    for (final card in _homeController.creditCards) {
+      if (card.id.toString() == id) {
+        return card;
+      }
+    }
+    return null;
   }
 
   @override

@@ -5,8 +5,16 @@ import 'package:hive/hive.dart';
 enum AppThemeMode { light, dark, system }
 
 class ThemeController extends GetxController {
-  final _themeMode = AppThemeMode.system.obs;
+  static const String _boxName = 'theme_box';
+  static const String _modeKey = 'themeMode';
+  static const String _legacyDarkKey = 'isDarkMode';
+
+  final Rx<AppThemeMode> _themeMode;
   Box? _themeBox;
+
+  ThemeController({AppThemeMode initialMode = AppThemeMode.system, Box? box})
+      : _themeMode = initialMode.obs,
+        _themeBox = box;
 
   AppThemeMode get appThemeMode => _themeMode.value;
 
@@ -33,34 +41,29 @@ class ThemeController extends GetxController {
     }
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-    _loadTheme();
-  }
-
-  Future<void> _loadTheme() async {
-    try {
-      _themeBox = await Hive.openBox('theme_box');
-      final stored = _themeBox?.get('themeMode') as String?;
-      if (stored != null) {
-        _themeMode.value = _parse(stored);
+  /// Resolve the persisted theme mode synchronously *before* runApp so
+  /// MaterialApp can build with the correct theme on the very first frame.
+  /// Returns the parsed mode and keeps the open box reference so the
+  /// controller doesn't have to reopen it.
+  static Future<({AppThemeMode mode, Box box})> bootstrap() async {
+    final box = await Hive.openBox(_boxName);
+    final stored = box.get(_modeKey) as String?;
+    AppThemeMode mode;
+    if (stored != null) {
+      mode = _parse(stored);
+    } else {
+      final legacyDark = box.get(_legacyDarkKey) as bool?;
+      if (legacyDark == true) {
+        mode = AppThemeMode.dark;
+      } else if (legacyDark == false) {
+        mode = AppThemeMode.light;
       } else {
-        final legacyDark = _themeBox?.get('isDarkMode') as bool?;
-        if (legacyDark == true) {
-          _themeMode.value = AppThemeMode.dark;
-        } else if (legacyDark == false) {
-          _themeMode.value = AppThemeMode.light;
-        } else {
-          _themeMode.value = AppThemeMode.system;
-        }
-        await _persist();
+        mode = AppThemeMode.system;
       }
-      Get.changeThemeMode(themeMode);
-    } catch (e) {
-      _themeMode.value = AppThemeMode.system;
-      debugPrint('Theme load error: $e');
+      await box.put(_modeKey, mode.name);
+      await box.delete(_legacyDarkKey);
     }
+    return (mode: mode, box: box);
   }
 
   Future<void> setThemeMode(AppThemeMode mode) async {
@@ -77,8 +80,8 @@ class ThemeController extends GetxController {
 
   Future<void> _persist() async {
     try {
-      await _themeBox?.put('themeMode', _themeMode.value.name);
-      await _themeBox?.delete('isDarkMode');
+      _themeBox ??= await Hive.openBox(_boxName);
+      await _themeBox?.put(_modeKey, _themeMode.value.name);
     } catch (e) {
       debugPrint('Theme save error: $e');
     }

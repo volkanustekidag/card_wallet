@@ -8,9 +8,10 @@ import 'package:wallet_app/feature/credit_cards/controller/credit_card_controlle
 import 'package:wallet_app/core/widgets/card_search_bar.dart';
 import 'package:wallet_app/core/widgets/credit_card_back.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
-import 'package:wallet_app/core/widgets/empty_list_info.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/utils/card_sorting.dart';
+import 'package:wallet_app/core/utils/tag_index.dart';
+import 'package:wallet_app/core/widgets/tag_filter_chips.dart';
 import 'package:wallet_app/feature/add_credit_card/add_credit_card_page.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
@@ -39,6 +40,7 @@ class _BodyState extends State<Body> {
   Worker? _cardsWorker;
   String _searchQuery = '';
   CardSortOption _sortOption = CardSortOption.newest;
+  Set<String> _selectedTags = {};
 
   @override
   void initState() {
@@ -135,61 +137,58 @@ class _BodyState extends State<Body> {
 
     return Column(
       children: [
+        CardSearchBar(
+          query: _searchQuery,
+          sort: _sortOption,
+          onQueryChanged: (q) {
+            setState(() => _searchQuery = q);
+            _syncAnimatedList(_filterAndSort(widget.controller.creditCards));
+          },
+          onSortChanged: (s) {
+            setState(() => _sortOption = s);
+            _syncAnimatedList(_filterAndSort(widget.controller.creditCards));
+          },
+        ),
         Obx(() {
-          if (widget.controller.creditCards.isEmpty) {
-            return const SizedBox.shrink();
-          }
-          return CardSearchBar(
-            query: _searchQuery,
-            sort: _sortOption,
-            onQueryChanged: (q) {
-              setState(() => _searchQuery = q);
-              _syncAnimatedList(
-                  _filterAndSort(widget.controller.creditCards));
-            },
-            onSortChanged: (s) {
-              setState(() => _sortOption = s);
+          final all = collectAllTags(
+            credits: widget.controller.creditCards,
+            ibans: const [],
+          );
+          if (all.isEmpty) return const SizedBox.shrink();
+          return TagFilterChips(
+            tags: all,
+            selected: _selectedTags,
+            onChanged: (next) {
+              setState(() => _selectedTags = next);
               _syncAnimatedList(
                   _filterAndSort(widget.controller.creditCards));
             },
           );
         }),
         Expanded(
-          child: Stack(
-            children: [
-              AnimatedList(
-                key: _listKey,
-                physics: const BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics()),
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 48),
-                initialItemCount: _initialItemCount,
-                itemBuilder: (context, index, animation) {
-                  if (_cards.isEmpty || index >= _cards.length) {
-                    return const SizedBox.shrink();
-                  }
-                  final creditCard = _cards[index];
-                  final isFirstCard = index == 0;
+          child: _cards.isEmpty
+              ? _buildNoSearchResults()
+              : AnimatedList(
+                  key: _listKey,
+                  physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics()),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 48),
+                  initialItemCount: _initialItemCount,
+                  itemBuilder: (context, index, animation) {
+                    if (_cards.isEmpty || index >= _cards.length) {
+                      return const SizedBox.shrink();
+                    }
+                    final creditCard = _cards[index];
+                    final isFirstCard = index == 0;
 
-                  return _buildAnimatedCard(
-                    context: context,
-                    creditCard: creditCard,
-                    animation: animation,
-                    highlight: isFirstCard,
-                  );
-                },
-              ),
-              if (widget.controller.creditCards.isEmpty)
-                const Positioned.fill(
-                  child: EmptyListInfo(
-                    ctaRoute: '/addCreditCard',
-                    ctaLabel: 'addFirstCC',
-                    ctaIcon: Icons.credit_card,
-                  ),
-                )
-              else if (_cards.isEmpty)
-                _buildNoSearchResults(),
-            ],
-          ),
+                    return _buildAnimatedCard(
+                      context: context,
+                      creditCard: creditCard,
+                      animation: animation,
+                      highlight: isFirstCard,
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -350,9 +349,18 @@ class _BodyState extends State<Body> {
   }
 
   List<CreditCard> _filterAndSort(List<CreditCard> cards) {
-    final filtered = _searchQuery.trim().isEmpty
-        ? List<CreditCard>.from(cards)
-        : cards.where((c) => _matchesQuery(c, _searchQuery)).toList();
+    Iterable<CreditCard> work = cards;
+    if (_searchQuery.trim().isNotEmpty) {
+      work = work.where((c) => _matchesQuery(c, _searchQuery));
+    }
+    if (_selectedTags.isNotEmpty) {
+      work = work.where((c) {
+        final cardTags = c.tags;
+        if (cardTags == null || cardTags.isEmpty) return false;
+        return _selectedTags.every(cardTags.contains);
+      });
+    }
+    final filtered = work.toList();
 
     switch (_sortOption) {
       case CardSortOption.newest:

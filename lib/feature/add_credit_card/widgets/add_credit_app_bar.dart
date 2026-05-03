@@ -17,56 +17,52 @@ class AddCreditAppBar extends StatelessWidget implements PreferredSizeWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(24),
-        bottomRight: Radius.circular(24),
-      ),
-      child: AppBar(
-        elevation: 0,
-        centerTitle: true,
-        backgroundColor: colorScheme.surface,
-        surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          onPressed: () {
-            controller.resetCard();
-            Get.back();
-          },
-          icon: Icon(
-            Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
-          ),
+    return AppBar(
+      elevation: 0,
+      centerTitle: false,
+      titleSpacing: 0,
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      leading: IconButton(
+        onPressed: () {
+          controller.resetCard();
+          Get.back();
+        },
+        icon: Icon(
+          Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
         ),
-        actions: [
-          Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: Obx(() {
-                final isBusy = controller.isLoading.value;
-                final canSave = controller.isFormValid && !isBusy;
-                final iconColor = canSave
-                    ? colorScheme.primary
-                    : colorScheme.onSurface.withValues(alpha: 0.4);
-                return IconButton(
-                  onPressed: canSave ? controller.saveCard : null,
-                  icon: isBusy
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Icon(
-                          controller.isEditMode.value
-                              ? Icons.save
-                              : Icons.add_card,
-                          color: iconColor,
-                        ),
-                );
-              }))
-        ],
-        title: Obx(() => Text(
-              controller.isEditMode.value ? "editCC".tr() : "addCC".tr(),
-              style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w500),
-            )),
       ),
+      actions: [
+        Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: Obx(() {
+              final isBusy = controller.isLoading.value;
+              final canSave = controller.isFormValid && !isBusy;
+              final iconColor = canSave
+                  ? colorScheme.primary
+                  : colorScheme.onSurface.withValues(alpha: 0.4);
+              return IconButton(
+                onPressed: canSave ? controller.saveCard : null,
+                icon: isBusy
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Icon(
+                        controller.isEditMode.value
+                            ? Icons.save
+                            : Icons.add_card,
+                        color: iconColor,
+                      ),
+              );
+            }))
+      ],
+      title: Obx(() => Text(
+            controller.isEditMode.value ? "editCC".tr() : "addCC".tr(),
+            style:
+                TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w500),
+          )),
     );
   }
 

@@ -10,6 +10,7 @@ class CustomDialog extends StatelessWidget {
     this.cancelText = "cancel",
     this.content,
     this.confirmText = "yes",
+    this.destructive = true,
   }) : super(key: key);
 
   final Function? onConfirm;
@@ -18,39 +19,40 @@ class CustomDialog extends StatelessWidget {
   final String? content;
   final String confirmText;
 
+  /// Whether the confirm button is destructive (uses error color). Default
+  /// is true because the dialog is most often used to confirm deletes.
+  final bool destructive;
+
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final dialogTheme = Theme.of(context).dialogTheme;
+    final accent = destructive ? colorScheme.error : colorScheme.primary;
+    final onAccent =
+        destructive ? colorScheme.onError : colorScheme.onPrimary;
+
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       title: Text(
         title.tr(),
-        style: TextStyle(fontFamily: 'Poppins', 
-          fontWeight: FontWeight.w600,
-          fontSize: 18,
-        ),
+        style: dialogTheme.titleTextStyle,
       ),
       content: content != null
           ? Text(
               content!.tr(),
-              style: TextStyle(fontFamily: 'Poppins', 
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-              ),
+              style: dialogTheme.contentTextStyle,
             )
           : null,
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
           style: TextButton.styleFrom(
+            foregroundColor: colorScheme.onSurfaceVariant,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
           child: Text(
             cancelText.tr(),
-            style: TextStyle(fontFamily: 'Poppins', 
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[600],
-            ),
+            style: const TextStyle(fontWeight: FontWeight.w500),
           ),
         ),
         ElevatedButton(
@@ -62,16 +64,14 @@ class CustomDialog extends StatelessWidget {
             Navigator.pop(context);
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
+            backgroundColor: accent,
+            foregroundColor: onAccent,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
           child: Text(
             confirmText.tr(),
-            style: TextStyle(fontFamily: 'Poppins',
-              fontWeight: FontWeight.w500,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.w500),
           ),
         ),
       ],

@@ -12,12 +12,14 @@ class AuthViews extends StatefulWidget {
   final String text;
   final void Function(String)? onCompleted;
   final TextEditingController textEditingController;
+  final bool autoFocus;
 
   const AuthViews({
     Key? key,
     required this.text,
     required this.textEditingController,
     required this.onCompleted,
+    this.autoFocus = true,
   }) : super(key: key);
 
   @override
@@ -37,7 +39,7 @@ class _AuthViewsState extends State<AuthViews> {
     if (authController != null) {
       _failureWorker =
           ever<bool>(authController.authenticationFailed, (failed) {
-        if (!failed) return;
+        if (!failed || !mounted) return;
         _errorAnimationController.add(ErrorAnimationType.shake);
         HapticFeedback.heavyImpact();
         widget.textEditingController.clear();
@@ -86,6 +88,18 @@ class _AuthViewsState extends State<AuthViews> {
               GetX<AuthController>(
                 builder: (authController) {
                   final locked = authController.isPinLocked;
+                  final hasError = authController.authenticationFailed.value;
+                  final busy = authController.isLoading.value;
+                  final fieldsEnabled = !locked && !busy;
+
+                  final activeColor =
+                      hasError ? color.error : color.primary;
+                  final inactiveColor = hasError
+                      ? color.error.withValues(alpha: 0.7)
+                      : color.outline.withValues(alpha: 0.5);
+                  final selectedColor =
+                      hasError ? color.error : color.secondary;
+
                   return Column(
                     children: [
                       PinCodeTextField(
@@ -93,18 +107,20 @@ class _AuthViewsState extends State<AuthViews> {
                         appContext: context,
                         length: 4,
                         controller: widget.textEditingController,
+                        autoDisposeControllers: false,
                         obscureText: true,
                         obscuringCharacter: '●',
                         animationType: AnimationType.fade,
-                        cursorColor: color.primary,
+                        cursorColor: activeColor,
                         keyboardType: TextInputType.number,
-                        autoFocus: !locked,
-                        enabled: !locked,
+                        autoFocus: widget.autoFocus && fieldsEnabled,
+                        enabled: fieldsEnabled,
                         cursorHeight: 16,
                         errorAnimationController: _errorAnimationController,
                         textStyle: TextStyle(
                           fontSize: 18,
-                          color: color.onSurface,
+                          color:
+                              hasError ? color.error : color.onSurface,
                           fontWeight: FontWeight.w600,
                         ),
                         pinTheme: PinTheme(
@@ -112,9 +128,9 @@ class _AuthViewsState extends State<AuthViews> {
                           borderRadius: BorderRadius.circular(12),
                           fieldHeight: 50,
                           fieldWidth: 50,
-                          activeColor: color.primary,
-                          inactiveColor: color.outline.withValues(alpha: 0.5),
-                          selectedColor: color.secondary,
+                          activeColor: activeColor,
+                          inactiveColor: inactiveColor,
+                          selectedColor: selectedColor,
                           activeFillColor: Colors.transparent,
                           inactiveFillColor: Colors.transparent,
                           selectedFillColor: Colors.transparent,
@@ -122,110 +138,54 @@ class _AuthViewsState extends State<AuthViews> {
                         ),
                         enableActiveFill: false,
                         onChanged: (_) {},
-                        onCompleted: locked ? null : widget.onCompleted,
+                        onCompleted:
+                            fieldsEnabled ? widget.onCompleted : null,
                       ),
-                      if (locked) ...[
-                        const SizedBox(height: 12),
-                        Text(
-                          'pinLockedMessage'.tr(args: [
-                            _formatRemaining(authController.pinLockRemaining),
-                          ]),
-                          textAlign: TextAlign.center,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.error,
-                            fontWeight: FontWeight.w500,
-                          ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        height: 24,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 180),
+                          child: busy
+                              ? SizedBox(
+                                  key: const ValueKey('pin-loader'),
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.4,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      color.primary,
+                                    ),
+                                  ),
+                                )
+                              : locked
+                                  ? Text(
+                                      key: const ValueKey('pin-locked'),
+                                      'pinLockedMessage'.tr(args: [
+                                        _formatRemaining(
+                                            authController.pinLockRemaining),
+                                      ]),
+                                      textAlign: TextAlign.center,
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(
+                                        color: color.error,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(
+                                      key: ValueKey('pin-idle'),
+                                    ),
                         ),
-                      ],
+                      ),
                     ],
                   );
                 },
               ),
-
-              if (widget.text == "enterPin") ...[
-                const SizedBox(height: 28),
-                GetX<AuthController>(
-                  builder: (authController) {
-                    if (!authController.showBiometricButton.value) {
-                      return const SizedBox.shrink();
-                    }
-                    return _buildBiometricButton(theme, color, authController);
-                  },
-                ),
-              ],
             ],
           ),
         ),
       ],
     );
-  }
-
-  Widget _buildBiometricButton(
-    ThemeData theme,
-    ColorScheme color,
-    AuthController authController,
-  ) {
-    return Column(
-      children: [
-        Text(
-          "or".tr(),
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: color.onSurface.withValues(alpha: 0.6),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(40),
-            onTap: () => authController.authenticateWithBiometric(),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    color.primary,
-                    color.primary.withValues(alpha: 0.85),
-                  ],
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: color.primary.withValues(alpha: 0.35),
-                    blurRadius: 18,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Icon(
-                _getBiometricIcon(authController.availableBiometrics),
-                size: 36,
-                color: color.onPrimary,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text(
-          authController.getBiometricDisplayName(),
-          style: theme.textTheme.labelMedium?.copyWith(
-            color: color.onSurface.withValues(alpha: 0.7),
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
-    );
-  }
-
-  IconData _getBiometricIcon(List biometrics) {
-    if (biometrics.any((b) => b.toString().contains('face'))) {
-      return Icons.face;
-    } else if (biometrics.any((b) => b.toString().contains('fingerprint'))) {
-      return Icons.fingerprint;
-    }
-    return Icons.security;
   }
 
   String _formatRemaining(Duration d) {

@@ -14,56 +14,50 @@ class AddIbanAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AddIbanCardController>();
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(24),
-        bottomRight: Radius.circular(24),
-      ),
-      child: AppBar(
-        elevation: 0,
-        centerTitle: true,
-        backgroundColor: colorScheme.surface,
-        surfaceTintColor: Colors.transparent,
-        leading: IconButton(
-          onPressed: () {
-            controller.resetCard();
-            Get.back();
-          },
-          icon: Icon(
-            Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
-          ),
+    return AppBar(
+      elevation: 0,
+      titleSpacing: 0,
+      centerTitle: false,
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      leading: IconButton(
+        onPressed: () {
+          controller.resetCard();
+          Get.back();
+        },
+        icon: Icon(
+          Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: Obx(() => IconButton(
-                  onPressed: controller.isLoading.value
-                      ? null
-                      : () {
-                          controller.saveCard();
-                        },
-                  icon: controller.isLoading.value
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Icon(
-                          controller.isEditMode.value
-                              ? Icons.save
-                              : Icons.add_card,
-                        ),
-                )),
-          )
-        ],
-        title: Obx(() => Text(
-              controller.isEditMode.value ? "editIC".tr() : "addIC".tr(),
-              style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w400),
-            )),
       ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
+          child: Obx(() => IconButton(
+                onPressed: controller.isLoading.value
+                    ? null
+                    : () {
+                        controller.saveCard();
+                      },
+                icon: controller.isLoading.value
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Icon(
+                        controller.isEditMode.value
+                            ? Icons.save
+                            : Icons.add_card,
+                      ),
+              )),
+        )
+      ],
+      title: Obx(() => Text(
+            controller.isEditMode.value ? "editIC".tr() : "addIC".tr(),
+            style:
+                TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w400),
+          )),
     );
   }
 

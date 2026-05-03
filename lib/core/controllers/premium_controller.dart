@@ -19,12 +19,17 @@ class PremiumController extends GetxController {
   bool get isLoading => _isLoading.value;
   List<ProductDetails> get availableProducts => _availableProducts;
   RxList<ProductDetails> get availableProductsRx => _availableProducts;
+  // Each cadence falls back to its legacy ID — until the store catches
+  // up with the v2 IDs, the older products keep populating the paywall.
   ProductDetails? get monthlyProduct =>
-      _getProductById(PremiumService.monthlyProductId);
+      _getProductById(PremiumService.monthlyProductId) ??
+      _getProductById(PremiumService.weeklyProductId);
   ProductDetails? get yearlyProduct =>
-      _getProductById(PremiumService.yearlyProductId);
+      _getProductById(PremiumService.yearlyProductId) ??
+      _getProductById(PremiumService.legacyYearlyProductId);
   ProductDetails? get lifetimeProduct =>
-      _getProductById(PremiumService.lifetimeProductId);
+      _getProductById(PremiumService.lifetimeProductId) ??
+      _getProductById(PremiumService.legacyLifetimeProductId);
   int get creditCardCount => _creditCardCount.value;
   int get ibanCardCount => _ibanCardCount.value;
   int get loyaltyCardCount => _loyaltyCardCount.value;

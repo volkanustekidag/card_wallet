@@ -15,9 +15,13 @@ class AuthController extends GetxController {
 
   static const String _pinFailureCountKey = 'pin_failure_count';
   static const String _pinLockedUntilKey = 'pin_locked_until';
+  static const Duration _pinErrorVisibleDuration = Duration(milliseconds: 700);
 
   AuthController();
 
+  // `isLoading` is *only* set during an active login/register attempt — never
+  // during the initial bootstrap. We resolve hasPassword synchronously below
+  // so the lock screen can render on the first frame without a spinner.
   var isLoading = false.obs;
   var isRegistering = false.obs;
   var hasPassword = false.obs;
@@ -29,49 +33,58 @@ class AuthController extends GetxController {
   var isBiometricEnabled = false.obs;
   var availableBiometrics = <BiometricType>[].obs;
   var showBiometricButton = false.obs;
+  // Set after the async biometric availability/enabled probes resolve. The
+  // lock screen waits on this before mounting the PIN field — otherwise the
+  // PIN field auto-focuses for one frame, pops the keyboard, and only then
+  // the biometric prompt slides in over it.
+  var biometricInitDone = false.obs;
   var autoLockTime = 5.obs;
 
   // Rate limiting state
   final pinFailureCount = 0.obs;
   final pinLockedUntil = Rxn<DateTime>();
   Timer? _lockTicker;
+  Timer? _errorResetTimer;
 
   @override
   void onInit() {
     super.onInit();
-    checkHavePassword();
-    checkBiometricAvailability();
-    loadAutoLockTime();
-    _restoreRateLimitState();
+    // The auth box is opened in main() before runApp, so we can decide between
+    // login and register UI synchronously — no spinner, no flicker.
+    final hasExisting = _authenticationService.hasPasswordSync();
+    hasPassword.value = hasExisting;
+    isRegistering.value = !hasExisting;
+
+    // Background-only work. None of these block the lock screen render: the
+    // PIN field is interactive immediately, biometric button just appears
+    // after the platform check resolves.
+    unawaited(_initializeBiometrics());
+    unawaited(loadAutoLockTime());
+    unawaited(_restoreRateLimitState());
   }
 
   @override
   void onClose() {
     _lockTicker?.cancel();
+    _errorResetTimer?.cancel();
     super.onClose();
   }
 
-  Future<void> checkHavePassword() async {
+  Future<void> _initializeBiometrics() async {
     try {
-      isLoading.value = true;
-      await _authenticationService.openBox();
-      final result = await _authenticationService.checkHavePassword();
-
-      if (result == null) {
-        isRegistering.value = true;
-        hasPassword.value = false;
-      } else {
-        hasPassword.value = true;
-        isRegistering.value = false;
-      }
-
-      // After checking password, update biometric button visibility
-      await checkBiometricAvailability();
-    } catch (e) {
-      Get.context
-          ?.showErrorSnackBar('errorCheckingPassword'.tr());
+      final available = await _biometricService.isBiometricAvailable();
+      final biometrics = await _biometricService.getAvailableBiometrics();
+      final enabled = await _biometricService.isBiometricEnabled();
+      isBiometricAvailable.value = available;
+      availableBiometrics.value = biometrics;
+      isBiometricEnabled.value = enabled;
+      showBiometricButton.value = available && enabled && hasPassword.value;
+    } catch (_) {
+      isBiometricAvailable.value = false;
+      isBiometricEnabled.value = false;
+      showBiometricButton.value = false;
     } finally {
-      isLoading.value = false;
+      biometricInitDone.value = true;
     }
   }
 
@@ -80,71 +93,76 @@ class AuthController extends GetxController {
       Get.context?.showErrorSnackBar(
         'pinLockedMessage'.tr(args: [_formatLockRemaining()]),
       );
-      authenticationFailed.value = true;
+      _flashAuthFailure();
       return;
     }
+    isLoading.value = true;
     try {
-      isLoading.value = true;
       final result = await _authenticationService.authenticate(password);
 
       if (result == true) {
         await _resetRateLimitState();
         authenticationSuccess.value = true;
+        // Navigate first; deliberately do *not* clear isLoading. The auth
+        // route is being torn down — toggling state here would re-render the
+        // PIN form for one frame between offAllNamed and the home route's
+        // first paint, which is the "flash back to lock screen" the user
+        // sees today.
         Get.offAllNamed('/home');
-      } else {
-        await _registerPinFailure();
-        authenticationFailed.value = true;
+        return;
       }
-    } catch (e) {
+
+      await _registerPinFailure();
+      _flashAuthFailure();
+    } catch (_) {
       Get.context?.showErrorSnackBar('errorDuringAuthentication'.tr());
+      _flashAuthFailure();
     } finally {
-      isLoading.value = false;
+      if (!authenticationSuccess.value) {
+        isLoading.value = false;
+      }
     }
   }
 
   Future<void> register(String password) async {
+    isLoading.value = true;
     try {
-      isLoading.value = true;
       await _authenticationService.creatPassword(password);
       isRegistering.value = false;
       hasPassword.value = true;
-    } catch (e) {
+      authenticationSuccess.value = true;
+      Get.offAllNamed('/home');
+    } catch (_) {
       Get.context?.showErrorSnackBar('errorDuringRegistration'.tr());
+      _flashAuthFailure();
     } finally {
-      isLoading.value = false;
+      if (!authenticationSuccess.value) {
+        isLoading.value = false;
+      }
     }
   }
 
+  /// Trigger the PIN error UI: red border + shake + auto-clear (handled by the
+  /// PIN component listening to [authenticationFailed]). The flag is reset
+  /// after a short window so the red state is actually visible.
+  void _flashAuthFailure() {
+    authenticationFailed.value = true;
+    _errorResetTimer?.cancel();
+    _errorResetTimer = Timer(_pinErrorVisibleDuration, () {
+      authenticationFailed.value = false;
+    });
+  }
+
   void resetAuthenticationState() {
+    _errorResetTimer?.cancel();
     authenticationFailed.value = false;
     authenticationSuccess.value = false;
   }
 
-  /// Check biometric availability and update states
-  Future<void> checkBiometricAvailability() async {
-    try {
-      isBiometricAvailable.value =
-          await _biometricService.isBiometricAvailable();
-      availableBiometrics.value =
-          await _biometricService.getAvailableBiometrics();
-      isBiometricEnabled.value = await _biometricService.isBiometricEnabled();
-
-      // Show biometric button only if available, enabled, and user has password
-      showBiometricButton.value = isBiometricAvailable.value &&
-          isBiometricEnabled.value &&
-          hasPassword.value;
-    } catch (e) {
-      isBiometricAvailable.value = false;
-      isBiometricEnabled.value = false;
-      showBiometricButton.value = false;
-    }
-  }
-
   /// Authenticate using biometric
   Future<void> authenticateWithBiometric() async {
+    isLoading.value = true;
     try {
-      isLoading.value = true;
-
       final success = await _biometricService.authenticateWithBiometric(
         localizedReason: 'biometricAuthReason'.tr(),
       );
@@ -152,18 +170,19 @@ class AuthController extends GetxController {
       if (success) {
         authenticationSuccess.value = true;
         Get.offAllNamed('/home');
-      } else {
-        authenticationFailed.value = true;
+        return;
       }
+      _flashAuthFailure();
     } on BiometricException catch (e) {
       Get.context?.showErrorSnackBar(e.message);
-      authenticationFailed.value = true;
-    } catch (e) {
-      Get.context
-          ?.showErrorSnackBar('biometricAuthError'.tr());
-      authenticationFailed.value = true;
+      _flashAuthFailure();
+    } catch (_) {
+      Get.context?.showErrorSnackBar('biometricAuthError'.tr());
+      _flashAuthFailure();
     } finally {
-      isLoading.value = false;
+      if (!authenticationSuccess.value) {
+        isLoading.value = false;
+      }
     }
   }
 

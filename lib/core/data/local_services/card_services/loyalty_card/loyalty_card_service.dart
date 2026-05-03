@@ -44,6 +44,11 @@ class LoyaltyCardService {
     await _ensureBoxReady();
   }
 
+  Future<Stream<BoxEvent>> watch() async {
+    final box = await _ensureBoxReady();
+    return box.watch();
+  }
+
   Future<List<LoyaltyCard>> getAllLoyaltyCards() async {
     final box = await _ensureBoxReady();
     return box.values.toList();

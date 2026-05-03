@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
@@ -13,6 +14,7 @@ import 'package:wallet_app/core/data/services/backup_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/widgets/premium_status_widget.dart';
 import 'package:wallet_app/core/widgets/premium_upgrade_widget.dart';
+import 'package:wallet_app/feature/home/widgets/sections/home_animations.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/lang_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/theme_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_card.dart';
@@ -35,6 +37,16 @@ class _SettingsBodyState extends State<SettingsBody> {
         return 'Deutsch';
       case 'fr':
         return 'Français';
+      case 'es':
+        return 'Español';
+      case 'pt':
+        return 'Português';
+      case 'it':
+        return 'Italiano';
+      case 'nl':
+        return 'Nederlands';
+      case 'pl':
+        return 'Polski';
       default:
         return 'English';
     }
@@ -58,17 +70,36 @@ class _SettingsBodyState extends State<SettingsBody> {
         : Get.put(AuthController());
 
     return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const PremiumUpgradeWidget(margin: EdgeInsets.only(bottom: 8)),
-            const PremiumStatusWidget(margin: EdgeInsets.only(bottom: 8)),
-            _buildAppearanceSection(context),
-            _buildSecuritySection(context, authController),
-            _buildDataSection(context),
-            _buildAboutSection(context),
+            const FadeSlideIn(
+              delay: Duration.zero,
+              child: PremiumUpgradeWidget(margin: EdgeInsets.only(bottom: 8)),
+            ),
+            const FadeSlideIn(
+              delay: Duration(milliseconds: 60),
+              child: PremiumStatusWidget(margin: EdgeInsets.only(bottom: 8)),
+            ),
+            FadeSlideIn(
+              delay: const Duration(milliseconds: 140),
+              child: _buildAppearanceSection(context),
+            ),
+            FadeSlideIn(
+              delay: const Duration(milliseconds: 220),
+              child: _buildSecuritySection(context, authController),
+            ),
+            FadeSlideIn(
+              delay: const Duration(milliseconds: 300),
+              child: _buildDataSection(context),
+            ),
+            FadeSlideIn(
+              delay: const Duration(milliseconds: 380),
+              child: _buildAboutSection(context),
+            ),
             const SizedBox(height: 8),
           ],
         ),
@@ -118,34 +149,34 @@ class _SettingsBodyState extends State<SettingsBody> {
           if (!authController.isBiometricAvailable.value) {
             return const SizedBox.shrink();
           }
-
           final isPremium = premiumController.isPremium;
-
+          // Show the same Switch / arrow chrome regardless of premium state.
+          // Tapping when not premium routes to the paywall with the
+          // matching feature trigger so the user sees what they tried to
+          // unlock — no UI badges advertising "PREMIUM" upfront.
           return SettingsCard(
             iconData: Icons.fingerprint,
             title: authController.getBiometricDisplayName(),
-            subtitle: isPremium ? null : 'premiumUpgrade'.tr(),
-            trailing: isPremium
-                ? Switch(
-                    value: authController.isBiometricEnabled.value,
-                    onChanged: (value) {
-                      authController.toggleBiometric(value);
-                    },
-                    activeColor: Colors.blue,
-                  )
-                : Icon(
-                    Icons.workspace_premium,
-                    color: Colors.amber.shade600,
-                  ),
-            onTap: isPremium
-                ? () {
-                    authController.toggleBiometric(
-                      !authController.isBiometricEnabled.value,
-                    );
-                  }
-                : () {
-                    Get.toNamed('/premium');
-                  },
+            trailing: Switch(
+              value: isPremium && authController.isBiometricEnabled.value,
+              onChanged: (value) {
+                HapticFeedback.lightImpact();
+                if (!isPremium) {
+                  Get.toNamed('/premium', arguments: {'feature': 'biometric'});
+                  return;
+                }
+                authController.toggleBiometric(value);
+              },
+            ),
+            onTap: () {
+              if (!isPremium) {
+                Get.toNamed('/premium', arguments: {'feature': 'biometric'});
+                return;
+              }
+              authController.toggleBiometric(
+                !authController.isBiometricEnabled.value,
+              );
+            },
           );
         }),
         SettingsCard(
@@ -168,15 +199,11 @@ class _SettingsBodyState extends State<SettingsBody> {
           return SettingsCard(
             iconData: Icons.backup,
             title: 'backupData'.tr(),
-            subtitle: isPremium ? null : 'premiumUpgrade'.tr(),
-            trailing: isPremium
-                ? const Icon(Icons.arrow_forward_ios, size: 16)
-                : Icon(Icons.workspace_premium,
-                    color: Colors.amber.shade600),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: isPremium
                 ? () => _createBackup(context)
-                : () =>
-                    _showPremiumDialog(context, 'backupPremiumDescription'),
+                : () => Get.toNamed('/premium',
+                    arguments: {'feature': 'backupRestore'}),
           );
         }),
         Obx(() {
@@ -185,15 +212,11 @@ class _SettingsBodyState extends State<SettingsBody> {
           return SettingsCard(
             iconData: Icons.restore,
             title: 'restoreData'.tr(),
-            subtitle: isPremium ? null : 'premiumUpgrade'.tr(),
-            trailing: isPremium
-                ? const Icon(Icons.arrow_forward_ios, size: 16)
-                : Icon(Icons.workspace_premium,
-                    color: Colors.amber.shade600),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: isPremium
                 ? () => _restoreBackup(context)
-                : () =>
-                    _showPremiumDialog(context, 'restorePremiumDescription'),
+                : () => Get.toNamed('/premium',
+                    arguments: {'feature': 'backupRestore'}),
           );
         }),
         SettingsCard(
@@ -246,33 +269,6 @@ class _SettingsBodyState extends State<SettingsBody> {
     );
   }
 
-  Future<void> _showPremiumDialog(
-    BuildContext context,
-    String descriptionKey,
-  ) async {
-    final shouldUpgrade = await Get.dialog<bool>(
-          AlertDialog(
-            title: Text('premiumFeatureLockedTitle'.tr()),
-            content: Text(descriptionKey.tr()),
-            actions: [
-              TextButton(
-                onPressed: () => Get.back(result: false),
-                child: Text('maybeLater'.tr()),
-              ),
-              ElevatedButton(
-                onPressed: () => Get.back(result: true),
-                child: Text('goPremium'.tr()),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-
-    if (shouldUpgrade) {
-      Get.toNamed('/premium');
-    }
-  }
-
   Future<void> _createBackup(BuildContext context) async {
     final password = await _promptPassword(
       context,
@@ -284,8 +280,7 @@ class _SettingsBodyState extends State<SettingsBody> {
 
     try {
       final backupService = BackupService();
-      final filePath =
-          await backupService.createBackupFile(password: password);
+      final filePath = await backupService.createBackupFile(password: password);
       debugPrint(filePath);
       if (!mounted) return;
       context.showSuccessSnackBar('${'backupSuccess'.tr()} $filePath');
@@ -368,9 +363,6 @@ class _SettingsBodyState extends State<SettingsBody> {
       builder: (dialogContext) {
         return StatefulBuilder(builder: (ctx, setLocal) {
           return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
             title: Text(title),
             content: SingleChildScrollView(
               child: Column(
@@ -384,7 +376,6 @@ class _SettingsBodyState extends State<SettingsBody> {
                     obscureText: true,
                     decoration: InputDecoration(
                       labelText: 'backupPasswordLabel'.tr(),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   if (confirmRequired) ...[
@@ -394,7 +385,6 @@ class _SettingsBodyState extends State<SettingsBody> {
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'backupPasswordConfirmLabel'.tr(),
-                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ],
@@ -402,7 +392,10 @@ class _SettingsBodyState extends State<SettingsBody> {
                     const SizedBox(height: 8),
                     Text(
                       errorText!,
-                      style: const TextStyle(color: Colors.red, fontSize: 12),
+                      style: TextStyle(
+                        color: Theme.of(ctx).colorScheme.error,
+                        fontSize: 12,
+                      ),
                     ),
                   ],
                 ],
@@ -465,7 +458,7 @@ class _Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final filtered =
-        children.where((c) => c is! SizedBox || (c as SizedBox).height != 0).toList();
+        children.where((c) => c is! SizedBox || c.height != 0).toList();
     if (filtered.isEmpty) return const SizedBox.shrink();
 
     final colorScheme = Theme.of(context).colorScheme;

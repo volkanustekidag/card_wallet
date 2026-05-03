@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:get/get.dart' hide Trans;
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:share_plus/share_plus.dart'; // pubspec.yaml'a ekleyin
+import 'package:share_plus/share_plus.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/styles/app_themes.dart';
+import 'package:wallet_app/core/utils/share_origin.dart';
 
 /// QR Code Display Utilities
 class IbanCardUtils {
@@ -53,7 +54,6 @@ class IbanCardUtils {
       isScrollControlled: true,
       isDismissible: true,
       enableDrag: isDraggable,
-      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return QRBottomSheet(
           qrData: qrData,
@@ -116,10 +116,8 @@ class QRDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
       child: Container(
         padding: const EdgeInsets.all(20),
         constraints: BoxConstraints(
@@ -135,9 +133,9 @@ class QRDialog extends StatelessWidget {
               children: [
                 Text(
                   'qrCode'.tr(),
-                  style: TextStyle(fontFamily: 'Poppins', 
+                  style: TextStyle(
                     fontSize: 20,
-                    color: Theme.of(context).primaryColor,
+                    color: colorScheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -205,7 +203,7 @@ class QRDialog extends StatelessWidget {
                   context,
                   icon: Icons.share,
                   label: 'shareQRAction'.tr(),
-                  onPressed: () => _shareQR(),
+                  onPressed: () => _shareQR(context),
                 ),
                 _buildActionButton(
                   context,
@@ -233,36 +231,40 @@ class QRDialog extends StatelessWidget {
   }
 
   Widget _buildPaymentDetails(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('paymentDetails'.tr(),
-              style: TextStyle(fontFamily: 'Poppins', 
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryColor,
+                color: colorScheme.primary,
               )),
           const SizedBox(height: 12),
-          _buildDetailRow('recipient'.tr(), beneficiaryName),
+          _buildDetailRow(context, 'recipient'.tr(), beneficiaryName),
           if (amount != null && amount!.isNotEmpty)
-            _buildDetailRow('amountLabel'.tr(), '$amount ${currency ?? 'EUR'}'),
+            _buildDetailRow(
+                context, 'amountLabel'.tr(), '$amount ${currency ?? 'EUR'}'),
           if (reference != null && reference!.isNotEmpty)
-            _buildDetailRow('referenceLabel'.tr(), reference!),
+            _buildDetailRow(context, 'referenceLabel'.tr(), reference!),
           if (format != null)
-            _buildDetailRow('formatLabel'.tr(), format!.toUpperCase()),
+            _buildDetailRow(
+                context, 'formatLabel'.tr(), format!.toUpperCase()),
         ],
       ),
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(BuildContext context, String label, String value) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -272,9 +274,9 @@ class QRDialog extends StatelessWidget {
             width: 80,
             child: Text(
               '$label:',
-              style: TextStyle(fontFamily: 'Poppins', 
+              style: TextStyle(
                 fontWeight: FontWeight.w500,
-                color: Colors.grey[600],
+                color: colorScheme.onSurfaceVariant,
                 fontSize: 14,
               ),
             ),
@@ -282,9 +284,9 @@ class QRDialog extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: TextStyle(fontFamily: 'Poppins', 
+              style: TextStyle(
                 fontWeight: FontWeight.w400,
-                color: Colors.grey[800],
+                color: colorScheme.onSurface,
                 fontSize: 14,
               ),
             ),
@@ -300,14 +302,16 @@ class QRDialog extends StatelessWidget {
     required String label,
     required VoidCallback onPressed,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
         IconButton(
           onPressed: onPressed,
           icon: Icon(icon),
           style: IconButton.styleFrom(
-            backgroundColor: Colors.grey[200],
-            shape: CircleBorder(),
+            backgroundColor: colorScheme.surfaceContainerHighest,
+            foregroundColor: colorScheme.onSurface,
+            shape: const CircleBorder(),
             padding: const EdgeInsets.all(12),
           ),
         ),
@@ -316,7 +320,7 @@ class QRDialog extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.grey[600],
+            color: colorScheme.onSurfaceVariant,
           ),
         ),
       ],
@@ -328,10 +332,11 @@ class QRDialog extends StatelessWidget {
     context.showSuccessSnackBar('qrCodeCopied');
   }
 
-  void _shareQR() {
+  void _shareQR(BuildContext context) {
     Share.share(
       qrData,
       subject: '${'qrCodeSubject'.tr()} - $beneficiaryName',
+      sharePositionOrigin: shareOriginFromContext(context),
     );
   }
 }
@@ -359,108 +364,94 @@ class QRBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: context.theme.colorScheme.surface,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
-        ),
-      ),
-      child: DraggableScrollableSheet(
-        initialChildSize: 0.8,
-        minChildSize: 0.4,
-        maxChildSize: 0.9,
-        expand: false,
-        builder: (context, scrollController) {
-          return SingleChildScrollView(
-            controller: scrollController,
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                // Drag Handle
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
+    final colorScheme = Theme.of(context).colorScheme;
+    final successColor = AppThemes.success(context);
+    return DraggableScrollableSheet(
+      initialChildSize: 0.8,
+      minChildSize: 0.4,
+      maxChildSize: 0.9,
+      expand: false,
+      builder: (context, scrollController) {
+        return SingleChildScrollView(
+          controller: scrollController,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              // Drag Handle
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: colorScheme.onSurface.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                const SizedBox(height: 20),
-
-                // Header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'qrCodeGenerated'.tr(),
-                      style:
-                          Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+              ),
+              const SizedBox(height: 20),
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'qrCodeGenerated'.tr(),
+                    style:
+                        Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: successColor.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.green.withValues(alpha: 0.1),
-                        shape: BoxShape.circle,
+                    child: IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(
+                        Icons.check,
+                        color: successColor,
                       ),
-                      child: IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: Icon(
-                          Icons.check,
-                          color: Colors.green,
-                        ),
-                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              // QR Code (always white — needed for scannability)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
                     ),
                   ],
                 ),
-                const SizedBox(height: 30),
-
-                // QR Code
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: QrImageView(
-                    data: qrData,
-                    version: QrVersions.auto,
-                    size: 250,
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black,
-                  ),
+                child: QrImageView(
+                  data: qrData,
+                  version: QrVersions.auto,
+                  size: 250,
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
                 ),
-
-                if (showDetails) ...[
-                  const SizedBox(height: 30),
-                  // Payment Details Card
-                  _buildPaymentDetailsCard(context),
-                ],
-
+              ),
+              if (showDetails) ...[
                 const SizedBox(height: 30),
-
-                // Action Buttons
-                _buildActionButtons(context),
-
-                const SizedBox(height: 20),
+                _buildPaymentDetailsCard(context),
               ],
-            ),
-          );
-        },
-      ),
+              const SizedBox(height: 30),
+              _buildActionButtons(context),
+              const SizedBox(height: 20),
+            ],
+          ),
+        );
+      },
     );
   }
 
   Widget _buildPaymentDetailsCard(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -473,7 +464,7 @@ class QRBottomSheet extends StatelessWidget {
               children: [
                 Icon(
                   Icons.payment,
-                  color: Theme.of(context).primaryColor,
+                  color: colorScheme.primary,
                   size: 20,
                 ),
                 const SizedBox(width: 8),
@@ -482,46 +473,53 @@ class QRBottomSheet extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: Theme.of(context).primaryColor,
+                    color: colorScheme.primary,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            _buildDetailTile(Icons.person, 'recipient'.tr(), beneficiaryName),
+            _buildDetailTile(
+                context, Icons.person, 'recipient'.tr(), beneficiaryName),
             if (amount != null && amount!.isNotEmpty)
-              _buildDetailTile(Icons.monetization_on, 'amountLabel'.tr(),
-                  '$amount ${currency ?? 'EUR'}'),
+              _buildDetailTile(context, Icons.monetization_on,
+                  'amountLabel'.tr(), '$amount ${currency ?? 'EUR'}'),
             if (reference != null && reference!.isNotEmpty)
-              _buildDetailTile(Icons.tag, 'referenceLabel'.tr(), reference!),
-            if (format != null)
               _buildDetailTile(
-                  Icons.qr_code, 'formatLabel'.tr(), format!.toUpperCase()),
+                  context, Icons.tag, 'referenceLabel'.tr(), reference!),
+            if (format != null)
+              _buildDetailTile(context, Icons.qr_code, 'formatLabel'.tr(),
+                  format!.toUpperCase()),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDetailTile(IconData icon, String label, String value) {
+  Widget _buildDetailTile(
+      BuildContext context, IconData icon, String label, String value) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, size: 16, color: Colors.grey[600]),
+          Icon(icon, size: 16, color: colorScheme.onSurfaceVariant),
           const SizedBox(width: 12),
           Text(
             '$label:',
             style: TextStyle(
               fontWeight: FontWeight.w500,
-              color: Colors.grey[600],
+              color: colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontWeight: FontWeight.w400),
+              style: TextStyle(
+                fontWeight: FontWeight.w400,
+                color: colorScheme.onSurface,
+              ),
               textAlign: TextAlign.end,
             ),
           ),
@@ -549,7 +547,7 @@ class QRBottomSheet extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: () => _shareQR(),
+            onPressed: () => _shareQR(context),
             icon: const Icon(Icons.share),
             label: Text('share'.tr()),
             style: ElevatedButton.styleFrom(
@@ -569,10 +567,11 @@ class QRBottomSheet extends StatelessWidget {
     context.showSuccessSnackBar('qrCodeCopied');
   }
 
-  void _shareQR() {
+  void _shareQR(BuildContext context) {
     Share.share(
       qrData,
       subject: '${'qrCodeSubject'.tr()} - $beneficiaryName',
+      sharePositionOrigin: shareOriginFromContext(context),
     );
   }
 }
@@ -609,7 +608,7 @@ class QRFullScreenPage extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            onPressed: () => _shareQR(),
+            onPressed: () => _shareQR(context),
             icon: const Icon(Icons.share, color: Colors.white),
           ),
         ],
@@ -662,10 +661,11 @@ class QRFullScreenPage extends StatelessWidget {
     );
   }
 
-  void _shareQR() {
+  void _shareQR(BuildContext context) {
     Share.share(
       qrData,
       subject: '${'qrCodeSubject'.tr()} - $beneficiaryName',
+      sharePositionOrigin: shareOriginFromContext(context),
     );
   }
 }

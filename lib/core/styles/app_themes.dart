@@ -19,9 +19,24 @@ class AppThemes {
   static const Color darkSuccess = Color(0xFF4ADE80);
   static const Color darkInfo = Color(0xFF22D3EE);
 
+  // Semantic color helpers — resolve to the right shade for the active theme.
+  static Color success(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.light
+          ? lightSuccess
+          : darkSuccess;
+  static Color warning(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.light
+          ? lightWarning
+          : darkWarning;
+  static Color info(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.light
+          ? lightInfo
+          : darkInfo;
+
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
+    fontFamily: 'Poppins',
 
     // Color Scheme
     colorScheme: const ColorScheme.light(
@@ -289,11 +304,65 @@ class AppThemes {
         borderRadius: BorderRadius.all(Radius.circular(8)),
       ),
     ),
+
+    // SnackBar Theme
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: const Color(0xFF111827),
+      contentTextStyle: const TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.w500,
+        fontSize: 14,
+      ),
+      actionTextColor: const Color(0xFF93C5FD),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 4,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    ),
+
+    // Dialog Theme
+    dialogTheme: DialogThemeData(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      elevation: 8,
+      shadowColor: Colors.black.withValues(alpha: 0.12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      titleTextStyle: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF111827),
+      ),
+      contentTextStyle: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: Color(0xFF374151),
+      ),
+    ),
+
+    // Bottom Sheet Theme
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      modalBackgroundColor: Colors.white,
+      modalBarrierColor: Color(0x99000000),
+      elevation: 8,
+      modalElevation: 8,
+      showDragHandle: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      clipBehavior: Clip.antiAlias,
+    ),
   );
 
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
+    fontFamily: 'Poppins',
 
     // Color Scheme
     colorScheme: const ColorScheme.dark(
@@ -560,6 +629,59 @@ class AppThemes {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(8)),
       ),
+    ),
+
+    // SnackBar Theme
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: const Color(0xFF334155),
+      contentTextStyle: const TextStyle(
+        color: Color(0xFFF1F5F9),
+        fontWeight: FontWeight.w500,
+        fontSize: 14,
+      ),
+      actionTextColor: darkPrimary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 4,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    ),
+
+    // Dialog Theme
+    dialogTheme: DialogThemeData(
+      backgroundColor: const Color(0xFF1E293B),
+      surfaceTintColor: Colors.transparent,
+      elevation: 8,
+      shadowColor: Colors.black.withValues(alpha: 0.4),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      titleTextStyle: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFFF1F5F9),
+      ),
+      contentTextStyle: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: Color(0xFFE2E8F0),
+      ),
+    ),
+
+    // Bottom Sheet Theme
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: Color(0xFF1E293B),
+      surfaceTintColor: Colors.transparent,
+      modalBackgroundColor: Color(0xFF1E293B),
+      modalBarrierColor: Color(0xCC000000),
+      elevation: 8,
+      modalElevation: 8,
+      showDragHandle: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      clipBehavior: Clip.antiAlias,
     ),
   );
 }

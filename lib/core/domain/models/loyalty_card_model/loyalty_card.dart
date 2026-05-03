@@ -41,6 +41,11 @@ class LoyaltyCard extends HiveObject {
   @HiveField(8)
   String? logoAsset;
 
+  /// Free-form tags. The literal `'favorite'` is treated specially
+  /// throughout the app to drive starring / the Favorites filter.
+  @HiveField(9)
+  List<String>? tags;
+
   LoyaltyCard({
     required this.id,
     required this.name,
@@ -51,5 +56,6 @@ class LoyaltyCard extends HiveObject {
     this.notes,
     this.createdAt,
     this.logoAsset,
+    this.tags,
   });
 }

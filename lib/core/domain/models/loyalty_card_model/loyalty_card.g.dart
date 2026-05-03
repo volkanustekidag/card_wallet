@@ -26,13 +26,14 @@ class LoyaltyCardAdapter extends TypeAdapter<LoyaltyCard> {
       notes: fields[6] as String?,
       createdAt: fields[7] as DateTime?,
       logoAsset: fields[8] as String?,
+      tags: (fields[9] as List?)?.cast<String>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, LoyaltyCard obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -50,7 +51,9 @@ class LoyaltyCardAdapter extends TypeAdapter<LoyaltyCard> {
       ..writeByte(7)
       ..write(obj.createdAt)
       ..writeByte(8)
-      ..write(obj.logoAsset);
+      ..write(obj.logoAsset)
+      ..writeByte(9)
+      ..write(obj.tags);
   }
 
   @override

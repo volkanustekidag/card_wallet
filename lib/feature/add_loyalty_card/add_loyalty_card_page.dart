@@ -1,9 +1,12 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
+import 'package:wallet_app/core/utils/loyalty_brand_resolver.dart';
+import 'package:wallet_app/core/widgets/bank_logo.dart';
 import 'package:wallet_app/feature/add_loyalty_card/controller/add_loyalty_card_controller.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_formats.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_brand_presets.dart';
@@ -54,6 +57,7 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
+        titleSpacing: 0,
         title: Text(
           widget.card != null
               ? 'editLoyaltyCardTitle'.tr()
@@ -66,7 +70,7 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
         ),
         backgroundColor: colorScheme.surface,
         elevation: 0,
-        centerTitle: true,
+        centerTitle: false,
         actions: [
           Obx(() {
             final canSave =
@@ -87,43 +91,69 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
           }),
         ],
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildPreview(),
-              const SizedBox(height: 24),
-              _buildBrandPresets(),
-              const SizedBox(height: 16),
-              _textField(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(0, 16, 0, 32),
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _buildPreview(),
+            ),
+            const SizedBox(height: 24),
+            _buildBrandPresets(),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _textField(
                 controller: _nameController,
-                label: 'loyaltyCardNameLabel'.tr(),
+                label: '${'loyaltyCardNameLabel'.tr()} *',
                 icon: Icons.badge_outlined,
                 onChanged: (v) => _controller.updateField('name', v),
               ),
-              const SizedBox(height: 12),
-              _textField(
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _textField(
                 controller: _brandController,
-                label: 'loyaltyCardBrandLabel'.tr(),
+                label: '${'loyaltyCardBrandLabel'.tr()} *',
                 icon: Icons.storefront_outlined,
                 onChanged: (v) =>
                     _controller.updateField('brand', v.isEmpty ? null : v),
               ),
-              const SizedBox(height: 12),
-              _textField(
-                controller: _barcodeController,
-                label: 'loyaltyCardBarcodeLabel'.tr(),
-                icon: Icons.qr_code_2_rounded,
-                onChanged: (v) => _controller.updateField('barcode', v),
-                helperText: 'loyaltyCardBarcodeHelper'.tr(),
-              ),
-              const SizedBox(height: 12),
-              _buildBarcodeFormatDropdown(),
-              const SizedBox(height: 12),
-              _textField(
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Obx(() {
+                final digitsOnly = isDigitOnlyBarcodeFormat(
+                  _controller.currentCard.value.barcodeFormat,
+                );
+                return _textField(
+                  controller: _barcodeController,
+                  label: '${'loyaltyCardBarcodeLabel'.tr()} *',
+                  icon: Icons.qr_code_2_rounded,
+                  onChanged: (v) => _controller.updateField('barcode', v),
+                  helperText: 'loyaltyCardBarcodeHelper'.tr(),
+                  keyboardType:
+                      digitsOnly ? TextInputType.number : TextInputType.text,
+                  inputFormatters: digitsOnly
+                      ? [FilteringTextInputFormatter.digitsOnly]
+                      : null,
+                );
+              }),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _buildBarcodeFormatDropdown(),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _textField(
                 controller: _notesController,
                 label: 'notesLabel'.tr(),
                 icon: Icons.notes_rounded,
@@ -131,10 +161,16 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                 onChanged: (v) =>
                     _controller.updateField('notes', v.isEmpty ? null : v),
               ),
-              const SizedBox(height: 24),
-              _buildColorPicker(),
-              const SizedBox(height: 16),
-              Container(
+            ),
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _buildColorPicker(),
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: colorScheme.primary.withValues(alpha: 0.08),
@@ -158,8 +194,11 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              SizedBox(
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
                 width: double.infinity,
                 child: Obx(() {
                   final canSave =
@@ -187,8 +226,8 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                   );
                 }),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -198,8 +237,7 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
     return Obx(() {
       final card = _controller.currentCard.value;
       final gradients = LinearGradients().linearGradientList;
-      final gradient =
-          gradients[card.colorId.clamp(0, gradients.length - 1)];
+      final gradient = gradients[card.colorId.clamp(0, gradients.length - 1)];
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.all(20),
@@ -217,31 +255,60 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              card.name.isEmpty
-                  ? 'loyaltyCardNamePlaceholder'.tr()
-                  : card.name,
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              (card.brand?.isNotEmpty ?? false) ? card.brand! : '—',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: Colors.white.withValues(alpha: 0.85),
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (LoyaltyBrandResolver.domainFor(card.brand) != null) ...[
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.95),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: const EdgeInsets.all(6),
+                    child: BankLogo(loyaltyBrand: card.brand, size: 24),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        card.name.isEmpty
+                            ? 'loyaltyCardNamePlaceholder'.tr()
+                            : card.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        (card.brand?.isNotEmpty ?? false) ? card.brand! : '—',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white.withValues(alpha: 0.85),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 14),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(8),
@@ -270,6 +337,7 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
       height: 38,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: kLoyaltyBrandPresets.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
@@ -285,8 +353,7 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
               }
             },
             child: Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
                 color: preset.seedColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(20),
@@ -329,11 +396,15 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
     required ValueChanged<String> onChanged,
     String? helperText,
     int maxLines = 1,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
   }) {
     return TextField(
       controller: controller,
       onChanged: onChanged,
       maxLines: maxLines,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       style: const TextStyle(fontFamily: 'Poppins', fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
@@ -406,8 +477,7 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
               separatorBuilder: (_, __) => const SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final isSelected = index == selected;
-                final locked =
-                    !isPremium && GradientCatalogue.isPremium(index);
+                final locked = !isPremium && GradientCatalogue.isPremium(index);
                 return GestureDetector(
                   onTap: () {
                     if (locked) {
@@ -423,7 +493,9 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                       gradient: gradients[index],
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: isSelected ? Colors.black : Colors.transparent,
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Colors.transparent,
                         width: 2,
                       ),
                     ),

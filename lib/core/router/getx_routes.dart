@@ -29,72 +29,103 @@ class AppRoutes {
   static const String addLoyaltyCard = '/addLoyaltyCard';
   static const String premium = '/premium';
 
+  // Lighter than the default cupertino slide. The Material/Cupertino
+  // slide-from-right path runs an opacity + scale + transform on the
+  // entire incoming subtree; on a sliver-heavy home page that's tens of
+  // ms per frame on Android. fadeIn renders a single Opacity over the
+  // tree and lets us hit 60fps even when the destination is doing its
+  // own initial layout.
+  static const _kPageTransition = Transition.fadeIn;
+  static const _kPageTransitionDuration = Duration(milliseconds: 220);
+
   static List<GetPage> routes = [
     GetPage(
       name: splash,
       page: () => SplashPage(),
       binding: AppBindings(),
+      transition: _kPageTransition,
+      transitionDuration: _kPageTransitionDuration,
     ),
     GetPage(
       name: onboarding,
       page: () => const OnboardingPage(),
-      transition: Transition.fadeIn,
-      transitionDuration: const Duration(milliseconds: 350),
+      transition: _kPageTransition,
+      transitionDuration: _kPageTransitionDuration,
     ),
     GetPage(
       name: auth,
       page: () => const AuthenticationPage(),
       binding: AuthBindings(),
-      transition: Transition.fadeIn,
-      transitionDuration: const Duration(milliseconds: 350),
+      transition: _kPageTransition,
+      transitionDuration: _kPageTransitionDuration,
     ),
     GetPage(
       name: home,
       page: () => const HomePage(),
       binding: HomeBindings(),
+      transition: _kPageTransition,
+      transitionDuration: _kPageTransitionDuration,
     ),
     GetPage(
       name: settings,
       page: () => const SettingsPage(),
+      transition: _kPageTransition,
+      transitionDuration: _kPageTransitionDuration,
     ),
     GetPage(
       name: changePin,
       page: () => const ChangePinPage(),
       binding: ChangePinBindings(),
+      transition: _kPageTransition,
+      transitionDuration: _kPageTransitionDuration,
     ),
     GetPage(
       name: creditCards,
       page: () => const CreditCardsPage(),
       binding: CreditCardBindings(),
+      transition: _kPageTransition,
+      transitionDuration: _kPageTransitionDuration,
     ),
     GetPage(
       name: ibanCards,
       page: () => const IbanCardsPage(),
       binding: IbanCardBindings(),
+      transition: _kPageTransition,
+      transitionDuration: _kPageTransitionDuration,
     ),
     GetPage(
       name: addCreditCard,
       page: () => const AddCreditCardPage(),
       binding: AddCreditCardBindings(),
+      transition: _kPageTransition,
+      transitionDuration: _kPageTransitionDuration,
     ),
     GetPage(
       name: addIbanCard,
       page: () => const AddIbanCardPage(),
       binding: AddIbanCardBindings(),
+      transition: _kPageTransition,
+      transitionDuration: _kPageTransitionDuration,
     ),
     GetPage(
       name: loyaltyCards,
       page: () => const LoyaltyCardsPage(),
       binding: LoyaltyCardBindings(),
+      transition: _kPageTransition,
+      transitionDuration: _kPageTransitionDuration,
     ),
     GetPage(
       name: addLoyaltyCard,
       page: () => const AddLoyaltyCardPage(),
       binding: AddLoyaltyCardBindings(),
+      transition: _kPageTransition,
+      transitionDuration: _kPageTransitionDuration,
     ),
     GetPage(
       name: premium,
       page: () => const PremiumPage(),
+      transition: _kPageTransition,
+      transitionDuration: _kPageTransitionDuration,
     ),
   ];
 }

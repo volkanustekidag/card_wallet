@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,9 +12,10 @@ import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/controllers/theme_controller.dart';
-import 'package:wallet_app/core/data/local_services/theme_services/theme_services.dart';
+import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
+import 'package:wallet_app/feature/home/controller/home_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,14 +23,24 @@ void main() async {
 
   await Hive.initFlutter();
 
-  await Future.wait([
-    CreditCardService().init(),
-    IbanCardService().init(),
-    LoyaltyCardService().init(),
-    AuthenticationService().init(),
-    ThemeService().init(),
-    PremiumService.initialize(),
-  ]);
+  // Critical-path: auth box must be open before the lock screen renders, and
+  // the theme must be resolved before MaterialApp builds (otherwise the lock
+  // screen flashes the system theme and then swaps once the box loads).
+  final themeBootstrap = await ThemeController.bootstrap();
+  await AuthenticationService().init();
+
+  // Non-critical services boot in the background. Card services only matter
+  // once the user reaches a card screen, and PremiumService self-recovers if
+  // accessed before init completes.
+  unawaited(_bootstrapCreditCardsAndReminders());
+  unawaited(IbanCardService().init());
+  unawaited(LoyaltyCardService().init());
+  unawaited(PremiumService.initialize());
+
+  Get.put(
+    ThemeController(initialMode: themeBootstrap.mode, box: themeBootstrap.box),
+    permanent: true,
+  );
 
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -41,8 +54,13 @@ void main() async {
         Locale("tr", "TR"),
         Locale("de", "DE"),
         Locale("fr", "FR"),
+        Locale("es", "ES"),
+        Locale("pt", "BR"),
+        Locale("it", "IT"),
+        Locale("nl", "NL"),
+        Locale("pl", "PL"),
       ],
-      // Anything else (system in ES, IT, AR, ZH, …) falls back to English.
+      // Anything else (system in AR, ZH, JA, …) falls back to English.
       // Without this the strings render as raw keys ("loyaltyCardsTitle").
       fallbackLocale: const Locale("en", "US"),
       saveLocale: true,
@@ -50,6 +68,14 @@ void main() async {
       child: const AppWrapper(),
     ),
   );
+}
+
+Future<void> _bootstrapCreditCardsAndReminders() async {
+  final creditCardService = CreditCardService();
+  await creditCardService.init();
+  await CardReminderService().init();
+  final cards = await creditCardService.getAllCreditCards();
+  await CardReminderService().scheduleAllCreditCardReminders(cards);
 }
 
 class AppWrapper extends StatefulWidget {
@@ -79,6 +105,9 @@ class _AppWrapperState extends State<AppWrapper> with WidgetsBindingObserver {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
       _maybeRefreshSubscription();
+      if (Get.isRegistered<HomeController>()) {
+        Get.find<HomeController>().refreshData();
+      }
     }
   }
 
@@ -101,7 +130,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeController = Get.put(ThemeController());
+    final themeController = Get.find<ThemeController>();
 
     return GetMaterialApp(
       initialRoute: AppRoutes.splash,

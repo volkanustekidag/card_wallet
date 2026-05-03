@@ -54,6 +54,15 @@ class AuthenticationService {
     return null;
   }
 
+  /// Synchronous variant for callers that have already awaited [init] (e.g.
+  /// the lock screen after main()). Used to render the correct initial UI
+  /// without spinning the auth controller through an async round-trip.
+  bool hasPasswordSync() {
+    final box = _user;
+    if (box == null || !box.isOpen) return false;
+    return box.values.isNotEmpty;
+  }
+
   /// Authenticates the entered [pin]. Returns true on match. Transparently
   /// migrates legacy plaintext PINs to a hashed form on first successful
   /// authentication.

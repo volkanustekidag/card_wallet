@@ -6,6 +6,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
+import 'package:wallet_app/core/services/premium_purchase_validator.dart';
 
 /// Single source of truth for premium entitlement, IAP product loading and
 /// subscription expiry handling.
@@ -16,16 +17,16 @@ import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/l
 ///   * [_hasActiveSubscription] — derived from purchase stream events. Reset
 ///     to false on app foreground if a refresh round produces no active sub.
 ///
-/// `isPremium` is the OR of the two. We never grant premium from a purchase
-/// event whose `verificationData` is empty (basic anti-spoof guard); proper
-/// server-side validation is intentionally deferred to v2.1.
+/// `isPremium` is the OR of the two. Production builds validate purchase
+/// receipts through [PremiumPurchaseValidator] before granting entitlement.
 class PremiumService {
   // ---------------------------------------------------------------------------
   // Product IDs
   // ---------------------------------------------------------------------------
 
   // New v2.0 product IDs (the ones to show on the paywall).
-  static const String _androidMonthlyId = 'com.volkan.walletapp.monthly_premium';
+  static const String _androidMonthlyId =
+      'com.volkan.walletapp.monthly_premium';
   static const String _androidYearlyV2Id =
       'com.volkan.walletapp.yearly_premium_v2';
   static const String _androidLifetimeId =
@@ -57,6 +58,7 @@ class PremiumService {
       Platform.isIOS ? _iosLegacyWeeklyId : _androidLegacyWeeklyId;
   static String get legacyYearlyProductId =>
       Platform.isIOS ? _iosLegacyYearlyId : _androidLegacyYearlyId;
+  static String get legacyLifetimeProductId => _legacyLifetimeProductId;
 
   /// Active subscription product IDs (lifetime is in [_lifetimeProductIds]).
   static Set<String> get _subscriptionProductIds => {
@@ -75,10 +77,16 @@ class PremiumService {
       };
 
   /// All product IDs we want the store to query (paywall display).
+  /// Includes both v2 + legacy IDs — the store may have one set or the
+  /// other configured, and the controller's getters fall back across them.
+  /// Whichever the store actually returns is what the user sees.
   static Set<String> get _productIdsToOffer => {
         monthlyProductId,
         yearlyProductId,
         lifetimeProductId,
+        weeklyProductId,
+        legacyYearlyProductId,
+        _legacyLifetimeProductId,
       };
 
   /// All product IDs we accept on restore (current + legacy).
@@ -98,6 +106,9 @@ class PremiumService {
   static const String _lastSubscriptionProductIdKey =
       'premium_last_subscription_product_id';
   static const String _lastVerifiedAtKey = 'premium_last_verified_at';
+  // v1.x stored a single boolean here. Read once on first v2 launch so
+  // existing paying users keep entitlement while restorePurchases() runs.
+  static const String _legacyPremiumStatusKey = 'premium_status';
 
   // ---------------------------------------------------------------------------
   // State
@@ -105,6 +116,8 @@ class PremiumService {
 
   static const _storage = FlutterSecureStorage();
   static final InAppPurchase _iap = InAppPurchase.instance;
+  static const PremiumPurchaseValidator _purchaseValidator =
+      PremiumPurchaseValidator();
   static StreamSubscription<List<PurchaseDetails>>? _subscription;
   static final CreditCardService _creditCardService = CreditCardService();
   static final IbanCardService _ibanCardService = IbanCardService();
@@ -141,7 +154,7 @@ class PremiumService {
 
     _subscription?.cancel();
     _subscription = _iap.purchaseStream.listen(
-      _handlePurchaseUpdate,
+      (purchases) => unawaited(_handlePurchaseUpdate(purchases)),
       onDone: () => _subscription?.cancel(),
       onError: (error) => debugPrint('[Premium] purchase stream error: $error'),
     );
@@ -166,8 +179,7 @@ class PremiumService {
       _activeRefreshUntil = null;
       if (!_sawActiveSubscriptionInWindow && !_hasLifetime) {
         if (_hasActiveSubscription) {
-          debugPrint(
-              '[Premium] No active subscription returned by restore — '
+          debugPrint('[Premium] No active subscription returned by restore — '
               'downgrading to free.');
         }
         await _setSubscriptionActive(false);
@@ -205,8 +217,7 @@ class PremiumService {
 
       final response = await _iap.queryProductDetails(_productIdsToOffer);
       if (response.notFoundIDs.isNotEmpty) {
-        debugPrint(
-            '[Premium] product IDs not found: ${response.notFoundIDs}');
+        debugPrint('[Premium] product IDs not found: ${response.notFoundIDs}');
       }
       return response.productDetails;
     } catch (e) {
@@ -215,12 +226,11 @@ class PremiumService {
     }
   }
 
-  // Card limit checks — bumped from 1 to 3 in M3 so users can sample value
-  // before hitting the paywall.
-  static const int maxCardsForFree = 3;
-  // Loyalty cards are typically used in higher quantities; allow more before
-  // gating.
-  static const int maxLoyaltyCardsForFree = 5;
+  // Free tier: 2 of each kind. Tightened in I2 alongside making the
+  // scanners free — scanners get users invested fast, the 2-card cap is
+  // what funnels them toward premium.
+  static const int maxCardsForFree = 2;
+  static const int maxLoyaltyCardsForFree = 2;
 
   static bool canAddMoreCreditCards(int currentCount) {
     if (isPremium) return true;
@@ -279,8 +289,7 @@ class PremiumService {
 
   static Future<void> _loadStoredState() async {
     try {
-      _hasLifetime =
-          (await _storage.read(key: _hasLifetimeKey)) == 'true';
+      _hasLifetime = (await _storage.read(key: _hasLifetimeKey)) == 'true';
       _hasActiveSubscription =
           (await _storage.read(key: _hasActiveSubscriptionKey)) == 'true';
       _lastSubscriptionProductId =
@@ -289,10 +298,34 @@ class PremiumService {
       if (lastVerifiedStr != null) {
         _lastVerifiedAt = DateTime.tryParse(lastVerifiedStr);
       }
+      await _migrateLegacyPremiumStatus();
     } catch (e) {
       debugPrint('[Premium] _loadStoredState error: $e');
     }
     _premiumStatusController.add(isPremium);
+  }
+
+  /// First v2 launch only: if the v1 `'premium_status'` flag is true and we
+  /// have no v2 state, optimistically grant active-subscription so the user
+  /// doesn't see a free-tier UI between launch and the first restore. If
+  /// restore later confirms a lifetime receipt (legacy 'premium' product),
+  /// [_handlePurchaseUpdate] promotes them to lifetime; if restore confirms
+  /// nothing, [refreshSubscriptionState] resets the flag.
+  static Future<void> _migrateLegacyPremiumStatus() async {
+    if (_hasLifetime || _hasActiveSubscription) {
+      // Already on v2 state — drop the legacy key if it lingers.
+      await _storage.delete(key: _legacyPremiumStatusKey);
+      return;
+    }
+    final legacy = await _storage.read(key: _legacyPremiumStatusKey);
+    if (legacy != 'true') {
+      return;
+    }
+    debugPrint('[Premium] migrating legacy premium_status=true → '
+        'optimistic active-subscription pending restore');
+    _hasActiveSubscription = true;
+    await _storage.write(key: _hasActiveSubscriptionKey, value: 'true');
+    await _storage.delete(key: _legacyPremiumStatusKey);
   }
 
   static Future<void> _setLifetime(bool value) async {
@@ -340,20 +373,15 @@ class PremiumService {
     } catch (_) {}
   }
 
-  static bool _hasUsableVerificationData(PurchaseDetails details) {
-    final local = details.verificationData.localVerificationData;
-    final server = details.verificationData.serverVerificationData;
-    return local.isNotEmpty || server.isNotEmpty;
-  }
-
-  static void _handlePurchaseUpdate(List<PurchaseDetails> purchases) {
+  static Future<void> _handlePurchaseUpdate(
+    List<PurchaseDetails> purchases,
+  ) async {
     for (final details in purchases) {
       switch (details.status) {
         case PurchaseStatus.pending:
           break;
         case PurchaseStatus.error:
-          debugPrint(
-              '[Premium] purchase error for ${details.productID}: '
+          debugPrint('[Premium] purchase error for ${details.productID}: '
               '${details.error?.message}');
           break;
         case PurchaseStatus.canceled:
@@ -363,28 +391,42 @@ class PremiumService {
           if (!_allRecognisedProductIds.contains(details.productID)) {
             break;
           }
-          if (!_hasUsableVerificationData(details)) {
+          final isLifetimeProduct = _lifetimeProductIds.contains(
+            details.productID,
+          );
+          final validation = await _purchaseValidator.validate(
+            details,
+            isLifetimeProduct: isLifetimeProduct,
+            isSubscriptionProduct:
+                _subscriptionProductIds.contains(details.productID) ||
+                    _legacySubscriptionProductIds.contains(details.productID),
+          );
+          if (!validation.isValid) {
             debugPrint(
-                '[Premium] rejecting ${details.productID} — empty receipt');
+              '[Premium] rejecting ${details.productID}: '
+              '${validation.reason ?? 'invalid receipt'}',
+            );
             break;
           }
-          if (_lifetimeProductIds.contains(details.productID)) {
-            unawaited(_setLifetime(true));
-          } else {
+          if (validation.grantsLifetime) {
+            await _setLifetime(true);
+          }
+          if (validation.grantsActiveSubscription) {
             // Subscription event — count it as active for the current window.
             if (_activeRefreshUntil != null &&
                 DateTime.now().isBefore(_activeRefreshUntil!)) {
               _sawActiveSubscriptionInWindow = true;
             }
-            unawaited(
-              _setSubscriptionActive(true, productId: details.productID),
+            await _setSubscriptionActive(
+              true,
+              productId: details.productID,
             );
           }
           break;
       }
 
       if (details.pendingCompletePurchase) {
-        unawaited(_iap.completePurchase(details));
+        await _iap.completePurchase(details);
       }
     }
   }

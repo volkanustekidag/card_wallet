@@ -17,3 +17,16 @@ const List<LoyaltyBarcodeFormat> kLoyaltyBarcodeFormats = [
   LoyaltyBarcodeFormat('QR_CODE', 'QR Code'),
   LoyaltyBarcodeFormat('ITF', 'ITF'),
 ];
+
+/// Formats that only accept numeric digits. EAN/UPC/ITF are positional
+/// digit codes; CODE_128/CODE_39/QR_CODE accept arbitrary characters.
+const Set<String> kDigitOnlyBarcodeFormats = {
+  'EAN_13',
+  'EAN_8',
+  'UPC_A',
+  'UPC_E',
+  'ITF',
+};
+
+bool isDigitOnlyBarcodeFormat(String format) =>
+    kDigitOnlyBarcodeFormats.contains(format);

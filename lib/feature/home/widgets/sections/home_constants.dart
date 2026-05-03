@@ -51,5 +51,43 @@ const Duration kMediumAnim = Duration(milliseconds: 240);
 const Duration kSlowAnim = Duration(milliseconds: 320);
 const Curve kHomeCurve = Curves.easeOutCubic;
 
+/// Reverse-parallax for the filter chips + recent cards panel. As the user
+/// scrolls past [kBottomFocusStart] the panel begins expanding (chips and
+/// rows grow, container lifts), reaching its peak at [kBottomFocusEnd].
+/// The values pair with the carousel's tilt threshold so the bottom panel
+/// "wakes up" right as the carousel starts to slip out of view.
+const double kBottomFocusStart = 200;
+const double kBottomFocusEnd = 420;
+
+/// Maps [offset] to a 0..1 prominence score using the focus thresholds.
+/// 0 = collapsed/compact (top-of-page state), 1 = fully expanded
+/// (bottom-of-page focus state).
+double bottomPanelProminence(double offset) {
+  if (offset <= kBottomFocusStart) return 0;
+  if (offset >= kBottomFocusEnd) return 1;
+  return (offset - kBottomFocusStart) / (kBottomFocusEnd - kBottomFocusStart);
+}
+
 /// Hero animation tag prefix used by the carousel and detail/list pages.
 String heroTagFor(String kind, dynamic id) => 'home-card-$kind-$id';
+
+/// Two-layer drop shadow shared by all card surfaces in the home carousel.
+/// A small, near shadow grounds the card; a larger, softer shadow gives it
+/// elevation. Sized so the carousel breathing room (kCardShadowGutter) fits
+/// the bloom without clipping.
+const List<BoxShadow> kCardShadow = [
+  BoxShadow(
+    color: Color(0x14000000),
+    blurRadius: 10,
+    offset: Offset(0, 4),
+  ),
+  BoxShadow(
+    color: Color(0x1F000000),
+    blurRadius: 26,
+    offset: Offset(0, 14),
+  ),
+];
+
+/// Vertical breathing room added below the card area so [kCardShadow]
+/// renders fully instead of being clipped by the carousel viewport.
+const double kCardShadowGutter = 56;

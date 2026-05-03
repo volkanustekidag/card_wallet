@@ -27,7 +27,9 @@ class AddLoyaltyCardController extends GetxController {
 
   bool get isFormValid {
     final c = currentCard.value;
-    return c.name.trim().isNotEmpty && c.barcode.trim().isNotEmpty;
+    return c.name.trim().isNotEmpty &&
+        c.barcode.trim().isNotEmpty &&
+        (c.brand?.trim().isNotEmpty ?? false);
   }
 
   void initializeForCreate() {
@@ -57,6 +59,7 @@ class AddLoyaltyCardController extends GetxController {
       notes: card.notes,
       createdAt: card.createdAt,
       logoAsset: card.logoAsset,
+      tags: card.tags == null ? null : List<String>.from(card.tags!),
     );
     isEditMode.value = true;
     currentCard.refresh();

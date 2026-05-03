@@ -2,6 +2,56 @@
 
 The application has been developed so that you can manage your bank and iban card information. Data is stored locally in encrypted form. At the same time, extra security is provided with pin input. You can add your bank card information and see the back and front sides of your cards with animation and specify the color. While adding your IBAN cards, you can scan them with your camera without having to write IBAN.
 
+## Wallet Export
+
+Loyalty cards can be exported to Apple Wallet and Google Wallet.
+
+- iOS uses a signed `.pkpass` from the Wallet Export API and presents it in-app with `apple_passkit`.
+- Android opens the Google Wallet Save URL returned by the same API.
+- Apple signing certificates and Google service account JSON are not stored in the mobile app. They live in Google Secret Manager and are mounted into the Cloud Run service.
+
+Current Cloud Run endpoint:
+
+```text
+https://cardwallet-wallet-export-134457105597.europe-west1.run.app
+```
+
+Local Flutter runs should use a gitignored dart-define file:
+
+```text
+.dart_defines/wallet.local.env
+```
+
+Expected local file contents:
+
+```env
+WALLET_EXPORT_BASE_URL=https://cardwallet-wallet-export-134457105597.europe-west1.run.app
+WALLET_EXPORT_API_KEY=<read from Google Secret Manager>
+```
+
+Create/update it with:
+
+```sh
+mkdir -p .dart_defines
+printf 'WALLET_EXPORT_BASE_URL=https://cardwallet-wallet-export-134457105597.europe-west1.run.app\n' > .dart_defines/wallet.local.env
+printf 'WALLET_EXPORT_API_KEY=%s\n' "$(gcloud secrets versions access latest --secret=wallet-export-api-key)" >> .dart_defines/wallet.local.env
+chmod 600 .dart_defines/wallet.local.env
+```
+
+Run from VS Code with:
+
+```text
+Card Wallet (Wallet API)
+```
+
+or from terminal:
+
+```sh
+flutter run --dart-define-from-file=.dart_defines/wallet.local.env
+```
+
+See [tools/wallet_export_server/README.md](tools/wallet_export_server/README.md) for Cloud Run deploy and secret configuration.
+
 ## Plugins
 
 [flutter_bloc](https://pub.dev/packages/flutter_bloc) <br>
@@ -14,6 +64,7 @@ The application has been developed so that you can manage your bank and iban car
 [pin_code_fields](https://pub.dev/packages/pin_code_fields) <br>
 [flutter_launcher_icons](https://pub.dev/packages/flutter_launcher_icons) <br>
 [flip_card](https://pub.dev/packages/flip_card) <br>
+[apple_passkit](https://pub.dev/packages/apple_passkit) <br>
 
 
 
