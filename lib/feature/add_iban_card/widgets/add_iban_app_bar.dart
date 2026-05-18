@@ -7,7 +7,7 @@ import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
 
 class AddIbanAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final IbanCard? ibanCard; // Opsiyonel IbanCard parametresi
+  final IbanCard? ibanCard;
 
   const AddIbanAppBar({Key? key, this.ibanCard}) : super(key: key);
 
@@ -30,29 +30,6 @@ class AddIbanAppBar extends StatelessWidget implements PreferredSizeWidget {
           Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
         ),
       ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: Obx(() => IconButton(
-                onPressed: controller.isLoading.value
-                    ? null
-                    : () {
-                        controller.saveCard();
-                      },
-                icon: controller.isLoading.value
-                    ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Icon(
-                        controller.isEditMode.value
-                            ? Icons.save
-                            : Icons.add_card,
-                      ),
-              )),
-        )
-      ],
       title: Obx(() => Text(
             controller.isEditMode.value ? "editIC".tr() : "addIC".tr(),
             style:

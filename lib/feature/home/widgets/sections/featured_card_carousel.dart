@@ -1,20 +1,18 @@
-import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
-import 'package:wallet_app/core/widgets/credit_card_back.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
 import 'package:wallet_app/feature/home/widgets/sections/featured_card_tile.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_animations.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
+import 'package:wallet_app/feature/home/widgets/sheets/card_detail_sheet.dart';
 
 /// Apple-Wallet-flavoured PageView. The center card is at full size and the
 /// neighbours peek in at ~85% scale with a softer alpha. Caps at 6 items so
-/// the viewport never gets dot-soup. Tapping a credit card flips it to
-/// reveal the back. IBAN and loyalty cards are intentionally
-/// non-interactive in the carousel — for the full preview the user goes
-/// through the "Show" action below.
+/// the viewport never gets dot-soup. Tapping the focused card opens the
+/// unified detail sheet — Hero animation carries the card visual into the
+/// sheet. Long-press triggers a peek scale-up.
 ///
 /// When [scrollOffset] is wired in, the active card tilts 0..6° on the
 /// X axis as the page scrolls, mimicking a wallet card being closed.
@@ -128,6 +126,11 @@ class _FeaturedCardCarouselState extends State<FeaturedCardCarousel> {
       controller: _controller,
       physics: const PageScrollPhysics(),
       padEnds: true,
+      // Clip.none lets the focused card's shadow + 1.03 scale overshoot
+      // into the gutter and adjacent slots without being shaved by the
+      // page boundary. Without this, kCardShadow renders chopped at the
+      // slot edges and the lift effect dies.
+      clipBehavior: Clip.none,
       itemCount: items.length,
       onPageChanged: (i) {
         HapticFeedback.selectionClick();
@@ -206,11 +209,11 @@ class _CarouselSlot extends StatelessWidget {
         final delta = (page - index).abs().clamp(0.0, 1.0);
         final scale = 1.03 - delta * 0.08;
         final opacity = 1.0 - delta * 0.25;
-        // Flip is only enabled when the carousel is fully idle AND this
-        // card is the focused one. While scrolling we render a plain
-        // front face below — so even a stale flip animation can't be
-        // visible mid-slide (no FlipCard in the tree to animate).
-        final flipEnabled = delta < 0.05 && !isScrollingNotifier.value;
+        // Tap-to-open is only enabled when the carousel is fully idle
+        // AND this card is the focused one. Stops swipes from accidentally
+        // firing the sheet, and prevents taps on partially-visible
+        // neighbours.
+        final tapEnabled = delta < 0.05 && !isScrollingNotifier.value;
         return Align(
           alignment: const Alignment(0, -0.25),
           child: Transform.scale(
@@ -231,7 +234,7 @@ class _CarouselSlot extends StatelessWidget {
                       item: item,
                       width: cardWidth,
                       height: cardHeight,
-                      flipEnabled: flipEnabled,
+                      tapEnabled: tapEnabled,
                     ),
                   ),
                 ),
@@ -244,20 +247,24 @@ class _CarouselSlot extends StatelessWidget {
   }
 }
 
-/// Per-kind carousel cell. Credit cards flip on tap (front ↔ back). IBAN
-/// and loyalty cards are render-only here. Long-press triggers a peek
-/// scale-up regardless of kind.
+/// Per-kind carousel cell. All kinds render their static face here; tapping
+/// the focused card opens the unified detail sheet via Hero. The flip
+/// affordance for credit cards lives inside the sheet (FlipCard with
+/// flipOnTouch). Long-press triggers a peek scale-up regardless of kind.
 class _CarouselItem extends StatefulWidget {
   final WalletItem item;
   final double width;
   final double height;
-  final bool flipEnabled;
+  // True when this card is the focused one AND the carousel isn't moving.
+  // Used to gate tap-to-open so swipe gestures don't accidentally fire a
+  // sheet, and so taps on partially-visible neighbours are ignored.
+  final bool tapEnabled;
 
   const _CarouselItem({
     required this.item,
     required this.width,
     required this.height,
-    this.flipEnabled = true,
+    this.tapEnabled = true,
   });
 
   @override
@@ -265,15 +272,11 @@ class _CarouselItem extends StatefulWidget {
 }
 
 class _CarouselItemState extends State<_CarouselItem> {
-  // Stable key so FlipCard's internal animation/orientation state survives
-  // parent rebuilds during page swipes.
-  final GlobalKey<FlipCardState> _flipKey = GlobalKey<FlipCardState>();
-
   // Tracks where the finger touched down so onTapUp can reject "taps" that
   // moved more than [_tapMovementSlop] pixels. Flutter's default tap slop
-  // is 18 px — wide enough that a slow swipe registers as a tap and starts
-  // a flip, which is exactly the "slide sırasında kart flip oluyor" symptom.
-  // We tighten it so only an essentially-stationary press flips the card.
+  // is 18 px — wide enough that a slow swipe registers as a tap, which is
+  // the "slide sırasında sheet açılıyor" symptom. We tighten it so only an
+  // essentially-stationary press fires the sheet.
   static const double _tapMovementSlop = 8;
   Offset? _tapDownPosition;
 
@@ -285,11 +288,11 @@ class _CarouselItemState extends State<_CarouselItem> {
     final start = _tapDownPosition;
     _tapDownPosition = null;
     if (start == null) return;
-    if (!widget.flipEnabled) return;
+    if (!widget.tapEnabled) return;
     final movement = (details.globalPosition - start).distance;
     if (movement > _tapMovementSlop) return;
     HapticFeedback.selectionClick();
-    _flipKey.currentState?.toggleCard();
+    showCardDetailSheet(context, widget.item);
   }
 
   void _handleTapCancel() {
@@ -300,17 +303,6 @@ class _CarouselItemState extends State<_CarouselItem> {
   Widget build(BuildContext context) {
     Widget body;
     if (widget.item.kind == WalletItemKind.credit) {
-      // The parent ClipRRect used to live here, wrapping the FlipCard at the
-      // exact card rect. That clip shaved the apex frame of every flip — the
-      // 3D rotation projects ~%15 past the static rect on each axis. Clip is
-      // now pushed *into* CreditCardFront/CreditCardBack so each face rounds
-      // its own corners, leaving the FlipCard rotation free to overshoot.
-      //
-      // Mid-slide we replace the FlipCard with a static front face. The
-      // package's 3D rotation kept leaking a half-flipped frame whenever the
-      // tree rebuilt during a swipe; pulling FlipCard out of the tree
-      // entirely is the only way to guarantee the card never appears to flip
-      // while the carousel is moving.
       final card = widget.item.card as CreditCard;
       body = Container(
         width: widget.width,
@@ -319,21 +311,7 @@ class _CarouselItemState extends State<_CarouselItem> {
           borderRadius: BorderRadius.all(Radius.circular(20)),
           boxShadow: kCardShadow,
         ),
-        child: widget.flipEnabled
-            ? GestureDetector(
-                onTapDown: _handleTapDown,
-                onTapUp: _handleTapUp,
-                onTapCancel: _handleTapCancel,
-                child: FlipCard(
-                  key: _flipKey,
-                  direction: FlipDirection.HORIZONTAL,
-                  speed: 600,
-                  flipOnTouch: false,
-                  front: CreditCardFront(creditCard: card, maskNumber: true),
-                  back: CreditCardBack(creditCard: card),
-                ),
-              )
-            : CreditCardFront(creditCard: card, maskNumber: true),
+        child: CreditCardFront(creditCard: card, maskNumber: true),
       );
     } else {
       body = FeaturedCardTile(
@@ -343,14 +321,18 @@ class _CarouselItemState extends State<_CarouselItem> {
       );
     }
 
-    // Vertical breathing room around the card — flip overshoot now lands
-    // here instead of being clipped at the card's rect.
     return Padding(
       padding: EdgeInsets.symmetric(vertical: widget.height * 0.10),
-      child: LongPressPeek(
-        peekScale: 1.06,
-        onPeekStart: () => HapticFeedback.mediumImpact(),
-        child: body,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: _handleTapDown,
+        onTapUp: _handleTapUp,
+        onTapCancel: _handleTapCancel,
+        child: LongPressPeek(
+          peekScale: 1.06,
+          onPeekStart: () => HapticFeedback.mediumImpact(),
+          child: body,
+        ),
       ),
     );
   }

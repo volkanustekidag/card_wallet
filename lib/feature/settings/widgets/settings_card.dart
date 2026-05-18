@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -10,6 +11,10 @@ class SettingsCard extends StatefulWidget {
   final bool isDestructive;
   final Color? color;
 
+  /// When true, show a small "Premium" pill next to the title so the locked
+  /// state is visible without tapping. Tap routing is left to the caller.
+  final bool premiumLocked;
+
   const SettingsCard({
     Key? key,
     required this.iconData,
@@ -19,6 +24,7 @@ class SettingsCard extends StatefulWidget {
     this.onTap,
     this.isDestructive = false,
     this.color,
+    this.premiumLocked = false,
   }) : super(key: key);
 
   @override
@@ -87,15 +93,26 @@ class _SettingsCardState extends State<SettingsCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          widget.title,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: widget.isDestructive
-                                ? colorScheme.error
-                                : colorScheme.onSurface,
-                          ),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                widget.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: widget.isDestructive
+                                      ? colorScheme.error
+                                      : colorScheme.onSurface,
+                                ),
+                              ),
+                            ),
+                            if (widget.premiumLocked) ...[
+                              const SizedBox(width: 8),
+                            ],
+                          ],
                         ),
                         if (widget.subtitle != null) ...[
                           const SizedBox(height: 2),
@@ -119,6 +136,41 @@ class _SettingsCardState extends State<SettingsCard> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _PremiumBadge extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: colorScheme.primary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.lock_rounded,
+            size: 11,
+            color: colorScheme.primary,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            'premium'.tr(),
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: colorScheme.primary,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
       ),
     );
   }

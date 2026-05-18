@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 import base64
 import hashlib
+import hmac
 import json
 import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
+import threading
 import time
 import uuid
 import zipfile
+from collections import deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
@@ -25,6 +29,22 @@ API_KEY = os.getenv("WALLET_EXPORT_API_KEY", "").strip()
 PASS_OUTPUT_DIR = Path(
     os.getenv("WALLET_PASS_OUTPUT_DIR", tempfile.gettempdir())
 ) / "cardwallet-passes"
+
+# Reject payloads larger than this before reading the body — protects against
+# memory exhaustion via spoofed Content-Length. Real payloads are ~1KB.
+MAX_REQUEST_BYTES = 10 * 1024
+
+# Per-IP rate limit: 30 POSTs per 60s rolling window. Cloud Run runs with
+# max-instances=1 so a single client can knock the service over without this.
+RATE_LIMIT_MAX_REQUESTS = int(os.getenv("WALLET_RATE_LIMIT_MAX", "30"))
+RATE_LIMIT_WINDOW_SEC = int(os.getenv("WALLET_RATE_LIMIT_WINDOW", "60"))
+
+# Built passes live in /tmp and are served back via GET. Without this they
+# accumulate until the filesystem fills up.
+PASS_TTL_SEC = int(os.getenv("WALLET_PASS_TTL_SEC", str(24 * 60 * 60)))
+PASS_CLEANUP_INTERVAL_SEC = int(
+    os.getenv("WALLET_PASS_CLEANUP_INTERVAL_SEC", "600")
+)
 
 APPLE_SUPPORTED_FORMATS = {
     "QR_CODE": "PKBarcodeFormatQR",
@@ -53,8 +73,66 @@ class RequestError(Exception):
         self.message_key = message_key
 
 
+_rate_limit_lock = threading.Lock()
+_rate_limit_buckets: dict = {}
+
+
+def _rate_limit_allow(client_ip: str) -> bool:
+    """Sliding-window rate limit by client IP. Allows up to
+    RATE_LIMIT_MAX_REQUESTS requests in RATE_LIMIT_WINDOW_SEC seconds."""
+    now = time.monotonic()
+    cutoff = now - RATE_LIMIT_WINDOW_SEC
+    with _rate_limit_lock:
+        bucket = _rate_limit_buckets.get(client_ip)
+        if bucket is None:
+            bucket = deque()
+            _rate_limit_buckets[client_ip] = bucket
+        while bucket and bucket[0] < cutoff:
+            bucket.popleft()
+        if len(bucket) >= RATE_LIMIT_MAX_REQUESTS:
+            return False
+        bucket.append(now)
+        # Opportunistic GC so the dict doesn't grow forever from one-off IPs.
+        if len(_rate_limit_buckets) > 1024:
+            for ip in list(_rate_limit_buckets.keys()):
+                if not _rate_limit_buckets[ip]:
+                    _rate_limit_buckets.pop(ip, None)
+        return True
+
+
+def _pass_cleanup_loop():
+    """Background daemon that drops expired pkpass files. Each generated pass
+    is fetched once by the user device, so a 24h TTL is generous."""
+    while True:
+        try:
+            cutoff = time.time() - PASS_TTL_SEC
+            for path in PASS_OUTPUT_DIR.glob("*.pkpass"):
+                try:
+                    if path.stat().st_mtime < cutoff:
+                        path.unlink(missing_ok=True)
+                except OSError:
+                    pass
+        except Exception:
+            # Never let the cleanup thread die — log type only, no payloads.
+            print("Wallet export cleanup error", file=sys.stderr)
+        time.sleep(PASS_CLEANUP_INTERVAL_SEC)
+
+
 def main():
+    if not API_KEY:
+        # Refuse to start without auth. Without this the Apple signer cert
+        # and Google service account become a free pass-generation service
+        # for the internet, and Google can suspend the issuer for abuse.
+        print(
+            "FATAL: WALLET_EXPORT_API_KEY env var is required.",
+            file=sys.stderr,
+        )
+        sys.exit(2)
     PASS_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    cleanup_thread = threading.Thread(
+        target=_pass_cleanup_loop, daemon=True, name="pkpass-cleanup"
+    )
+    cleanup_thread.start()
     server = ThreadingHTTPServer((HOST, PORT), WalletExportHandler)
     print(f"Wallet export server listening on http://{HOST}:{PORT}")
     server.serve_forever()
@@ -71,6 +149,10 @@ class WalletExportHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         try:
+            if not _rate_limit_allow(self._client_ip()):
+                return self._json_response(
+                    429, {"messageKey": "walletExportRateLimited"}
+                )
             self._authorize()
             parsed = urlparse(self.path)
             payload = self._read_json()
@@ -92,22 +174,43 @@ class WalletExportHandler(BaseHTTPRequestHandler):
         except ConfigError:
             self._json_response(500, {"messageKey": "walletExportNotConfigured"})
         except Exception as error:
-            print(f"Wallet export error: {error}")
+            # Log only the exception type; payloads carry loyalty barcodes
+            # and must never end up in stdout/stderr.
+            print(
+                f"Wallet export error: {type(error).__name__}",
+                file=sys.stderr,
+            )
             self._json_response(500, {"messageKey": "walletExportFailed"})
 
+    def _client_ip(self) -> str:
+        # Cloud Run / proxies set X-Forwarded-For; the first hop is the real
+        # client. Fall back to the socket address in dev.
+        forwarded = self.headers.get("X-Forwarded-For", "")
+        if forwarded:
+            return forwarded.split(",")[0].strip()
+        return self.client_address[0]
+
     def _authorize(self):
-        if not API_KEY:
-            return
         received = self.headers.get("X-CardWallet-Api-Key", "").strip()
-        if received != API_KEY:
+        # Constant-time compare so brute-force timing attacks on the key are
+        # not free. compare_digest needs equal-length inputs to be useful,
+        # but it also doesn't leak the length difference here.
+        if not received or not hmac.compare_digest(received, API_KEY):
             raise RequestError(401, "walletExportFailed")
 
     def _read_json(self):
-        content_length = int(self.headers.get("Content-Length", "0"))
+        try:
+            content_length = int(self.headers.get("Content-Length", "0"))
+        except ValueError:
+            raise RequestError(400, "walletExportInvalidResponse")
+        if content_length <= 0 or content_length > MAX_REQUEST_BYTES:
+            raise RequestError(413, "walletExportInvalidResponse")
         raw = self.rfile.read(content_length)
+        if len(raw) != content_length:
+            raise RequestError(400, "walletExportInvalidResponse")
         try:
             data = json.loads(raw.decode("utf-8"))
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, UnicodeDecodeError):
             raise RequestError(400, "walletExportInvalidResponse")
         if not isinstance(data, dict):
             raise RequestError(400, "walletExportInvalidResponse")

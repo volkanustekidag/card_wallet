@@ -76,8 +76,10 @@ class LinearGradients {
 /// Static helpers describing the catalogue (free vs premium, total count).
 class GradientCatalogue {
   /// First N gradients are available to free users; the rest are gated
-  /// behind premium so they show up as a teaser in the picker.
-  static const int freeCount = 13;
+  /// behind premium so they show up as a teaser in the picker. Existing
+  /// user cards keep their colour regardless of this cap — only the picker
+  /// UI gates new selections.
+  static const int freeCount = 4;
   static int get totalCount => LinearGradients().linearGradientList.length;
 
   static bool isPremium(int index) => index >= freeCount;

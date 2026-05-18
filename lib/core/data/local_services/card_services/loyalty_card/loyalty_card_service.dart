@@ -5,13 +5,14 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
+import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 
 class LoyaltyCardService {
   LoyaltyCardService._internal();
   static final LoyaltyCardService _instance = LoyaltyCardService._internal();
   factory LoyaltyCardService() => _instance;
 
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage = SecureStorageProvider.instance;
   Box<LoyaltyCard>? _box;
   Future<void>? _openingFuture;
 

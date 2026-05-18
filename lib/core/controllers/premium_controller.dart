@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -19,17 +21,12 @@ class PremiumController extends GetxController {
   bool get isLoading => _isLoading.value;
   List<ProductDetails> get availableProducts => _availableProducts;
   RxList<ProductDetails> get availableProductsRx => _availableProducts;
-  // Each cadence falls back to its legacy ID — until the store catches
-  // up with the v2 IDs, the older products keep populating the paywall.
-  ProductDetails? get monthlyProduct =>
-      _getProductById(PremiumService.monthlyProductId) ??
+  ProductDetails? get weeklyProduct =>
       _getProductById(PremiumService.weeklyProductId);
+  ProductDetails? get monthlyProduct =>
+      _getProductById(PremiumService.monthlyProductId);
   ProductDetails? get yearlyProduct =>
-      _getProductById(PremiumService.yearlyProductId) ??
-      _getProductById(PremiumService.legacyYearlyProductId);
-  ProductDetails? get lifetimeProduct =>
-      _getProductById(PremiumService.lifetimeProductId) ??
-      _getProductById(PremiumService.legacyLifetimeProductId);
+      _getProductById(PremiumService.yearlyProductId);
   int get creditCardCount => _creditCardCount.value;
   int get ibanCardCount => _ibanCardCount.value;
   int get loyaltyCardCount => _loyaltyCardCount.value;
@@ -79,14 +76,41 @@ class PremiumController extends GetxController {
     }
   }
 
-  Future<bool> purchase(ProductDetails product) async {
+  /// Returns the real store outcome — completes only after the purchase
+  /// stream confirms success / cancel / error (or a safety timeout fires).
+  /// Loading state stays on for the whole window so the paywall blocks
+  /// double-taps and we don't show success UI before the store confirms.
+  Future<PremiumPurchaseResult> purchase(ProductDetails product) async {
     _isLoading.value = true;
+
+    final completer = Completer<PremiumPurchaseResult>();
+    StreamSubscription<PremiumPurchaseResult>? sub;
+    Timer? timeout;
+
+    void finish(PremiumPurchaseResult result) {
+      if (completer.isCompleted) return;
+      sub?.cancel();
+      timeout?.cancel();
+      completer.complete(result);
+    }
+
+    sub = PremiumService.purchaseResultStream.listen(finish);
+    timeout = Timer(const Duration(seconds: 90), () {
+      finish(PremiumPurchaseResult.error);
+    });
+
     try {
-      final success = await PremiumService.purchaseProduct(product);
-      return success;
+      final dispatched = await PremiumService.purchaseProduct(product);
+      if (!dispatched) {
+        finish(PremiumPurchaseResult.error);
+      }
     } catch (e) {
       debugPrint('Error purchasing premium: $e');
-      return false;
+      finish(PremiumPurchaseResult.error);
+    }
+
+    try {
+      return await completer.future;
     } finally {
       _isLoading.value = false;
     }

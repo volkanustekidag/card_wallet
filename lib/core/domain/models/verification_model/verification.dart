@@ -13,7 +13,7 @@ class Verification extends HiveObject {
   @HiveField(1)
   String? salt;
 
-  @HiveField(2)
+  @HiveField(2, defaultValue: true)
   bool isLegacyPin;
 
   Verification(

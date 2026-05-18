@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/widgets/add_credit_card_widget.dart';
+import 'package:wallet_app/core/widgets/primary_form_button.dart';
 import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_controller.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/add_credit_app_bar.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/credit_form.dart';
@@ -88,10 +90,15 @@ class _AddCreditCardPageState extends State<AddCreditCardPage> {
       backgroundColor: colorScheme.surface,
       appBar: AddCreditAppBar(creditCard: widget.creditCard),
       body: SafeArea(
-        child: CustomScrollView(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(),
-          slivers: [
+        child: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: CustomScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(),
+            keyboardDismissBehavior:
+                ScrollViewKeyboardDismissBehavior.onDrag,
+            slivers: [
             SliverPersistentHeader(
               pinned: true,
               delegate: _CreditPreviewHeaderDelegate(
@@ -105,20 +112,29 @@ class _AddCreditCardPageState extends State<AddCreditCardPage> {
               ),
             ),
             SliverPadding(
-              padding: EdgeInsets.fromLTRB(
-                24,
-                16,
-                24,
-                32 + mq.viewInsets.bottom,
-              ),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
               sliver: SliverToBoxAdapter(
                 child: CreditTextFieldForms(
                   cardNumberFocusNode: _cardNumberFocusNode,
                 ),
               ),
             ),
-          ],
+            ],
+          ),
         ),
+      ),
+      bottomNavigationBar: StickyBottomBar(
+        child: Obx(() {
+          final isBusy = _controller.isLoading.value;
+          final canSave = _controller.isFormValid && !isBusy;
+          return PrimaryFormButton(
+            label: _controller.isEditMode.value
+                ? 'updateAction'.tr()
+                : 'addAction'.tr(),
+            isBusy: isBusy,
+            onPressed: canSave ? _controller.saveCard : null,
+          );
+        }),
       ),
     );
   }

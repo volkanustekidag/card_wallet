@@ -3,11 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:uuid/uuid.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
+import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/utils/pin_setup_prompt.dart';
 import 'package:wallet_app/feature/loyalty_card/controller/loyalty_card_controller.dart';
 
 class AddLoyaltyCardController extends GetxController {
@@ -27,9 +30,7 @@ class AddLoyaltyCardController extends GetxController {
 
   bool get isFormValid {
     final c = currentCard.value;
-    return c.name.trim().isNotEmpty &&
-        c.barcode.trim().isNotEmpty &&
-        (c.brand?.trim().isNotEmpty ?? false);
+    return c.name.trim().isNotEmpty && c.barcode.trim().isNotEmpty;
   }
 
   void initializeForCreate() {
@@ -60,6 +61,7 @@ class AddLoyaltyCardController extends GetxController {
       createdAt: card.createdAt,
       logoAsset: card.logoAsset,
       tags: card.tags == null ? null : List<String>.from(card.tags!),
+      website: card.website,
     );
     isEditMode.value = true;
     currentCard.refresh();
@@ -88,6 +90,9 @@ class AddLoyaltyCardController extends GetxController {
         break;
       case 'logoAsset':
         c.logoAsset = value as String?;
+        break;
+      case 'website':
+        c.website = value as String?;
         break;
     }
     currentCard.refresh();
@@ -124,6 +129,7 @@ class AddLoyaltyCardController extends GetxController {
           notes: currentCard.value.notes,
           createdAt: _originalCard!.createdAt ?? DateTime.now(),
           logoAsset: currentCard.value.logoAsset,
+          website: currentCard.value.website,
         );
         await _service.updateLoyaltyCard(_originalCard!, updated);
         HapticFeedback.mediumImpact();
@@ -142,6 +148,7 @@ class AddLoyaltyCardController extends GetxController {
           notes: currentCard.value.notes,
           createdAt: DateTime.now(),
           logoAsset: currentCard.value.logoAsset,
+          website: currentCard.value.website,
         );
         await _service.addLoyaltyCard(newCard);
         HapticFeedback.mediumImpact();
@@ -151,6 +158,22 @@ class AddLoyaltyCardController extends GetxController {
 
       if (Get.isRegistered<LoyaltyCardController>()) {
         Get.find<LoyaltyCardController>().loadLoyaltyCards();
+      }
+
+      if (!isEditMode.value) {
+        // Trigger the post-add PIN nudge once the user has their very first
+        // card. Read boxes directly so the count is correct ahead of the
+        // HomeController debounce.
+        try {
+          final cc = await CreditCardService().getAllCreditCards();
+          final iban = await IbanCardService().getAllIbanCards();
+          final loyalty = await _service.getAllLoyaltyCards();
+          await maybePromptPinSetup(
+            totalCardCountAfterAdd: cc.length + iban.length + loyalty.length,
+          );
+        } catch (_) {
+          // Best-effort prompt; never break the save.
+        }
       }
     } catch (e) {
       debugPrint('Error saving loyalty card: $e');

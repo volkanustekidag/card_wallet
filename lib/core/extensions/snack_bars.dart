@@ -38,12 +38,14 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason> _showStyled(
   Color? background,
 }) {
   final snackTheme = Theme.of(context).snackBarTheme;
-  final bg = background ?? snackTheme.backgroundColor;
-  final foreground = bg == null
-      ? (snackTheme.contentTextStyle?.color ?? Colors.white)
-      : ThemeData.estimateBrightnessForColor(bg) == Brightness.dark
-          ? Colors.white
-          : Colors.black87;
+  var bg = background ?? snackTheme.backgroundColor;
+  // Semantic snackbars (success/info/warning/error) should always read with
+  // white text. If a caller-supplied bg is too light for white to be legible,
+  // darken it so contrast stays ≥ ~4.5:1.
+  if (background != null && bg != null && bg.computeLuminance() > 0.45) {
+    final hsl = HSLColor.fromColor(bg);
+    bg = hsl.withLightness((hsl.lightness * 0.55).clamp(0.0, 1.0)).toColor();
+  }
   final baseStyle =
       snackTheme.contentTextStyle ?? const TextStyle(fontSize: 14);
 
@@ -53,7 +55,7 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason> _showStyled(
       duration: const Duration(seconds: 2),
       content: Text(
         message.tr(),
-        style: baseStyle.copyWith(color: foreground),
+        style: baseStyle.copyWith(color: Colors.white),
       ),
     ),
   );

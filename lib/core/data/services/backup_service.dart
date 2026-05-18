@@ -7,11 +7,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:pointycastle/export.dart' as pc;
 
 import '../../constants/keys.dart';
+import '../../utils/secure_storage_provider.dart';
 import '../../domain/models/credit_card_model/credit_card.dart';
 import '../../domain/models/iban_card_model/iban_card.dart';
 import '../../domain/models/loyalty_card_model/loyalty_card.dart';
@@ -36,7 +35,8 @@ class BackupError implements Exception {
 }
 
 class BackupService {
-  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  static const FlutterSecureStorage _secureStorage =
+      SecureStorageProvider.instance;
 
   static const String _currentBackupVersion = '2.1';
   static const int _pbkdf2Iterations = 100000;
@@ -167,6 +167,8 @@ class BackupService {
         'notes': card.notes,
         'createdAt': card.createdAt?.toIso8601String(),
         'logoAsset': card.logoAsset,
+        'tags': card.tags,
+        'website': card.website,
       });
     }
 
@@ -177,10 +179,15 @@ class BackupService {
     };
   }
 
-  /// Creates an encrypted JSON backup file at the platform default location
-  /// and returns its path. The data is encrypted with AES-256-GCM using a key
+  /// Builds an encrypted JSON backup and lets the user choose where to save it
+  /// via the native system file picker (Storage Access Framework on Android,
+  /// UIDocumentPickerViewController on iOS). Returns the saved path, or null
+  /// if the user cancelled. Data is encrypted with AES-256-GCM using a key
   /// derived from [password] via PBKDF2-HMAC-SHA256.
-  Future<String> createBackupFile({required String password}) async {
+  Future<String?> createBackupFile({
+    required String password,
+    String? dialogTitle,
+  }) async {
     if (password.length < 6) {
       throw BackupError(
         BackupErrorKind.passwordRequired,
@@ -188,8 +195,6 @@ class BackupService {
       );
     }
     try {
-      await _requestStoragePermission();
-
       final plainData = await _exportPlainData();
       final plaintext = jsonEncode(plainData);
 
@@ -214,12 +219,18 @@ class BackupService {
         'timestamp': DateTime.now().toIso8601String(),
       };
 
-      final directory = await _resolveBackupDirectory();
+      final bytes =
+          Uint8List.fromList(utf8.encode(jsonEncode(envelope)));
       final fileName =
           'card_wallet_backup_${DateTime.now().millisecondsSinceEpoch}.json';
-      final file = File('${directory.path}/$fileName');
-      await file.writeAsString(jsonEncode(envelope));
-      return file.path;
+
+      return await FilePicker.platform.saveFile(
+        dialogTitle: dialogTitle,
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: const ['json'],
+        bytes: bytes,
+      );
     } on BackupError {
       rethrow;
     } catch (e) {
@@ -227,29 +238,6 @@ class BackupService {
         BackupErrorKind.io,
         'Failed to create backup: $e',
       );
-    }
-  }
-
-  Future<Directory> _resolveBackupDirectory() async {
-    if (Platform.isAndroid) {
-      final ext = await getExternalStorageDirectory();
-      if (ext != null) {
-        final downloads = Directory('${ext.path}/Download');
-        if (!await downloads.exists()) {
-          await downloads.create(recursive: true);
-        }
-        return downloads;
-      }
-    }
-    return await getApplicationDocumentsDirectory();
-  }
-
-  Future<void> _requestStoragePermission() async {
-    if (Platform.isAndroid) {
-      final status = await Permission.storage.status;
-      if (!status.isGranted) {
-        await Permission.storage.request();
-      }
     }
   }
 
@@ -359,7 +347,9 @@ class BackupService {
     final nonceStr = envelope['nonce'];
     final ivStr = envelope['iv'];
     final dataStr = envelope['data'];
-    final iterations = (envelope['iterations'] as int?) ?? _pbkdf2Iterations;
+    // Tolerate hand-edited backups where iterations is encoded as a double.
+    final iterations =
+        (envelope['iterations'] as num?)?.toInt() ?? _pbkdf2Iterations;
     if (saltStr is! String || dataStr is! String) {
       throw BackupError(
         BackupErrorKind.invalidFormat,
@@ -417,6 +407,32 @@ class BackupService {
     required List<dynamic> newIbanCards,
     required List<dynamic> newLoyaltyCards,
   }) async {
+    // Parse everything into model objects *before* touching any box. If a row
+    // is malformed enough to throw, we abort here and the user's existing
+    // data is untouched — no clear() has run yet.
+    final List<CreditCard> parsedCredit;
+    final List<IbanCard> parsedIban;
+    final List<LoyaltyCard> parsedLoyalty;
+    try {
+      parsedCredit = [
+        for (final raw in newCreditCards)
+          if (raw is Map) _buildCreditCard(raw),
+      ];
+      parsedIban = [
+        for (final raw in newIbanCards)
+          if (raw is Map) _buildIbanCard(raw),
+      ];
+      parsedLoyalty = [
+        for (final raw in newLoyaltyCards)
+          if (raw is Map) _buildLoyaltyCard(raw),
+      ];
+    } catch (e) {
+      throw BackupError(
+        BackupErrorKind.invalidFormat,
+        'Backup contains malformed card entries: $e',
+      );
+    }
+
     final creditCardsBox = await _getCreditCardsBox();
     final ibanCardsBox = await _getIbanCardsBox();
     final loyaltyCardsBox = await _getLoyaltyCardsBox();
@@ -431,90 +447,103 @@ class BackupService {
       await ibanCardsBox.clear();
       await loyaltyCardsBox.clear();
 
-      for (final raw in newCreditCards) {
-        if (raw is! Map) continue;
-        await creditCardsBox.add(
-          CreditCard(
-            id: raw['id'],
-            bankName: (raw['bankName'] ?? '') as String,
-            creditCardNumber: (raw['creditCardNumber'] ?? '') as String,
-            cardHolder: (raw['cardHolder'] ?? '') as String,
-            expirationDate: (raw['expirationDate'] ?? '') as String,
-            cardColorId: (raw['cardColorId'] as int?) ?? 0,
-            createdAt: _parseDate(raw['createdAt']),
-            notes: raw['notes'] as String?,
-            tags: _parseStringList(raw['tags']),
-            expiryReminderEnabled:
-                (raw['expiryReminderEnabled'] as bool?) ?? false,
-            expiryReminderDaysBefore:
-                (raw['expiryReminderDaysBefore'] as int?) ?? 30,
-            paymentReminderEnabled:
-                (raw['paymentReminderEnabled'] as bool?) ?? false,
-            paymentDueDay: raw['paymentDueDay'] as int?,
-            paymentReminderDaysBefore:
-                (raw['paymentReminderDaysBefore'] as int?) ?? 3,
-            reminderHour: (raw['reminderHour'] as int?) ?? 9,
-          ),
-        );
+      for (final card in parsedCredit) {
+        await creditCardsBox.add(card);
       }
-
-      for (final raw in newIbanCards) {
-        if (raw is! Map) continue;
-        await ibanCardsBox.add(
-          IbanCard(
-            id: raw['id'],
-            bankName: (raw['bankName'] ?? '') as String,
-            cardHolder: (raw['cardHolder'] ?? '') as String,
-            iban: (raw['iban'] ?? '') as String,
-            swiftCode: (raw['swiftCode'] ?? '') as String,
-            createdAt: _parseDate(raw['createdAt']),
-            notes: raw['notes'] as String?,
-            tags: _parseStringList(raw['tags']),
-          ),
-        );
+      for (final card in parsedIban) {
+        await ibanCardsBox.add(card);
       }
-
-      for (final raw in newLoyaltyCards) {
-        if (raw is! Map) continue;
-        await loyaltyCardsBox.add(
-          LoyaltyCard(
-            id: (raw['id'] ?? '') as String,
-            name: (raw['name'] ?? '') as String,
-            brand: raw['brand'] as String?,
-            barcode: (raw['barcode'] ?? '') as String,
-            barcodeFormat: (raw['barcodeFormat'] ?? 'CODE_128') as String,
-            colorId: (raw['colorId'] as int?) ?? 0,
-            notes: raw['notes'] as String?,
-            createdAt: _parseDate(raw['createdAt']),
-            logoAsset: raw['logoAsset'] as String?,
-          ),
-        );
+      for (final card in parsedLoyalty) {
+        await loyaltyCardsBox.add(card);
       }
       await CardReminderService().scheduleAllCreditCardReminders(
         creditCardsBox.values.toList(),
       );
     } catch (e) {
       // Roll back to the pre-restore snapshot so the user keeps their data.
-      await creditCardsBox.clear();
-      await ibanCardsBox.clear();
-      await loyaltyCardsBox.clear();
-      for (final card in creditSnapshot) {
-        await creditCardsBox.add(card);
+      // The rollback itself can fail (disk full, box closed, etc.) — guard it
+      // so we surface a distinct error instead of leaking the rollback error
+      // and hiding the original cause.
+      try {
+        await creditCardsBox.clear();
+        await ibanCardsBox.clear();
+        await loyaltyCardsBox.clear();
+        for (final card in creditSnapshot) {
+          await creditCardsBox.add(card);
+        }
+        for (final card in ibanSnapshot) {
+          await ibanCardsBox.add(card);
+        }
+        for (final card in loyaltySnapshot) {
+          await loyaltyCardsBox.add(card);
+        }
+        await CardReminderService().scheduleAllCreditCardReminders(
+          creditSnapshot,
+        );
+      } catch (rollbackError) {
+        throw BackupError(
+          BackupErrorKind.io,
+          'Restore failed and rollback also failed; data may be inconsistent. '
+          'Original error: $e. Rollback error: $rollbackError',
+        );
       }
-      for (final card in ibanSnapshot) {
-        await ibanCardsBox.add(card);
-      }
-      for (final card in loyaltySnapshot) {
-        await loyaltyCardsBox.add(card);
-      }
-      await CardReminderService().scheduleAllCreditCardReminders(
-        creditSnapshot,
-      );
       throw BackupError(
         BackupErrorKind.io,
         'Restore aborted; previous data was kept: $e',
       );
     }
+  }
+
+  CreditCard _buildCreditCard(Map raw) {
+    return CreditCard(
+      id: raw['id'],
+      bankName: (raw['bankName'] ?? '') as String,
+      creditCardNumber: (raw['creditCardNumber'] ?? '') as String,
+      cardHolder: (raw['cardHolder'] ?? '') as String,
+      expirationDate: (raw['expirationDate'] ?? '') as String,
+      cardColorId: (raw['cardColorId'] as num?)?.toInt() ?? 0,
+      createdAt: _parseDate(raw['createdAt']),
+      notes: raw['notes'] as String?,
+      tags: _parseStringList(raw['tags']),
+      expiryReminderEnabled: (raw['expiryReminderEnabled'] as bool?) ?? false,
+      expiryReminderDaysBefore:
+          (raw['expiryReminderDaysBefore'] as num?)?.toInt() ?? 30,
+      paymentReminderEnabled:
+          (raw['paymentReminderEnabled'] as bool?) ?? false,
+      paymentDueDay: (raw['paymentDueDay'] as num?)?.toInt(),
+      paymentReminderDaysBefore:
+          (raw['paymentReminderDaysBefore'] as num?)?.toInt() ?? 3,
+      reminderHour: (raw['reminderHour'] as num?)?.toInt() ?? 9,
+    );
+  }
+
+  IbanCard _buildIbanCard(Map raw) {
+    return IbanCard(
+      id: raw['id'],
+      bankName: (raw['bankName'] ?? '') as String,
+      cardHolder: (raw['cardHolder'] ?? '') as String,
+      iban: (raw['iban'] ?? '') as String,
+      swiftCode: (raw['swiftCode'] ?? '') as String,
+      createdAt: _parseDate(raw['createdAt']),
+      notes: raw['notes'] as String?,
+      tags: _parseStringList(raw['tags']),
+    );
+  }
+
+  LoyaltyCard _buildLoyaltyCard(Map raw) {
+    return LoyaltyCard(
+      id: (raw['id'] ?? '') as String,
+      name: (raw['name'] ?? '') as String,
+      brand: raw['brand'] as String?,
+      barcode: (raw['barcode'] ?? '') as String,
+      barcodeFormat: (raw['barcodeFormat'] ?? 'CODE_128') as String,
+      colorId: (raw['colorId'] as num?)?.toInt() ?? 0,
+      notes: raw['notes'] as String?,
+      createdAt: _parseDate(raw['createdAt']),
+      logoAsset: raw['logoAsset'] as String?,
+      tags: _parseStringList(raw['tags']),
+      website: raw['website'] as String?,
+    );
   }
 
   DateTime? _parseDate(dynamic value) {

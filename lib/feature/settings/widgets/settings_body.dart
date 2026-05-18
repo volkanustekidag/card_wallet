@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +14,10 @@ import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/data/services/backup_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/services/premium_service.dart';
+import 'package:wallet_app/core/services/rate_app_service.dart';
 import 'package:wallet_app/core/widgets/premium_status_widget.dart';
+import 'package:wallet_app/feature/auth/pin_action_page.dart';
 import 'package:wallet_app/core/widgets/premium_upgrade_widget.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_animations.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/lang_bottom_sheet.dart';
@@ -145,48 +150,151 @@ class _SettingsBodyState extends State<SettingsBody> {
       title: 'sectionSecurity'.tr(),
       children: [
         Obx(() {
+          // Master toggle. Off by default for fresh installs; flips on/off
+          // via PinActionPage (create / verify) so we never quietly mutate
+          // the encrypted PIN box from a switch tap.
+          return SettingsCard(
+            iconData: Icons.lock_outline_rounded,
+            title: 'lockApp'.tr(),
+            subtitle: 'lockAppSubtitle'.tr(),
+            trailing: Switch(
+              value: authController.hasPassword.value,
+              onChanged: (value) =>
+                  _handleAppLockToggle(context, authController, value),
+            ),
+            onTap: () => _handleAppLockToggle(
+              context,
+              authController,
+              !authController.hasPassword.value,
+            ),
+          );
+        }),
+        Obx(() {
           final premiumController = Get.find<PremiumController>();
           if (!authController.isBiometricAvailable.value) {
             return const SizedBox.shrink();
           }
           final isPremium = premiumController.isPremium;
-          // Show the same Switch / arrow chrome regardless of premium state.
-          // Tapping when not premium routes to the paywall with the
-          // matching feature trigger so the user sees what they tried to
-          // unlock — no UI badges advertising "PREMIUM" upfront.
+          // Same Switch / arrow chrome regardless of premium state. Tapping
+          // when not premium routes to the paywall; tapping without a PIN
+          // routes through PIN creation first (biometric is a shortcut to
+          // skip PIN entry, so it has no meaning without one).
           return SettingsCard(
             iconData: Icons.fingerprint,
             title: authController.getBiometricDisplayName(),
+            premiumLocked: !isPremium,
             trailing: Switch(
               value: isPremium && authController.isBiometricEnabled.value,
-              onChanged: (value) {
-                HapticFeedback.lightImpact();
-                if (!isPremium) {
-                  Get.toNamed('/premium', arguments: {'feature': 'biometric'});
-                  return;
-                }
-                authController.toggleBiometric(value);
-              },
+              onChanged: (value) =>
+                  _handleBiometricToggle(authController, isPremium, value),
             ),
-            onTap: () {
-              if (!isPremium) {
-                Get.toNamed('/premium', arguments: {'feature': 'biometric'});
-                return;
-              }
-              authController.toggleBiometric(
-                !authController.isBiometricEnabled.value,
-              );
-            },
+            onTap: () => _handleBiometricToggle(
+              authController,
+              isPremium,
+              !authController.isBiometricEnabled.value,
+            ),
           );
         }),
-        SettingsCard(
-          iconData: Icons.pin,
-          title: 'chanPIN'.tr(),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () => Get.toNamed('/changePin'),
-        ),
+        Obx(() {
+          if (!authController.hasPassword.value) {
+            return const SizedBox.shrink();
+          }
+          return SettingsCard(
+            iconData: Icons.pin,
+            title: 'chanPIN'.tr(),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () => Get.toNamed('/changePin'),
+          );
+        }),
+        Obx(() {
+          // Biometric-gated PIN reset. Surfaces only when there is a PIN to
+          // reset *and* the device has biometric enrollment we can use as
+          // proof of ownership. Independent of the in-app biometric login
+          // toggle — recovery is always available if the hardware is.
+          if (!authController.isBiometricRecoveryAvailable) {
+            return const SizedBox.shrink();
+          }
+          return SettingsCard(
+            iconData: Icons.lock_reset,
+            title: 'resetPinTitle'.tr(),
+            subtitle: 'resetPinSubtitle'.tr(),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () => _handleBiometricPinReset(context, authController),
+          );
+        }),
       ],
     );
+  }
+
+  Future<void> _handleBiometricPinReset(
+    BuildContext context,
+    AuthController authController,
+  ) async {
+    HapticFeedback.lightImpact();
+    final passed = await authController.verifyBiometricForReset();
+    if (!passed || !mounted) return;
+    final created = await Get.to<bool>(
+      () => const PinActionPage(),
+      arguments: PinAction.create,
+    );
+    if (created == true && mounted) {
+      context.showSuccessSnackBar('resetPinSuccess');
+    }
+  }
+
+  Future<void> _handleAppLockToggle(
+    BuildContext context,
+    AuthController authController,
+    bool desiredValue,
+  ) async {
+    HapticFeedback.lightImpact();
+    if (desiredValue) {
+      // Enabling: push the create flow. registerStandalone updates
+      // hasPassword on success, so the Obx switch flips on its own.
+      final created = await Get.to<bool>(
+        () => const PinActionPage(),
+        arguments: PinAction.create,
+      );
+      if (created == true && mounted) {
+        context.showSuccessSnackBar('appLockEnabled');
+      }
+    } else {
+      // Disabling: require verification first so a stranger holding the
+      // unlocked phone can't strip the lock.
+      final verified = await Get.to<bool>(
+        () => const PinActionPage(),
+        arguments: PinAction.verify,
+      );
+      if (verified == true) {
+        await authController.removePassword();
+        if (mounted) {
+          context.showSuccessSnackBar('appLockDisabled');
+        }
+      }
+    }
+  }
+
+  Future<void> _handleBiometricToggle(
+    AuthController authController,
+    bool isPremium,
+    bool desiredValue,
+  ) async {
+    HapticFeedback.lightImpact();
+    if (!isPremium) {
+      Get.toNamed('/premium', arguments: {'feature': 'biometric'});
+      return;
+    }
+    if (desiredValue && !authController.hasPassword.value) {
+      // Biometric is a shortcut for the PIN; force the user to set a PIN
+      // before enabling biometric so we always have a fallback.
+      Get.context?.showInfoSnackBar('setupPinForBiometric');
+      final created = await Get.to<bool>(
+        () => const PinActionPage(),
+        arguments: PinAction.create,
+      );
+      if (created != true) return;
+    }
+    await authController.toggleBiometric(desiredValue);
   }
 
   Widget _buildDataSection(BuildContext context) {
@@ -199,6 +307,7 @@ class _SettingsBodyState extends State<SettingsBody> {
           return SettingsCard(
             iconData: Icons.backup,
             title: 'backupData'.tr(),
+            premiumLocked: !isPremium,
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: isPremium
                 ? () => _createBackup(context)
@@ -212,6 +321,7 @@ class _SettingsBodyState extends State<SettingsBody> {
           return SettingsCard(
             iconData: Icons.restore,
             title: 'restoreData'.tr(),
+            premiumLocked: !isPremium,
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: isPremium
                 ? () => _restoreBackup(context)
@@ -234,6 +344,21 @@ class _SettingsBodyState extends State<SettingsBody> {
     return _Section(
       title: 'sectionAbout'.tr(),
       children: [
+        // Apple Guideline 3.1.2(a) — surface a path back to the store-managed
+        // subscription. Hidden for lifetime / free users since neither has a
+        // recurring subscription to manage.
+        Obx(() {
+          final premiumController = Get.find<PremiumController>();
+          if (!premiumController.isPremium || !PremiumService.hasActiveSubscription) {
+            return const SizedBox.shrink();
+          }
+          return SettingsCard(
+            iconData: Icons.subscriptions_outlined,
+            title: 'manageSubscription'.tr(),
+            trailing: const Icon(Icons.open_in_new, size: 16),
+            onTap: _openManageSubscription,
+          );
+        }),
         SettingsCard(
           iconData: Icons.privacy_tip,
           title: 'PP'.tr(),
@@ -256,17 +381,24 @@ class _SettingsBodyState extends State<SettingsBody> {
           iconData: Icons.rate_review,
           title: 'rateApp'.tr(),
           trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () {
-            launchUrl(
-              Uri.parse(
-                'https://play.google.com/store/apps/details?id=com.volkan.wallet_app',
-              ),
-              mode: LaunchMode.externalApplication,
-            );
-          },
+          onTap: () => RateAppService.instance.openStoreListing(),
         ),
       ],
     );
+  }
+
+  Future<void> _openManageSubscription() async {
+    final uri = Platform.isIOS
+        ? Uri.parse('https://apps.apple.com/account/subscriptions')
+        : Uri.parse('https://play.google.com/store/account/subscriptions');
+    final launched = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
+    if (!launched && mounted) {
+      // ignore: use_build_context_synchronously
+      context.showErrorSnackBar('couldNotLaunchUrl');
+    }
   }
 
   Future<void> _createBackup(BuildContext context) async {
@@ -280,10 +412,14 @@ class _SettingsBodyState extends State<SettingsBody> {
 
     try {
       final backupService = BackupService();
-      final filePath = await backupService.createBackupFile(password: password);
-      debugPrint(filePath);
+      final filePath = await backupService.createBackupFile(
+        password: password,
+        dialogTitle: 'backupData'.tr(),
+      );
       if (!mounted) return;
-      context.showSuccessSnackBar('${'backupSuccess'.tr()} $filePath');
+      if (filePath == null) return; // User cancelled the save dialog.
+      debugPrint(filePath);
+      context.showSuccessSnackBar('backupSuccess'.tr());
     } on BackupError catch (e) {
       if (!mounted) return;
       context.showErrorSnackBar(_localizeBackupError(e));
@@ -431,20 +567,14 @@ class _SettingsBodyState extends State<SettingsBody> {
   }
 
   Future<void> showDialogDeleteData(BuildContext context) async {
-    showDialog(
+    await showConfirmActionSheet(
       context: context,
-      builder: (context) {
-        return CustomDialog(
-          title: 'areUSure'.tr(),
-          cancelText: 'cancel'.tr(),
-          onConfirm: () async {
-            await CreditCardService().deleteAllData();
-            await IbanCardService().deleteAllData();
-            await LoyaltyCardService().deleteAllData();
-            // ignore: use_build_context_synchronously
-            Navigator.pop(context);
-          },
-        );
+      title: 'areUSure'.tr(),
+      cancelText: 'cancel'.tr(),
+      onConfirm: () async {
+        await CreditCardService().deleteAllData();
+        await IbanCardService().deleteAllData();
+        await LoyaltyCardService().deleteAllData();
       },
     );
   }

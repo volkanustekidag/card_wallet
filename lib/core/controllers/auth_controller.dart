@@ -7,11 +7,12 @@ import 'package:local_auth/local_auth.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/biometric_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 
 class AuthController extends GetxController {
   final AuthenticationService _authenticationService = AuthenticationService();
   final BiometricService _biometricService = BiometricService();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage = SecureStorageProvider.instance;
 
   static const String _pinFailureCountKey = 'pin_failure_count';
   static const String _pinLockedUntilKey = 'pin_locked_until';
@@ -46,6 +47,24 @@ class AuthController extends GetxController {
   Timer? _lockTicker;
   Timer? _errorResetTimer;
 
+  /// Set when the user unlocks via biometric recovery (after forgetting the
+  /// PIN). The home page reads this once on first build to nudge them toward
+  /// resetting their PIN, then clears it via [consumeRecoveryPrompt].
+  final recoveryPromptPending = false.obs;
+
+  /// One-shot signal raised when the user crosses the first failed-attempt
+  /// threshold. The lock screen listens, opens the recovery bottom sheet,
+  /// and resets the flag — so dismissing the sheet once doesn't make it
+  /// keep popping back up on every subsequent retry.
+  final showRecoveryPrompt = false.obs;
+
+  /// Whether the device has biometric enrollment, regardless of the app's
+  /// own biometric toggle. Drives the "forgot PIN" affordance — we accept
+  /// device biometric as proof of ownership for recovery even if the user
+  /// never opted into biometric login.
+  bool get isBiometricRecoveryAvailable =>
+      isBiometricAvailable.value && hasPassword.value;
+
   @override
   void onInit() {
     super.onInit();
@@ -57,10 +76,34 @@ class AuthController extends GetxController {
 
     // Background-only work. None of these block the lock screen render: the
     // PIN field is interactive immediately, biometric button just appears
-    // after the platform check resolves.
-    unawaited(_initializeBiometrics());
+    // after the platform check resolves. Reconcile first so the biometric
+    // probe doesn't read a stale "enabled=true" left behind by a previous
+    // install before the cleanup write lands.
+    unawaited(_bootstrapAuthState());
     unawaited(loadAutoLockTime());
-    unawaited(_restoreRateLimitState());
+  }
+
+  Future<void> _bootstrapAuthState() async {
+    await _reconcileStaleSecureStorage();
+    await _initializeBiometrics();
+    await _restoreRateLimitState();
+  }
+
+  /// iOS keeps `flutter_secure_storage` entries in the Keychain across app
+  /// uninstalls, so a fresh reinstall can resurrect `biometric_enabled=true`
+  /// and stale rate-limit counters from a previous lifetime — even though
+  /// the Hive PIN box is gone. Biometric is conceptually a shortcut for an
+  /// existing PIN; without one, none of these states should be active.
+  /// Wipe them so the UI starts from a clean slate.
+  Future<void> _reconcileStaleSecureStorage() async {
+    if (hasPassword.value) return;
+    try {
+      await _biometricService.setBiometricEnabled(false);
+    } catch (_) {}
+    try {
+      await _secureStorage.delete(key: _pinFailureCountKey);
+      await _secureStorage.delete(key: _pinLockedUntilKey);
+    } catch (_) {}
   }
 
   @override
@@ -140,6 +183,73 @@ class AuthController extends GetxController {
         isLoading.value = false;
       }
     }
+  }
+
+  /// Verifies [pin] without navigating. Used by the settings "disable lock"
+  /// flow and by [PinAction.verify]. Trips rate-limiting on failure, resets
+  /// it on success — same security model as [login].
+  Future<bool> verifyPin(String pin) async {
+    if (isPinLocked) {
+      Get.context?.showErrorSnackBar(
+        'pinLockedMessage'.tr(args: [_formatLockRemaining()]),
+      );
+      _flashAuthFailure();
+      return false;
+    }
+    isLoading.value = true;
+    try {
+      final result = await _authenticationService.authenticate(pin);
+      if (result == true) {
+        await _resetRateLimitState();
+        return true;
+      }
+      await _registerPinFailure();
+      _flashAuthFailure();
+      return false;
+    } catch (_) {
+      Get.context?.showErrorSnackBar('errorDuringAuthentication'.tr());
+      _flashAuthFailure();
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// Creates [pin] without navigating to /home. Used by [PinAction.create]
+  /// when the user enables the lock from settings or accepts the post-add
+  /// PIN prompt. Returns true on success.
+  Future<bool> registerStandalone(String pin) async {
+    isLoading.value = true;
+    try {
+      await _authenticationService.creatPassword(pin);
+      isRegistering.value = false;
+      hasPassword.value = true;
+      return true;
+    } catch (_) {
+      Get.context?.showErrorSnackBar('errorDuringRegistration'.tr());
+      _flashAuthFailure();
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  /// Removes the PIN entirely. Used by the settings "disable lock" flow
+  /// after the user has verified their current PIN. Also disables biometric
+  /// unlock — without a PIN there's nothing for biometric to substitute
+  /// for. Resets rate-limit state so a fresh PIN starts clean later.
+  Future<void> removePassword() async {
+    await _authenticationService.deletePassword();
+    hasPassword.value = false;
+    isRegistering.value = true;
+    if (isBiometricEnabled.value) {
+      try {
+        await _biometricService.setBiometricEnabled(false);
+      } catch (_) {}
+      isBiometricEnabled.value = false;
+      showBiometricButton.value = false;
+    }
+    await _resetRateLimitState();
   }
 
   /// Trigger the PIN error UI: red border + shake + auto-clear (handled by the
@@ -347,6 +457,14 @@ class AuthController extends GetxController {
       );
       _startLockTicker();
     }
+
+    // Exactly on the first lockout threshold, raise the recovery prompt
+    // signal so the lock screen can offer biometric unlock. Restricted to
+    // the equality check (not >=) so user-driven dismissals stay sticky
+    // for the rest of the session.
+    if (pinFailureCount.value == 3 && isBiometricRecoveryAvailable) {
+      showRecoveryPrompt.value = true;
+    }
   }
 
   Future<void> _resetRateLimitState() async {
@@ -358,6 +476,73 @@ class AuthController extends GetxController {
       await _secureStorage.delete(key: _pinFailureCountKey);
       await _secureStorage.delete(key: _pinLockedUntilKey);
     } catch (_) {}
+  }
+
+  // -------------------------------------------------------------------------
+  // Biometric PIN recovery
+  // -------------------------------------------------------------------------
+
+  /// Forgot-PIN recovery flow. Triggered from the lock screen after the
+  /// first lockout (3 fails). Runs a biometric prompt that bypasses the
+  /// app's "biometric login enabled" toggle — device enrollment alone is
+  /// proof of ownership for recovery. On success, clears rate-limit state,
+  /// marks the home page to nudge a PIN reset, and navigates to /home.
+  /// Returns true on successful biometric unlock, false otherwise.
+  Future<bool> recoverWithBiometric() async {
+    isLoading.value = true;
+    try {
+      final success = await _biometricService.authenticateForRecovery(
+        localizedReason: 'biometricRecoveryReason'.tr(),
+      );
+      if (!success) {
+        _flashAuthFailure();
+        return false;
+      }
+      await _resetRateLimitState();
+      recoveryPromptPending.value = true;
+      authenticationSuccess.value = true;
+      Get.offAllNamed('/home');
+      return true;
+    } on BiometricException catch (e) {
+      Get.context?.showErrorSnackBar(e.message);
+      _flashAuthFailure();
+      return false;
+    } catch (_) {
+      Get.context?.showErrorSnackBar('biometricAuthError'.tr());
+      _flashAuthFailure();
+      return false;
+    } finally {
+      if (!authenticationSuccess.value) {
+        isLoading.value = false;
+      }
+    }
+  }
+
+  /// Settings-side counterpart to [recoverWithBiometric]: verifies the user
+  /// owns the device via biometric, but does not navigate or mark anything.
+  /// The caller is responsible for pushing the PIN creation flow. Returns
+  /// true if the user passed the biometric challenge.
+  Future<bool> verifyBiometricForReset() async {
+    try {
+      return await _biometricService.authenticateForRecovery(
+        localizedReason: 'biometricRecoveryReason'.tr(),
+      );
+    } on BiometricException catch (e) {
+      Get.context?.showErrorSnackBar(e.message);
+      return false;
+    } catch (_) {
+      Get.context?.showErrorSnackBar('biometricAuthError'.tr());
+      return false;
+    }
+  }
+
+  /// Read-once accessor for the post-recovery PIN reset nudge. The home
+  /// page calls this in initState; subsequent reads return false so the
+  /// prompt doesn't reappear after navigating away and back.
+  bool consumeRecoveryPrompt() {
+    if (!recoveryPromptPending.value) return false;
+    recoveryPromptPending.value = false;
+    return true;
   }
 
   /// Lock duration policy. Quiet for the first two attempts so a fat-finger

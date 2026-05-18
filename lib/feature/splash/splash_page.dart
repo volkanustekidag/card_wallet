@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wallet_app/core/constants/app_images.dart';
+import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/router/getx_routes.dart';
 import 'package:wallet_app/feature/onboarding/onboarding_page.dart';
 
@@ -18,9 +19,16 @@ class _SplashPageState extends State<SplashPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final showOnboarding = await OnboardingPage.shouldShow();
       if (!mounted) return;
-      Get.offAllNamed(
-        showOnboarding ? AppRoutes.onboarding : AppRoutes.auth,
-      );
+      if (showOnboarding) {
+        Get.offAllNamed(AppRoutes.onboarding);
+        return;
+      }
+      // PIN is opt-in now: existing users with a PIN keep their lock
+      // screen; fresh users go straight to home and may set up a PIN
+      // later (via the post-add prompt or settings). hasPasswordSync is
+      // safe here — main() opens the auth box before runApp.
+      final hasPassword = AuthenticationService().hasPasswordSync();
+      Get.offAllNamed(hasPassword ? AppRoutes.auth : AppRoutes.home);
     });
   }
 

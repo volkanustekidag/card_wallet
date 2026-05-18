@@ -6,6 +6,7 @@ import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart
 import 'package:wallet_app/core/router/getx_bindings.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/utils/card_reminder_rules.dart';
+import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
 import 'package:wallet_app/feature/add_credit_card/add_credit_card_page.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
@@ -154,7 +155,7 @@ class _CreditCardReminderSheet extends StatelessWidget {
 
   Future<void> _copyCardNumber(BuildContext context) async {
     HapticFeedback.lightImpact();
-    await Clipboard.setData(ClipboardData(text: card.creditCardNumber));
+    await SensitiveClipboard.copy(card.creditCardNumber);
     if (context.mounted) Navigator.of(context).pop();
   }
 

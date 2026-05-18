@@ -46,6 +46,12 @@ class LoyaltyCard extends HiveObject {
   @HiveField(9)
   List<String>? tags;
 
+  /// User-supplied website domain used to fetch the brand logo when the
+  /// brand isn't in [LoyaltyBrandResolver]. Stored as bare domain
+  /// ("metro.com.tr"), no scheme / path. Passed straight to `BankLogo`.
+  @HiveField(10)
+  String? website;
+
   LoyaltyCard({
     required this.id,
     required this.name,
@@ -57,5 +63,6 @@ class LoyaltyCard extends HiveObject {
     this.createdAt,
     this.logoAsset,
     this.tags,
+    this.website,
   });
 }

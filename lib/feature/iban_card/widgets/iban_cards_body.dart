@@ -6,8 +6,10 @@ import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/utils/card_sorting.dart';
 import 'package:wallet_app/core/utils/iban_country_meta.dart';
+import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 import 'package:wallet_app/core/utils/tag_index.dart';
 import 'package:wallet_app/core/widgets/card_search_bar.dart';
+import 'package:wallet_app/core/widgets/empty_list_info.dart';
 import 'package:wallet_app/core/widgets/tag_filter_chips.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/widgets/mini_iban_card_widget.dart';
@@ -139,32 +141,26 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
   }
 
   Widget _buildNoSearchResults(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.search_off_rounded,
-                size: 56, color: colorScheme.onSurface.withValues(alpha: 0.4)),
-            const SizedBox(height: 12),
-            Text(
-              'searchNoResults'.tr(),
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
+    final searchActive = _searchQuery.trim().isNotEmpty;
+    final tagsActive = _selectedTags.isNotEmpty;
+    if (!searchActive && !tagsActive) {
+      return const EmptyListInfo(
+        ctaRoute: '/addIbanCard',
+        ctaLabel: 'addFirstIC',
+        ctaIcon: Icons.account_balance,
+      );
+    }
+    return EmptyListInfo(
+      icon: searchActive
+          ? Icons.search_off_rounded
+          : Icons.filter_alt_off_rounded,
+      titleKey: searchActive ? 'searchNoResults' : 'filterNoResults',
+      subtitleKey: 'searchNoResultsHint',
     );
   }
 
   void _copyIBAN(BuildContext context, IbanCard ibanCard) {
-    Clipboard.setData(ClipboardData(text: ibanCard.iban));
+    SensitiveClipboard.copy(ibanCard.iban);
     HapticFeedback.lightImpact();
     _showAutoHideSnackBar(context, 'ibanCopied'.tr());
   }
@@ -269,9 +265,8 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
                   subtitle: 'copyAllInfoSubtitle'.tr(),
                   onTap: () {
                     Navigator.pop(context);
-                    Clipboard.setData(ClipboardData(
-                        text:
-                            "${ibanCard.cardHolder}\n${ibanCard.iban}\n${ibanCard.swiftCode}\n${ibanCard.bankName}"));
+                    SensitiveClipboard.copy(
+                        "${ibanCard.cardHolder}\n${ibanCard.iban}\n${ibanCard.swiftCode}\n${ibanCard.bankName}");
                     _showAutoHideSnackBar(context, 'copyInfo'.tr());
                   },
                 ),
@@ -780,17 +775,13 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
 
   Future<void> showDialogDeleteData(
       BuildContext context, Function onConfirm) async {
-    showDialog(
+    await showConfirmActionSheet(
       context: context,
-      builder: (context) {
-        return CustomDialog(
-          title: 'deleteIbanCard'.tr(),
-          content: 'deleteDataMessage'.tr(),
-          onConfirm: () {
-            onConfirm();
-            Get.back();
-          },
-        );
+      title: 'deleteIbanCard'.tr(),
+      content: 'deleteDataMessage'.tr(),
+      onConfirm: () async {
+        onConfirm();
+        Get.back();
       },
     );
   }

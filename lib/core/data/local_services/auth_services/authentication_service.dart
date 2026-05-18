@@ -6,6 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
 import 'package:wallet_app/core/domain/models/verification_model/verification.dart';
 import 'package:wallet_app/core/utils/pin_hasher.dart';
+import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 
 class AuthenticationService {
   AuthenticationService._internal();
@@ -13,7 +14,7 @@ class AuthenticationService {
       AuthenticationService._internal();
   factory AuthenticationService() => _instance;
 
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage = SecureStorageProvider.instance;
   Box<Verification>? _user;
   Future<void>? _openingFuture;
 
@@ -82,7 +83,7 @@ class AuthenticationService {
       return matches;
     }
 
-    final candidate = PinHasher.hash(pin, salt);
+    final candidate = await PinHasher.hash(pin, salt);
     return PinHasher.constantTimeEquals(candidate, stored.password);
   }
 
@@ -91,7 +92,7 @@ class AuthenticationService {
   Future<void> creatPassword(String pin) async {
     final box = await _ensureBoxReady();
     final salt = PinHasher.generateSalt();
-    final hash = PinHasher.hash(pin, salt);
+    final hash = await PinHasher.hash(pin, salt);
     await box.put(
       1,
       Verification(hash, salt: salt, isLegacyPin: false),
@@ -103,11 +104,20 @@ class AuthenticationService {
   Future<void> updatePin(String pin) async {
     final box = await _ensureBoxReady();
     final salt = PinHasher.generateSalt();
-    final hash = PinHasher.hash(pin, salt);
+    final hash = await PinHasher.hash(pin, salt);
     await box.put(
       1,
       Verification(hash, salt: salt, isLegacyPin: false),
     );
+  }
+
+  /// Drops the stored PIN. Used by the settings "disable lock" flow after
+  /// the user has verified their current PIN. The encrypted box itself is
+  /// kept so we don't have to regenerate the encryption key — only the
+  /// verification record is removed.
+  Future<void> deletePassword() async {
+    final box = await _ensureBoxReady();
+    await box.delete(1);
   }
 
   Future<void> _writeHashedPin(
@@ -116,7 +126,7 @@ class AuthenticationService {
     String pin,
   ) async {
     final salt = PinHasher.generateSalt();
-    final hash = PinHasher.hash(pin, salt);
+    final hash = await PinHasher.hash(pin, salt);
     await box.put(
       key ?? 1,
       Verification(hash, salt: salt, isLegacyPin: false),

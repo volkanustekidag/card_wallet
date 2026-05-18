@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
@@ -12,62 +15,100 @@ import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/controllers/theme_controller.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
+import 'package:wallet_app/core/services/rate_app_service.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
+import 'package:wallet_app/firebase_options.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await EasyLocalization.ensureInitialized();
+  // runZonedGuarded catches async errors that escape the framework so
+  // Crashlytics can still report them. Bindings must be initialised inside
+  // the same zone as runApp.
+  await runZonedGuarded<Future<void>>(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await EasyLocalization.ensureInitialized();
 
-  await Hive.initFlutter();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
-  // Critical-path: auth box must be open before the lock screen renders, and
-  // the theme must be resolved before MaterialApp builds (otherwise the lock
-  // screen flashes the system theme and then swaps once the box loads).
-  final themeBootstrap = await ThemeController.bootstrap();
-  await AuthenticationService().init();
+    // Route framework + platform errors into Crashlytics. Debug builds keep
+    // logging to console only so we don't pollute the dashboard.
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
+      if (!kDebugMode) {
+        FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+      }
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      if (!kDebugMode) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      }
+      return true;
+    };
+    await FirebaseCrashlytics.instance
+        .setCrashlyticsCollectionEnabled(!kDebugMode);
+    await AnalyticsService.instance.setEnabled(!kDebugMode);
 
-  // Non-critical services boot in the background. Card services only matter
-  // once the user reaches a card screen, and PremiumService self-recovers if
-  // accessed before init completes.
-  unawaited(_bootstrapCreditCardsAndReminders());
-  unawaited(IbanCardService().init());
-  unawaited(LoyaltyCardService().init());
-  unawaited(PremiumService.initialize());
+    await Hive.initFlutter();
 
-  Get.put(
-    ThemeController(initialMode: themeBootstrap.mode, box: themeBootstrap.box),
-    permanent: true,
-  );
+    // Critical-path: auth box must be open before the lock screen renders, and
+    // the theme must be resolved before MaterialApp builds (otherwise the lock
+    // screen flashes the system theme and then swaps once the box loads).
+    final themeBootstrap = await ThemeController.bootstrap();
+    await AuthenticationService().init();
 
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
+    // Non-critical services boot in the background. Card services only matter
+    // once the user reaches a card screen, and PremiumService self-recovers if
+    // accessed before init completes.
+    unawaited(_bootstrapCreditCardsAndReminders());
+    unawaited(IbanCardService().init());
+    unawaited(LoyaltyCardService().init());
+    unawaited(PremiumService.initialize());
+    unawaited(RateAppService.instance.init());
 
-  runApp(
-    EasyLocalization(
-      supportedLocales: const [
-        Locale("en", "US"),
-        Locale("tr", "TR"),
-        Locale("de", "DE"),
-        Locale("fr", "FR"),
-        Locale("es", "ES"),
-        Locale("pt", "BR"),
-        Locale("it", "IT"),
-        Locale("nl", "NL"),
-        Locale("pl", "PL"),
-      ],
-      // Anything else (system in AR, ZH, JA, …) falls back to English.
-      // Without this the strings render as raw keys ("loyaltyCardsTitle").
-      fallbackLocale: const Locale("en", "US"),
-      saveLocale: true,
-      path: "assets/docs/lang",
-      child: const AppWrapper(),
-    ),
-  );
+    Get.put(
+      ThemeController(
+        initialMode: themeBootstrap.mode,
+        box: themeBootstrap.box,
+      ),
+      permanent: true,
+    );
+
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
+    runApp(
+      EasyLocalization(
+        supportedLocales: const [
+          Locale("en", "US"),
+          Locale("tr", "TR"),
+          Locale("de", "DE"),
+          Locale("fr", "FR"),
+          Locale("es", "ES"),
+          Locale("pt", "BR"),
+          Locale("it", "IT"),
+          Locale("nl", "NL"),
+          Locale("pl", "PL"),
+        ],
+        // Anything else (system in AR, ZH, JA, …) falls back to English.
+        // Without this the strings render as raw keys ("loyaltyCardsTitle").
+        fallbackLocale: const Locale("en", "US"),
+        saveLocale: true,
+        path: "assets/docs/lang",
+        child: const AppWrapper(),
+      ),
+    );
+  }, (error, stack) {
+    if (!kDebugMode) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    }
+  });
 }
 
 Future<void> _bootstrapCreditCardsAndReminders() async {
@@ -92,6 +133,7 @@ class _AppWrapperState extends State<AppWrapper> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    RateAppService.instance.scheduleInitialPrompt();
   }
 
   @override
@@ -108,6 +150,7 @@ class _AppWrapperState extends State<AppWrapper> with WidgetsBindingObserver {
       if (Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().refreshData();
       }
+      RateAppService.instance.scheduleInitialPrompt();
     }
   }
 
@@ -144,6 +187,7 @@ class MyApp extends StatelessWidget {
       theme: AppThemes.lightTheme,
       darkTheme: AppThemes.darkTheme,
       themeMode: themeController.themeMode,
+      navigatorObservers: [AnalyticsService.instance.observer],
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,10 +12,10 @@ import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
 
-/// Paywall built to convert: tight hero, a single hero featured plan
-/// (yearly with prominent savings + free-trial badge), the alternates
-/// tucked below, a compact feature checklist, and a bold gold CTA with
-/// a glow + arrow. Underlying purchase / restore wiring is unchanged.
+/// Paywall: tight hero, three side-by-side plan tiles (yearly default with
+/// BEST VALUE badge + per-month equivalent, monthly, weekly), a compact
+/// feature checklist, and a gold CTA that adapts to the selected plan.
+/// No trial copy, no lifetime tile.
 class PremiumPage extends StatefulWidget {
   const PremiumPage({Key? key}) : super(key: key);
 
@@ -35,6 +37,10 @@ class _PremiumPageState extends State<PremiumPage>
   static const List<_Feature> _features = [
     _Feature('featureUnlimitedCardsTitle', Icons.credit_card_rounded),
     _Feature('featureBackupRestoreTitle', Icons.cloud_sync_rounded),
+    _Feature(
+      'featureWalletExportTitle',
+      Icons.account_balance_wallet_rounded,
+    ),
     _Feature('featureBiometricTitle', Icons.fingerprint_rounded),
     _Feature('featureIbanScanTitle', Icons.document_scanner_rounded),
     _Feature('featureQrCreateTitle', Icons.qr_code_rounded),
@@ -53,6 +59,11 @@ class _PremiumPageState extends State<PremiumPage>
       'featureBackupRestoreTitle',
       'featureBackupRestoreDesc',
       Icons.cloud_sync_rounded,
+    ),
+    'walletExport': _PremiumFeatureSpec(
+      'featureWalletExportTitle',
+      'featureWalletExportDesc',
+      Icons.account_balance_wallet_rounded,
     ),
     'biometric': _PremiumFeatureSpec(
       'featureBiometricTitle',
@@ -122,19 +133,18 @@ class _PremiumPageState extends State<PremiumPage>
       backgroundColor: colorScheme.surface,
       body: Obx(() {
         final isLoading = _premiumController.isLoading;
+        final weekly = _premiumController.weeklyProduct;
         final monthly = _premiumController.monthlyProduct;
         final yearly = _premiumController.yearlyProduct;
-        final lifetime = _premiumController.lifetimeProduct;
 
-        // Order plans by display priority and tag the cheapest per-month
-        // subscription with BEST VALUE — lifetime is excluded from that
-        // comparison since it has no period to normalise to.
+        // Weekly → monthly → yearly. Yearly sits on the right as the
+        // BEST VALUE anchor (still the default selection).
         final orderedPlans = <ProductDetails>[
-          if (yearly != null) yearly,
+          if (weekly != null) weekly,
           if (monthly != null) monthly,
-          if (lifetime != null) lifetime,
+          if (yearly != null) yearly,
         ];
-        final bestValueId = _bestValueProductId(monthly, yearly);
+        final bestValueId = _bestValueProductId(weekly, monthly, yearly);
 
         return Stack(
           children: [
@@ -168,9 +178,9 @@ class _PremiumPageState extends State<PremiumPage>
                   else
                     _PricingRow(
                       plans: orderedPlans,
+                      weeklyId: weekly?.id,
                       monthlyId: monthly?.id,
                       yearlyId: yearly?.id,
-                      lifetimeId: lifetime?.id,
                       bestValueId: bestValueId,
                       selected: _selectedProduct,
                       onSelected: _onPlanSelected,
@@ -185,7 +195,9 @@ class _PremiumPageState extends State<PremiumPage>
                   ),
                   const SizedBox(height: 8),
                   _CtaSubText(product: _selectedProduct),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: 16),
+                  const _LegalDisclosure(),
+                  const SizedBox(height: 14),
                   _LegalLinks(),
                   const SizedBox(height: 28),
                 ],
@@ -211,14 +223,25 @@ class _PremiumPageState extends State<PremiumPage>
   }
 
   Future<void> _handlePurchase(ProductDetails product) async {
-    final success = await _premiumController.purchase(product);
+    final result = await _premiumController.purchase(product);
     if (!mounted) return;
-    if (success) {
-      HapticFeedback.mediumImpact();
-      (Get.context ?? context).showSuccessSnackBar('premiumActivated');
-    } else {
-      HapticFeedback.heavyImpact();
-      context.showErrorSnackBar('purchaseFailed');
+    switch (result) {
+      case PremiumPurchaseResult.success:
+        HapticFeedback.mediumImpact();
+        (Get.context ?? context).showSuccessSnackBar('premiumActivated');
+        // Let the snackbar animate in before tearing the page down so the
+        // user gets visible confirmation that the purchase landed.
+        await Future.delayed(const Duration(milliseconds: 900));
+        if (mounted) Get.back();
+        break;
+      case PremiumPurchaseResult.canceled:
+        // User backed out of the store sheet — no failure UI, they're
+        // already aware they cancelled.
+        break;
+      case PremiumPurchaseResult.error:
+        HapticFeedback.heavyImpact();
+        context.showErrorSnackBar('purchaseFailed');
+        break;
     }
   }
 
@@ -226,7 +249,7 @@ class _PremiumPageState extends State<PremiumPage>
     if (_selectedProduct != null) return;
     final candidate = _premiumController.yearlyProduct ??
         _premiumController.monthlyProduct ??
-        _premiumController.lifetimeProduct;
+        _premiumController.weeklyProduct;
     if (candidate != null && mounted) {
       setState(() => _selectedProduct = candidate);
     }
@@ -238,14 +261,10 @@ class _PremiumPageState extends State<PremiumPage>
     setState(() => _selectedProduct = product);
   }
 
-  /// The cheapest subscription on a per-month basis. Lifetime is excluded
-  /// because it isn't a recurring plan; it gets its own ONE-TIME badge.
-  ///
-  /// The "monthly slot" can fall back to the legacy weekly product when
-  /// the store hasn't been updated yet — converting weekly → per-month
-  /// (×52/12 ≈ 4.33) is what made the yearly plan correctly win on the
-  /// per-month comparison.
+  /// The cheapest plan on a per-month basis. Weekly is normalised by
+  /// ×52/12 ≈ 4.33 so all three plans share the same yardstick.
   String? _bestValueProductId(
+    ProductDetails? weekly,
     ProductDetails? monthly,
     ProductDetails? yearly,
   ) {
@@ -254,9 +273,10 @@ class _PremiumPageState extends State<PremiumPage>
       candidates[yearly.id] = yearly.rawPrice / 12;
     }
     if (monthly != null && monthly.rawPrice > 0) {
-      final isWeekly = monthly.id == PremiumService.weeklyProductId;
-      candidates[monthly.id] =
-          isWeekly ? monthly.rawPrice * (52 / 12) : monthly.rawPrice;
+      candidates[monthly.id] = monthly.rawPrice;
+    }
+    if (weekly != null && weekly.rawPrice > 0) {
+      candidates[weekly.id] = weekly.rawPrice * (52 / 12);
     }
     if (candidates.isEmpty) return null;
     final sorted = candidates.entries.toList()
@@ -629,72 +649,129 @@ class _PlaceholderCard extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// ---------------------------------------------------------------------------
-// Pricing — equal-design tiles in a horizontal row. BEST VALUE badge is
-// applied programmatically to whichever subscription has the lowest cost
-// per month; lifetime gets the ONE-TIME badge regardless. No featured
-// gradient card, no asymmetry — every plan is shown side-by-side so the
-// comparison is honest.
+// Pricing — three equal tiles (yearly / monthly / weekly). BEST VALUE badge
+// is applied programmatically to whichever plan has the lowest cost per
+// month; the yearly tile shows its per-month equivalent under the price.
 // ---------------------------------------------------------------------------
 
 class _PricingRow extends StatelessWidget {
   final List<ProductDetails> plans;
+  final String? weeklyId;
   final String? monthlyId;
   final String? yearlyId;
-  final String? lifetimeId;
   final String? bestValueId;
   final ProductDetails? selected;
   final ValueChanged<ProductDetails> onSelected;
 
   const _PricingRow({
     required this.plans,
+    required this.weeklyId,
     required this.monthlyId,
     required this.yearlyId,
-    required this.lifetimeId,
     required this.bestValueId,
     required this.selected,
     required this.onSelected,
   });
 
+  // Inner horizontal padding of each tile (must match _PlanTile padding).
+  static const double _tileInnerHPadding = 12;
+  // Gap between adjacent tiles (must match the SizedBox(width: 8) below).
+  static const double _tileGap = 8;
+  // Target price font size when nothing needs scaling.
+  static const double _priceTargetSize = 22;
+  // Floor so prices never get unreadably small if all are very wide.
+  static const double _priceMinSize = 16;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      // Top padding leaves room for the BEST VALUE / ONE-TIME pill that
-      // floats half-above the card border.
+      // Top padding leaves room for the BEST VALUE pill that floats
+      // half-above the card border.
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (var i = 0; i < plans.length; i++) ...[
-              if (i > 0) const SizedBox(width: 8),
-              Expanded(
-                child: _PlanTile(
-                  product: plans[i],
-                  isSelected: selected?.id == plans[i].id,
-                  isBestValue: plans[i].id == bestValueId,
-                  isLifetime: plans[i].id == lifetimeId,
-                  isYearly: plans[i].id == yearlyId,
-                  monthlyEquivalent: plans[i].id == yearlyId
-                      ? _monthlyEquivalent(plans[i])
-                      : null,
-                  onTap: () => onSelected(plans[i]),
-                ),
-              ),
-            ],
-          ],
-        ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final gaps = plans.length > 1 ? plans.length - 1 : 0;
+          final tileWidth =
+              (constraints.maxWidth - (_tileGap * gaps)) / plans.length;
+          final priceMaxWidth = tileWidth - (_tileInnerHPadding * 2);
+          // One font size shared by all tiles so $14.99 and $0.99 render at
+          // the same visual scale instead of each tile scaling independently.
+          final priceFontSize = _computePriceFontSize(
+            priceMaxWidth,
+            Directionality.of(context),
+          );
+
+          return IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < plans.length; i++) ...[
+                  if (i > 0) const SizedBox(width: _tileGap),
+                  Expanded(
+                    child: _PlanTile(
+                      product: plans[i],
+                      isSelected: selected?.id == plans[i].id,
+                      isBestValue: plans[i].id == bestValueId,
+                      isWeekly: plans[i].id == weeklyId,
+                      isMonthly: plans[i].id == monthlyId,
+                      isYearly: plans[i].id == yearlyId,
+                      priceFontSize: priceFontSize,
+                      monthlyEquivalent: _equivalentFor(plans[i]),
+                      onTap: () => onSelected(plans[i]),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 
-  String _monthlyEquivalent(ProductDetails yearlyProduct) {
-    final monthlyRaw = yearlyProduct.rawPrice / 12;
-    if (monthlyRaw <= 0) return '';
-    final symbol =
-        _extractSymbol(yearlyProduct.price) ?? yearlyProduct.currencyCode;
+  double _computePriceFontSize(double priceMaxWidth, ui.TextDirection direction) {
+    if (priceMaxWidth <= 0) return _priceTargetSize;
+    double minScale = 1.0;
+    const baseStyle = TextStyle(
+      fontFamily: 'Poppins',
+      fontSize: _priceTargetSize,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.4,
+      height: 1.1,
+    );
+    for (final p in plans) {
+      final tp = TextPainter(
+        text: TextSpan(text: p.price, style: baseStyle),
+        textDirection: direction,
+        maxLines: 1,
+      )..layout();
+      if (tp.width > priceMaxWidth) {
+        final scale = priceMaxWidth / tp.width;
+        if (scale < minScale) minScale = scale;
+      }
+    }
+    final scaled = _priceTargetSize * minScale;
+    return scaled < _priceMinSize ? _priceMinSize : scaled;
+  }
+
+  String? _equivalentFor(ProductDetails plan) {
+    if (plan.id == yearlyId) {
+      return _formatPerMonth(plan.rawPrice / 12, plan);
+    }
+    if (plan.id == weeklyId) {
+      // 4.345 weeks per month — converts the weekly price into a
+      // per-month equivalent so the user sees the real monthly cost
+      // of staying on the weekly plan.
+      return _formatPerMonth(plan.rawPrice * 4.345, plan);
+    }
+    return null;
+  }
+
+  String _formatPerMonth(double amount, ProductDetails source) {
+    if (amount <= 0) return '';
+    final symbol = _extractSymbol(source.price) ?? source.currencyCode;
     return NumberFormat.currency(symbol: symbol, decimalDigits: 2)
-        .format(monthlyRaw);
+        .format(amount);
   }
 
   String? _extractSymbol(String price) {
@@ -707,8 +784,10 @@ class _PlanTile extends StatefulWidget {
   final ProductDetails product;
   final bool isSelected;
   final bool isBestValue;
-  final bool isLifetime;
+  final bool isWeekly;
+  final bool isMonthly;
   final bool isYearly;
+  final double priceFontSize;
   final String? monthlyEquivalent;
   final VoidCallback onTap;
 
@@ -716,8 +795,10 @@ class _PlanTile extends StatefulWidget {
     required this.product,
     required this.isSelected,
     required this.isBestValue,
-    required this.isLifetime,
+    required this.isWeekly,
+    required this.isMonthly,
     required this.isYearly,
+    required this.priceFontSize,
     required this.monthlyEquivalent,
     required this.onTap,
   });
@@ -770,21 +851,18 @@ class _PlanTileState extends State<_PlanTile>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final showTopBadge = widget.isBestValue || widget.isLifetime;
-    final topBadgeText = widget.isBestValue
-        ? 'premiumPlanBest'.tr()
-        : (widget.isLifetime ? 'premiumPlanOneTime'.tr() : '');
+    final showTopBadge = widget.isBestValue;
+    final topBadgeText = widget.isBestValue ? 'premiumPlanBest'.tr() : '';
     final borderColor = widget.isSelected
         ? _gold
         : colorScheme.onSurface.withValues(alpha: 0.10);
 
-    // The card itself fills the row's stretched height (Row + IntrinsicHeight
-    // in the parent), so all tiles share the same top AND bottom edge. The
-    // inner Stack with StackFit.expand makes the content area receive the
-    // full card height, while the Column inside (mainAxisSize.min) keeps
-    // the text content top-aligned regardless of the extra "/ month" line
-    // on the yearly tile. The badge is in the same Stack with a negative
-    // top, so it bleeds above the card border without taking room inside.
+    // Row + IntrinsicHeight stretches every tile to the tallest one. The
+    // inner Column reserves a fixed slot for the equivalent-line so every
+    // tile has the same content height too — the bottom edges align even
+    // when the monthly tile has no equivalent-line text. The BEST VALUE
+    // badge sits in the outer Stack with a negative top so it floats
+    // above the card border without taking room inside.
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOutCubic,
@@ -820,31 +898,38 @@ class _PlanTileState extends State<_PlanTile>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      _planTitle().toUpperCase(),
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.8,
-                        color: colorScheme.onSurface.withValues(alpha: 0.55),
+                    // Fixed-height + FittedBox keeps the title baseline aligned
+                    // across all three tiles, and quietly scales down if a
+                    // localized title is unexpectedly wide.
+                    SizedBox(
+                      height: 14,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          _planTitle().toUpperCase(),
+                          maxLines: 1,
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.8,
+                            color: colorScheme.onSurface.withValues(alpha: 0.55),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 6),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        widget.product.price,
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.4,
-                          color: colorScheme.onSurface,
-                          height: 1.1,
-                        ),
+                    Text(
+                      widget.product.price,
+                      maxLines: 1,
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: widget.priceFontSize,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.4,
+                        color: colorScheme.onSurface,
+                        height: 1.1,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -857,22 +942,33 @@ class _PlanTileState extends State<_PlanTile>
                         color: colorScheme.onSurface.withValues(alpha: 0.55),
                       ),
                     ),
-                    if (widget.monthlyEquivalent != null &&
-                        widget.monthlyEquivalent!.isNotEmpty) ...[
-                      const SizedBox(height: 6),
-                      Text(
-                        'premiumPerMonthEq'
-                            .tr(args: [widget.monthlyEquivalent!]),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: _gold,
-                        ),
-                      ),
-                    ],
+                    const SizedBox(height: 6),
+                    // Reserve the equivalent-line slot on every tile (even
+                    // when empty on the monthly plan) so all three card
+                    // bottoms line up. FittedBox scales the text down for
+                    // long currency prefixes like "TRY225.90 / month"
+                    // instead of clipping with an ellipsis.
+                    SizedBox(
+                      height: 14,
+                      child: (widget.monthlyEquivalent != null &&
+                              widget.monthlyEquivalent!.isNotEmpty)
+                          ? FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'premiumPerMonthEq'
+                                    .tr(args: [widget.monthlyEquivalent!]),
+                                maxLines: 1,
+                                style: const TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: _gold,
+                                ),
+                              ),
+                            )
+                          : null,
+                    ),
                   ],
                 ),
               ),
@@ -948,19 +1044,13 @@ class _PlanTileState extends State<_PlanTile>
 
   String _planTitle() {
     if (widget.isYearly) return 'yearlyPlanTitle'.tr();
-    if (widget.isLifetime) return 'lifetimePlanTitle'.tr();
-    if (widget.product.id == PremiumService.weeklyProductId) {
-      return 'weeklyPlanTitle'.tr();
-    }
+    if (widget.isWeekly) return 'weeklyPlanTitle'.tr();
     return 'monthlyPlanTitle'.tr();
   }
 
   String _cadenceLabel() {
     if (widget.isYearly) return 'perYear'.tr();
-    if (widget.isLifetime) return 'oneTimePayment'.tr();
-    if (widget.product.id == PremiumService.weeklyProductId) {
-      return 'perWeek'.tr();
-    }
+    if (widget.isWeekly) return 'perWeek'.tr();
     return 'perMonth'.tr();
   }
 }
@@ -1241,13 +1331,23 @@ class _CtaButton extends StatelessWidget {
     end: Alignment.bottomRight,
   );
 
+  String _ctaLabel(ProductDetails? p) {
+    if (p == null) return 'getPremium'.tr();
+    if (p.id == PremiumService.yearlyProductId) {
+      return 'premiumCtaYearly'.tr();
+    }
+    if (p.id == PremiumService.monthlyProductId) {
+      return 'premiumCtaMonthly'.tr();
+    }
+    if (p.id == PremiumService.weeklyProductId) {
+      return 'premiumCtaWeekly'.tr();
+    }
+    return 'getPremium'.tr();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Free trial is store-side configuration, not something to assume from
-    // a product ID — the wallet's products don't ship with one yet, so the
-    // CTA stays neutral.
-    final label = 'getPremium'.tr();
-
+    final label = _ctaLabel(product);
     final disabled = onPressed == null;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -1325,6 +1425,35 @@ class _CtaSubText extends StatelessWidget {
         fontSize: 11,
         fontWeight: FontWeight.w500,
         color: colorScheme.onSurface.withValues(alpha: 0.6),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Apple Guideline 3.1.2(a) — auto-renewal disclosure block must be visible
+// next to the subscribe button. Same copy applies on Android (Play also
+// requires clear subscription disclosure under their billing policy).
+// ---------------------------------------------------------------------------
+
+class _LegalDisclosure extends StatelessWidget {
+  const _LegalDisclosure();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Text(
+        'premiumLegalDisclosure'.tr(),
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 10,
+          height: 1.45,
+          fontWeight: FontWeight.w400,
+          color: colorScheme.onSurface.withValues(alpha: 0.55),
+        ),
       ),
     );
   }

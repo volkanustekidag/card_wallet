@@ -1,123 +1,71 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
-import 'package:wallet_app/core/services/premium_purchase_validator.dart';
 
-/// Single source of truth for premium entitlement, IAP product loading and
-/// subscription expiry handling.
+enum PremiumPurchaseResult { success, canceled, error }
+
+/// Premium entitlement is process-scoped and derived purely from the
+/// `in_app_purchase` plugin (StoreKit / Play Billing). Nothing is persisted
+/// to disk — every cold start re-asks the store via [refreshSubscriptionState]
+/// so a rooted device can't grant itself premium by editing local storage.
 ///
-/// Two flags drive entitlement:
-///   * [_hasLifetime] — non-expiring lifetime purchase. Once true, premium
-///     stays on forever.
-///   * [_hasActiveSubscription] — derived from purchase stream events. Reset
-///     to false on app foreground if a refresh round produces no active sub.
-///
-/// `isPremium` is the OR of the two. Production builds validate purchase
-/// receipts through [PremiumPurchaseValidator] before granting entitlement.
+/// In-memory flags:
+///   * [_hasLifetime] — grandfathered v1 lifetime non-consumable
+///     (`_legacyLifetimeProductId`). No new sales; honoured on restore.
+///   * [_hasActiveSubscription] — set from purchase stream events inside a
+///     refresh window, cleared if the window closes with no active receipt.
 class PremiumService {
   // ---------------------------------------------------------------------------
   // Product IDs
   // ---------------------------------------------------------------------------
 
-  // New v2.0 product IDs (the ones to show on the paywall).
-  static const String _androidMonthlyId =
-      'com.volkan.walletapp.monthly_premium';
-  static const String _androidYearlyV2Id =
-      'com.volkan.walletapp.yearly_premium_v2';
-  static const String _androidLifetimeId =
-      'com.volkan.walletapp.lifetime_premium';
+  static const String _iosWeeklyId = 'com.volkan.walletapp.weekly_premium';
+  static const String _androidWeeklyId = 'com.volkan.walletapp.weekly';
 
-  static const String _iosMonthlyId = 'com.volkan.walletapp.monthly_premium';
-  static const String _iosYearlyV2Id = 'com.volkan.walletapp.yearly_premium_v2';
-  static const String _iosLifetimeId = 'com.volkan.walletapp.lifetime_premium';
+  static const String _monthlyId = 'com.volkan.walletapp.monthly_premium';
 
-  // Legacy v1 product IDs — recognised by restorePurchases but never offered
-  // again to new buyers. Existing subscribers stay grandfathered.
-  static const String _androidLegacyWeeklyId = 'com.volkan.walletapp.weekly';
-  static const String _androidLegacyYearlyId = 'com.volkan.walletapp.yearly';
-  static const String _iosLegacyWeeklyId =
-      'com.volkan.walletapp.weekly_premium';
-  static const String _iosLegacyYearlyId =
-      'com.volkan.walletapp.yearly_premium';
+  static const String _iosYearlyId = 'com.volkan.walletapp.yearly_premium';
+  static const String _androidYearlyId = 'com.volkan.walletapp.yearly';
+
   static const String _legacyLifetimeProductId = 'premium';
 
-  static String get monthlyProductId =>
-      Platform.isIOS ? _iosMonthlyId : _androidMonthlyId;
-  static String get yearlyProductId =>
-      Platform.isIOS ? _iosYearlyV2Id : _androidYearlyV2Id;
-  static String get lifetimeProductId =>
-      Platform.isIOS ? _iosLifetimeId : _androidLifetimeId;
-
-  // Kept for backwards compat with code that still imports the old getters.
   static String get weeklyProductId =>
-      Platform.isIOS ? _iosLegacyWeeklyId : _androidLegacyWeeklyId;
-  static String get legacyYearlyProductId =>
-      Platform.isIOS ? _iosLegacyYearlyId : _androidLegacyYearlyId;
+      Platform.isIOS ? _iosWeeklyId : _androidWeeklyId;
+  static String get monthlyProductId => _monthlyId;
+  static String get yearlyProductId =>
+      Platform.isIOS ? _iosYearlyId : _androidYearlyId;
   static String get legacyLifetimeProductId => _legacyLifetimeProductId;
 
-  /// Active subscription product IDs (lifetime is in [_lifetimeProductIds]).
   static Set<String> get _subscriptionProductIds => {
+        weeklyProductId,
         monthlyProductId,
         yearlyProductId,
-      };
-
-  static Set<String> get _legacySubscriptionProductIds => {
-        weeklyProductId,
-        legacyYearlyProductId,
       };
 
   static Set<String> get _lifetimeProductIds => {
-        lifetimeProductId,
         _legacyLifetimeProductId,
       };
 
-  /// All product IDs we want the store to query (paywall display).
-  /// Includes both v2 + legacy IDs — the store may have one set or the
-  /// other configured, and the controller's getters fall back across them.
-  /// Whichever the store actually returns is what the user sees.
   static Set<String> get _productIdsToOffer => {
+        weeklyProductId,
         monthlyProductId,
         yearlyProductId,
-        lifetimeProductId,
-        weeklyProductId,
-        legacyYearlyProductId,
-        _legacyLifetimeProductId,
       };
 
-  /// All product IDs we accept on restore (current + legacy).
   static Set<String> get _allRecognisedProductIds => {
         ..._subscriptionProductIds,
-        ..._legacySubscriptionProductIds,
         ..._lifetimeProductIds,
       };
 
   // ---------------------------------------------------------------------------
-  // Storage keys
+  // State (in-memory only — never persisted)
   // ---------------------------------------------------------------------------
 
-  static const String _hasLifetimeKey = 'premium_has_lifetime';
-  static const String _hasActiveSubscriptionKey =
-      'premium_has_active_subscription';
-  static const String _lastSubscriptionProductIdKey =
-      'premium_last_subscription_product_id';
-  static const String _lastVerifiedAtKey = 'premium_last_verified_at';
-  // v1.x stored a single boolean here. Read once on first v2 launch so
-  // existing paying users keep entitlement while restorePurchases() runs.
-  static const String _legacyPremiumStatusKey = 'premium_status';
-
-  // ---------------------------------------------------------------------------
-  // State
-  // ---------------------------------------------------------------------------
-
-  static const _storage = FlutterSecureStorage();
   static final InAppPurchase _iap = InAppPurchase.instance;
-  static const PremiumPurchaseValidator _purchaseValidator =
-      PremiumPurchaseValidator();
   static StreamSubscription<List<PurchaseDetails>>? _subscription;
   static final CreditCardService _creditCardService = CreditCardService();
   static final IbanCardService _ibanCardService = IbanCardService();
@@ -131,8 +79,14 @@ class PremiumService {
   static final StreamController<bool> _premiumStatusController =
       StreamController<bool>.broadcast();
 
-  /// Sliding window during which a restore round can populate active
-  /// subscriptions before we treat the absence of any as "expired".
+  /// Emits one event per outcome of an active store transaction
+  /// (purchased / canceled / error). Restore-driven `restored` events are
+  /// deliberately skipped here so the explicit "Restore" UI controls its
+  /// own feedback.
+  static final StreamController<PremiumPurchaseResult>
+      _purchaseResultController =
+      StreamController<PremiumPurchaseResult>.broadcast();
+
   static const Duration _refreshWindow = Duration(seconds: 6);
   static DateTime? _activeRefreshUntil;
   static bool _sawActiveSubscriptionInWindow = false;
@@ -143,6 +97,8 @@ class PremiumService {
 
   static Stream<bool> get premiumStatusStream =>
       _premiumStatusController.stream;
+  static Stream<PremiumPurchaseResult> get purchaseResultStream =>
+      _purchaseResultController.stream;
   static bool get isPremium => _hasLifetime || _hasActiveSubscription;
   static bool get hasLifetime => _hasLifetime;
   static bool get hasActiveSubscription => _hasActiveSubscription;
@@ -150,8 +106,6 @@ class PremiumService {
   static DateTime? get lastVerifiedAt => _lastVerifiedAt;
 
   static Future<void> initialize() async {
-    await _loadStoredState();
-
     _subscription?.cancel();
     _subscription = _iap.purchaseStream.listen(
       (purchases) => unawaited(_handlePurchaseUpdate(purchases)),
@@ -159,21 +113,22 @@ class PremiumService {
       onError: (error) => debugPrint('[Premium] purchase stream error: $error'),
     );
 
-    // Restore at startup so subscription state is verified.
+    // Cold-start defaults to free; restore round below promotes the user
+    // back to premium if the store says so.
+    _premiumStatusController.add(isPremium);
     await refreshSubscriptionState();
   }
 
-  /// Triggers a fresh round of `restorePurchases`, opening a window during
-  /// which incoming purchase events count as "currently active". After the
-  /// window closes, if no active subscription was reported and we don't have
-  /// lifetime, the active-subscription flag is cleared.
+  /// Asks the store for the user's current purchases. Events arrive via the
+  /// [InAppPurchase.purchaseStream] inside a short window; if none confirm an
+  /// active subscription (and no lifetime receipt) by the end of the window,
+  /// the active flag is cleared.
   static Future<void> refreshSubscriptionState() async {
     try {
       _activeRefreshUntil = DateTime.now().add(_refreshWindow);
       _sawActiveSubscriptionInWindow = false;
       await _iap.restorePurchases();
 
-      // Wait for the purchase stream to deliver events, then close the window.
       await Future.delayed(_refreshWindow);
 
       _activeRefreshUntil = null;
@@ -182,10 +137,12 @@ class PremiumService {
           debugPrint('[Premium] No active subscription returned by restore — '
               'downgrading to free.');
         }
-        await _setSubscriptionActive(false);
+        _setSubscriptionActive(false);
       }
-      await _markVerified();
+      _lastVerifiedAt = DateTime.now();
     } catch (e) {
+      // Offline / store unavailable: keep in-memory state from the previous
+      // successful round. Process restart will force a fresh check.
       debugPrint('[Premium] refreshSubscriptionState error: $e');
     }
   }
@@ -196,9 +153,6 @@ class PremiumService {
       if (!available) return false;
 
       final purchaseParam = PurchaseParam(productDetails: productDetails);
-      if (_lifetimeProductIds.contains(productDetails.id)) {
-        return _iap.buyNonConsumable(purchaseParam: purchaseParam);
-      }
       return _iap.buyNonConsumable(purchaseParam: purchaseParam);
     } catch (e) {
       debugPrint('[Premium] purchaseProduct error: $e');
@@ -226,11 +180,8 @@ class PremiumService {
     }
   }
 
-  // Free tier: 2 of each kind. Tightened in I2 alongside making the
-  // scanners free — scanners get users invested fast, the 2-card cap is
-  // what funnels them toward premium.
-  static const int maxCardsForFree = 2;
-  static const int maxLoyaltyCardsForFree = 2;
+  static const int maxCardsForFree = 1;
+  static const int maxLoyaltyCardsForFree = 1;
 
   static bool canAddMoreCreditCards(int currentCount) {
     if (isPremium) return true;
@@ -281,96 +232,30 @@ class PremiumService {
     _subscription?.cancel();
     _subscription = null;
     _premiumStatusController.close();
+    _purchaseResultController.close();
   }
 
   // ---------------------------------------------------------------------------
   // Internals
   // ---------------------------------------------------------------------------
 
-  static Future<void> _loadStoredState() async {
-    try {
-      _hasLifetime = (await _storage.read(key: _hasLifetimeKey)) == 'true';
-      _hasActiveSubscription =
-          (await _storage.read(key: _hasActiveSubscriptionKey)) == 'true';
-      _lastSubscriptionProductId =
-          await _storage.read(key: _lastSubscriptionProductIdKey);
-      final lastVerifiedStr = await _storage.read(key: _lastVerifiedAtKey);
-      if (lastVerifiedStr != null) {
-        _lastVerifiedAt = DateTime.tryParse(lastVerifiedStr);
-      }
-      await _migrateLegacyPremiumStatus();
-    } catch (e) {
-      debugPrint('[Premium] _loadStoredState error: $e');
-    }
-    _premiumStatusController.add(isPremium);
-  }
-
-  /// First v2 launch only: if the v1 `'premium_status'` flag is true and we
-  /// have no v2 state, optimistically grant active-subscription so the user
-  /// doesn't see a free-tier UI between launch and the first restore. If
-  /// restore later confirms a lifetime receipt (legacy 'premium' product),
-  /// [_handlePurchaseUpdate] promotes them to lifetime; if restore confirms
-  /// nothing, [refreshSubscriptionState] resets the flag.
-  static Future<void> _migrateLegacyPremiumStatus() async {
-    if (_hasLifetime || _hasActiveSubscription) {
-      // Already on v2 state — drop the legacy key if it lingers.
-      await _storage.delete(key: _legacyPremiumStatusKey);
-      return;
-    }
-    final legacy = await _storage.read(key: _legacyPremiumStatusKey);
-    if (legacy != 'true') {
-      return;
-    }
-    debugPrint('[Premium] migrating legacy premium_status=true → '
-        'optimistic active-subscription pending restore');
-    _hasActiveSubscription = true;
-    await _storage.write(key: _hasActiveSubscriptionKey, value: 'true');
-    await _storage.delete(key: _legacyPremiumStatusKey);
-  }
-
-  static Future<void> _setLifetime(bool value) async {
+  static void _setLifetime(bool value) {
     if (_hasLifetime == value) return;
     _hasLifetime = value;
-    try {
-      await _storage.write(key: _hasLifetimeKey, value: value.toString());
-    } catch (_) {}
     _premiumStatusController.add(isPremium);
   }
 
-  static Future<void> _setSubscriptionActive(bool value,
-      {String? productId}) async {
+  static void _setSubscriptionActive(bool value, {String? productId}) {
     final changed = _hasActiveSubscription != value ||
         (value && _lastSubscriptionProductId != productId);
     if (!changed) return;
     _hasActiveSubscription = value;
     if (value && productId != null) {
       _lastSubscriptionProductId = productId;
+    } else if (!value) {
+      _lastSubscriptionProductId = null;
     }
-    try {
-      await _storage.write(
-        key: _hasActiveSubscriptionKey,
-        value: value.toString(),
-      );
-      if (value && productId != null) {
-        await _storage.write(
-          key: _lastSubscriptionProductIdKey,
-          value: productId,
-        );
-      } else if (!value) {
-        await _storage.delete(key: _lastSubscriptionProductIdKey);
-      }
-    } catch (_) {}
     _premiumStatusController.add(isPremium);
-  }
-
-  static Future<void> _markVerified() async {
-    _lastVerifiedAt = DateTime.now();
-    try {
-      await _storage.write(
-        key: _lastVerifiedAtKey,
-        value: _lastVerifiedAt!.toIso8601String(),
-      );
-    } catch (_) {}
   }
 
   static Future<void> _handlePurchaseUpdate(
@@ -383,44 +268,37 @@ class PremiumService {
         case PurchaseStatus.error:
           debugPrint('[Premium] purchase error for ${details.productID}: '
               '${details.error?.message}');
+          _emitPurchaseResult(PremiumPurchaseResult.error);
           break;
         case PurchaseStatus.canceled:
+          _emitPurchaseResult(PremiumPurchaseResult.canceled);
           break;
         case PurchaseStatus.purchased:
         case PurchaseStatus.restored:
           if (!_allRecognisedProductIds.contains(details.productID)) {
             break;
           }
-          final isLifetimeProduct = _lifetimeProductIds.contains(
-            details.productID,
-          );
-          final validation = await _purchaseValidator.validate(
-            details,
-            isLifetimeProduct: isLifetimeProduct,
-            isSubscriptionProduct:
-                _subscriptionProductIds.contains(details.productID) ||
-                    _legacySubscriptionProductIds.contains(details.productID),
-          );
-          if (!validation.isValid) {
-            debugPrint(
-              '[Premium] rejecting ${details.productID}: '
-              '${validation.reason ?? 'invalid receipt'}',
-            );
+          if (!_hasUsableVerificationData(details)) {
+            debugPrint('[Premium] rejecting ${details.productID}: '
+                'empty receipt verification data');
+            if (details.status == PurchaseStatus.purchased) {
+              _emitPurchaseResult(PremiumPurchaseResult.error);
+            }
             break;
           }
-          if (validation.grantsLifetime) {
-            await _setLifetime(true);
-          }
-          if (validation.grantsActiveSubscription) {
-            // Subscription event — count it as active for the current window.
+          final isLifetimeProduct =
+              _lifetimeProductIds.contains(details.productID);
+          if (isLifetimeProduct) {
+            _setLifetime(true);
+          } else if (_subscriptionProductIds.contains(details.productID)) {
             if (_activeRefreshUntil != null &&
                 DateTime.now().isBefore(_activeRefreshUntil!)) {
               _sawActiveSubscriptionInWindow = true;
             }
-            await _setSubscriptionActive(
-              true,
-              productId: details.productID,
-            );
+            _setSubscriptionActive(true, productId: details.productID);
+          }
+          if (details.status == PurchaseStatus.purchased) {
+            _emitPurchaseResult(PremiumPurchaseResult.success);
           }
           break;
       }
@@ -429,5 +307,16 @@ class PremiumService {
         await _iap.completePurchase(details);
       }
     }
+  }
+
+  static void _emitPurchaseResult(PremiumPurchaseResult result) {
+    if (_purchaseResultController.isClosed) return;
+    _purchaseResultController.add(result);
+  }
+
+  static bool _hasUsableVerificationData(PurchaseDetails details) {
+    final local = details.verificationData.localVerificationData;
+    final server = details.verificationData.serverVerificationData;
+    return local.isNotEmpty || server.isNotEmpty;
   }
 }

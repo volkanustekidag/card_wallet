@@ -30,7 +30,8 @@ class LoyaltyCardWidget extends StatelessWidget {
     final gradient = gradients[card.colorId.clamp(0, gradients.length - 1)];
     final brand =
         (card.brand?.isNotEmpty ?? false) ? card.brand! : card.name;
-    final hasLogo = LoyaltyBrandResolver.domainFor(brand) != null;
+    final hasLogo = LoyaltyBrandResolver.domainFor(brand) != null ||
+        (card.website?.isNotEmpty ?? false);
 
     return GestureDetector(
       onTap: onTap,
@@ -101,7 +102,11 @@ class LoyaltyCardWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       padding: const EdgeInsets.all(7),
-                      child: BankLogo(loyaltyBrand: brand, size: 30),
+                      child: BankLogo(
+                        loyaltyBrand: brand,
+                        domain: card.website,
+                        size: 30,
+                      ),
                     )
                   else
                     Container(

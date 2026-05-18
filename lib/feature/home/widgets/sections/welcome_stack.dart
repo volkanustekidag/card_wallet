@@ -25,6 +25,7 @@ class WelcomeStack extends StatelessWidget {
       ),
       child: Column(
         children: [
+          SizedBox(height: 48),
           SizedBox(
             height: 168,
             child: Stack(
@@ -81,7 +82,7 @@ class WelcomeStack extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: kSpaceMd),
+          const SizedBox(height: kSpaceMd * 3),
           Text(
             'walletAwaits'.tr(),
             textAlign: TextAlign.center,
@@ -100,6 +101,7 @@ class WelcomeStack extends StatelessWidget {
                   color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
           ),
+          SizedBox(height: 56),
         ],
       ),
     );

@@ -27,47 +27,63 @@ class IbanTextField extends StatelessWidget {
     final theme = Theme.of(context);
     final iconColor = theme.colorScheme.primary;
 
-    return TextFieldCard(
-      controller: _ibanController,
-      focusNode: focusNode,
-      maxLength: 35,
-      label: 'IBAN',
-      iconData: Icons.credit_card_rounded,
-      emphasize: true,
-      textStyle: TextStyle(
-        fontFamily: 'Poppins',
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 1.2,
-        color: theme.colorScheme.onSurface,
-      ),
-      onChanged: (iban) => controller.updateCardField("iban", iban),
-      suffixIcon: Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: Container(
-          decoration: BoxDecoration(
-            color: iconColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: IconButton(
-            icon: Icon(
-              Icons.camera_alt_rounded,
-              color: iconColor,
-              size: 18,
+    return Obx(() {
+      final ibanValue = controller.currentCard.value.iban;
+      return TextFieldCard(
+        controller: _ibanController,
+        focusNode: focusNode,
+        maxLength: 35,
+        label: 'IBAN',
+        iconData: Icons.credit_card_rounded,
+        emphasize: true,
+        errorText: _ibanError(ibanValue),
+        textStyle: TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 1.2,
+          color: theme.colorScheme.onSurface,
+        ),
+        onChanged: (iban) => controller.updateCardField("iban", iban),
+        suffixIcon: Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(999),
             ),
-            tooltip: 'scanCardOptional'.tr(),
-            onPressed: () async {
-              focusNode.unfocus();
-              focusNode.canRequestFocus = false;
-              await _scanIbanFromCamera(
-                controller: controller,
-                focusNode: focusNode,
-              );
-            },
+            child: IconButton(
+              icon: Icon(
+                Icons.camera_alt_rounded,
+                color: iconColor,
+                size: 18,
+              ),
+              tooltip: 'scanCardOptional'.tr(),
+              onPressed: () async {
+                focusNode.unfocus();
+                focusNode.canRequestFocus = false;
+                await _scanIbanFromCamera(
+                  controller: controller,
+                  focusNode: focusNode,
+                );
+              },
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
+  }
+
+  String? _ibanError(String value) {
+    final cleaned = value.replaceAll(RegExp(r'\s+'), '').toUpperCase();
+    if (cleaned.isEmpty) return null;
+    if (cleaned.length < 4) return null;
+    if (!RegExp(r'^[A-Z]{2}[0-9]{2}').hasMatch(cleaned)) {
+      return 'ibanInvalidFormat'.tr();
+    }
+    if (cleaned.length < 15) return 'ibanTooShortError'.tr();
+    if (cleaned.length > 34) return 'ibanTooLongError'.tr();
+    return null;
   }
 
   Future<void> _scanIbanFromCamera({

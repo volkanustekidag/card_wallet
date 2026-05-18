@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/components/auth_component.dart';
+import 'package:wallet_app/feature/auth/widgets/forgot_pin_sheet.dart';
 
 class AuthenticationPage extends StatefulWidget {
   const AuthenticationPage({Key? key}) : super(key: key);
@@ -14,6 +15,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   late final AuthController _authController;
   final TextEditingController _pinController = TextEditingController();
   Worker? _autoBiometricWorker;
+  Worker? _recoveryPromptWorker;
   bool _autoBiometricFired = false;
 
   @override
@@ -31,6 +33,13 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
         ever<bool>(_authController.showBiometricButton, (_) {
       _maybeAutoTriggerBiometric();
     });
+    _recoveryPromptWorker =
+        ever<bool>(_authController.showRecoveryPrompt, (shouldShow) {
+      if (!shouldShow) return;
+      _authController.showRecoveryPrompt.value = false;
+      if (!mounted) return;
+      showForgotPinSheet(context);
+    });
   }
 
   void _maybeAutoTriggerBiometric() {
@@ -46,6 +55,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   @override
   void dispose() {
     _autoBiometricWorker?.dispose();
+    _recoveryPromptWorker?.dispose();
     _pinController.dispose();
     super.dispose();
   }

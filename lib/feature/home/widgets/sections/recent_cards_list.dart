@@ -10,17 +10,17 @@ import 'package:wallet_app/core/utils/loyalty_brand_resolver.dart';
 import 'package:wallet_app/core/utils/tag_index.dart';
 import 'package:wallet_app/core/widgets/bank_logo.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
-import 'package:wallet_app/feature/home/widgets/sections/card_kind.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_animations.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
+import 'package:wallet_app/feature/home/widgets/sheets/card_detail_sheet.dart';
 
 /// Compact list shown under the filter chips. One row per card, regardless
 /// of kind: a small chrome badge on the left (mini visa-card / IBAN tag /
 /// brand chip), a title + subtitle, an optional favourite star, and a
-/// chevron. Caps at 5 rows so the page doesn't grow indefinitely; "View
-/// All" jumps to the matching list page (skipped for the favorites view —
-/// favorites cross all kinds and don't have a dedicated list page yet).
+/// chevron. Caps at 5 rows so the page doesn't grow indefinitely; tapping
+/// a row opens the unified detail sheet, "View All" jumps to the unified
+/// browser at /allCards.
 ///
 /// Reverse-parallax: when [scrollOffset] reaches the bottom-focus
 /// thresholds the container, header and rows inflate so the panel
@@ -61,7 +61,7 @@ class RecentCardsList extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.fromLTRB(
         kSpaceLg,
-        kSpaceSm,
+        0,
         kSpaceLg,
         kSpaceSm,
       ),
@@ -71,7 +71,6 @@ class RecentCardsList extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: 4,
-              vertical: kSpaceSm + kSpaceXS * prominence,
             ),
             child: Row(
               children: [
@@ -87,10 +86,9 @@ class RecentCardsList extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                if (activeFilter != HomeFilter.favorites)
-                  _ViewAllLink(
-                    onTap: () => _viewAll(activeFilter),
-                  ),
+                _ViewAllLink(
+                  onTap: () => _viewAll(activeFilter),
+                ),
               ],
             ),
           ),
@@ -149,23 +147,15 @@ class RecentCardsList extends StatelessWidget {
 
   void _viewAll(HomeFilter filter) {
     HapticFeedback.selectionClick();
-    String route;
-    switch (filter.kind) {
-      case WalletItemKind.credit:
-        route = HomeCardKind.credit.listRoute;
-        break;
-      case WalletItemKind.iban:
-        route = HomeCardKind.iban.listRoute;
-        break;
-      case WalletItemKind.loyalty:
-        route = HomeCardKind.loyalty.listRoute;
-        break;
-      case null:
-        route = HomeCardKind.credit.listRoute;
-        break;
-    }
-    Get.toNamed(route);
+    _openAllCards(filter);
   }
+}
+
+void _openAllCards(HomeFilter filter) {
+  Get.toNamed(
+    '/allCards',
+    arguments: {'filter': filter},
+  );
 }
 
 class _ViewAllLink extends StatelessWidget {
@@ -260,23 +250,11 @@ class _RowTileState extends State<_RowTile>
     }
     setState(() => _tapTrigger += 1);
     HapticFeedback.selectionClick();
-    String route;
-    switch (widget.item.kind) {
-      case WalletItemKind.credit:
-        route = HomeCardKind.credit.listRoute;
-        break;
-      case WalletItemKind.iban:
-        route = HomeCardKind.iban.listRoute;
-        break;
-      case WalletItemKind.loyalty:
-        route = HomeCardKind.loyalty.listRoute;
-        break;
-    }
-    // Small delay so the chevron jump animation is visible before the
-    // route push tears down the row.
+    // Small delay so the chevron nudge animates before the sheet covers
+    // the row.
     Future.delayed(const Duration(milliseconds: 120), () {
       if (!mounted) return;
-      Get.toNamed(route);
+      showCardDetailSheet(context, widget.item);
     });
   }
 
@@ -470,8 +448,13 @@ class _ChromeBadge extends StatelessWidget {
         iconColor = colorScheme.tertiary;
         icon = Icons.local_offer_rounded;
         final brand = (c.brand?.isNotEmpty ?? false) ? c.brand! : c.name;
-        if (LoyaltyBrandResolver.domainFor(brand) != null) {
-          logo = BankLogo(loyaltyBrand: brand, size: logoSize);
+        if (LoyaltyBrandResolver.domainFor(brand) != null ||
+            (c.website?.isNotEmpty ?? false)) {
+          logo = BankLogo(
+            loyaltyBrand: brand,
+            domain: c.website,
+            size: logoSize,
+          );
         }
         break;
     }

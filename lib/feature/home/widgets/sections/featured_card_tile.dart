@@ -253,7 +253,7 @@ class _LoyaltyTile extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _LoyaltyBrandMark(brand: brand),
+                _LoyaltyBrandMark(brand: brand, website: card.website),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
@@ -388,11 +388,13 @@ class _LoyaltyTile extends StatelessWidget {
 /// in that slot to read like a card.
 class _LoyaltyBrandMark extends StatelessWidget {
   final String brand;
-  const _LoyaltyBrandMark({required this.brand});
+  final String? website;
+  const _LoyaltyBrandMark({required this.brand, this.website});
 
   @override
   Widget build(BuildContext context) {
-    final hasLogo = LoyaltyBrandResolver.domainFor(brand) != null;
+    final hasLogo = LoyaltyBrandResolver.domainFor(brand) != null ||
+        (website?.isNotEmpty ?? false);
     if (hasLogo) {
       // 36-dp white chrome to match the original tag-circle footprint —
       // BankLogo's chrome is 26 by default; we wrap it in a sized container
@@ -405,7 +407,7 @@ class _LoyaltyBrandMark extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         padding: const EdgeInsets.all(6),
-        child: BankLogo(loyaltyBrand: brand, size: 24),
+        child: BankLogo(loyaltyBrand: brand, domain: website, size: 24),
       );
     }
     return Container(

@@ -131,7 +131,7 @@ class WalletPassExportService {
       }
 
       final launchUri = _launchUriFromResponse(provider, decoded);
-      if (launchUri == null) {
+      if (launchUri == null || !_isAllowedLaunchUri(provider, launchUri)) {
         throw const WalletPassExportException('walletExportInvalidResponse');
       }
       return WalletPassExportResponse(launchUri: launchUri);
@@ -191,6 +191,26 @@ class WalletPassExportService {
       // Fall through to the generic message.
     }
     return 'walletExportFailed';
+  }
+
+  /// Refuse to launch anything that isn't a vetted https URL for the
+  /// expected provider. Without this a compromised backend could return
+  /// `tel:` / `intent:` / a phishing http URL and the app would happily
+  /// fire it via the OS.
+  bool _isAllowedLaunchUri(WalletPassProvider provider, Uri uri) {
+    if (uri.scheme != 'https') return false;
+    final host = uri.host.toLowerCase();
+    switch (provider) {
+      case WalletPassProvider.google:
+        return host == 'pay.google.com';
+      case WalletPassProvider.apple:
+        // Apple pkpass URLs are served from our own backend, identified by
+        // WALLET_EXPORT_BASE_URL. Pin to that host so a substituted URL
+        // can't redirect the device to fetch a tampered pkpass.
+        final baseHost = Uri.tryParse(_baseUrl.trim())?.host.toLowerCase();
+        if (baseHost == null || baseHost.isEmpty) return false;
+        return host == baseHost;
+    }
   }
 
   Uri? _launchUriFromResponse(

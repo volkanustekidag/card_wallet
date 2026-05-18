@@ -1,5 +1,6 @@
 import 'package:get/get.dart' hide Trans;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 
@@ -13,9 +14,21 @@ class ChangePinController extends GetxController {
   var pinChangeCompleted = false.obs;
   var verificationFailed = false.obs;
 
+  /// Mirrors our [isLoading] onto [AuthController.isLoading] so the shared
+  /// [AuthViews] component shows its spinner during the PBKDF2 hash —
+  /// AuthViews binds to AuthController, not to this controller, so without
+  /// the bridge the user sees a frozen field with no feedback while the
+  /// hash crunches in the background isolate.
+  void _setBusy(bool busy) {
+    isLoading.value = busy;
+    if (Get.isRegistered<AuthController>()) {
+      Get.find<AuthController>().isLoading.value = busy;
+    }
+  }
+
   Future<void> verifyCurrentPin(String pin) async {
     try {
-      isLoading.value = true;
+      _setBusy(true);
       await _authenticationService.openBox();
       final result = await _authenticationService.authenticate(pin);
 
@@ -29,13 +42,13 @@ class ChangePinController extends GetxController {
     } catch (e) {
       Get.context?.showErrorSnackBar('verificationError'.tr());
     } finally {
-      isLoading.value = false;
+      _setBusy(false);
     }
   }
 
   Future<void> saveNewPin(String newPin) async {
     try {
-      isLoading.value = true;
+      _setBusy(true);
       await _authenticationService.updatePin(newPin);
       pinChangeCompleted.value = true;
 
@@ -44,7 +57,7 @@ class ChangePinController extends GetxController {
     } catch (e) {
       Get.context?.showErrorSnackBar('failedToChangePin'.tr());
     } finally {
-      isLoading.value = false;
+      _setBusy(false);
     }
   }
 

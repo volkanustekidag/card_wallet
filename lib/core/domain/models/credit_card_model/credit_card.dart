@@ -22,17 +22,17 @@ class CreditCard extends HiveObject {
   String? notes;
   @HiveField(9)
   List<String>? tags;
-  @HiveField(10)
+  @HiveField(10, defaultValue: false)
   bool expiryReminderEnabled;
-  @HiveField(11)
+  @HiveField(11, defaultValue: 30)
   int expiryReminderDaysBefore;
-  @HiveField(12)
+  @HiveField(12, defaultValue: false)
   bool paymentReminderEnabled;
   @HiveField(13)
   int? paymentDueDay;
-  @HiveField(14)
+  @HiveField(14, defaultValue: 3)
   int paymentReminderDaysBefore;
-  @HiveField(15)
+  @HiveField(15, defaultValue: 9)
   int reminderHour;
 
   CreditCard({

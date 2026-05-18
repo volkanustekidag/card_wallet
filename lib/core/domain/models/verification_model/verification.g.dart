@@ -19,7 +19,7 @@ class VerificationAdapter extends TypeAdapter<Verification> {
     return Verification(
       fields[0] as String,
       salt: fields[1] as String?,
-      isLegacyPin: (fields[2] as bool?) ?? (fields[1] == null),
+      isLegacyPin: fields[2] == null ? true : fields[2] as bool,
     );
   }
 

@@ -7,15 +7,13 @@ import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart
 import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_controller.dart';
 
 class AddCreditAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final CreditCard? creditCard; // Opsiyonel CreditCard parametresi
+  final CreditCard? creditCard;
 
   const AddCreditAppBar({Key? key, this.creditCard}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AddCreditCardController>();
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return AppBar(
       elevation: 0,
@@ -32,32 +30,6 @@ class AddCreditAppBar extends StatelessWidget implements PreferredSizeWidget {
           Platform.isIOS ? Icons.arrow_back_ios : Icons.arrow_back,
         ),
       ),
-      actions: [
-        Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: Obx(() {
-              final isBusy = controller.isLoading.value;
-              final canSave = controller.isFormValid && !isBusy;
-              final iconColor = canSave
-                  ? colorScheme.primary
-                  : colorScheme.onSurface.withValues(alpha: 0.4);
-              return IconButton(
-                onPressed: canSave ? controller.saveCard : null,
-                icon: isBusy
-                    ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Icon(
-                        controller.isEditMode.value
-                            ? Icons.save
-                            : Icons.add_card,
-                        color: iconColor,
-                      ),
-              );
-            }))
-      ],
       title: Obx(() => Text(
             controller.isEditMode.value ? "editCC".tr() : "addCC".tr(),
             style:

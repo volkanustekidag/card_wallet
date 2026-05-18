@@ -1,8 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:get/get.dart' hide Trans;
 import 'package:camera/camera.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/widgets/add_iban_card_widget.dart';
+import 'package:wallet_app/core/widgets/primary_form_button.dart';
 import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
 import 'package:wallet_app/feature/add_iban_card/widgets/add_iban_app_bar.dart';
 import 'package:wallet_app/feature/add_iban_card/widgets/iban_text_forms.dart';
@@ -113,38 +115,50 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
       resizeToAvoidBottomInset: true,
       appBar: AddIbanAppBar(ibanCard: widget.ibanCard),
       backgroundColor: colorScheme.surface,
-      body: CustomScrollView(
-        controller: _scrollController,
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _IbanPreviewHeaderDelegate(
-              minExt: minExt,
-              maxExt: maxExt,
-              onCollapsedTap: _handleCollapsedTap,
-              builder: (t) => Obx(() => AddIbanCardWidget(
-                    ibanCard: _controller.currentCard.value,
-                    collapse: t,
-                  )),
-            ),
-          ),
-          SliverPadding(
-            padding: EdgeInsets.fromLTRB(
-              24,
-              16,
-              24,
-              32 + mq.viewInsets.bottom,
-            ),
-            sliver: SliverToBoxAdapter(
-              child: IbanTextFieldForms(
-                ibanController: _ibanController,
-                focusNode: _ibanFocusNode,
-                cameras: cameras,
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(),
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          slivers: [
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _IbanPreviewHeaderDelegate(
+                minExt: minExt,
+                maxExt: maxExt,
+                onCollapsedTap: _handleCollapsedTap,
+                builder: (t) => Obx(() => AddIbanCardWidget(
+                      ibanCard: _controller.currentCard.value,
+                      collapse: t,
+                    )),
               ),
             ),
-          ),
-        ],
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+              sliver: SliverToBoxAdapter(
+                child: IbanTextFieldForms(
+                  ibanController: _ibanController,
+                  focusNode: _ibanFocusNode,
+                  cameras: cameras,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: StickyBottomBar(
+        child: Obx(() {
+          final isBusy = _controller.isLoading.value;
+          return PrimaryFormButton(
+            label: _controller.isEditMode.value
+                ? 'updateAction'.tr()
+                : 'addAction'.tr(),
+            isBusy: isBusy,
+            onPressed: isBusy ? null : _controller.saveCard,
+          );
+        }),
       ),
     );
   }

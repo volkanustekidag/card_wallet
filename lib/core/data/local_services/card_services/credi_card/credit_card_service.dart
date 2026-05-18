@@ -6,13 +6,14 @@ import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
+import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 
 class CreditCardService {
   CreditCardService._internal();
   static final CreditCardService _instance = CreditCardService._internal();
   factory CreditCardService() => _instance;
 
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage = SecureStorageProvider.instance;
   Box<CreditCard>? _creditCards;
   Future<void>? _openingFuture;
 

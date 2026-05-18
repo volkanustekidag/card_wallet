@@ -8,8 +8,10 @@ import 'package:wallet_app/feature/credit_cards/controller/credit_card_controlle
 import 'package:wallet_app/core/widgets/card_search_bar.dart';
 import 'package:wallet_app/core/widgets/credit_card_back.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
+import 'package:wallet_app/core/widgets/empty_list_info.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/utils/card_sorting.dart';
+import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 import 'package:wallet_app/core/utils/tag_index.dart';
 import 'package:wallet_app/core/widgets/tag_filter_chips.dart';
 import 'package:wallet_app/feature/add_credit_card/add_credit_card_page.dart';
@@ -195,28 +197,25 @@ class _BodyState extends State<Body> {
   }
 
   Widget _buildNoSearchResults() {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.search_off_rounded,
-                size: 56,
-                color: colorScheme.onSurface.withValues(alpha: 0.4)),
-            const SizedBox(height: 12),
-            Text(
-              'searchNoResults'.tr(),
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
+    final searchActive = _searchQuery.trim().isNotEmpty;
+    final tagsActive = _selectedTags.isNotEmpty;
+    // No search and no tag filter — fall back to the plain "no cards"
+    // view. Defensive: the parent page already catches `creditCards.isEmpty`,
+    // but this guarantees the user never sees a "no match" message when
+    // they haven't actually filtered anything.
+    if (!searchActive && !tagsActive) {
+      return const EmptyListInfo(
+        ctaRoute: '/addCreditCard',
+        ctaLabel: 'addFirstCC',
+        ctaIcon: Icons.credit_card,
+      );
+    }
+    return EmptyListInfo(
+      icon: searchActive
+          ? Icons.search_off_rounded
+          : Icons.filter_alt_off_rounded,
+      titleKey: searchActive ? 'searchNoResults' : 'filterNoResults',
+      subtitleKey: 'searchNoResultsHint',
     );
   }
 
@@ -446,9 +445,7 @@ class _BodyState extends State<Body> {
                   icon: Icons.copy_rounded,
                   label: 'copyCardNumberAction'.tr(),
                   onTap: () {
-                    Clipboard.setData(
-                      ClipboardData(text: creditCard.creditCardNumber),
-                    );
+                    SensitiveClipboard.copy(creditCard.creditCardNumber);
                     HapticFeedback.lightImpact();
                     Navigator.of(sheetContext).pop();
                     context.showSuccessSnackBar('copyInfo');
@@ -490,18 +487,14 @@ class _BodyState extends State<Body> {
 
   Future<void> showDialogDeleteData(
       BuildContext context, Future<void> Function() onConfirm) {
-    return showDialog<void>(
+    return showConfirmActionSheet(
       context: context,
-      builder: (context) {
-        return CustomDialog(
-          title: 'deleteCreditCard'.tr(),
-          content: 'deleteDataMessage'.tr(),
-          onConfirm: () async {
-            await onConfirm();
-            Get.back();
-            _resetDemoState();
-          },
-        );
+      title: 'deleteCreditCard'.tr(),
+      content: 'deleteDataMessage'.tr(),
+      onConfirm: () async {
+        await onConfirm();
+        Get.back();
+        _resetDemoState();
       },
     );
   }

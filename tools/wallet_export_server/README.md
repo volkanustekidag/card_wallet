@@ -23,7 +23,13 @@ https://cardwallet-wallet-export-134457105597.europe-west1.run.app
 export WALLET_EXPORT_HOST=127.0.0.1
 export WALLET_EXPORT_PORT=8080
 export WALLET_PUBLIC_BASE_URL=https://wallet-api.example.com
-export WALLET_EXPORT_API_KEY=optional-shared-secret
+export WALLET_EXPORT_API_KEY=shared-secret  # REQUIRED — server refuses to start without it
+
+# Optional tuning:
+export WALLET_RATE_LIMIT_MAX=30           # requests per IP per window
+export WALLET_RATE_LIMIT_WINDOW=60        # window in seconds
+export WALLET_PASS_TTL_SEC=86400          # delete generated .pkpass after this
+export WALLET_PASS_CLEANUP_INTERVAL_SEC=600
 
 python3 tools/wallet_export_server/server.py
 ```
@@ -181,7 +187,22 @@ curl -X POST "$SERVICE_URL/v1/wallet/loyalty/google" \
 
 Security controls:
 
-- API key is required for pass creation.
+- `WALLET_EXPORT_API_KEY` is mandatory; the server refuses to start without it.
+  The Cloud Run secret `wallet-export-api-key` is mounted as that env var.
+- API key check uses `hmac.compare_digest` (constant-time) to defeat naive
+  timing-based brute force.
+- Per-IP rate limit: 30 POSTs per 60 seconds, sliding window. The client IP
+  is taken from `X-Forwarded-For` (Cloud Run injects it) and falls back to
+  the socket peer in dev. Defaults are tunable via env.
+- Request body is hard-capped at 10KB before reading from the socket, so a
+  spoofed `Content-Length: 1000000000` can't exhaust memory.
+- Generated `.pkpass` files are TTL'd (24h default) by a daemon thread so
+  `/tmp/cardwallet-passes/` doesn't grow without bound.
+- Error logs print exception **type only** — payloads contain loyalty
+  barcodes and must not land in stdout/stderr or Cloud Logging.
+- Client (`wallet_pass_export_service.dart`) refuses to launch any URL that
+  isn't `https://pay.google.com/...` (Google) or the configured
+  `WALLET_EXPORT_BASE_URL` host (Apple `.pkpass`).
 - Secrets are mounted from Secret Manager and are not copied into the image.
 - Cloud Run is limited to `min-instances=0` and `max-instances=1`.
 - Keep `.dart_defines/` and all certificate/key material out of git.

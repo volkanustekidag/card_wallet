@@ -6,8 +6,11 @@ import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
+import 'package:wallet_app/core/utils/pin_setup_prompt.dart';
 import 'package:wallet_app/core/utils/validators.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
@@ -223,6 +226,22 @@ class AddCreditCardController extends GetxController {
       final creditCardController = Get.find<CreditCardController>();
       creditCardController.loadCreditCards();
       resetCard();
+
+      if (!isEditMode.value) {
+        // Trigger the post-add PIN nudge once the user has their very first
+        // card. We read all three boxes directly so the count is correct
+        // even before HomeController's debounced refresh fires.
+        try {
+          final cc = await CreditCardService().getAllCreditCards();
+          final iban = await IbanCardService().getAllIbanCards();
+          final loyalty = await LoyaltyCardService().getAllLoyaltyCards();
+          await maybePromptPinSetup(
+            totalCardCountAfterAdd: cc.length + iban.length + loyalty.length,
+          );
+        } catch (_) {
+          // Best-effort prompt; failure here must never break the save.
+        }
+      }
     } catch (e) {
       debugPrint('Error saving card: $e');
       Get.context?.showErrorSnackBar(

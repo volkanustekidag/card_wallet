@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
+import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 import 'package:wallet_app/core/utils/share_origin.dart';
 
 /// QR Code Display Utilities
@@ -328,7 +328,7 @@ class QRDialog extends StatelessWidget {
   }
 
   void _copyToClipboard(BuildContext context) {
-    Clipboard.setData(ClipboardData(text: qrData));
+    SensitiveClipboard.copy(qrData);
     context.showSuccessSnackBar('qrCodeCopied');
   }
 
@@ -563,7 +563,7 @@ class QRBottomSheet extends StatelessWidget {
   }
 
   void _copyToClipboard(BuildContext context) {
-    Clipboard.setData(ClipboardData(text: qrData));
+    SensitiveClipboard.copy(qrData);
     context.showSuccessSnackBar('qrCodeCopied');
   }
 

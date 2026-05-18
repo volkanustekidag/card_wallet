@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
-import 'package:wallet_app/feature/home/widgets/sections/card_action_row.dart';
 import 'package:wallet_app/feature/home/widgets/sections/card_filter_chips.dart';
 import 'package:wallet_app/feature/home/widgets/sections/featured_card_carousel.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
@@ -10,15 +9,16 @@ import 'package:wallet_app/feature/home/widgets/sections/home_header.dart';
 import 'package:wallet_app/feature/home/widgets/sections/premium_status_strip.dart';
 import 'package:wallet_app/feature/home/widgets/sections/quick_actions_grid.dart';
 import 'package:wallet_app/feature/home/widgets/sections/recent_cards_list.dart';
-import 'package:wallet_app/feature/home/widgets/sections/smart_suggestion_card.dart';
 import 'package:wallet_app/feature/home/widgets/sections/upcoming_card_notices.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
 import 'package:wallet_app/feature/home/widgets/sections/welcome_stack.dart';
 
 /// New home body — column-based, no SliverAppBar. Order:
-/// header → featured carousel → action row → 2x2 quick actions →
-/// filter chips → recent cards. Empty wallet swaps the carousel/action
-/// panel for a WelcomeStack.
+/// header → featured carousel → 2x2 quick actions →
+/// filter chips → recent cards. Tapping any card surface (carousel,
+/// recent row, all-cards browser) opens the unified detail sheet — no
+/// separate action row anymore. Empty wallet swaps the carousel for a
+/// WelcomeStack.
 ///
 /// Performance discipline:
 ///   * The CustomScrollView shell never rebuilds on scroll, carousel
@@ -39,7 +39,6 @@ class HomeBody extends StatefulWidget {
 
 class _HomeBodyState extends State<HomeBody> {
   final ValueNotifier<HomeFilter> _filter = ValueNotifier(HomeFilter.all);
-  final ValueNotifier<int> _carouselIndex = ValueNotifier(0);
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<double> _scrollOffset = ValueNotifier(0);
   // Quantize offset emissions: only push when we've drifted at least 2px
@@ -68,7 +67,6 @@ class _HomeBodyState extends State<HomeBody> {
     _scrollController.dispose();
     _scrollOffset.dispose();
     _filter.dispose();
-    _carouselIndex.dispose();
     super.dispose();
   }
 
@@ -107,21 +105,7 @@ class _HomeBodyState extends State<HomeBody> {
             }
             return FeaturedCardCarousel(
               items: items,
-              onPageChanged: (i) => _carouselIndex.value = i,
               scrollOffset: _scrollOffset,
-            );
-          }),
-        ),
-        SliverToBoxAdapter(
-          child: Obx(() {
-            final items = widget.controller.walletItems;
-            if (items.isEmpty) return const SizedBox.shrink();
-            return ValueListenableBuilder<int>(
-              valueListenable: _carouselIndex,
-              builder: (context, idx, _) {
-                final activeItem = items[idx.clamp(0, items.length - 1)];
-                return CardActionRow(activeItem: activeItem);
-              },
             );
           }),
         ),
@@ -166,9 +150,9 @@ class _HomeBodyState extends State<HomeBody> {
             );
           }),
         ),
-        SliverToBoxAdapter(
-          child: SmartSuggestionCard(controller: widget.controller),
-        ),
+        // SliverToBoxAdapter(
+        //   child: SmartSuggestionCard(controller: widget.controller),
+        // ),
         const SliverPadding(
           padding: EdgeInsets.only(bottom: kSpaceXXL),
         ),

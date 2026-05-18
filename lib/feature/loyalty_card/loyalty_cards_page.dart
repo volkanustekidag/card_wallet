@@ -10,9 +10,11 @@ import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
 import 'package:wallet_app/core/utils/card_sorting.dart';
+import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 import 'package:wallet_app/core/widgets/card_search_bar.dart';
 import 'package:wallet_app/core/widgets/empty_list_info.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
+import 'package:wallet_app/core/widgets/sheet_action_bar.dart';
 import 'package:wallet_app/feature/add_loyalty_card/add_loyalty_card_page.dart';
 import 'package:wallet_app/feature/loyalty_card/controller/loyalty_card_controller.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_card_detail_page.dart';
@@ -173,27 +175,18 @@ class _LoyaltyCardsPageState extends State<LoyaltyCardsPage> {
   }
 
   Widget _buildNoSearchResults(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.search_off_rounded,
-                size: 56, color: colorScheme.onSurface.withValues(alpha: 0.4)),
-            const SizedBox(height: 12),
-            Text(
-              'searchNoResults'.tr(),
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
+    final searchActive = _searchQuery.trim().isNotEmpty;
+    if (!searchActive) {
+      return EmptyListInfo(
+        ctaLabel: 'addFirstLoyaltyCard',
+        ctaIcon: Icons.local_offer,
+        onCtaTap: _handleAdd,
+      );
+    }
+    return const EmptyListInfo(
+      icon: Icons.search_off_rounded,
+      titleKey: 'searchNoResults',
+      subtitleKey: 'searchNoResultsHint',
     );
   }
 
@@ -218,81 +211,105 @@ class _LoyaltyCardsPageState extends State<LoyaltyCardsPage> {
 
   void _showActions(LoyaltyCard card) {
     HapticFeedback.lightImpact();
+    final colorScheme = Theme.of(context).colorScheme;
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
       ),
       builder: (sheetContext) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurface
-                      .withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2),
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: colorScheme.onSurface.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.qr_code_2_rounded),
-                title: Text('showBarcodeAction'.tr()),
-                onTap: () {
-                  Navigator.pop(sheetContext);
-                  _openDetail(card);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.copy_rounded),
-                title: Text('copyBarcodeAction'.tr()),
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: card.barcode));
-                  HapticFeedback.lightImpact();
-                  Navigator.pop(sheetContext);
-                  context.showSuccessSnackBar('copyInfo');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.edit_rounded),
-                title: Text('editCard'.tr()),
-                onTap: () {
-                  Navigator.pop(sheetContext);
-                  Get.to(
-                    () => AddLoyaltyCardPage(card: card),
-                    binding: AddLoyaltyCardBindings(),
-                  )?.then((_) => _controller.loadLoyaltyCards());
-                },
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.delete_forever_rounded,
-                  color: Theme.of(context).colorScheme.error,
+              Text(
+                card.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                  color: colorScheme.onSurface,
                 ),
-                title: Text(
-                  'deleteCard'.tr(),
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+              if ((card.brand ?? '').isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  card.brand!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
                 ),
-                onTap: () {
-                  Navigator.pop(sheetContext);
-                  showDialog<void>(
-                    context: context,
-                    builder: (_) => CustomDialog(
-                      title: 'deleteCard'.tr(),
-                      content: 'deleteDataMessage'.tr(),
-                      onConfirm: () async {
-                        await _controller.removeLoyaltyCard(card);
-                      },
-                    ),
-                  );
-                },
+              ],
+              const SizedBox(height: 16),
+              SheetActionBar(
+                actions: [
+                  SheetAction(
+                    icon: Icons.qr_code_2_rounded,
+                    label: 'showBarcodeAction'.tr(),
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      _openDetail(card);
+                    },
+                  ),
+                  SheetAction(
+                    icon: Icons.copy_rounded,
+                    label: 'copyBarcodeAction'.tr(),
+                    onTap: () {
+                      SensitiveClipboard.copy(card.barcode);
+                      HapticFeedback.lightImpact();
+                      Navigator.pop(sheetContext);
+                      context.showSuccessSnackBar('copyInfo');
+                    },
+                  ),
+                  SheetAction(
+                    icon: Icons.edit_rounded,
+                    label: 'editCard'.tr(),
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      Get.to(
+                        () => AddLoyaltyCardPage(card: card),
+                        binding: AddLoyaltyCardBindings(),
+                      )?.then((_) => _controller.loadLoyaltyCards());
+                    },
+                  ),
+                  SheetAction(
+                    icon: Icons.delete_forever_rounded,
+                    label: 'deleteCard'.tr(),
+                    destructive: true,
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      showConfirmActionSheet(
+                        context: context,
+                        title: 'deleteCard'.tr(),
+                        content: 'deleteDataMessage'.tr(),
+                        onConfirm: () async {
+                          await _controller.removeLoyaltyCard(card);
+                        },
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),

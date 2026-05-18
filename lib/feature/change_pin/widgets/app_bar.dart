@@ -8,6 +8,9 @@ class ChangePinAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       elevation: 0,
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      scrolledUnderElevation: 0,
       centerTitle: true,
       title: Text(
         "chanPIN".tr(),

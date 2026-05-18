@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:share_plus/share_plus.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
-import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/utils/share_origin.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
@@ -70,11 +69,11 @@ class QuickActionsGrid extends StatelessWidget {
               const SizedBox(width: kSpaceMd),
               Expanded(
                 child: _ActionTile(
-                  icon: Icons.local_offer_rounded,
-                  title: 'qaLoyaltyCards'.tr(),
-                  subtitle: 'qaLoyaltyCardsSub'.tr(),
+                  icon: Icons.style_rounded,
+                  title: 'qaMyCards'.tr(),
+                  subtitle: 'qaMyCardsSub'.tr(),
                   accent: const Color(0xFFE57373),
-                  onTap: () => _onLoyalty(),
+                  onTap: () => _onMyCards(),
                 ),
               ),
             ],
@@ -84,65 +83,8 @@ class QuickActionsGrid extends StatelessWidget {
     );
   }
 
-  Future<void> _pickAddTarget(BuildContext context) async {
-    final colorScheme = Theme.of(context).colorScheme;
-    HapticFeedback.lightImpact();
-    final type = await showModalBottomSheet<CardLimitType>(
-      context: context,
-      backgroundColor: colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (sheetContext) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: kSpaceLg,
-              vertical: kSpaceMd,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: kSpaceMd),
-                  decoration: BoxDecoration(
-                    color: colorScheme.onSurface.withValues(alpha: 0.18),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                _SheetTile(
-                  icon: Icons.credit_card_rounded,
-                  label: 'addCC'.tr(),
-                  accent: colorScheme.primary,
-                  onTap: () =>
-                      Navigator.pop(sheetContext, CardLimitType.credit),
-                ),
-                _SheetTile(
-                  icon: Icons.account_balance_rounded,
-                  label: 'addIC'.tr(),
-                  accent: colorScheme.secondary,
-                  onTap: () => Navigator.pop(sheetContext, CardLimitType.iban),
-                ),
-                _SheetTile(
-                  icon: Icons.local_offer_rounded,
-                  label: 'addLC'.tr(),
-                  accent: colorScheme.tertiary,
-                  onTap: () =>
-                      Navigator.pop(sheetContext, CardLimitType.loyalty),
-                ),
-                const SizedBox(height: kSpaceSm),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-    if (type != null && context.mounted) {
-      await goToAddCard(context: context, type: type);
-    }
-  }
+  Future<void> _pickAddTarget(BuildContext context) =>
+      showAddCardTypeSheet(context);
 
   void _onScan(BuildContext context) {
     HapticFeedback.lightImpact();
@@ -172,9 +114,9 @@ class QuickActionsGrid extends StatelessWidget {
     await Share.share(text, sharePositionOrigin: shareOriginFromContext(context));
   }
 
-  void _onLoyalty() {
+  void _onMyCards() {
     HapticFeedback.lightImpact();
-    Get.toNamed('/loyaltyCards');
+    Get.toNamed('/allCards');
   }
 }
 
@@ -350,63 +292,3 @@ class _TileBurstPainter extends CustomPainter {
       oldDelegate.progress != progress || oldDelegate.origin != origin;
 }
 
-class _SheetTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color accent;
-  final VoidCallback onTap;
-
-  const _SheetTile({
-    required this.icon,
-    required this.label,
-    required this.accent,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: kSpaceSm,
-            vertical: kSpaceMd,
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.14),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: accent, size: 22),
-              ),
-              const SizedBox(width: kSpaceMd),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-              ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: colorScheme.onSurface.withValues(alpha: 0.5),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

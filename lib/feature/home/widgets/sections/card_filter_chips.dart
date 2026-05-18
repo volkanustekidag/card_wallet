@@ -45,7 +45,7 @@ class CardFilterChips extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.fromLTRB(
         0,
-        kSpaceMd + kSpaceXS * prominence,
+        kSpaceXS * prominence,
         0,
         kSpaceMd + kSpaceXS * prominence,
       ),
@@ -74,7 +74,6 @@ class CardFilterChips extends StatelessWidget {
                   const SizedBox(width: kSpaceSm),
                   _Chip(
                     label: 'filterFavorites'.tr(),
-                    leading: Icons.star_rounded,
                     leadingColor: const Color(0xFFFFB800),
                     selected: selected == HomeFilter.favorites,
                     onTap: () => _select(HomeFilter.favorites),
@@ -230,9 +229,7 @@ class _ChipState extends State<_Chip> with SingleTickerProviderStateMixin {
                   Icon(
                     widget.leading,
                     size: widget.iconSize,
-                    color: widget.selected
-                        ? fg
-                        : (widget.leadingColor ?? fg),
+                    color: widget.selected ? fg : (widget.leadingColor ?? fg),
                   ),
                   const SizedBox(width: 4),
                 ],

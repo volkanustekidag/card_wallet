@@ -4,9 +4,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
+import 'package:wallet_app/feature/auth/pin_action_page.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/body.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/credit_card_reminder_sheet.dart';
@@ -36,7 +38,30 @@ class _HomePageState extends State<HomePage> {
       if (payload != null) {
         _openReminderPayload(payload);
       }
+      _maybeShowRecoveryPinResetPrompt();
     });
+  }
+
+  void _maybeShowRecoveryPinResetPrompt() {
+    if (!mounted) return;
+    if (!Get.isRegistered<AuthController>()) return;
+    final auth = Get.find<AuthController>();
+    if (!auth.consumeRecoveryPrompt()) return;
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('resetPinPrompt'.tr()),
+          duration: const Duration(seconds: 10),
+          action: SnackBarAction(
+            label: 'resetPinNow'.tr(),
+            onPressed: () => Get.to<bool>(
+              () => const PinActionPage(),
+              arguments: PinAction.create,
+            ),
+          ),
+        ),
+      );
   }
 
   @override
