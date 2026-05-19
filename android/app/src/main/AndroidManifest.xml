@@ -33,7 +33,52 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!--
+              Widget / Quick Tile tap → cardwallet://loyalty?id=<card-id>
+              lands here. The Flutter side (WidgetDeepLinkHandler) reads
+              the URI via home_widget and routes to the barcode page,
+              bypassing the PIN gate.
+            -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="cardwallet" />
+            </intent-filter>
         </activity>
+        <!--
+          Home-screen widget receiver. Implementation in
+          LoyaltyWidgetReceiver.kt. Updates are pushed from Flutter via
+          the home_widget plugin whenever the cached loyalty card
+          changes; updatePeriodMillis in the meta-data XML is 0 so the
+          system never wakes us on its own.
+        -->
+        <receiver
+            android:name=".LoyaltyWidgetReceiver"
+            android:exported="true"
+            android:label="@string/loyalty_widget_description">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/loyalty_widget_info" />
+        </receiver>
+        <!--
+          Quick Settings tile that opens the most recent loyalty card.
+          User has to drag it into their QS panel from the "Edit tiles"
+          screen — the OS doesn't surface it automatically.
+        -->
+        <service
+            android:name=".LoyaltyTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_loyalty_tile"
+            android:label="@string/loyalty_tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

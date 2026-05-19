@@ -7,6 +7,7 @@ import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
+import 'package:wallet_app/core/services/widget_data_service.dart';
 import 'package:wallet_app/core/utils/loyalty_brand_resolver.dart';
 import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 import 'package:wallet_app/core/utils/widget_image_share.dart';
@@ -18,9 +19,26 @@ import 'package:wallet_app/feature/loyalty_card/widgets/barcode_renderer.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/loyalty_card_widget.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/shareable_loyalty_card.dart';
 
-class LoyaltyCardDetailPage extends StatelessWidget {
+class LoyaltyCardDetailPage extends StatefulWidget {
   final LoyaltyCard card;
   const LoyaltyCardDetailPage({Key? key, required this.card}) : super(key: key);
+
+  @override
+  State<LoyaltyCardDetailPage> createState() => _LoyaltyCardDetailPageState();
+}
+
+class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
+  LoyaltyCard get card => widget.card;
+
+  @override
+  void initState() {
+    super.initState();
+    // Opening the detail (barcode) page IS the "use" event — that's when
+    // the cashier sees the code. Fire-and-forget; widget refresh failures
+    // shouldn't ever block the page from rendering.
+    debugPrint('[LoyaltyCardDetailPage] initState — card=${card.id}/${card.name}');
+    WidgetDataService.instance.setLastUsedLoyaltyCard(card);
+  }
 
   @override
   Widget build(BuildContext context) {

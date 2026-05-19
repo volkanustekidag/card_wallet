@@ -12,6 +12,7 @@ import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
+import 'package:wallet_app/core/services/widget_data_service.dart';
 import 'package:wallet_app/core/utils/loyalty_brand_resolver.dart';
 import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 import 'package:wallet_app/core/utils/share_origin.dart';
@@ -66,6 +67,23 @@ class _CardDetailSheetState extends State<CardDetailSheet> {
   bool _favoriteDirty = false;
 
   bool get _isFavorite => isFavoriteCard(widget.item.card);
+
+  @override
+  void initState() {
+    super.initState();
+    // Opening the sheet on a loyalty card is the "use" event from the
+    // home page. Deferred to after the first frame so the cast / async
+    // widget write can never block the modal from rendering. The
+    // Loyalty Cards list page has its own hook.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (widget.item.kind != WalletItemKind.loyalty) return;
+      final card = widget.item.card;
+      if (card is! LoyaltyCard) return;
+      debugPrint('[CardDetailSheet] loyalty opened — card=${card.id}/${card.name}');
+      WidgetDataService.instance.setLastUsedLoyaltyCard(card);
+    });
+  }
 
   void _toggleFavorite() {
     HapticFeedback.lightImpact();

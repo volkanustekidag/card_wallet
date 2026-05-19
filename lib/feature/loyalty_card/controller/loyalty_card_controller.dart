@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
+import 'package:wallet_app/core/services/watch_sync_service.dart';
+import 'package:wallet_app/core/services/widget_data_service.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 
 class LoyaltyCardController extends GetxController {
@@ -49,6 +53,18 @@ class LoyaltyCardController extends GetxController {
       await _service.openBox();
       loyaltyCards.value = await _service.getAllLoyaltyCards();
       _syncPremiumCount();
+      // Make sure the home / lock-screen widget has *some* card to
+      // show — falls back to the newest card when the user hasn't
+      // explicitly opened anything yet, or when the previously-shown
+      // card was deleted. Tapping a card later overrides this pick.
+      unawaited(
+        WidgetDataService.instance.reconcile(loyaltyCards.toList()),
+      );
+      // Push the freshly-loaded list to the Apple Watch companion.
+      // Coalesced so a chain of add/edit/delete calls (each of which
+      // re-invokes loadLoyaltyCards) collapses into one WCSession
+      // transfer.
+      WatchSyncService.instance.scheduleSync(loyaltyCards.toList());
     } catch (e) {
       debugPrint('Error loading loyalty cards: $e');
     } finally {
@@ -61,8 +77,23 @@ class LoyaltyCardController extends GetxController {
       await _service.removeLoyaltyCard(card);
       loyaltyCards.removeWhere((c) => c.id == card.id);
       _syncPremiumCount();
+      await _reconcileWidgetSnapshot(deletedCardId: card.id);
+      // Push immediately (not coalesced) so the watch reflects the
+      // deletion before the user has time to look at their wrist.
+      await WatchSyncService.instance.pushAllCards(loyaltyCards.toList());
     } catch (e) {
       debugPrint('Error removing loyalty card: $e');
+    }
+  }
+
+  /// If the deleted card is the one the home/lock-screen widget is
+  /// currently showing, clear the snapshot so the widget falls back to
+  /// its empty state instead of deep-linking into a Hive miss.
+  Future<void> _reconcileWidgetSnapshot({required String deletedCardId}) async {
+    final cachedId =
+        await WidgetDataService.instance.getCachedLoyaltyId();
+    if (cachedId == deletedCardId) {
+      await WidgetDataService.instance.clearLastUsedLoyaltyCard();
     }
   }
 

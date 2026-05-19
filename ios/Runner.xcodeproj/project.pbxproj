@@ -8,18 +8,61 @@
 
 /* Begin PBXBuildFile section */
 		05DB8905E677FD49940FB245 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 044CEAF02E51B2A68367F681 /* Pods_Runner.framework */; };
+		06A055927A3ED9A0DD479492 /* LoyaltyWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = FB4B2838F58BF308C580ABC8 /* LoyaltyWidget.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
+		3E301D6668EDA9CE146A67D3 /* BarcodeRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F57502E7E520DD20EBC1FFC /* BarcodeRenderer.swift */; };
+		3F59583F246ABC1720263A42 /* CardDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6720E390D5EBE6FEF0ECB5B /* CardDetailView.swift */; };
+		415828852FB6E2F73609AC61 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D780439DAEFDFF097042CCC4 /* Assets.xcassets */; };
+		492E5D0831B416E5949F0AF7 /* LoyaltyCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 500BCC422BC04A22A5F62D6F /* LoyaltyCard.swift */; };
+		59704484FF1731F76FF9A35C /* LoyaltyWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C606ABD2D6C559F8B1985F /* LoyaltyWidgetBundle.swift */; };
+		5F3E48A8FC766B135C7A25DF /* CardWalletWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4345A2E0EC56EFBF12813393 /* CardWalletWatchApp.swift */; };
+		6B8EB348AA77B57A4A733126 /* Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57C1ED5C00944D03D23C089 /* Provider.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		7CA0611E2ECA1EF8005567BC /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CA0611D2ECA1EF8005567BC /* StoreKit.framework */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		A001CAFE2E1B1F0100A0B0C0 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A002CAFE2E1B1F0100A0B0C0 /* PrivacyInfo.xcprivacy */; };
+		A65BD34443ADED88AAD4484C /* LoyaltyEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6412B2ED6AD4D1FD93AF0DDE /* LoyaltyEntry.swift */; };
+		AD2D783C11280C623E5B76B8 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29157E2D701DCF4E8B362973 /* ContentView.swift */; };
+		B7D8163670800F35260E9B24 /* WatchSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7A2E10B2C8290361ECCE3A8 /* WatchSessionManager.swift */; };
+		B97AA124EFE30F494D18909A /* CardWalletWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = C5AFA70EB815CAA7CA4EB91E /* CardWalletWatch.app */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C1CA944346E43A46E5D7F689 /* LoyaltyCardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70650104DFC784A7635F9255 /* LoyaltyCardStore.swift */; };
 		D0D33A741161B7436E976B3D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B43A90FEC6F46C0C73EFF070 /* GoogleService-Info.plist */; };
+		F0131BB81F4DCBE0ACEC4122 /* LoyaltyWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 488AC6D9B0E09932E1CB9F62 /* LoyaltyWidget.swift */; };
+		F688B0C0BE07D81E1B6A97C0 /* BarcodeRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EDFE70D316CFE700FA2A36 /* BarcodeRenderer.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		3B8F4B01D1F935C16D91F3E3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3F924D3B9CF34E58759DB0A2;
+			remoteInfo = "CardWalletWatch Watch App";
+		};
+		8ED4E53BF0B22489C108DABC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C35D8229D1BA4374CBCFEF23;
+			remoteInfo = LoyaltyWidget;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
+		467A2BA2E08D802BBD3C3E16 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				B97AA124EFE30F494D18909A /* CardWalletWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		9705A1C41CF9048500538489 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -30,6 +73,17 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E9B837C827E01CF5B717080E /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				06A055927A3ED9A0DD479492 /* LoyaltyWidget.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -37,8 +91,17 @@
 		044CEAF02E51B2A68367F681 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
+		18BA4B01EEF3A3FEEEE29CCA /* LoyaltyWidget.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = LoyaltyWidget.entitlements; sourceTree = "<group>"; };
+		19DCED25C9D2FAFBD18637FD /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		29157E2D701DCF4E8B362973 /* ContentView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
+		3F57502E7E520DD20EBC1FFC /* BarcodeRenderer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BarcodeRenderer.swift; sourceTree = "<group>"; };
+		4345A2E0EC56EFBF12813393 /* CardWalletWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CardWalletWatchApp.swift; sourceTree = "<group>"; };
+		488AC6D9B0E09932E1CB9F62 /* LoyaltyWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LoyaltyWidget.swift; sourceTree = "<group>"; };
+		500BCC422BC04A22A5F62D6F /* LoyaltyCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LoyaltyCard.swift; sourceTree = "<group>"; };
 		53BA8AB0DD37F6FEA2440A3A /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+		6412B2ED6AD4D1FD93AF0DDE /* LoyaltyEntry.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LoyaltyEntry.swift; sourceTree = "<group>"; };
+		70650104DFC784A7635F9255 /* LoyaltyCardStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LoyaltyCardStore.swift; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
@@ -50,8 +113,17 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		99505D8CEE93266E02F2271B /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A002CAFE2E1B1F0100A0B0C0 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B43A90FEC6F46C0C73EFF070 /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Runner/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		B57C1ED5C00944D03D23C089 /* Provider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Provider.swift; sourceTree = "<group>"; };
+		C5AFA70EB815CAA7CA4EB91E /* CardWalletWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CardWalletWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C6720E390D5EBE6FEF0ECB5B /* CardDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CardDetailView.swift; sourceTree = "<group>"; };
+		C7EDFE70D316CFE700FA2A36 /* BarcodeRenderer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BarcodeRenderer.swift; sourceTree = "<group>"; };
+		D1C606ABD2D6C559F8B1985F /* LoyaltyWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LoyaltyWidgetBundle.swift; sourceTree = "<group>"; };
+		D780439DAEFDFF097042CCC4 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F7A2E10B2C8290361ECCE3A8 /* WatchSessionManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WatchSessionManager.swift; sourceTree = "<group>"; };
+		FB4B2838F58BF308C580ABC8 /* LoyaltyWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = LoyaltyWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		FC7A707F845174DFA8CE09B9 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -65,9 +137,37 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D2817A7C239015F4A2CDB61B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DB3DA61FC7CEBCE9258A110E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		01BA2E9BE6FEE3F97AA76674 /* LoyaltyWidget */ = {
+			isa = PBXGroup;
+			children = (
+				488AC6D9B0E09932E1CB9F62 /* LoyaltyWidget.swift */,
+				D1C606ABD2D6C559F8B1985F /* LoyaltyWidgetBundle.swift */,
+				B57C1ED5C00944D03D23C089 /* Provider.swift */,
+				6412B2ED6AD4D1FD93AF0DDE /* LoyaltyEntry.swift */,
+				3F57502E7E520DD20EBC1FFC /* BarcodeRenderer.swift */,
+				99505D8CEE93266E02F2271B /* Info.plist */,
+				18BA4B01EEF3A3FEEEE29CCA /* LoyaltyWidget.entitlements */,
+			);
+			path = LoyaltyWidget;
+			sourceTree = "<group>";
+		};
 		9740EEB11CF90186004384FC /* Flutter */ = {
 			isa = PBXGroup;
 			children = (
@@ -88,6 +188,8 @@
 				C9D7151A26231367D80A616C /* Pods */,
 				E41FB30926F446FB3B357322 /* Frameworks */,
 				B43A90FEC6F46C0C73EFF070 /* GoogleService-Info.plist */,
+				01BA2E9BE6FEE3F97AA76674 /* LoyaltyWidget */,
+				A126F4A1947F5CDEED894DFC /* CardWalletWatch */,
 			);
 			sourceTree = "<group>";
 		};
@@ -95,6 +197,8 @@
 			isa = PBXGroup;
 			children = (
 				97C146EE1CF9000F007C117D /* Runner.app */,
+				FB4B2838F58BF308C580ABC8 /* LoyaltyWidget.appex */,
+				C5AFA70EB815CAA7CA4EB91E /* CardWalletWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -113,6 +217,22 @@
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 			);
 			path = Runner;
+			sourceTree = "<group>";
+		};
+		A126F4A1947F5CDEED894DFC /* CardWalletWatch */ = {
+			isa = PBXGroup;
+			children = (
+				4345A2E0EC56EFBF12813393 /* CardWalletWatchApp.swift */,
+				29157E2D701DCF4E8B362973 /* ContentView.swift */,
+				C6720E390D5EBE6FEF0ECB5B /* CardDetailView.swift */,
+				C7EDFE70D316CFE700FA2A36 /* BarcodeRenderer.swift */,
+				500BCC422BC04A22A5F62D6F /* LoyaltyCard.swift */,
+				70650104DFC784A7635F9255 /* LoyaltyCardStore.swift */,
+				F7A2E10B2C8290361ECCE3A8 /* WatchSessionManager.swift */,
+				D780439DAEFDFF097042CCC4 /* Assets.xcassets */,
+				19DCED25C9D2FAFBD18637FD /* Info.plist */,
+			);
+			path = CardWalletWatch;
 			sourceTree = "<group>";
 		};
 		C9D7151A26231367D80A616C /* Pods */ = {
@@ -137,6 +257,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		3F924D3B9CF34E58759DB0A2 /* CardWalletWatch Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5948DC04DACF03A5787A9540 /* Build configuration list for PBXNativeTarget "CardWalletWatch Watch App" */;
+			buildPhases = (
+				F7E7D5BBA3986057F94A3A7A /* Sources */,
+				D2817A7C239015F4A2CDB61B /* Frameworks */,
+				0D8B72C1BFCAFE151A089486 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "CardWalletWatch Watch App";
+			productName = CardWalletWatch;
+			productReference = C5AFA70EB815CAA7CA4EB91E /* CardWalletWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 		97C146ED1CF9000F007C117D /* Runner */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 97C147051CF9000F007C117D /* Build configuration list for PBXNativeTarget "Runner" */;
@@ -146,6 +283,8 @@
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
+				E9B837C827E01CF5B717080E /* Embed App Extensions */,
+				467A2BA2E08D802BBD3C3E16 /* Embed Watch Content */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				58194C333920500988B5E4D3 /* [CP] Embed Pods Frameworks */,
@@ -155,11 +294,30 @@
 			buildRules = (
 			);
 			dependencies = (
+				A62F4B1A8A5CE0F5C0B8587A /* PBXTargetDependency */,
+				69AE0B8DE14F03AB8335A480 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			productName = Runner;
 			productReference = 97C146EE1CF9000F007C117D /* Runner.app */;
 			productType = "com.apple.product-type.application";
+		};
+		C35D8229D1BA4374CBCFEF23 /* LoyaltyWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DC2335816E377505816A9BAB /* Build configuration list for PBXNativeTarget "LoyaltyWidget" */;
+			buildPhases = (
+				49FD5F946846E8F9BA8323D2 /* Sources */,
+				DB3DA61FC7CEBCE9258A110E /* Frameworks */,
+				22A4F157F023BE8EB6D78CE5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LoyaltyWidget;
+			productName = LoyaltyWidget;
+			productReference = FB4B2838F58BF308C580ABC8 /* LoyaltyWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -170,9 +328,27 @@
 				LastUpgradeCheck = 1510;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
+					3F924D3B9CF34E58759DB0A2 = {
+						CreatedOnToolsVersion = 16.0;
+						ProvisioningStyle = Automatic;
+					};
 					97C146ED1CF9000F007C117D = {
 						CreatedOnToolsVersion = 7.3.1;
 						LastSwiftMigration = 1100;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
+					};
+					C35D8229D1BA4374CBCFEF23 = {
+						CreatedOnToolsVersion = 16.0;
+						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
 					};
 				};
 			};
@@ -190,11 +366,28 @@
 			projectRoot = "";
 			targets = (
 				97C146ED1CF9000F007C117D /* Runner */,
+				C35D8229D1BA4374CBCFEF23 /* LoyaltyWidget */,
+				3F924D3B9CF34E58759DB0A2 /* CardWalletWatch Watch App */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0D8B72C1BFCAFE151A089486 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				415828852FB6E2F73609AC61 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		22A4F157F023BE8EB6D78CE5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		97C146EC1CF9000F007C117D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -319,6 +512,18 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		49FD5F946846E8F9BA8323D2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F0131BB81F4DCBE0ACEC4122 /* LoyaltyWidget.swift in Sources */,
+				59704484FF1731F76FF9A35C /* LoyaltyWidgetBundle.swift in Sources */,
+				6B8EB348AA77B57A4A733126 /* Provider.swift in Sources */,
+				A65BD34443ADED88AAD4484C /* LoyaltyEntry.swift in Sources */,
+				3E301D6668EDA9CE146A67D3 /* BarcodeRenderer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		97C146EA1CF9000F007C117D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -328,7 +533,36 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F7E7D5BBA3986057F94A3A7A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5F3E48A8FC766B135C7A25DF /* CardWalletWatchApp.swift in Sources */,
+				AD2D783C11280C623E5B76B8 /* ContentView.swift in Sources */,
+				3F59583F246ABC1720263A42 /* CardDetailView.swift in Sources */,
+				F688B0C0BE07D81E1B6A97C0 /* BarcodeRenderer.swift in Sources */,
+				492E5D0831B416E5949F0AF7 /* LoyaltyCard.swift in Sources */,
+				C1CA944346E43A46E5D7F689 /* LoyaltyCardStore.swift in Sources */,
+				B7D8163670800F35260E9B24 /* WatchSessionManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		69AE0B8DE14F03AB8335A480 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "CardWalletWatch Watch App";
+			target = 3F924D3B9CF34E58759DB0A2 /* CardWalletWatch Watch App */;
+			targetProxy = 3B8F4B01D1F935C16D91F3E3 /* PBXContainerItemProxy */;
+		};
+		A62F4B1A8A5CE0F5C0B8587A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = LoyaltyWidget;
+			target = C35D8229D1BA4374CBCFEF23 /* LoyaltyWidget */;
+			targetProxy = 8ED4E53BF0B22489C108DABC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		97C146FA1CF9000F007C117D /* Main.storyboard */ = {
@@ -350,6 +584,34 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		15F20E6BF0841D9343FCECBB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CURRENT_PROJECT_VERSION = 33;
+				DEVELOPMENT_TEAM = FXWKZB775S;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CardWalletWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.volkan.walletapp.watchkitapp;
+				PRODUCT_BUNDLE_PACKAGE_TYPE = APPL;
+				PRODUCT_NAME = CardWalletWatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Release;
+		};
 		249021D3217E4FDB00AE95B9 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -406,6 +668,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = FXWKZB775S;
 				ENABLE_BITCODE = NO;
@@ -424,6 +687,92 @@
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Profile;
+		};
+		65FE4C17B233D993DB7B4446 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CURRENT_PROJECT_VERSION = 33;
+				DEVELOPMENT_TEAM = FXWKZB775S;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CardWalletWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.volkan.walletapp.watchkitapp;
+				PRODUCT_BUNDLE_PACKAGE_TYPE = APPL;
+				PRODUCT_NAME = CardWalletWatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Debug;
+		};
+		70211E6E1C43569E9455412A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = LoyaltyWidget/LoyaltyWidget.entitlements;
+				CURRENT_PROJECT_VERSION = 32;
+				DEVELOPMENT_TEAM = FXWKZB775S;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LoyaltyWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.volkan.walletapp.LoyaltyWidget;
+				PRODUCT_BUNDLE_PACKAGE_TYPE = "XPC!";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		8E92803417FCDF2ACDEE159B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = LoyaltyWidget/LoyaltyWidget.entitlements;
+				CURRENT_PROJECT_VERSION = 32;
+				DEVELOPMENT_TEAM = FXWKZB775S;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LoyaltyWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.volkan.walletapp.LoyaltyWidget;
+				PRODUCT_BUNDLE_PACKAGE_TYPE = "XPC!";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 		97C147031CF9000F007C117D /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -538,6 +887,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = FXWKZB775S;
 				ENABLE_BITCODE = NO;
@@ -564,6 +914,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = FXWKZB775S;
 				ENABLE_BITCODE = NO;
@@ -583,9 +934,77 @@
 			};
 			name = Release;
 		};
+		C9272B52FDFCB62BFC3F3EBB /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CURRENT_PROJECT_VERSION = 33;
+				DEVELOPMENT_TEAM = FXWKZB775S;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CardWalletWatch/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.volkan.walletapp.watchkitapp;
+				PRODUCT_BUNDLE_PACKAGE_TYPE = APPL;
+				PRODUCT_NAME = CardWalletWatch;
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
+			};
+			name = Profile;
+		};
+		F24A0BC5268EA0234D294CE2 /* Profile */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = LoyaltyWidget/LoyaltyWidget.entitlements;
+				CURRENT_PROJECT_VERSION = 32;
+				DEVELOPMENT_TEAM = FXWKZB775S;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LoyaltyWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.volkan.walletapp.LoyaltyWidget;
+				PRODUCT_BUNDLE_PACKAGE_TYPE = "XPC!";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Profile;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		5948DC04DACF03A5787A9540 /* Build configuration list for PBXNativeTarget "CardWalletWatch Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				15F20E6BF0841D9343FCECBB /* Release */,
+				65FE4C17B233D993DB7B4446 /* Debug */,
+				C9272B52FDFCB62BFC3F3EBB /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		97C146E91CF9000F007C117D /* Build configuration list for PBXProject "Runner" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -602,6 +1021,16 @@
 				97C147061CF9000F007C117D /* Debug */,
 				97C147071CF9000F007C117D /* Release */,
 				249021D4217E4FDB00AE95B9 /* Profile */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DC2335816E377505816A9BAB /* Build configuration list for PBXNativeTarget "LoyaltyWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				70211E6E1C43569E9455412A /* Release */,
+				8E92803417FCDF2ACDEE159B /* Debug */,
+				F24A0BC5268EA0234D294CE2 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

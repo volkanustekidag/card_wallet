@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  AppWidgetProvider metadata. updatePeriodMillis=0 disables the system
+  refresh loop — we trigger updates from Flutter via home_widget
+  whenever the cached card changes. Saves battery and avoids stale
+  re-renders.
+
+  Sizing bumped (250x130 minimum, 3x2 target cells) so the barcode
+  has enough physical space to be readable by a cashier scanner. The
+  resize mode keeps the original cell density honest if the user
+  shrinks it.
+-->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="250dp"
+    android:minHeight="130dp"
+    android:targetCellWidth="3"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/loyalty_widget"
+    android:previewLayout="@layout/loyalty_widget"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:description="@string/loyalty_widget_description" />

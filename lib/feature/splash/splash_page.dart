@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:wallet_app/core/constants/app_images.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/router/getx_routes.dart';
+import 'package:wallet_app/core/services/widget_deep_link_handler.dart';
 import 'package:wallet_app/feature/onboarding/onboarding_page.dart';
 
 class SplashPage extends StatefulWidget {
@@ -17,6 +18,30 @@ class _SplashPageState extends State<SplashPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Widget cold-launch wins over the normal routing decision so a
+      // loyalty barcode tap from the lock screen lands directly on the
+      // barcode page instead of going through the PIN gate.
+      //
+      // Two paths, because iOS delivers the widget URI through two
+      // channels on cold launch and they don't both fire reliably:
+      //   1. GetMaterialApp's URL parser strips `cardwallet://loyalty`
+      //      down to path `/` + query `id=...`, which lands on splash
+      //      with `Get.parameters['id']` populated.
+      //   2. home_widget's plugin captures the full URI via
+      //      `application(_:open:options:)` and surfaces it via
+      //      `initiallyLaunchedFromHomeWidget`.
+      // We check both — whichever has the id first wins.
+      final paramId = Get.parameters['id'];
+      if (paramId != null && paramId.isNotEmpty) {
+        debugPrint('[Splash] widget cold-launch via Get.parameters id=$paramId');
+        final ok = await WidgetDeepLinkHandler.instance
+            .routeToLoyaltyCardById(paramId);
+        if (ok || !mounted) return;
+      }
+      final handled =
+          await WidgetDeepLinkHandler.instance.handleColdLaunchFromSplash();
+      if (handled || !mounted) return;
+
       final showOnboarding = await OnboardingPage.shouldShow();
       if (!mounted) return;
       if (showOnboarding) {

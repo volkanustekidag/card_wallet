@@ -19,6 +19,8 @@ import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/services/rate_app_service.dart';
+import 'package:wallet_app/core/services/widget_data_service.dart';
+import 'package:wallet_app/core/services/widget_deep_link_handler.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/firebase_options.dart';
@@ -66,9 +68,25 @@ void main() async {
     // accessed before init completes.
     unawaited(_bootstrapCreditCardsAndReminders());
     unawaited(IbanCardService().init());
-    unawaited(LoyaltyCardService().init());
+    unawaited(LoyaltyCardService().init().then((_) async {
+      // Don't wait for the user to wander into the loyalty cards page —
+      // the home/lock-screen widget should populate the moment the app
+      // has any cards on disk. Reads the encrypted Hive box once,
+      // pushes the newest card to the widget container.
+      try {
+        final cards = await LoyaltyCardService().getAllLoyaltyCards();
+        debugPrint('[main] reconciling widget with ${cards.length} loyalty cards');
+        await WidgetDataService.instance.reconcile(cards);
+      } catch (e) {
+        debugPrint('[main] loyalty widget reconcile error: $e');
+      }
+    }));
     unawaited(PremiumService.initialize());
     unawaited(RateAppService.instance.init());
+    // Widget deep-link handler must capture the cold-launch URI *before*
+    // the splash page makes its routing decision. We await this one so
+    // the splash can see the pending URI synchronously.
+    await WidgetDeepLinkHandler.instance.init();
 
     Get.put(
       ThemeController(

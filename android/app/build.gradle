@@ -99,4 +99,8 @@ flutter {
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
     implementation 'com.google.android.gms:play-services-pay:16.5.0'
+    // ZXing core for barcode bitmap generation inside the loyalty widget.
+    // We only use the core library — the Android extras pull in camera /
+    // scanning code we don't need (Flutter side already handles capture).
+    implementation 'com.google.zxing:core:3.5.3'
 }
