@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -35,6 +36,25 @@ void main() async {
 
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    // App Check protects the wallet export backend from abuse: every
+    // request the app sends carries a short-lived, device-attested
+    // token (Apple App Attest on iOS, Play Integrity on Android). The
+    // backend verifies the token with Firebase Admin SDK and rejects
+    // anything that doesn't carry one — so even if someone extracts
+    // the API key from the binary they can't talk to the server.
+    //
+    // Debug builds can't satisfy hardware attestation (simulator has
+    // no Secure Enclave, emulators no Play Services), so they fall
+    // back to the debug provider. Whitelist the token printed to the
+    // console once in Firebase Console → App Check → Apps → menu →
+    // "Manage debug tokens".
+    await FirebaseAppCheck.instance.activate(
+      androidProvider:
+          kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+      appleProvider:
+          kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
     );
 
     // Route framework + platform errors into Crashlytics. Debug builds keep

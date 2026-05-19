@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:flutter/foundation.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 
 enum WalletPassProvider {
@@ -103,6 +105,7 @@ class WalletPassExportService {
     }
 
     final endpoint = _endpoint(provider);
+    final appCheckToken = await _fetchAppCheckToken();
     final client = HttpClient();
     try {
       final request = await client.postUrl(endpoint).timeout(_timeout);
@@ -110,6 +113,14 @@ class WalletPassExportService {
       request.headers.set(HttpHeaders.acceptHeader, 'application/json');
       if (_apiKey.trim().isNotEmpty) {
         request.headers.set('X-CardWallet-Api-Key', _apiKey.trim());
+      }
+      if (appCheckToken != null && appCheckToken.isNotEmpty) {
+        // Defense-in-depth: the backend verifies this token via the
+        // Firebase Admin SDK and rejects requests without it. The
+        // legacy X-CardWallet-Api-Key header above is kept during the
+        // soft-cutover; remove it once telemetry confirms every live
+        // client is sending an App Check token.
+        request.headers.set('X-Firebase-AppCheck', appCheckToken);
       }
       request.write(jsonEncode(_payload(
         card,
@@ -145,6 +156,22 @@ class WalletPassExportService {
       throw const WalletPassExportException('walletExportNetworkError');
     } finally {
       client.close(force: true);
+    }
+  }
+
+  /// Fetch a fresh App Check attestation token. Returns null on
+  /// failure so the caller can decide whether to still attempt the
+  /// request (e.g. during the soft-cutover, the backend will accept
+  /// either the legacy API key OR a valid App Check token).
+  Future<String?> _fetchAppCheckToken() async {
+    try {
+      return await FirebaseAppCheck.instance.getToken();
+    } catch (e) {
+      // Don't fail the user-facing wallet export over a transient
+      // attestation hiccup. Crashlytics catches it via the global
+      // handler in main.dart.
+      debugPrint('AppCheck.getToken failed: $e');
+      return null;
     }
   }
 

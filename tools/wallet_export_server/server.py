@@ -21,6 +21,18 @@ from urllib.parse import urlencode
 from urllib.request import Request
 from urllib.request import urlopen
 
+try:
+    import firebase_admin
+    from firebase_admin import app_check
+    _APP_CHECK_AVAILABLE = True
+except ImportError:
+    # Dev environments without firebase_admin installed still get to run
+    # the server. They just can't accept App Check tokens — the legacy
+    # API key path stays open unless APP_CHECK_REQUIRED is true.
+    firebase_admin = None  # type: ignore
+    app_check = None  # type: ignore
+    _APP_CHECK_AVAILABLE = False
+
 
 HOST = os.getenv("WALLET_EXPORT_HOST", "127.0.0.1")
 PORT = int(os.getenv("PORT", os.getenv("WALLET_EXPORT_PORT", "8080")))
@@ -29,6 +41,23 @@ API_KEY = os.getenv("WALLET_EXPORT_API_KEY", "").strip()
 PASS_OUTPUT_DIR = Path(
     os.getenv("WALLET_PASS_OUTPUT_DIR", tempfile.gettempdir())
 ) / "cardwallet-passes"
+
+# Firebase App Check enforcement.
+#
+#   APP_CHECK_REQUIRED=true   — only requests carrying a valid
+#                                X-Firebase-AppCheck token are accepted.
+#                                Use after telemetry shows every live
+#                                client is sending one.
+#   APP_CHECK_REQUIRED=false  — accept either a valid App Check token
+#                                OR the legacy API key. Soft cutover
+#                                default.
+#   FIREBASE_PROJECT_ID       — App Check verification requires the
+#                                project ID to be configured for the
+#                                Firebase Admin SDK; on Cloud Run this
+#                                is auto-detected from the metadata
+#                                server, locally set it explicitly.
+APP_CHECK_REQUIRED = os.getenv("APP_CHECK_REQUIRED", "false").lower() == "true"
+FIREBASE_PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID", "").strip()
 
 # Reject payloads larger than this before reading the body — protects against
 # memory exhaustion via spoofed Content-Length. Real payloads are ~1KB.
@@ -77,6 +106,65 @@ _rate_limit_lock = threading.Lock()
 _rate_limit_buckets: dict = {}
 
 
+def _init_firebase_admin():
+    """Bootstrap the Firebase Admin SDK once at startup so App Check
+    token verification doesn't pay the init cost on every request.
+
+    On Cloud Run / GCE / Cloud Functions the SDK auto-picks the
+    instance service account credentials. Locally, set
+    GOOGLE_APPLICATION_CREDENTIALS to a service account JSON with the
+    "Firebase App Check Verifier" role (or roles/firebaseappcheck.admin
+    for broader scope)."""
+    if not _APP_CHECK_AVAILABLE:
+        if APP_CHECK_REQUIRED:
+            print(
+                "FATAL: APP_CHECK_REQUIRED=true but firebase_admin is not "
+                "installed. Run: pip install firebase-admin",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+        return
+    try:
+        options = {}
+        if FIREBASE_PROJECT_ID:
+            options["projectId"] = FIREBASE_PROJECT_ID
+        firebase_admin.initialize_app(options=options or None)
+    except ValueError:
+        # Already initialised — rerunning the import in a unit test
+        # or warm restart hits this. Safe to ignore.
+        pass
+    except Exception as error:
+        # Don't crash if creds aren't available locally and we're in
+        # legacy-key mode; only hard-fail when App Check is required.
+        if APP_CHECK_REQUIRED:
+            print(
+                f"FATAL: firebase_admin init failed: {type(error).__name__}",
+                file=sys.stderr,
+            )
+            sys.exit(2)
+
+
+def _verify_app_check_token(token: str) -> bool:
+    """Returns True if `token` is a valid Firebase App Check token for
+    this project. False on any failure mode (expired, wrong audience,
+    SDK not initialised, transient JWKS fetch error). The caller falls
+    back to the API key path when this returns False (unless
+    APP_CHECK_REQUIRED is true)."""
+    if not _APP_CHECK_AVAILABLE or not token:
+        return False
+    try:
+        app_check.verify_token(token)
+        return True
+    except Exception as error:
+        # Token-level errors are expected (debug builds, replay
+        # attempts, clock skew) so don't log the token itself.
+        print(
+            f"App Check verify rejected: {type(error).__name__}",
+            file=sys.stderr,
+        )
+        return False
+
+
 def _rate_limit_allow(client_ip: str) -> bool:
     """Sliding-window rate limit by client IP. Allows up to
     RATE_LIMIT_MAX_REQUESTS requests in RATE_LIMIT_WINDOW_SEC seconds."""
@@ -119,15 +207,17 @@ def _pass_cleanup_loop():
 
 
 def main():
-    if not API_KEY:
-        # Refuse to start without auth. Without this the Apple signer cert
-        # and Google service account become a free pass-generation service
-        # for the internet, and Google can suspend the issuer for abuse.
+    # Either App Check (preferred) or the legacy API key must be in
+    # place — never both off. Otherwise the Apple signer cert and
+    # Google service account become a free pass-generation service
+    # for the internet, and Google can suspend the issuer for abuse.
+    if not API_KEY and not APP_CHECK_REQUIRED:
         print(
-            "FATAL: WALLET_EXPORT_API_KEY env var is required.",
+            "FATAL: set WALLET_EXPORT_API_KEY or APP_CHECK_REQUIRED=true.",
             file=sys.stderr,
         )
         sys.exit(2)
+    _init_firebase_admin()
     PASS_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     cleanup_thread = threading.Thread(
         target=_pass_cleanup_loop, daemon=True, name="pkpass-cleanup"
@@ -191,6 +281,18 @@ class WalletExportHandler(BaseHTTPRequestHandler):
         return self.client_address[0]
 
     def _authorize(self):
+        app_check_token = self.headers.get("X-Firebase-AppCheck", "").strip()
+        if app_check_token and _verify_app_check_token(app_check_token):
+            # App Check verified the request really came from a real,
+            # unmodified Card Wallet build on a real device. The legacy
+            # API key check is skipped in this path.
+            return
+
+        if APP_CHECK_REQUIRED:
+            # Hard cutover mode — no fallback. Anything without a
+            # valid App Check token is rejected.
+            raise RequestError(401, "walletExportFailed")
+
         received = self.headers.get("X-CardWallet-Api-Key", "").strip()
         # Constant-time compare so brute-force timing attacks on the key are
         # not free. compare_digest needs equal-length inputs to be useful,

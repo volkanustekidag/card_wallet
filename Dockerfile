@@ -5,6 +5,8 @@ ENV PYTHONUNBUFFERED=1
 ENV WALLET_EXPORT_HOST=0.0.0.0
 
 WORKDIR /app
+COPY tools/wallet_export_server/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 COPY tools/wallet_export_server/server.py /app/server.py
 
 CMD ["python", "/app/server.py"]
