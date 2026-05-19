@@ -920,16 +920,20 @@ class _PlanTileState extends State<_PlanTile>
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Text(
-                      widget.product.price,
-                      maxLines: 1,
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: widget.priceFontSize,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.4,
-                        color: colorScheme.onSurface,
-                        height: 1.1,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        widget.product.price,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: widget.priceFontSize,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.4,
+                          color: colorScheme.onSurface,
+                          height: 1.1,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),

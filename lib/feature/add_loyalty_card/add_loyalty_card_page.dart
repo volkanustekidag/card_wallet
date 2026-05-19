@@ -105,9 +105,7 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
           final isBusy = _controller.isLoading.value;
           final canSave = _controller.isFormValid && !isBusy;
           return PrimaryFormButton(
-            label: widget.card != null
-                ? 'updateAction'.tr()
-                : 'addAction'.tr(),
+            label: widget.card != null ? 'updateAction'.tr() : 'addAction'.tr(),
             isBusy: isBusy,
             onPressed: canSave ? _controller.saveCard : null,
           );
@@ -123,83 +121,84 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _buildPreview(),
-            ),
-            const SizedBox(height: 24),
-            _buildBrandPresets(),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextFieldCard(
-                controller: _nameController,
-                label: '${'loyaltyCardNameLabel'.tr()} *',
-                iconData: Icons.badge_outlined,
-                onChanged: (v) => _controller.updateField('name', v),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _buildPreview(),
               ),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextFieldCard(
-                controller: _brandController,
-                label: 'loyaltyCardBrandLabel'.tr(),
-                iconData: Icons.storefront_outlined,
-                onChanged: (v) =>
-                    _controller.updateField('brand', v.isEmpty ? null : v),
+              const SizedBox(height: 24),
+              _buildBrandPresets(),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: TextFieldCard(
+                  controller: _nameController,
+                  label: '${'loyaltyCardNameLabel'.tr()} *',
+                  iconData: Icons.badge_outlined,
+                  onChanged: (v) => _controller.updateField('name', v),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _buildWebsiteSection(),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Obx(() {
-                final card = _controller.currentCard.value;
-                final digitsOnly = isDigitOnlyBarcodeFormat(card.barcodeFormat);
-                return TextFieldCard(
-                  controller: _barcodeController,
-                  label: '${'loyaltyCardBarcodeLabel'.tr()} *',
-                  iconData: Icons.qr_code_2_rounded,
-                  onChanged: (v) => _controller.updateField('barcode', v),
-                  helperText: 'loyaltyCardBarcodeHelper'.tr(),
-                  errorText: _barcodeError(card.barcode, card.barcodeFormat),
-                  textInputType:
-                      digitsOnly ? TextInputType.number : TextInputType.text,
-                  inputFormatters: digitsOnly
-                      ? [FilteringTextInputFormatter.digitsOnly]
-                      : null,
-                );
-              }),
-            ),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _buildScanButton(),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: _buildBarcodeFormatTile(),
-            ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: TextFieldCard(
-                controller: _notesController,
-                label: 'notesLabel'.tr(),
-                iconData: Icons.notes_rounded,
-                maxLines: 3,
-                onChanged: (v) =>
-                    _controller.updateField('notes', v.isEmpty ? null : v),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: TextFieldCard(
+                  controller: _brandController,
+                  label: 'loyaltyCardBrandLabel'.tr(),
+                  iconData: Icons.storefront_outlined,
+                  onChanged: (v) =>
+                      _controller.updateField('brand', v.isEmpty ? null : v),
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            _buildColorPicker(),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _buildWebsiteSection(),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Obx(() {
+                  final card = _controller.currentCard.value;
+                  final digitsOnly =
+                      isDigitOnlyBarcodeFormat(card.barcodeFormat);
+                  return TextFieldCard(
+                    controller: _barcodeController,
+                    label: '${'loyaltyCardBarcodeLabel'.tr()} *',
+                    iconData: Icons.qr_code_2_rounded,
+                    onChanged: (v) => _controller.updateField('barcode', v),
+                    helperText: 'loyaltyCardBarcodeHelper'.tr(),
+                    errorText: _barcodeError(card.barcode, card.barcodeFormat),
+                    textInputType:
+                        digitsOnly ? TextInputType.number : TextInputType.text,
+                    inputFormatters: digitsOnly
+                        ? [FilteringTextInputFormatter.digitsOnly]
+                        : null,
+                  );
+                }),
+              ),
+              const SizedBox(height: 12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _buildScanButton(),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _buildBarcodeFormatTile(),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: TextFieldCard(
+                  controller: _notesController,
+                  label: 'notesLabel'.tr(),
+                  iconData: Icons.notes_rounded,
+                  maxLines: 3,
+                  onChanged: (v) =>
+                      _controller.updateField('notes', v.isEmpty ? null : v),
+                ),
+              ),
+              const SizedBox(height: 24),
+              _buildColorPicker(),
             ],
           ),
         ),
@@ -281,9 +280,7 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
           const SizedBox(width: 10),
           Flexible(
             child: Text(
-              _isScanning
-                  ? 'scanInProgress'.tr()
-                  : 'loyaltyScanBarcode'.tr(),
+              _isScanning ? 'scanInProgress'.tr() : 'loyaltyScanBarcode'.tr(),
               style: theme.textTheme.labelLarge?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: accent,
@@ -619,48 +616,56 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
     showModalBottomSheet(
       context: context,
       backgroundColor: theme.colorScheme.surface,
+      showDragHandle: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-                child: Text(
-                  'loyaltyCardFormatLabel'.tr(),
-                  style: const TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+              child: Text(
+                'loyaltyCardFormatLabel'.tr(),
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              for (final f in kLoyaltyBarcodeFormats)
-                ListTile(
-                  title: Text(
-                    f.label,
-                    style: const TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  trailing: f.code == selected
-                      ? Icon(Icons.check_rounded,
-                          color: theme.colorScheme.primary)
-                      : null,
-                  onTap: () {
-                    _controller.updateField('barcodeFormat', f.code);
-                    Navigator.of(ctx).pop();
-                  },
+            ),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (final f in kLoyaltyBarcodeFormats)
+                      ListTile(
+                        title: Text(
+                          f.label,
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        trailing: f.code == selected
+                            ? Icon(Icons.check_rounded,
+                                color: theme.colorScheme.primary)
+                            : null,
+                        onTap: () {
+                          _controller.updateField('barcodeFormat', f.code);
+                          Navigator.of(ctx).pop();
+                        },
+                      ),
+                  ],
                 ),
-            ],
-          ),
+              ),
+            ),
+          ],
         ),
       ),
     );
