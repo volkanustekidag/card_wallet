@@ -33,7 +33,6 @@ class _SplashPageState extends State<SplashPage> {
       // We check both — whichever has the id first wins.
       final paramId = Get.parameters['id'];
       if (paramId != null && paramId.isNotEmpty) {
-        debugPrint('[Splash] widget cold-launch via Get.parameters id=$paramId');
         final ok = await WidgetDeepLinkHandler.instance
             .routeToLoyaltyCardById(paramId);
         if (ok || !mounted) return;

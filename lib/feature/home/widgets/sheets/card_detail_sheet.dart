@@ -80,7 +80,6 @@ class _CardDetailSheetState extends State<CardDetailSheet> {
       if (widget.item.kind != WalletItemKind.loyalty) return;
       final card = widget.item.card;
       if (card is! LoyaltyCard) return;
-      debugPrint('[CardDetailSheet] loyalty opened — card=${card.id}/${card.name}');
       WidgetDataService.instance.setLastUsedLoyaltyCard(card);
     });
   }

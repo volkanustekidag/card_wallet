@@ -60,9 +60,23 @@ class WatchSyncService {
     return _pushNow(cards);
   }
 
+  /// WCSession.updateApplicationContext silently rejects payloads over
+  /// ~65KB. Log a warning at 60KB so the issue is debuggable before it
+  /// happens in the wild (most users sit well below this — 300+ loyalty
+  /// cards would be the practical trigger).
+  static const int _wcPayloadWarnBytes = 60 * 1024;
+
   Future<bool> _pushNow(List<LoyaltyCard> cards) async {
     try {
       final json = _encodePayload(cards);
+      final byteLen = utf8.encode(json).length;
+      if (byteLen > _wcPayloadWarnBytes) {
+        debugPrint(
+          'WatchSyncService: payload ${(byteLen / 1024).toStringAsFixed(1)}KB '
+          'approaching the 65KB WatchConnectivity limit '
+          '(${cards.length} cards). Sync may be silently dropped.',
+        );
+      }
       final result =
           await _channel.invokeMethod<bool>('pushAllCards', json);
       return result ?? false;

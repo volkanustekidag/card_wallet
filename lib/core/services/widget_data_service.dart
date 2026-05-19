@@ -76,14 +76,7 @@ class WidgetDataService {
         ),
       ]);
 
-      debugPrint(
-        '[WidgetDataService] wrote card id=${card.id} name=${card.name} '
-        'barcode=${card.barcode} format=${card.barcodeFormat}',
-      );
-
       await _refresh();
-      debugPrint('[WidgetDataService] reloadAllTimelines triggered '
-          '(widget=$_iOSWidgetName)');
     } catch (e) {
       debugPrint('WidgetDataService.setLastUsedLoyaltyCard error: $e');
     }

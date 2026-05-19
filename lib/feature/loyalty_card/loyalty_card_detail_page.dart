@@ -36,7 +36,6 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
     // Opening the detail (barcode) page IS the "use" event — that's when
     // the cashier sees the code. Fire-and-forget; widget refresh failures
     // shouldn't ever block the page from rendering.
-    debugPrint('[LoyaltyCardDetailPage] initState — card=${card.id}/${card.name}');
     WidgetDataService.instance.setLastUsedLoyaltyCard(card);
   }
 

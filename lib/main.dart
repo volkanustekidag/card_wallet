@@ -75,10 +75,9 @@ void main() async {
       // pushes the newest card to the widget container.
       try {
         final cards = await LoyaltyCardService().getAllLoyaltyCards();
-        debugPrint('[main] reconciling widget with ${cards.length} loyalty cards');
         await WidgetDataService.instance.reconcile(cards);
       } catch (e) {
-        debugPrint('[main] loyalty widget reconcile error: $e');
+        debugPrint('loyalty widget reconcile error: $e');
       }
     }));
     unawaited(PremiumService.initialize());

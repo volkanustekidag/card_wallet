@@ -74,7 +74,6 @@ class CardFilterChips extends StatelessWidget {
                   const SizedBox(width: kSpaceSm),
                   _Chip(
                     label: 'filterFavorites'.tr(),
-                    leadingColor: const Color(0xFFFFB800),
                     selected: selected == HomeFilter.favorites,
                     onTap: () => _select(HomeFilter.favorites),
                     horizontalPadding: hPad,
@@ -131,8 +130,6 @@ class _Chip extends StatefulWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  final IconData? leading;
-  final Color? leadingColor;
   final double horizontalPadding;
   final double verticalPadding;
   final double fontSize;
@@ -141,8 +138,6 @@ class _Chip extends StatefulWidget {
     required this.label,
     required this.selected,
     required this.onTap,
-    this.leading,
-    this.leadingColor,
     required this.horizontalPadding,
     required this.verticalPadding,
     required this.fontSize,
@@ -222,27 +217,14 @@ class _ChipState extends State<_Chip> with SingleTickerProviderStateMixin {
                     ]
                   : null,
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (widget.leading != null) ...[
-                  Icon(
-                    widget.leading,
-                    size: widget.iconSize,
-                    color: widget.selected ? fg : (widget.leadingColor ?? fg),
-                  ),
-                  const SizedBox(width: 4),
-                ],
-                Text(
-                  widget.label,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: widget.fontSize,
-                    fontWeight: FontWeight.w600,
-                    color: fg,
-                  ),
-                ),
-              ],
+            child: Text(
+              widget.label,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: widget.fontSize,
+                fontWeight: FontWeight.w600,
+                color: fg,
+              ),
             ),
           ),
         ),
