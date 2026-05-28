@@ -81,12 +81,15 @@ private struct LoyaltyWidgetView: View {
     }
 
     private var deepLinkURL: URL? {
+        // `homeWidget=1` is required by the home_widget plugin's URL
+        // filter (`isWidgetUrl` in SwiftHomeWidgetPlugin) — without it
+        // the plugin drops the URL and `initiallyLaunchedFromHomeWidget`
+        // returns nil on cold launch, so the splash page can't route to
+        // the barcode page.
         if entry.hasCard {
-            return URL(string: "cardwallet://loyalty?id=\(entry.id)")
+            return URL(string: "cardwallet://loyalty?homeWidget=1&id=\(entry.id)")
         }
-        // Empty state — tap routes into the app where the user can add
-        // a card. No id => handler falls back to default app behaviour.
-        return URL(string: "cardwallet://loyalty")
+        return URL(string: "cardwallet://loyalty?homeWidget=1")
     }
 }
 

@@ -37,7 +37,22 @@ Future<void> maybePromptPinSetup({
   } catch (_) {
     dismissed = null;
   }
-  if (dismissed == 'true') return;
+  if (dismissed == 'true') {
+    // iOS keeps Keychain entries across uninstalls. We've already checked
+    // hasPassword above — if we're here, there is no PIN, so a stored
+    // `dismissed=true` is almost certainly a stale entry from a previous
+    // install lifetime. Clear it and let the prompt fire as if this were
+    // a fresh user. (The other reading — same-install user who said
+    // "Sonra" before — can't reach this branch because that user already
+    // returned at `totalCardCountAfterAdd != 1`: this gate only fires on
+    // the very first card.)
+    try {
+      await storage.delete(key: _kPinPromptDismissedKey);
+    } catch (_) {
+      // Best-effort; if delete fails the prompt may show again next time
+      // — slightly worse UX than ideal, but not a functional bug.
+    }
+  }
 
   final context = Get.context;
   if (context == null) return;

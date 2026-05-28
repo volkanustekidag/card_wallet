@@ -11,6 +11,7 @@ import 'package:wallet_app/core/widgets/loading_widget.dart';
 import 'package:wallet_app/feature/auth/pin_action_page.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/body.dart';
+import 'package:wallet_app/feature/home/widgets/sections/add_card_navigator.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/credit_card_reminder_sheet.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,6 +26,7 @@ class _HomePageState extends State<HomePage> {
   StreamSubscription<CardReminderPayload>? _reminderTapSub;
   DateTime? _lastBackPressTime;
   bool _isReminderSheetOpen = false;
+  bool _initialAddSheetHandled = false;
 
   @override
   void initState() {
@@ -39,7 +41,27 @@ class _HomePageState extends State<HomePage> {
         _openReminderPayload(payload);
       }
       _maybeShowRecoveryPinResetPrompt();
+      unawaited(_maybeOpenInitialAddSheet());
     });
+  }
+
+  Future<void> _maybeOpenInitialAddSheet() async {
+    if (_initialAddSheetHandled || !mounted) return;
+    final args = Get.arguments;
+    if (args is! Map || args['open_add_card_sheet'] != true) return;
+    _initialAddSheetHandled = true;
+    if (_homeController.isLoading.value) {
+      await _homeController.loadHomeContent();
+    }
+    if (!mounted) return;
+    // Short breathing room so the user perceives the home screen — but
+    // not so long that the transition feels stuck. The loading spinner
+    // already eats a few hundred ms on cold launch; piling another full
+    // second on top reads as "frozen". 600ms after content lands is
+    // enough to glimpse the welcome stack before the picker covers it.
+    await Future<void>.delayed(const Duration(milliseconds: 600));
+    if (!mounted) return;
+    await showAddCardTypeSheet(context);
   }
 
   void _maybeShowRecoveryPinResetPrompt() {

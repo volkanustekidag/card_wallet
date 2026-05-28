@@ -11,6 +11,7 @@ import 'package:get/get.dart' hide Trans;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
 import 'package:wallet_app/core/router/getx_routes.dart';
+import 'package:wallet_app/core/data/migration/hive_migration_runner.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
@@ -74,8 +75,21 @@ void main() async {
     await FirebaseCrashlytics.instance
         .setCrashlyticsCollectionEnabled(!kDebugMode);
     await AnalyticsService.instance.setEnabled(!kDebugMode);
+    unawaited(AnalyticsService.instance.logAppOpen());
+    // Device locale is "good enough" — EasyLocalization may not have applied
+    // the saved override yet, but BigQuery only needs the rough cohort split.
+    final platformLocale = PlatformDispatcher.instance.locale;
+    unawaited(
+      AnalyticsService.instance.setLocale(platformLocale.toLanguageTag()),
+    );
 
     await Hive.initFlutter();
+
+    // Run any pending schema migrations *before* services open their boxes
+    // — otherwise a service would cache pre-migration records as the
+    // "current" state. No-op on every launch after the first one that
+    // actually has a migration to run.
+    await HiveMigrationRunner.runIfNeeded();
 
     // Critical-path: auth box must be open before the lock screen renders, and
     // the theme must be resolved before MaterialApp builds (otherwise the lock

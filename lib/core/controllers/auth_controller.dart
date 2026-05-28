@@ -7,6 +7,7 @@ import 'package:local_auth/local_auth.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/biometric_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 
 class AuthController extends GetxController {
@@ -303,8 +304,7 @@ class AuthController extends GetxController {
         // Check if biometric is available first
         final isAvailable = await _biometricService.isBiometricAvailable();
         if (!isAvailable) {
-          Get.context
-              ?.showErrorSnackBar('biometricNotSupportedDevice'.tr());
+          Get.context?.showErrorSnackBar('biometricNotSupportedDevice'.tr());
           return;
         }
 
@@ -320,8 +320,8 @@ class AuthController extends GetxController {
           if (success) {
             isBiometricEnabled.value = true;
             showBiometricButton.value = true;
-            Get.context
-                ?.showSuccessSnackBar('biometricEnabled'.tr());
+            unawaited(AnalyticsService.instance.logBiometricEnabled());
+            Get.context?.showSuccessSnackBar('biometricEnabled'.tr());
           } else {
             // If authentication failed, disable it again
             await _biometricService.setBiometricEnabled(false);
@@ -340,13 +340,13 @@ class AuthController extends GetxController {
         await _biometricService.setBiometricEnabled(false);
         isBiometricEnabled.value = false;
         showBiometricButton.value = false;
-        Get.context
-            ?.showSuccessSnackBar('biometricDisabled'.tr());
+        Get.context?.showSuccessSnackBar('biometricDisabled'.tr());
       }
     } on BiometricException catch (e) {
       Get.context?.showErrorSnackBar(e.message);
     } catch (e) {
-      Get.context?.showErrorSnackBar('biometricSettingChangeError'.tr() + ': $e');
+      Get.context
+          ?.showErrorSnackBar('biometricSettingChangeError'.tr() + ': $e');
     }
   }
 

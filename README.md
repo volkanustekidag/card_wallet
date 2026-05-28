@@ -26,15 +26,19 @@ Expected local file contents:
 
 ```env
 WALLET_EXPORT_BASE_URL=https://cardwallet-wallet-export-134457105597.europe-west1.run.app
-WALLET_EXPORT_API_KEY=<read from Google Secret Manager>
 ```
+
+The production wallet export server is protected by Firebase App Check
+(App Attest on iOS, Play Integrity on Android). Debug builds use the App Check
+debug provider; whitelist the printed debug token in Firebase Console before
+testing Wallet export locally. Do not ship `WALLET_EXPORT_API_KEY` in mobile
+builds.
 
 Create/update it with:
 
 ```sh
 mkdir -p .dart_defines
 printf 'WALLET_EXPORT_BASE_URL=https://cardwallet-wallet-export-134457105597.europe-west1.run.app\n' > .dart_defines/wallet.local.env
-printf 'WALLET_EXPORT_API_KEY=%s\n' "$(gcloud secrets versions access latest --secret=wallet-export-api-key)" >> .dart_defines/wallet.local.env
 chmod 600 .dart_defines/wallet.local.env
 ```
 

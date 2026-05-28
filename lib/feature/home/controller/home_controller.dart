@@ -10,6 +10,7 @@ import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/l
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/utils/card_reminder_rules.dart';
 import 'package:wallet_app/core/utils/card_sorting.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
@@ -108,6 +109,11 @@ class HomeController extends GetxController {
       creditCards.value = creditCardList;
       ibanCards.value = ibanCardList;
       loyaltyCards.value = loyaltyCardList;
+      unawaited(
+        AnalyticsService.instance.setCardCountTotal(
+          creditCardList.length + ibanCardList.length + loyaltyCardList.length,
+        ),
+      );
 
       // Single sort here — every consumer reads walletItems instead of
       // calling mergeAndSort() in their build path.

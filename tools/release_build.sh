@@ -23,8 +23,7 @@
 #   tools/release_build.sh both
 #
 # Pass any additional --dart-define flags via DART_DEFINES env var:
-#   DART_DEFINES="--dart-define=WALLET_EXPORT_BASE_URL=https://...
-#                 --dart-define=WALLET_EXPORT_API_KEY=..."
+#   DART_DEFINES="--dart-define=WALLET_EXPORT_BASE_URL=https://..."
 #   tools/release_build.sh both
 
 set -euo pipefail

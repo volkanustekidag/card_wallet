@@ -55,8 +55,7 @@ class RecentCardsList extends StatelessWidget {
     final filtered = items.where(activeFilter.matches).toList();
     final visible = filtered.take(maxRows).toList();
 
-    final headerSize = 15 + 3 * prominence;
-    final radius = 18 + 6 * prominence;
+    final radius = 14 + 2 * prominence;
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -65,39 +64,12 @@ class RecentCardsList extends StatelessWidget {
         kSpaceLg,
         kSpaceSm,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 4,
-            ),
-            child: Row(
-              children: [
-                Text(
-                  activeFilter == HomeFilter.favorites
-                      ? 'filterFavorites'.tr()
-                      : 'recentCards'.tr(),
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: headerSize,
-                    fontWeight: FontWeight.w700,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-                const Spacer(),
-                _ViewAllLink(
-                  onTap: () => _viewAll(activeFilter),
-                ),
-              ],
-            ),
-          ),
-          if (visible.isEmpty)
-            _EmptyHint(filter: activeFilter)
-          else
-            AnimatedContainer(
+      child: visible.isEmpty
+          ? _EmptyHint(filter: activeFilter)
+          : AnimatedContainer(
               duration: kFastAnim,
               curve: kHomeCurve,
+              clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(radius),
@@ -123,25 +95,27 @@ class RecentCardsList extends StatelessWidget {
                       child: _RowTile(
                         item: visible[i],
                         isFirst: i == 0,
-                        isLast: i == visible.length - 1,
+                        isLast: false,
                         prominence: prominence,
                         cornerRadius: radius,
                       ),
                     ),
-                    if (i < visible.length - 1)
-                      Divider(
-                        height: 1,
-                        thickness: 0.5,
-                        indent: 60,
-                        endIndent: 16,
-                        color: colorScheme.onSurface.withValues(alpha: 0.06),
-                      ),
+                    Divider(
+                      height: 1,
+                      thickness: 0.5,
+                      indent: 60,
+                      endIndent: 16,
+                      color: colorScheme.onSurface.withValues(alpha: 0.06),
+                    ),
                   ],
+                  _ViewAllRow(
+                    onTap: () => _viewAll(activeFilter),
+                    cornerRadius: radius,
+                    prominence: prominence,
+                  ),
                 ],
               ),
             ),
-        ],
-      ),
     );
   }
 
@@ -158,9 +132,16 @@ void _openAllCards(HomeFilter filter) {
   );
 }
 
-class _ViewAllLink extends StatelessWidget {
+class _ViewAllRow extends StatelessWidget {
   final VoidCallback onTap;
-  const _ViewAllLink({required this.onTap});
+  final double cornerRadius;
+  final double prominence;
+
+  const _ViewAllRow({
+    required this.onTap,
+    required this.cornerRadius,
+    this.prominence = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -168,27 +149,32 @@ class _ViewAllLink extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
         onTap: onTap,
+        borderRadius: BorderRadius.vertical(
+          bottom: Radius.circular(cornerRadius),
+        ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+          padding: EdgeInsets.symmetric(
+            horizontal: kSpaceMd + kSpaceXS * prominence,
+            vertical: kSpaceSm + 2 + kSpaceXS * prominence,
+          ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 'viewAll'.tr(),
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 12,
+                  fontSize: 13 + 1 * prominence,
                   fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: colorScheme.primary,
                 ),
               ),
               const SizedBox(width: 2),
               Icon(
                 Icons.chevron_right_rounded,
-                size: 16,
-                color: colorScheme.onSurface.withValues(alpha: 0.6),
+                size: 18 + 2 * prominence,
+                color: colorScheme.primary,
               ),
             ],
           ),
@@ -573,7 +559,7 @@ class _EmptyHint extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

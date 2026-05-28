@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
@@ -6,8 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wallet_app/core/constants/legal_urls.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
@@ -87,9 +90,28 @@ class _PremiumPageState extends State<PremiumPage>
     super.initState();
     _premiumController = Get.find<PremiumController>();
     final args = Get.arguments;
-    if (args is Map && args['feature'] is String) {
-      _triggerFeature = _featureSpecs[args['feature'] as String];
+    String? triggerArg;
+    String? featureArg;
+    String? cardTypeArg;
+    if (args is Map) {
+      if (args['feature'] is String) {
+        featureArg = args['feature'] as String;
+        _triggerFeature = _featureSpecs[featureArg];
+      }
+      if (args['trigger'] is String) {
+        triggerArg = args['trigger'] as String;
+      }
+      if (args['card_type'] is String) {
+        cardTypeArg = args['card_type'] as String;
+      }
     }
+    unawaited(
+      AnalyticsService.instance.logPaywallViewed(
+        trigger: triggerArg ?? (featureArg == null ? 'direct' : 'feature_gate'),
+        feature: featureArg,
+        cardType: cardTypeArg,
+      ),
+    );
     _diamondController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 6),
@@ -227,6 +249,13 @@ class _PremiumPageState extends State<PremiumPage>
     if (!mounted) return;
     switch (result) {
       case PremiumPurchaseResult.success:
+        unawaited(
+          AnalyticsService.instance.logPurchaseSuccess(
+            productId: product.id,
+            price: product.rawPrice,
+            currency: product.currencyCode,
+          ),
+        );
         HapticFeedback.mediumImpact();
         (Get.context ?? context).showSuccessSnackBar('premiumActivated');
         // Let the snackbar animate in before tearing the page down so the
@@ -235,10 +264,16 @@ class _PremiumPageState extends State<PremiumPage>
         if (mounted) Get.back();
         break;
       case PremiumPurchaseResult.canceled:
+        unawaited(
+          AnalyticsService.instance.logPurchaseCanceled(product.id),
+        );
         // User backed out of the store sheet — no failure UI, they're
         // already aware they cancelled.
         break;
       case PremiumPurchaseResult.error:
+        unawaited(
+          AnalyticsService.instance.logPurchaseFailed(product.id),
+        );
         HapticFeedback.heavyImpact();
         context.showErrorSnackBar('purchaseFailed');
         break;
@@ -251,6 +286,13 @@ class _PremiumPageState extends State<PremiumPage>
         _premiumController.monthlyProduct ??
         _premiumController.weeklyProduct;
     if (candidate != null && mounted) {
+      unawaited(
+        AnalyticsService.instance.logPaywallPlanSelected(
+          productId: candidate.id,
+          price: candidate.rawPrice,
+          currency: candidate.currencyCode,
+        ),
+      );
       setState(() => _selectedProduct = candidate);
     }
   }
@@ -258,6 +300,13 @@ class _PremiumPageState extends State<PremiumPage>
   void _onPlanSelected(ProductDetails product) {
     if (_selectedProduct?.id == product.id) return;
     HapticFeedback.selectionClick();
+    unawaited(
+      AnalyticsService.instance.logPaywallPlanSelected(
+        productId: product.id,
+        price: product.rawPrice,
+        currency: product.currencyCode,
+      ),
+    );
     setState(() => _selectedProduct = product);
   }
 
@@ -729,7 +778,8 @@ class _PricingRow extends StatelessWidget {
     );
   }
 
-  double _computePriceFontSize(double priceMaxWidth, ui.TextDirection direction) {
+  double _computePriceFontSize(
+      double priceMaxWidth, ui.TextDirection direction) {
     if (priceMaxWidth <= 0) return _priceTargetSize;
     double minScale = 1.0;
     const baseStyle = TextStyle(
@@ -914,7 +964,8 @@ class _PlanTileState extends State<_PlanTile>
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.8,
-                            color: colorScheme.onSurface.withValues(alpha: 0.55),
+                            color:
+                                colorScheme.onSurface.withValues(alpha: 0.55),
                           ),
                         ),
                       ),
@@ -1476,7 +1527,7 @@ class _LegalLinks extends StatelessWidget {
       children: [
         _LegalLink(
           label: 'termsOfUse'.tr(),
-          url: 'https://www.olkan.dev/terms/cardwallet',
+          url: LegalUrls.termsOfUse,
           color: colorScheme.onSurface.withValues(alpha: 0.55),
         ),
         Padding(
@@ -1490,7 +1541,7 @@ class _LegalLinks extends StatelessWidget {
         ),
         _LegalLink(
           label: 'privacyPolicy'.tr(),
-          url: 'https://www.olkan.dev/privacy/cardwallet',
+          url: LegalUrls.privacyPolicy,
           color: colorScheme.onSurface.withValues(alpha: 0.55),
         ),
       ],

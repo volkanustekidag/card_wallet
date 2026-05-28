@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
+import 'package:wallet_app/core/constants/legal_urls.dart';
 import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/controllers/theme_controller.dart';
@@ -349,7 +350,8 @@ class _SettingsBodyState extends State<SettingsBody> {
         // recurring subscription to manage.
         Obx(() {
           final premiumController = Get.find<PremiumController>();
-          if (!premiumController.isPremium || !PremiumService.hasActiveSubscription) {
+          if (!premiumController.isPremium ||
+              !PremiumService.hasActiveSubscription) {
             return const SizedBox.shrink();
           }
           return SettingsCard(
@@ -364,7 +366,7 @@ class _SettingsBodyState extends State<SettingsBody> {
           title: 'PP'.tr(),
           trailing: const Icon(Icons.open_in_new, size: 16),
           onTap: () => launchUrl(
-            Uri.parse('https://www.olkan.dev/privacy/cardwallet'),
+            Uri.parse(LegalUrls.privacyPolicy),
             mode: LaunchMode.externalApplication,
           ),
         ),
@@ -373,7 +375,7 @@ class _SettingsBodyState extends State<SettingsBody> {
           title: 'termsOfUse'.tr(),
           trailing: const Icon(Icons.open_in_new, size: 16),
           onTap: () => launchUrl(
-            Uri.parse('https://www.olkan.dev/terms/cardwallet'),
+            Uri.parse(LegalUrls.termsOfUse),
             mode: LaunchMode.externalApplication,
           ),
         ),

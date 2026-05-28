@@ -110,9 +110,9 @@ class IbanTextField extends StatelessWidget {
           final ctx = Get.context;
           if (ctx != null) {
             ScaffoldMessenger.of(ctx).showSnackBar(
-              const SnackBar(
-                content: Text('IBAN bulunamadı'),
-                duration: Duration(seconds: 2),
+              SnackBar(
+                content: Text('ibanNotFound'.tr()),
+                duration: const Duration(seconds: 2),
               ),
             );
           }
@@ -149,8 +149,8 @@ class IbanTextField extends StatelessWidget {
       final shouldOpenSettings = await Get.dialog<bool>(
         AlertDialog(
           title: Text('cameraPermissionRequired'.tr()),
-          content: const Text(
-            'This app needs camera permission to scan IBANs. Please grant camera permission in your device settings.',
+          content: Text(
+            'cameraPermissionSettingsMessage'.tr(),
           ),
           actions: [
             TextButton(
@@ -159,7 +159,7 @@ class IbanTextField extends StatelessWidget {
             ),
             TextButton(
               onPressed: () => Get.back(result: true),
-              child: const Text('Open Settings'),
+              child: Text('openSettings'.tr()),
             ),
           ],
         ),

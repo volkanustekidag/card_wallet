@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -5,6 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 /// Schedules and triggers the native in-app review prompt and routes manual
 /// "Rate App" taps to the right store for the current platform.
@@ -38,6 +40,13 @@ class RateAppService {
     if (!_box!.containsKey(_kFirstLaunch)) {
       await _box!.put(_kFirstLaunch, now);
     }
+    final firstLaunchMs = _box!.get(_kFirstLaunch, defaultValue: now) as int;
+    final daysSinceInstall = DateTime.now()
+        .difference(DateTime.fromMillisecondsSinceEpoch(firstLaunchMs))
+        .inDays;
+    unawaited(
+      AnalyticsService.instance.setDaysSinceInstall(daysSinceInstall),
+    );
     final next = (_box!.get(_kSessionCount, defaultValue: 0) as int) + 1;
     await _box!.put(_kSessionCount, next);
   }
@@ -48,6 +57,9 @@ class RateAppService {
     Future.delayed(_initialPromptDelay, maybeRequestReview);
   }
 
+  /// Time-based path: triggered from the splash → home transition. Requires
+  /// the user has been around long enough (sessions + days since install)
+  /// that they've formed an opinion of the app.
   Future<void> maybeRequestReview() async {
     final box = _box;
     if (box == null) return;
@@ -56,7 +68,6 @@ class RateAppService {
     if (firstLaunchMs == null) return;
 
     final sessions = box.get(_kSessionCount, defaultValue: 0) as int;
-    final lastPromptMs = box.get(_kLastPromptAt) as int?;
     final now = DateTime.now();
 
     final daysSinceInstall = now
@@ -65,6 +76,29 @@ class RateAppService {
     if (daysSinceInstall < _minDaysSinceInstall) return;
     if (sessions < _minSessions) return;
 
+    await _attemptReview(source: 'time_based');
+  }
+
+  /// Success-moment path: fired after a positive user action (e.g. the
+  /// third card added). Skips the session / install-age gates that
+  /// [maybeRequestReview] applies, since milestone reach is a strong
+  /// happiness signal on its own. Still respects the 60-day window between
+  /// prompts and the OS-level quota — Apple silently rate-limits to ~3
+  /// shows per 365 days regardless of what we do, so spamming this would
+  /// just burn the user's remaining quota with no benefit.
+  Future<void> requestAfterMilestone({required String milestone}) async {
+    await _attemptReview(source: 'milestone', milestone: milestone);
+  }
+
+  Future<void> _attemptReview({
+    required String source,
+    String? milestone,
+  }) async {
+    final box = _box;
+    if (box == null) return;
+
+    final now = DateTime.now();
+    final lastPromptMs = box.get(_kLastPromptAt) as int?;
     if (lastPromptMs != null) {
       final lastPrompt = DateTime.fromMillisecondsSinceEpoch(lastPromptMs);
       if (now.difference(lastPrompt).inDays < _minDaysBetweenPrompts) {
@@ -74,10 +108,19 @@ class RateAppService {
 
     try {
       if (!await _review.isAvailable()) return;
+      // Write the timestamp *before* the prompt so a crash between
+      // requestReview() and the next launch still counts as "we tried" —
+      // better to under-prompt than to spam on retry.
       await box.put(_kLastPromptAt, now.millisecondsSinceEpoch);
+      unawaited(
+        AnalyticsService.instance.logRatePromptShown(
+          source: source,
+          milestone: milestone,
+        ),
+      );
       await _review.requestReview();
     } catch (e, st) {
-      debugPrint('RateAppService.requestReview failed: $e\n$st');
+      debugPrint('RateAppService._attemptReview failed: $e\n$st');
     }
   }
 

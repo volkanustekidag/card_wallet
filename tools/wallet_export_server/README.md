@@ -23,7 +23,11 @@ https://cardwallet-wallet-export-134457105597.europe-west1.run.app
 export WALLET_EXPORT_HOST=127.0.0.1
 export WALLET_EXPORT_PORT=8080
 export WALLET_PUBLIC_BASE_URL=https://wallet-api.example.com
-export WALLET_EXPORT_API_KEY=shared-secret  # REQUIRED — server refuses to start without it
+
+# Production default is App Check hard enforcement. For local legacy curl
+# testing only, set APP_CHECK_REQUIRED=false and provide WALLET_EXPORT_API_KEY.
+export APP_CHECK_REQUIRED=true
+export FIREBASE_PROJECT_ID=cardwallet-495118
 
 # Optional tuning:
 export WALLET_RATE_LIMIT_MAX=30           # requests per IP per window
@@ -38,8 +42,7 @@ Build the app with the same base URL:
 
 ```sh
 flutter run \
-  --dart-define=WALLET_EXPORT_BASE_URL=https://wallet-api.example.com \
-  --dart-define=WALLET_EXPORT_API_KEY=optional-shared-secret
+  --dart-define=WALLET_EXPORT_BASE_URL=https://wallet-api.example.com
 ```
 
 The app also supports:
@@ -147,7 +150,6 @@ apple-wwdr
 apple-icon
 apple-logo
 google-wallet-service-account
-wallet-export-api-key
 ```
 
 Deploy/update:
@@ -163,12 +165,19 @@ gcloud run deploy cardwallet-wallet-export \
   --max-instances 1 \
   --memory 256Mi \
   --cpu 1 \
-  --set-env-vars "WALLET_PUBLIC_BASE_URL=${SERVICE_URL},APPLE_PASS_TYPE_ID=pass.com.volkan.cardwallet.loyalty,APPLE_TEAM_ID=FXWKZB775S,APPLE_ORG_NAME=Card Wallet,APPLE_SIGNER_KEY_PATH=/secrets/apple-pass-key/pass-key.pem,APPLE_SIGNER_CERT_PATH=/secrets/apple-pass-cert/pass-cert.pem,APPLE_WWDR_CERT_PATH=/secrets/apple-wwdr/wwdr.pem,APPLE_ICON_PATH=/secrets/apple-icon/icon.png,APPLE_LOGO_PATH=/secrets/apple-logo/logo.png,GOOGLE_SERVICE_ACCOUNT_PATH=/secrets/google-wallet-service-account/google-service-account.json,GOOGLE_WALLET_ISSUER_ID=3388000000023114775,GOOGLE_WALLET_CLASS_SUFFIX=cardwallet_loyalty,GOOGLE_WALLET_ISSUER_NAME=Card Wallet,GOOGLE_WALLET_PROGRAM_NAME=Card Wallet Loyalty,GOOGLE_WALLET_LOGO_URL=https://www.olkan.dev/apps/cardwallet-icon.png,GOOGLE_WALLET_ORIGINS=${SERVICE_URL}" \
-  --update-secrets "/secrets/apple-pass-key/pass-key.pem=apple-pass-key:latest,/secrets/apple-pass-cert/pass-cert.pem=apple-pass-cert:latest,/secrets/apple-wwdr/wwdr.pem=apple-wwdr:latest,/secrets/apple-icon/icon.png=apple-icon:latest,/secrets/apple-logo/logo.png=apple-logo:latest,/secrets/google-wallet-service-account/google-service-account.json=google-wallet-service-account:latest,WALLET_EXPORT_API_KEY=wallet-export-api-key:latest" \
+  --set-env-vars "APP_CHECK_REQUIRED=true,FIREBASE_PROJECT_ID=cardwallet-495118,WALLET_PUBLIC_BASE_URL=${SERVICE_URL},APPLE_PASS_TYPE_ID=pass.com.volkan.cardwallet.loyalty,APPLE_TEAM_ID=FXWKZB775S,APPLE_ORG_NAME=Card Wallet,APPLE_SIGNER_KEY_PATH=/secrets/apple-pass-key/pass-key.pem,APPLE_SIGNER_CERT_PATH=/secrets/apple-pass-cert/pass-cert.pem,APPLE_WWDR_CERT_PATH=/secrets/apple-wwdr/wwdr.pem,APPLE_ICON_PATH=/secrets/apple-icon/icon.png,APPLE_LOGO_PATH=/secrets/apple-logo/logo.png,GOOGLE_SERVICE_ACCOUNT_PATH=/secrets/google-wallet-service-account/google-service-account.json,GOOGLE_WALLET_ISSUER_ID=3388000000023114775,GOOGLE_WALLET_CLASS_SUFFIX=cardwallet_loyalty,GOOGLE_WALLET_ISSUER_NAME=Card Wallet,GOOGLE_WALLET_PROGRAM_NAME=Card Wallet Loyalty,GOOGLE_WALLET_LOGO_URL=https://www.olkan.dev/apps/cardwallet-icon.png,GOOGLE_WALLET_ORIGINS=${SERVICE_URL}" \
+  --update-secrets "/secrets/apple-pass-key/pass-key.pem=apple-pass-key:latest,/secrets/apple-pass-cert/pass-cert.pem=apple-pass-cert:latest,/secrets/apple-wwdr/wwdr.pem=apple-wwdr:latest,/secrets/apple-icon/icon.png=apple-icon:latest,/secrets/apple-logo/logo.png=apple-logo:latest,/secrets/google-wallet-service-account/google-service-account.json=google-wallet-service-account:latest" \
   --quiet
 ```
 
 Smoke test:
+
+In production, POST endpoints require a valid Firebase App Check token from the
+mobile app. Test the full flow from an installed release or debug build
+(debug token whitelisted in Firebase Console). The legacy API-key curl path is
+only for local/staging runs with `APP_CHECK_REQUIRED=false`.
+
+Legacy local/staging curl example:
 
 ```sh
 API_KEY="$(gcloud secrets versions access latest --secret=wallet-export-api-key)"
@@ -187,10 +196,10 @@ curl -X POST "$SERVICE_URL/v1/wallet/loyalty/google" \
 
 Security controls:
 
-- `WALLET_EXPORT_API_KEY` is mandatory; the server refuses to start without it.
-  The Cloud Run secret `wallet-export-api-key` is mounted as that env var.
-- API key check uses `hmac.compare_digest` (constant-time) to defeat naive
-  timing-based brute force.
+- `APP_CHECK_REQUIRED=true` is the production default; POST endpoints accept
+  only requests carrying a Firebase App Check token verified by Firebase Admin.
+- `WALLET_EXPORT_API_KEY` is a legacy local/staging fallback only when
+  `APP_CHECK_REQUIRED=false`. API key comparison uses `hmac.compare_digest`.
 - Per-IP rate limit: 30 POSTs per 60 seconds, sliding window. The client IP
   is taken from `X-Forwarded-For` (Cloud Run injects it) and falls back to
   the socket peer in dev. Defaults are tunable via env.

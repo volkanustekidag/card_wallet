@@ -42,8 +42,12 @@ class WalletPassExportException implements Exception {
 /// Required runtime config:
 /// `--dart-define=WALLET_EXPORT_BASE_URL=https://api.example.com`
 ///
-/// Optional runtime config:
+/// Legacy runtime config:
 /// `--dart-define=WALLET_EXPORT_API_KEY=...`
+///
+/// Release builds should not set the API key. Production authorization is
+/// Firebase App Check; the API key path exists only for local/staging fallback
+/// servers where `APP_CHECK_REQUIRED=false`.
 ///
 /// Expected backend contract:
 /// POST /v1/wallet/loyalty/apple  -> { "launchUrl": "https://.../card.pkpass" }

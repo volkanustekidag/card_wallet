@@ -180,8 +180,8 @@ class PremiumService {
     }
   }
 
-  static const int maxCardsForFree = 1;
-  static const int maxLoyaltyCardsForFree = 1;
+  static const int maxCardsForFree = 2;
+  static const int maxLoyaltyCardsForFree = 5;
 
   static bool canAddMoreCreditCards(int currentCount) {
     if (isPremium) return true;

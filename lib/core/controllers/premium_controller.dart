@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 
 class PremiumController extends GetxController {
@@ -44,9 +45,11 @@ class PremiumController extends GetxController {
     // correct premium state on first frame. We just sync status here
     // and start listening for runtime changes.
     _isPremium.value = PremiumService.isPremium;
+    unawaited(AnalyticsService.instance.setIsPremium(_isPremium.value));
 
     PremiumService.premiumStatusStream.listen((status) {
       _isPremium.value = status;
+      unawaited(AnalyticsService.instance.setIsPremium(status));
       update();
     });
 

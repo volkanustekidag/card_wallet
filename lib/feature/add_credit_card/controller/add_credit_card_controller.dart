@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
@@ -9,6 +11,8 @@ import 'package:wallet_app/core/data/local_services/card_services/credi_card/cre
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/core/services/rate_app_service.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/utils/pin_setup_prompt.dart';
 import 'package:wallet_app/core/utils/validators.dart';
@@ -138,6 +142,7 @@ class AddCreditCardController extends GetxController {
   Future<void> saveCard() async {
     try {
       isLoading.value = true;
+      final wasEditMode = isEditMode.value;
 
       // Soft validation: warn but allow saving anyway.
       final warnings = _collectValidationWarnings(currentCard.value);
@@ -151,7 +156,7 @@ class AddCreditCardController extends GetxController {
       await _creditCardService.openBox();
 
       // Premium kontrolü sadece yeni kart eklerken
-      if (!isEditMode.value) {
+      if (!wasEditMode) {
         final premiumController = Get.find<PremiumController>();
         final currentCount =
             await premiumController.getStoredCardCount(CardLimitType.credit);
@@ -171,7 +176,7 @@ class AddCreditCardController extends GetxController {
         }
       }
 
-      if (isEditMode.value && _originalCard != null) {
+      if (wasEditMode && _originalCard != null) {
         // Güncelleme işlemi - orijinal ID ve createdAt korunur
         final updatedCard = CreditCard(
           id: _originalCard!.id,
@@ -218,6 +223,9 @@ class AddCreditCardController extends GetxController {
         );
 
         await _creditCardService.addToCreditCard(newCard);
+        unawaited(
+          AnalyticsService.instance.logCardAdded(AnalyticsCardType.credit),
+        );
         HapticFeedback.mediumImpact();
         Get.back();
         Get.context?.showSuccessSnackBar("creditCardAddedSuccessfully".tr());
@@ -227,7 +235,7 @@ class AddCreditCardController extends GetxController {
       creditCardController.loadCreditCards();
       resetCard();
 
-      if (!isEditMode.value) {
+      if (!wasEditMode) {
         // Trigger the post-add PIN nudge once the user has their very first
         // card. We read all three boxes directly so the count is correct
         // even before HomeController's debounced refresh fires.
@@ -235,9 +243,19 @@ class AddCreditCardController extends GetxController {
           final cc = await CreditCardService().getAllCreditCards();
           final iban = await IbanCardService().getAllIbanCards();
           final loyalty = await LoyaltyCardService().getAllLoyaltyCards();
-          await maybePromptPinSetup(
-            totalCardCountAfterAdd: cc.length + iban.length + loyalty.length,
-          );
+          final total = cc.length + iban.length + loyalty.length;
+          unawaited(AnalyticsService.instance.setCardCountTotal(total));
+          if (total >= 3) {
+            // Success-moment trigger: 3-card milestone is a strong happiness
+            // signal, so skip the session-count/install-age gates that the
+            // splash-time check uses. Still respects the 60-day window.
+            unawaited(
+              RateAppService.instance.requestAfterMilestone(
+                milestone: 'third_card_added',
+              ),
+            );
+          }
+          await maybePromptPinSetup(totalCardCountAfterAdd: total);
         } catch (_) {
           // Best-effort prompt; failure here must never break the save.
         }

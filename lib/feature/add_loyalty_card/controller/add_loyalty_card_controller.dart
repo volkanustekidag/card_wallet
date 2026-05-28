@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
@@ -10,7 +12,10 @@ import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/core/services/rate_app_service.dart';
 import 'package:wallet_app/core/utils/pin_setup_prompt.dart';
+import 'package:wallet_app/core/utils/widget_setup_prompt.dart';
 import 'package:wallet_app/feature/loyalty_card/controller/loyalty_card_controller.dart';
 
 class AddLoyaltyCardController extends GetxController {
@@ -101,24 +106,25 @@ class AddLoyaltyCardController extends GetxController {
   Future<void> saveCard() async {
     try {
       isLoading.value = true;
+      final wasEditMode = isEditMode.value;
       await _service.openBox();
 
-      if (!isEditMode.value) {
+      if (!wasEditMode) {
         final premium = Get.find<PremiumController>();
-        final count =
-            await premium.getStoredCardCount(CardLimitType.loyalty);
+        final count = await premium.getStoredCardCount(CardLimitType.loyalty);
         if (!premium.canAddMoreLoyaltyCards(count)) {
           final ctx = Get.context;
           if (ctx == null) {
             Get.toNamed('/premium');
             return;
           }
-          final unlocked = await showCardLimitDialog(ctx, CardLimitType.loyalty);
+          final unlocked =
+              await showCardLimitDialog(ctx, CardLimitType.loyalty);
           if (!unlocked) return;
         }
       }
 
-      if (isEditMode.value && _originalCard != null) {
+      if (wasEditMode && _originalCard != null) {
         final updated = LoyaltyCard(
           id: _originalCard!.id,
           name: currentCard.value.name,
@@ -137,9 +143,7 @@ class AddLoyaltyCardController extends GetxController {
         Get.context?.showSuccessSnackBar('loyaltyCardUpdated');
       } else {
         final newCard = LoyaltyCard(
-          id: currentCard.value.id.isEmpty
-              ? _uuid.v4()
-              : currentCard.value.id,
+          id: currentCard.value.id.isEmpty ? _uuid.v4() : currentCard.value.id,
           name: currentCard.value.name,
           brand: currentCard.value.brand,
           barcode: currentCard.value.barcode,
@@ -151,6 +155,9 @@ class AddLoyaltyCardController extends GetxController {
           website: currentCard.value.website,
         );
         await _service.addLoyaltyCard(newCard);
+        unawaited(
+          AnalyticsService.instance.logCardAdded(AnalyticsCardType.loyalty),
+        );
         HapticFeedback.mediumImpact();
         Get.back();
         Get.context?.showSuccessSnackBar('loyaltyCardAdded');
@@ -160,7 +167,7 @@ class AddLoyaltyCardController extends GetxController {
         Get.find<LoyaltyCardController>().loadLoyaltyCards();
       }
 
-      if (!isEditMode.value) {
+      if (!wasEditMode) {
         // Trigger the post-add PIN nudge once the user has their very first
         // card. Read boxes directly so the count is correct ahead of the
         // HomeController debounce.
@@ -168,9 +175,20 @@ class AddLoyaltyCardController extends GetxController {
           final cc = await CreditCardService().getAllCreditCards();
           final iban = await IbanCardService().getAllIbanCards();
           final loyalty = await _service.getAllLoyaltyCards();
-          await maybePromptPinSetup(
-            totalCardCountAfterAdd: cc.length + iban.length + loyalty.length,
-          );
+          final total = cc.length + iban.length + loyalty.length;
+          unawaited(AnalyticsService.instance.setCardCountTotal(total));
+          if (total >= 3) {
+            // Success-moment trigger: 3-card milestone is a strong happiness
+            // signal, so skip the session-count/install-age gates that the
+            // splash-time check uses. Still respects the 60-day window.
+            unawaited(
+              RateAppService.instance.requestAfterMilestone(
+                milestone: 'third_card_added',
+              ),
+            );
+          }
+          await maybePromptPinSetup(totalCardCountAfterAdd: total);
+          await maybePromptWidgetSetup(loyaltyCountAfterAdd: loyalty.length);
         } catch (_) {
           // Best-effort prompt; never break the save.
         }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'dart:math' as math;
 
 import 'package:easy_localization/easy_localization.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/router/getx_routes.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 
 /// One-time intro shown before the home (or PIN, for migrated users) on
@@ -18,11 +20,39 @@ class OnboardingPage extends StatefulWidget {
 
   static const String storageKey = 'onboarding_seen';
 
+  /// `true` means re-show the onboarding on the next splash → home jump.
+  ///
+  /// iOS keeps `FlutterSecureStorage` entries in the Keychain across
+  /// uninstalls (we pin to `first_unlock_this_device` accessibility,
+  /// which survives app deletion). Without a stale-flag reset, a user who
+  /// reinstalls inherits `onboarding_seen=true` from their previous
+  /// lifetime and never sees the intro. The Hive auth box, by contrast,
+  /// *is* wiped on uninstall — so "no PIN set" is a reliable signal that
+  /// this is effectively a fresh install, regardless of what the
+  /// Keychain says.
+  ///
+  /// False positive: a user who completed onboarding but never set a PIN
+  /// (PIN is opt-in) will re-see the intro on a fresh launch. Acceptable
+  /// — the intro is a 3-slide teaser, and the audience that skips PIN
+  /// also tends to bounce around features early on.
   static Future<bool> shouldShow() async {
     try {
       const storage = SecureStorageProvider.instance;
-      final value = await storage.read(key: storageKey);
-      return value != 'true';
+      final seen = (await storage.read(key: storageKey)) == 'true';
+      if (!seen) return true;
+
+      final hasPin = AuthenticationService().hasPasswordSync();
+      if (!hasPin) {
+        try {
+          await storage.delete(key: storageKey);
+        } catch (_) {
+          // Best-effort. If the delete fails the user will see onboarding
+          // this launch (we return true) but inherit a stale flag again —
+          // they'll see it once more next launch, no harm done.
+        }
+        return true;
+      }
+      return false;
     } catch (_) {
       return false;
     }
@@ -45,34 +75,75 @@ class OnboardingPage extends StatefulWidget {
 
 class _OnboardingPageState extends State<OnboardingPage>
     with TickerProviderStateMixin {
-  static const Duration _rotationInterval = Duration(milliseconds: 2800);
+  // 6 slides * 3.2s ≈ 19s full cycle. Long enough to read each, short
+  // enough that a passive viewer sees every feature before the CTA tap.
+  static const Duration _rotationInterval = Duration(milliseconds: 3200);
 
-  static const List<_OnboardingFeature> _features = [
-    _OnboardingFeature(
-      icon: Icons.style_rounded,
-      titleKey: 'onboardingSlide1Title',
-      descKey: 'onboardingSlide1Desc',
-      accent: Color(0xFF4568DC),
-      cardKind: _CardKind.credit,
-    ),
-    _OnboardingFeature(
-      icon: Icons.lock_rounded,
-      titleKey: 'onboardingSlide2Title',
-      descKey: 'onboardingSlide2Desc',
-      accent: Color(0xFF11998E),
-      cardKind: _CardKind.iban,
-    ),
-    _OnboardingFeature(
-      icon: Icons.fingerprint_rounded,
-      titleKey: 'onboardingSlide3Title',
-      descKey: 'onboardingSlide3Desc',
-      accent: Color(0xFFFF6A00),
-      cardKind: _CardKind.loyalty,
-    ),
-  ];
+  // Built in initState so Platform.isIOS can swap the wallet/extras slides.
+  // Slides 1-3 are platform-agnostic value props; 4 is cross-platform OCR;
+  // 5 and 6 branch on platform (Apple Wallet/Watch+Widgets vs Google
+  // Wallet/Home Widget+Tile).
+  late final List<_OnboardingFeature> _features;
+
+  static List<_OnboardingFeature> _buildFeatures() {
+    final isIos = Platform.isIOS;
+    return [
+      const _OnboardingFeature(
+        icon: Icons.style_rounded,
+        titleKey: 'onboardingSlide1Title',
+        descKey: 'onboardingSlide1Desc',
+        accent: Color(0xFF4568DC),
+        cardKind: _CardKind.credit,
+      ),
+      const _OnboardingFeature(
+        icon: Icons.lock_rounded,
+        titleKey: 'onboardingSlide2Title',
+        descKey: 'onboardingSlide2Desc',
+        accent: Color(0xFF11998E),
+        cardKind: _CardKind.iban,
+      ),
+      const _OnboardingFeature(
+        icon: Icons.fingerprint_rounded,
+        titleKey: 'onboardingSlide3Title',
+        descKey: 'onboardingSlide3Desc',
+        accent: Color(0xFFFF6A00),
+        cardKind: _CardKind.loyalty,
+      ),
+      const _OnboardingFeature(
+        icon: Icons.qr_code_scanner_rounded,
+        titleKey: 'onboardingSlide4Title',
+        descKey: 'onboardingSlide4Desc',
+        accent: Color(0xFF9B59B6),
+        cardKind: _CardKind.credit,
+      ),
+      _OnboardingFeature(
+        icon: Icons.account_balance_wallet_rounded,
+        titleKey:
+            isIos ? 'onboardingSlide5IosTitle' : 'onboardingSlide5AndroidTitle',
+        descKey:
+            isIos ? 'onboardingSlide5IosDesc' : 'onboardingSlide5AndroidDesc',
+        accent: const Color(0xFF6F2DBD),
+        cardKind: _CardKind.loyalty,
+      ),
+      _OnboardingFeature(
+        icon: isIos ? Icons.watch_outlined : Icons.widgets_rounded,
+        titleKey:
+            isIos ? 'onboardingSlide6IosTitle' : 'onboardingSlide6AndroidTitle',
+        descKey:
+            isIos ? 'onboardingSlide6IosDesc' : 'onboardingSlide6AndroidDesc',
+        accent: const Color(0xFFE91E63),
+        cardKind: _CardKind.loyalty,
+      ),
+    ];
+  }
 
   Timer? _ticker;
   int _currentIndex = 0;
+
+  // Cached so build() and _handlePrimaryCta() don't hit the auth box on every
+  // rebuild. Resolved once in initState — `hasPasswordSync` requires the auth
+  // box to be open, which main.dart guarantees before runApp.
+  late final bool _hasPassword;
 
   late final AnimationController _floatController;
   late final AnimationController _shimmerController;
@@ -81,6 +152,8 @@ class _OnboardingPageState extends State<OnboardingPage>
   @override
   void initState() {
     super.initState();
+    _features = _buildFeatures();
+    _hasPassword = AuthenticationService().hasPasswordSync();
     _floatController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 3200),
@@ -111,14 +184,40 @@ class _OnboardingPageState extends State<OnboardingPage>
     super.dispose();
   }
 
-  Future<void> _finish() async {
+  // Double-tap guard. iOS Keychain write + route transition can take a
+  // beat on cold launch; without this a frustrated second tap fires a
+  // duplicate offAllNamed which GetX serialises and stutters through.
+  bool _finishing = false;
+
+  /// [openAddCardSheet] only matters for fresh users — migrated users with a
+  /// PIN always land on /auth regardless. Default true because the primary
+  /// CTA is "Add your first card"; the "Skip for now" link passes false.
+  Future<void> _finish({bool openAddCardSheet = true}) async {
+    if (_finishing) return;
+    _finishing = true;
     _ticker?.cancel();
-    await OnboardingPage._markSeen();
+    // Keychain write is fire-and-forget — blocking the route transition on
+    // a 100–300ms iOS Keychain round-trip is what makes the CTA feel laggy.
+    // If the user kills the app before the write lands they re-see the
+    // intro on next launch, which is fine.
+    unawaited(OnboardingPage._markSeen());
+    unawaited(AnalyticsService.instance.logOnboardingComplete());
+    if (!openAddCardSheet) {
+      unawaited(
+        AnalyticsService.instance.logEvent('first_card_picker_skipped'),
+      );
+    }
     if (!mounted) return;
     // Existing users (with PIN) still see the lock screen; new users go
     // straight to home and may set up a PIN later.
-    final hasPassword = AuthenticationService().hasPasswordSync();
-    Get.offAllNamed(hasPassword ? AppRoutes.auth : AppRoutes.home);
+    if (_hasPassword) {
+      Get.offAllNamed(AppRoutes.auth);
+      return;
+    }
+    Get.offAllNamed(
+      AppRoutes.home,
+      arguments: openAddCardSheet ? {'open_add_card_sheet': true} : null,
+    );
   }
 
   @override
@@ -135,77 +234,93 @@ class _OnboardingPageState extends State<OnboardingPage>
           Positioned.fill(
             child: _AnimatedBackdrop(accent: feature.accent, isDark: isDark),
           ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
-              child: Column(
-                children: [
-                  const SizedBox(height: 24),
-                  _CardStackHero(
-                    feature: feature,
-                    floatController: _floatController,
-                    shimmerController: _shimmerController,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
+            child: Column(
+              children: [
+                const SizedBox(height: 48),
+                _CardStackHero(
+                  feature: feature,
+                  floatController: _floatController,
+                  shimmerController: _shimmerController,
+                ),
+                const SizedBox(height: 48),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'onboardingHeroTitle'.tr(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      height: 1.15,
+                      letterSpacing: -0.6,
+                    ),
                   ),
-                  const SizedBox(height: 48),
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      'onboardingHeroTitle'.tr(),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: Center(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 420),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      transitionBuilder: (child, animation) {
+                        final offset = Tween<Offset>(
+                          begin: const Offset(0, 0.08),
+                          end: Offset.zero,
+                        ).animate(animation);
+                        return FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: offset,
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: _FeatureBlock(
+                        key: ValueKey(feature.titleKey),
+                        feature: feature,
+                        pulseController: _floatController,
+                      ),
+                    ),
+                  ),
+                ),
+                _Indicators(
+                  count: _features.length,
+                  activeIndex: _currentIndex,
+                  accent: feature.accent,
+                  colorScheme: colorScheme,
+                ),
+                const SizedBox(height: 18),
+                _CtaButton(
+                  label: (_hasPassword
+                          ? 'onboardingStart'
+                          : 'onboardingAddFirstCard')
+                      .tr(),
+                  pulseController: _ctaPulseController,
+                  onPressed: () => _finish(),
+                ),
+                if (!_hasPassword) ...[
+                  const SizedBox(height: 6),
+                  TextButton(
+                    onPressed: () => _finish(openAddCardSheet: false),
+                    style: TextButton.styleFrom(
+                      foregroundColor:
+                          colorScheme.onSurface.withValues(alpha: 0.65),
+                      textStyle: const TextStyle(
                         fontFamily: 'Poppins',
-                        fontSize: 28,
-                        fontWeight: FontWeight.w800,
-                        height: 1.15,
-                        letterSpacing: -0.6,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
+                    child: Text('onboardingSkipForNow'.tr()),
                   ),
-                  const SizedBox(height: 20),
-                  Expanded(
-                    child: Center(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 420),
-                        switchInCurve: Curves.easeOutCubic,
-                        switchOutCurve: Curves.easeInCubic,
-                        transitionBuilder: (child, animation) {
-                          final offset = Tween<Offset>(
-                            begin: const Offset(0, 0.08),
-                            end: Offset.zero,
-                          ).animate(animation);
-                          return FadeTransition(
-                            opacity: animation,
-                            child: SlideTransition(
-                              position: offset,
-                              child: child,
-                            ),
-                          );
-                        },
-                        child: _FeatureBlock(
-                          key: ValueKey(feature.titleKey),
-                          feature: feature,
-                          pulseController: _floatController,
-                        ),
-                      ),
-                    ),
-                  ),
-                  _Indicators(
-                    count: _features.length,
-                    activeIndex: _currentIndex,
-                    accent: feature.accent,
-                    colorScheme: colorScheme,
-                  ),
-                  const SizedBox(height: 18),
-                  _CtaButton(
-                    label: 'onboardingStart'.tr(),
-                    accent: feature.accent,
-                    pulseController: _ctaPulseController,
-                    onPressed: _finish,
-                  ),
-                  const SizedBox(height: 24),
-                  const _TrustSignals(),
                 ],
-              ),
+                const SizedBox(height: 24),
+                const _TrustSignals(),
+              ],
             ),
           ),
         ],
@@ -790,18 +905,16 @@ class _Indicators extends StatelessWidget {
 }
 
 // ---------------------------------------------------------------------------
-// CTA — gradient fill (primary → tertiary), pulsing accent glow shadow.
+// CTA — solid primary fill with a pulsing primary-tinted glow shadow.
 // ---------------------------------------------------------------------------
 
 class _CtaButton extends StatelessWidget {
   final String label;
-  final Color accent;
   final AnimationController pulseController;
   final VoidCallback onPressed;
 
   const _CtaButton({
     required this.label,
-    required this.accent,
     required this.pulseController,
     required this.onPressed,
   });
@@ -824,15 +937,11 @@ class _CtaButton extends StatelessWidget {
               height: 58,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [colorScheme.primary, colorScheme.tertiary],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                color: colorScheme.primary,
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: accent.withValues(alpha: glowAlpha),
+                    color: colorScheme.primary.withValues(alpha: glowAlpha),
                     blurRadius: 22,
                     offset: const Offset(0, 8),
                   ),

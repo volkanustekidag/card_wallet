@@ -46,17 +46,16 @@ PASS_OUTPUT_DIR = Path(
 #
 #   APP_CHECK_REQUIRED=true   — only requests carrying a valid
 #                                X-Firebase-AppCheck token are accepted.
-#                                Use after telemetry shows every live
-#                                client is sending one.
+#                                Production default.
 #   APP_CHECK_REQUIRED=false  — accept either a valid App Check token
-#                                OR the legacy API key. Soft cutover
-#                                default.
+#                                OR the legacy API key. Use only for local
+#                                legacy smoke tests or a temporary rollback.
 #   FIREBASE_PROJECT_ID       — App Check verification requires the
 #                                project ID to be configured for the
 #                                Firebase Admin SDK; on Cloud Run this
 #                                is auto-detected from the metadata
 #                                server, locally set it explicitly.
-APP_CHECK_REQUIRED = os.getenv("APP_CHECK_REQUIRED", "false").lower() == "true"
+APP_CHECK_REQUIRED = os.getenv("APP_CHECK_REQUIRED", "true").lower() == "true"
 FIREBASE_PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID", "").strip()
 
 # Reject payloads larger than this before reading the body — protects against
@@ -207,10 +206,10 @@ def _pass_cleanup_loop():
 
 
 def main():
-    # Either App Check (preferred) or the legacy API key must be in
-    # place — never both off. Otherwise the Apple signer cert and
-    # Google service account become a free pass-generation service
-    # for the internet, and Google can suspend the issuer for abuse.
+    # Production is fail-closed: App Check is required unless explicitly
+    # disabled for local legacy testing. Never run a public Cloud Run service
+    # with APP_CHECK_REQUIRED=false unless you also understand the API-key
+    # fallback exposure.
     if not API_KEY and not APP_CHECK_REQUIRED:
         print(
             "FATAL: set WALLET_EXPORT_API_KEY or APP_CHECK_REQUIRED=true.",
