@@ -66,4 +66,14 @@ class Shadows {
       offset: Offset(0, 0.5),
     ),
   ];
+
+  /// Used by [LiftedSurface] and any other box/panel/tile that needs the
+  /// shared "lifted" feel (top-edge highlight + soft drop shadow).
+  static const List<BoxShadow> shadowLifted = [
+    BoxShadow(
+      color: Color(0x2E000000),
+      blurRadius: 10,
+      offset: Offset(0, 4),
+    ),
+  ];
 }

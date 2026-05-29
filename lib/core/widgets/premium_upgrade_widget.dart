@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/controllers/premium_controller.dart';
+import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/feature/home/widgets/sections/premium_marks.dart';
 
 /// Premium upsell tile shown in settings (and any other "remind the free
@@ -39,14 +40,10 @@ class PremiumUpgradeWidget extends StatelessWidget {
           child: InkWell(
             borderRadius: BorderRadius.circular(18),
             onTap: onTap ?? () => Get.toNamed('/premium'),
-            child: Container(
+            child: LiftedSurface(
               padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: _gold.withValues(alpha: 0.28),
-                ),
+              border: Border.all(
+                color: _gold.withValues(alpha: 0.28),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,

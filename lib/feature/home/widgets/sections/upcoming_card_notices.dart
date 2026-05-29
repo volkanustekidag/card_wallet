@@ -4,7 +4,9 @@ import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
+import 'package:wallet_app/core/styles/shadows.dart';
 import 'package:wallet_app/core/utils/card_reminder_rules.dart';
+import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/credit_card_reminder_sheet.dart';
@@ -164,26 +166,17 @@ class _NoticePanel extends StatelessWidget {
       kind,
     );
 
-    return Container(
-      // Clip so the last row's critical/warning tint follows the panel's
-      // 18px corners instead of bleeding out as a square against the
-      // rounded border.
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: headerSeverity.border),
-        boxShadow: headerSeverity.level == _Severity.critical
-            ? [
-                BoxShadow(
-                  color: headerSeverity.foreground.withValues(alpha: 0.12),
-                  blurRadius: 14,
-                  spreadRadius: 0,
-                  offset: const Offset(0, 4),
-                ),
-              ]
-            : null,
-      ),
+    return LiftedSurface(
+      border: Border.all(color: headerSeverity.border),
+      boxShadow: headerSeverity.level == _Severity.critical
+          ? [
+              BoxShadow(
+                color: headerSeverity.foreground.withValues(alpha: 0.18),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ]
+          : Shadows.shadowLifted,
       child: Column(
         children: [
           Padding(

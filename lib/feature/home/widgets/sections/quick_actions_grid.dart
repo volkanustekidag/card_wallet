@@ -6,6 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/utils/share_origin.dart';
+import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/sections/add_card_navigator.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
@@ -178,19 +179,10 @@ class _ActionTileState extends State<_ActionTile>
         scale: _scale,
         duration: kFastAnim,
         curve: Curves.easeOut,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(
-            kSpaceMd,
-            kSpaceMd,
-            kSpaceMd,
-            kSpaceMd,
-          ),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: colorScheme.onSurface.withValues(alpha: 0.04),
-            ),
+        child: LiftedSurface(
+          padding: const EdgeInsets.all(kSpaceMd),
+          border: Border.all(
+            color: colorScheme.onSurface.withValues(alpha: 0.04),
           ),
           child: Stack(
             clipBehavior: Clip.hardEdge,

@@ -8,6 +8,7 @@ import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/utils/card_reminder_rules.dart';
 import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
+import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/feature/add_credit_card/add_credit_card_page.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 
@@ -235,13 +236,10 @@ class _ReminderHeader extends StatelessWidget {
         ? 'paymentReminderSheetTitle'.tr()
         : 'expiryReminderSheetTitle'.tr();
 
-    return Container(
+    return LiftedSurface(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: accent.withValues(alpha: 0.18)),
-      ),
+      color: accent.withValues(alpha: 0.1),
+      border: Border.all(color: accent.withValues(alpha: 0.18)),
       child: Row(
         children: [
           Icon(
@@ -450,12 +448,9 @@ class _SheetAction extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
         onTap: onTap,
-        child: Container(
+        child: LiftedSurface(
           padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(14),
-          ),
+          borderRadius: BorderRadius.circular(14),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

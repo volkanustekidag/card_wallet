@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/controllers/premium_controller.dart';
+import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 import 'package:wallet_app/feature/home/widgets/sections/premium_marks.dart';
@@ -75,17 +76,14 @@ class _Strip extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
           onTap: () => Get.toNamed('/premium'),
-          child: Container(
+          child: LiftedSurface(
             padding: const EdgeInsets.symmetric(
               horizontal: 14,
               vertical: 10,
             ),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: _gold.withValues(alpha: 0.8),
-              ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: _gold.withValues(alpha: 0.8),
             ),
             child: Row(
               children: [

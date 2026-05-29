@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/controllers/premium_controller.dart';
+import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/feature/home/widgets/sections/premium_marks.dart';
 
 /// Premium "active" badge for the settings screen. Mirrors the visual
@@ -31,14 +32,10 @@ class PremiumStatusWidget extends StatelessWidget {
       final colorScheme = Theme.of(context).colorScheme;
       return Padding(
         padding: margin ?? EdgeInsets.zero,
-        child: Container(
+        child: LiftedSurface(
           padding: const EdgeInsets.fromLTRB(16, 14, 14, 14),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: _gold.withValues(alpha: 0.45),
-            ),
+          border: Border.all(
+            color: _gold.withValues(alpha: 0.45),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,

@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
+import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/feature/home/widgets/sections/add_card_navigator.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 
@@ -32,9 +33,9 @@ class AddCardTile extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: () => goToAddCard(context: context, type: type),
-          child: Container(
+          child: SizedBox(
             height: height,
-            decoration: BoxDecoration(
+            child: LiftedSurface(
               borderRadius: BorderRadius.circular(20),
               gradient: LinearGradient(
                 colors: [
@@ -48,8 +49,7 @@ class AddCardTile extends StatelessWidget {
                 color: accent.withValues(alpha: 0.3),
                 width: 1.4,
               ),
-            ),
-            child: Center(
+              child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -91,6 +91,7 @@ class AddCardTile extends StatelessWidget {
                 ],
               ),
             ),
+          ),
           ),
         ),
       ),

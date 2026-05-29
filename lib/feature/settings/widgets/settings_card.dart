@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wallet_app/core/widgets/lifted_surface.dart';
 
 class SettingsCard extends StatefulWidget {
   final IconData iconData;
@@ -52,14 +53,12 @@ class _SettingsCardState extends State<SettingsCard> {
       scale: _down ? 0.985 : 1,
       duration: const Duration(milliseconds: 100),
       curve: Curves.easeOut,
-      child: Container(
+      child: LiftedSurface(
         margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: widget.color ?? colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: colorScheme.outline.withValues(alpha: 0.2),
-          ),
+        color: widget.color ?? colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorScheme.outline.withValues(alpha: 0.2),
         ),
         child: Material(
           color: Colors.transparent,

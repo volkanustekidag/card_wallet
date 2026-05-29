@@ -22,6 +22,7 @@ import 'package:wallet_app/core/widgets/bank_logo.dart';
 import 'package:wallet_app/core/widgets/credit_card_back.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
 import 'package:wallet_app/core/widgets/iban_card_face.dart';
+import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/core/widgets/sheet_action_bar.dart';
 import 'package:wallet_app/feature/add_credit_card/add_credit_card_page.dart';
 import 'package:wallet_app/feature/add_iban_card/add_iban_card_page.dart';
@@ -395,18 +396,15 @@ class _NotesPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      width: double.infinity,
+    return LiftedSurface(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: onDark
-            ? Colors.white.withValues(alpha: 0.18)
-            : colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-        border: onDark
-            ? Border.all(color: Colors.white.withValues(alpha: 0.25))
-            : null,
-      ),
+      color: onDark
+          ? Colors.white.withValues(alpha: 0.18)
+          : colorScheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(16),
+      border: onDark
+          ? Border.all(color: Colors.white.withValues(alpha: 0.25))
+          : null,
       child: Text(
         notes,
         style: TextStyle(
@@ -445,11 +443,8 @@ class _FieldGroup extends StatelessWidget {
         );
       }
     }
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return LiftedSurface(
+      borderRadius: BorderRadius.circular(16),
       child: Column(children: children),
     );
   }
