@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:easy_localization/easy_localization.dart';
-// import 'package:wallet_app/core/widgets/premium_banner_ad_widget.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_app_bar.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_body.dart';
 

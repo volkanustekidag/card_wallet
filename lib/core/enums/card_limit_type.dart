@@ -1,6 +1,7 @@
 enum CardLimitType {
   credit,
   iban,
+  loyalty,
 }
 
 extension CardLimitTypeLocalization on CardLimitType {
@@ -10,6 +11,8 @@ extension CardLimitTypeLocalization on CardLimitType {
         return 'cardLimitCardTypeCredit';
       case CardLimitType.iban:
         return 'cardLimitCardTypeIban';
+      case CardLimitType.loyalty:
+        return 'cardLimitCardTypeLoyalty';
     }
   }
 }

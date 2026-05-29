@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
+import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 
 // Theme Model
 class ThemeModel {
@@ -28,7 +28,7 @@ class ThemeService {
 
     if (boxExists == false) {
       final secureKey = Hive.generateSecureKey();
-      const secureStorage = FlutterSecureStorage();
+      const secureStorage = SecureStorageProvider.instance;
 
       _themeBox = await Hive.openBox(THEME_BOX_NAME,
           encryptionCipher: HiveAesCipher(secureKey));
@@ -39,8 +39,8 @@ class ThemeService {
   }
 
   Future<void> openBox() async {
-    final secureKey =
-        await const FlutterSecureStorage().read(key: THEME_SECURE_STORAGE_KEY);
+    final secureKey = await SecureStorageProvider.instance
+        .read(key: THEME_SECURE_STORAGE_KEY);
 
     if (secureKey != null) {
       List<int> encryptionKey =

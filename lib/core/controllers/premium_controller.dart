@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
-// import 'package:wallet_app/core/data/services/admob_service.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 
 class PremiumController extends GetxController {
@@ -11,9 +13,10 @@ class PremiumController extends GetxController {
   final RxList<ProductDetails> _availableProducts = <ProductDetails>[].obs;
   final RxInt _creditCardCount = 0.obs;
   final RxInt _ibanCardCount = 0.obs;
-  // bool _skipNextInterstitial = false;
+  final RxInt _loyaltyCardCount = 0.obs;
   bool _creditCountInitialized = false;
   bool _ibanCountInitialized = false;
+  bool _loyaltyCountInitialized = false;
 
   bool get isPremium => _isPremium.value;
   bool get isLoading => _isLoading.value;
@@ -21,11 +24,13 @@ class PremiumController extends GetxController {
   RxList<ProductDetails> get availableProductsRx => _availableProducts;
   ProductDetails? get weeklyProduct =>
       _getProductById(PremiumService.weeklyProductId);
+  ProductDetails? get monthlyProduct =>
+      _getProductById(PremiumService.monthlyProductId);
   ProductDetails? get yearlyProduct =>
       _getProductById(PremiumService.yearlyProductId);
-  // bool get shouldSkipInterstitial => _skipNextInterstitial;
   int get creditCardCount => _creditCardCount.value;
   int get ibanCardCount => _ibanCardCount.value;
+  int get loyaltyCardCount => _loyaltyCardCount.value;
 
   @override
   void onInit() {
@@ -36,19 +41,18 @@ class PremiumController extends GetxController {
   Future<void> _initializePremium() async {
     _isLoading.value = true;
 
-    // Initialize premium service
-    await PremiumService.initialize();
-
-    // Set initial premium status
+    // PremiumService is initialized in main.dart so the UI sees the
+    // correct premium state on first frame. We just sync status here
+    // and start listening for runtime changes.
     _isPremium.value = PremiumService.isPremium;
+    unawaited(AnalyticsService.instance.setIsPremium(_isPremium.value));
 
-    // Listen to premium status changes
     PremiumService.premiumStatusStream.listen((status) {
       _isPremium.value = status;
-      update(); // GetBuilder için güncelleme tetikle
+      unawaited(AnalyticsService.instance.setIsPremium(status));
+      update();
     });
 
-    // Load premium product details
     await _loadPremiumProducts();
 
     _isLoading.value = false;
@@ -75,14 +79,41 @@ class PremiumController extends GetxController {
     }
   }
 
-  Future<bool> purchase(ProductDetails product) async {
+  /// Returns the real store outcome — completes only after the purchase
+  /// stream confirms success / cancel / error (or a safety timeout fires).
+  /// Loading state stays on for the whole window so the paywall blocks
+  /// double-taps and we don't show success UI before the store confirms.
+  Future<PremiumPurchaseResult> purchase(ProductDetails product) async {
     _isLoading.value = true;
+
+    final completer = Completer<PremiumPurchaseResult>();
+    StreamSubscription<PremiumPurchaseResult>? sub;
+    Timer? timeout;
+
+    void finish(PremiumPurchaseResult result) {
+      if (completer.isCompleted) return;
+      sub?.cancel();
+      timeout?.cancel();
+      completer.complete(result);
+    }
+
+    sub = PremiumService.purchaseResultStream.listen(finish);
+    timeout = Timer(const Duration(seconds: 90), () {
+      finish(PremiumPurchaseResult.error);
+    });
+
     try {
-      final success = await PremiumService.purchaseProduct(product);
-      return success;
+      final dispatched = await PremiumService.purchaseProduct(product);
+      if (!dispatched) {
+        finish(PremiumPurchaseResult.error);
+      }
     } catch (e) {
       debugPrint('Error purchasing premium: $e');
-      return false;
+      finish(PremiumPurchaseResult.error);
+    }
+
+    try {
+      return await completer.future;
     } finally {
       _isLoading.value = false;
     }
@@ -108,57 +139,49 @@ class PremiumController extends GetxController {
     return PremiumService.canAddMoreIbanCards(currentCount);
   }
 
-  int get maxCardsForFree => PremiumService.maxCardsForFree;
-
-  // Future<bool> requestRewardedSlot(CardLimitType type) async {
-  //   try {
-  //     final rewarded = await AdMobService.showRewardedAd();
-  //     if (rewarded) {
-  //       _skipNextInterstitial = true;
-  //     }
-  //     return rewarded;
-  //   } catch (e) {
-  //     debugPrint('Error showing rewarded ad: $e');
-  //     return false;
-  //   }
-  // }
-
-  // Future<void> showInterstitialIfNeeded() async {
-  //   if (isPremium) return;
-  //
-  //   if (_skipNextInterstitial) {
-  //     _skipNextInterstitial = false;
-  //     return;
-  //   }
-  //
-  //   await AdMobService.showInterstitialAd();
-  // }
-
-  Future<int> getStoredCardCount(CardLimitType type) async {
-    if (type == CardLimitType.credit) {
-      if (_creditCountInitialized) {
-        return creditCardCount;
-      }
-      final count = await PremiumService.getStoredCreditCardCount();
-      _creditCardCount.value = count;
-      _creditCountInitialized = true;
-      return count;
-    }
-
-    if (_ibanCountInitialized) {
-      return ibanCardCount;
-    }
-    final count = await PremiumService.getStoredIbanCardCount();
-    _ibanCardCount.value = count;
-    _ibanCountInitialized = true;
-    return count;
+  bool canAddMoreLoyaltyCards(int currentCount) {
+    return PremiumService.canAddMoreLoyaltyCards(currentCount);
   }
 
-  void setCardCounts({required int creditCount, required int ibanCount}) {
+  int get maxCardsForFree => PremiumService.maxCardsForFree;
+  int get maxLoyaltyCardsForFree => PremiumService.maxLoyaltyCardsForFree;
+
+  Future<int> getStoredCardCount(CardLimitType type) async {
+    switch (type) {
+      case CardLimitType.credit:
+        if (_creditCountInitialized) return creditCardCount;
+        final count = await PremiumService.getStoredCreditCardCount();
+        _creditCardCount.value = count;
+        _creditCountInitialized = true;
+        return count;
+      case CardLimitType.iban:
+        if (_ibanCountInitialized) return ibanCardCount;
+        final count = await PremiumService.getStoredIbanCardCount();
+        _ibanCardCount.value = count;
+        _ibanCountInitialized = true;
+        return count;
+      case CardLimitType.loyalty:
+        if (_loyaltyCountInitialized) return loyaltyCardCount;
+        final count = await PremiumService.getStoredLoyaltyCardCount();
+        _loyaltyCardCount.value = count;
+        _loyaltyCountInitialized = true;
+        return count;
+    }
+  }
+
+  void setCardCounts({
+    required int creditCount,
+    required int ibanCount,
+    int? loyaltyCount,
+  }) {
     _creditCardCount.value = creditCount;
     _ibanCardCount.value = ibanCount;
     _creditCountInitialized = true;
     _ibanCountInitialized = true;
+    if (loyaltyCount != null) {
+      _loyaltyCardCount.value = loyaltyCount;
+      _loyaltyCountInitialized = true;
+    }
   }
 
   @override

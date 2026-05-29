@@ -22,15 +22,23 @@ class CreditCardAdapter extends TypeAdapter<CreditCard> {
       creditCardNumber: fields[2] as String,
       cardHolder: fields[3] as String,
       expirationDate: fields[4] as String,
-      cvc2: fields[5] as String,
       cardColorId: fields[6] as int,
+      createdAt: fields[7] as DateTime?,
+      notes: fields[8] as String?,
+      tags: (fields[9] as List?)?.cast<String>(),
+      expiryReminderEnabled: fields[10] as bool? ?? false,
+      expiryReminderDaysBefore: fields[11] as int? ?? 30,
+      paymentReminderEnabled: fields[12] as bool? ?? false,
+      paymentDueDay: fields[13] as int?,
+      paymentReminderDaysBefore: fields[14] as int? ?? 3,
+      reminderHour: fields[15] as int? ?? 9,
     );
   }
 
   @override
   void write(BinaryWriter writer, CreditCard obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -41,10 +49,26 @@ class CreditCardAdapter extends TypeAdapter<CreditCard> {
       ..write(obj.cardHolder)
       ..writeByte(4)
       ..write(obj.expirationDate)
-      ..writeByte(5)
-      ..write(obj.cvc2)
       ..writeByte(6)
-      ..write(obj.cardColorId);
+      ..write(obj.cardColorId)
+      ..writeByte(7)
+      ..write(obj.createdAt)
+      ..writeByte(8)
+      ..write(obj.notes)
+      ..writeByte(9)
+      ..write(obj.tags)
+      ..writeByte(10)
+      ..write(obj.expiryReminderEnabled)
+      ..writeByte(11)
+      ..write(obj.expiryReminderDaysBefore)
+      ..writeByte(12)
+      ..write(obj.paymentReminderEnabled)
+      ..writeByte(13)
+      ..write(obj.paymentDueDay)
+      ..writeByte(14)
+      ..write(obj.paymentReminderDaysBefore)
+      ..writeByte(15)
+      ..write(obj.reminderHour);
   }
 
   @override

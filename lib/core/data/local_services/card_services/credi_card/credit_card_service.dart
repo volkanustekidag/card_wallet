@@ -5,13 +5,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
+import 'package:wallet_app/core/services/card_reminder_service.dart';
+import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 
 class CreditCardService {
   CreditCardService._internal();
   static final CreditCardService _instance = CreditCardService._internal();
   factory CreditCardService() => _instance;
 
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage = SecureStorageProvider.instance;
   Box<CreditCard>? _creditCards;
   Future<void>? _openingFuture;
 
@@ -44,6 +46,14 @@ class CreditCardService {
     await _ensureBoxReady();
   }
 
+  /// Stream of every add / put / delete that lands in the credit-card box.
+  /// Consumers (e.g. HomeController) listen so they can refresh derived
+  /// state without polling.
+  Future<Stream<BoxEvent>> watch() async {
+    final box = await _ensureBoxReady();
+    return box.watch();
+  }
+
   Future<void> deleteAllData() async {
     final box = await _ensureBoxReady();
     await box.deleteAll(box.keys);
@@ -60,11 +70,13 @@ class CreditCardService {
         box.values.firstWhere((element) => element == creditCard);
 
     await creditCardToRemove.delete();
+    await CardReminderService().cancelForCard(creditCard);
   }
 
   Future<void> addToCreditCard(final CreditCard creditCard) async {
     final box = await _ensureBoxReady();
     await box.add(creditCard);
+    await CardReminderService().scheduleForCard(creditCard);
   }
 
   // Yeni eklenen güncelleme metodu
@@ -76,7 +88,9 @@ class CreditCardService {
         card.creditCardNumber == originalCard.creditCardNumber);
 
     if (index != -1) {
+      await CardReminderService().cancelForCard(originalCard);
       await box.putAt(index, updatedCard);
+      await CardReminderService().scheduleForCard(updatedCard);
     } else {
       throw Exception('Credit card not found for update');
     }

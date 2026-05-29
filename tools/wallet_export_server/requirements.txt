@@ -1,0 +1,4 @@
+# Firebase Admin SDK is used to verify Firebase App Check tokens that
+# the mobile app sends in the X-Firebase-AppCheck header. It pulls in
+# google-auth + cryptography transitively; nothing else is required.
+firebase-admin>=6.5.0,<7

@@ -12,6 +12,12 @@
 .swiftpm/
 migrate_working_dir/
 
+# Dart obfuscation symbol output from tools/release_build.sh.
+# These MUST be retained outside the repo (private storage tagged with
+# the release version) — without them, obfuscated Crashlytics stack
+# traces from production cannot be decoded.
+symbols/
+
 # IntelliJ related
 *.iml
 *.ipr
@@ -27,6 +33,7 @@ migrate_working_dir/
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
+.dart_defines/
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages

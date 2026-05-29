@@ -85,11 +85,9 @@ class QRIbanScannerService {
       'swiftCode': '',
     };
 
-    debugPrint('QR Content: $qrContent');
-
-    // HTML entity decode işlemi
+    // Raw QR payload may contain IBAN / cardholder name — never log the
+    // content itself, only operate on it locally.
     String cleanContent = _decodeHtmlEntities(qrContent);
-    debugPrint('Decoded QR Content: $cleanContent');
 
     try {
       // Format 1: IBAN direkt QR kod olarak

@@ -5,10 +5,15 @@ import 'package:flip_card/flip_card.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
+import 'package:wallet_app/core/widgets/card_search_bar.dart';
 import 'package:wallet_app/core/widgets/credit_card_back.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
 import 'package:wallet_app/core/widgets/empty_list_info.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
+import 'package:wallet_app/core/utils/card_sorting.dart';
+import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
+import 'package:wallet_app/core/utils/tag_index.dart';
+import 'package:wallet_app/core/widgets/tag_filter_chips.dart';
 import 'package:wallet_app/feature/add_credit_card/add_credit_card_page.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
@@ -35,15 +40,19 @@ class _BodyState extends State<Body> {
   List<CreditCard> _cards = [];
   late final int _initialItemCount;
   Worker? _cardsWorker;
+  String _searchQuery = '';
+  CardSortOption _sortOption = CardSortOption.newest;
+  Set<String> _selectedTags = {};
 
   @override
   void initState() {
     super.initState();
     _firstCardKey = GlobalKey<FlipCardState>();
-    _cards = _sortCards(widget.controller.creditCards);
+    _cards = _filterAndSort(widget.controller.creditCards);
     _initialItemCount = _cards.length;
     _cardsWorker = ever<List<CreditCard>>(
-        widget.controller.creditCards, _syncAnimatedList);
+        widget.controller.creditCards,
+        (incoming) => _syncAnimatedList(_filterAndSort(incoming)));
 
     if (_cards.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _scheduleFlipDemo());
@@ -128,31 +137,85 @@ class _BodyState extends State<Body> {
   Widget build(BuildContext context) {
     _firstCardKey ??= GlobalKey<FlipCardState>();
 
-    return Stack(
+    return Column(
       children: [
-        AnimatedList(
-          key: _listKey,
-          physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics()),
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 48),
-          initialItemCount: _initialItemCount,
-          itemBuilder: (context, index, animation) {
-            if (_cards.isEmpty || index >= _cards.length) {
-              return const SizedBox.shrink();
-            }
-            final creditCard = _cards[index];
-            final isFirstCard = index == 0;
-
-            return _buildAnimatedCard(
-              context: context,
-              creditCard: creditCard,
-              animation: animation,
-              highlight: isFirstCard,
-            );
+        CardSearchBar(
+          query: _searchQuery,
+          sort: _sortOption,
+          onQueryChanged: (q) {
+            setState(() => _searchQuery = q);
+            _syncAnimatedList(_filterAndSort(widget.controller.creditCards));
+          },
+          onSortChanged: (s) {
+            setState(() => _sortOption = s);
+            _syncAnimatedList(_filterAndSort(widget.controller.creditCards));
           },
         ),
-        if (_cards.isEmpty) const Positioned.fill(child: EmptyListInfo()),
+        Obx(() {
+          final all = collectAllTags(
+            credits: widget.controller.creditCards,
+            ibans: const [],
+          );
+          if (all.isEmpty) return const SizedBox.shrink();
+          return TagFilterChips(
+            tags: all,
+            selected: _selectedTags,
+            onChanged: (next) {
+              setState(() => _selectedTags = next);
+              _syncAnimatedList(
+                  _filterAndSort(widget.controller.creditCards));
+            },
+          );
+        }),
+        Expanded(
+          child: _cards.isEmpty
+              ? _buildNoSearchResults()
+              : AnimatedList(
+                  key: _listKey,
+                  physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics()),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 48),
+                  initialItemCount: _initialItemCount,
+                  itemBuilder: (context, index, animation) {
+                    if (_cards.isEmpty || index >= _cards.length) {
+                      return const SizedBox.shrink();
+                    }
+                    final creditCard = _cards[index];
+                    final isFirstCard = index == 0;
+
+                    return _buildAnimatedCard(
+                      context: context,
+                      creditCard: creditCard,
+                      animation: animation,
+                      highlight: isFirstCard,
+                    );
+                  },
+                ),
+        ),
       ],
+    );
+  }
+
+  Widget _buildNoSearchResults() {
+    final searchActive = _searchQuery.trim().isNotEmpty;
+    final tagsActive = _selectedTags.isNotEmpty;
+    // No search and no tag filter — fall back to the plain "no cards"
+    // view. Defensive: the parent page already catches `creditCards.isEmpty`,
+    // but this guarantees the user never sees a "no match" message when
+    // they haven't actually filtered anything.
+    if (!searchActive && !tagsActive) {
+      return const EmptyListInfo(
+        ctaRoute: '/addCreditCard',
+        ctaLabel: 'addFirstCC',
+        ctaIcon: Icons.credit_card,
+      );
+    }
+    return EmptyListInfo(
+      icon: searchActive
+          ? Icons.search_off_rounded
+          : Icons.filter_alt_off_rounded,
+      titleKey: searchActive ? 'searchNoResults' : 'filterNoResults',
+      subtitleKey: 'searchNoResultsHint',
     );
   }
 
@@ -189,7 +252,7 @@ class _BodyState extends State<Body> {
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: highlight ? 30 : 18,
                     spreadRadius: highlight ? 1 : 0,
                     offset: const Offset(0, 12),
@@ -221,7 +284,8 @@ class _BodyState extends State<Body> {
   void _syncAnimatedList(List<CreditCard> incomingCards) {
     if (!mounted) return;
 
-    final sorted = _sortCards(incomingCards);
+    // Caller is expected to have already applied search/sort.
+    final sorted = incomingCards;
 
     if (_listKey.currentState == null) {
       _cards = sorted;
@@ -283,14 +347,60 @@ class _BodyState extends State<Body> {
     setState(() {});
   }
 
-  List<CreditCard> _sortCards(List<CreditCard> cards) {
-    final sorted = List<CreditCard>.from(cards);
-    sorted.sort((a, b) {
-      final aId = int.tryParse(a.id.toString()) ?? 0;
-      final bId = int.tryParse(b.id.toString()) ?? 0;
-      return bId.compareTo(aId);
-    });
-    return sorted;
+  List<CreditCard> _filterAndSort(List<CreditCard> cards) {
+    Iterable<CreditCard> work = cards;
+    if (_searchQuery.trim().isNotEmpty) {
+      work = work.where((c) => _matchesQuery(c, _searchQuery));
+    }
+    if (_selectedTags.isNotEmpty) {
+      work = work.where((c) {
+        final cardTags = c.tags;
+        if (cardTags == null || cardTags.isEmpty) return false;
+        return _selectedTags.every(cardTags.contains);
+      });
+    }
+    final filtered = work.toList();
+
+    switch (_sortOption) {
+      case CardSortOption.newest:
+        filtered.sort((a, b) => compareNewestFirst(
+              aCreatedAt: a.createdAt,
+              aId: a.id,
+              bCreatedAt: b.createdAt,
+              bId: b.id,
+            ));
+        break;
+      case CardSortOption.oldest:
+        filtered.sort((a, b) => compareNewestFirst(
+              aCreatedAt: b.createdAt,
+              aId: b.id,
+              bCreatedAt: a.createdAt,
+              bId: a.id,
+            ));
+        break;
+      case CardSortOption.nameAsc:
+        filtered.sort(
+            (a, b) => a.cardHolder.toLowerCase().compareTo(b.cardHolder.toLowerCase()));
+        break;
+      case CardSortOption.nameDesc:
+        filtered.sort(
+            (a, b) => b.cardHolder.toLowerCase().compareTo(a.cardHolder.toLowerCase()));
+        break;
+      case CardSortOption.bank:
+        filtered.sort(
+            (a, b) => a.bankName.toLowerCase().compareTo(b.bankName.toLowerCase()));
+        break;
+    }
+    return filtered;
+  }
+
+  bool _matchesQuery(CreditCard card, String query) {
+    final q = query.toLowerCase();
+    return card.bankName.toLowerCase().contains(q) ||
+        card.cardHolder.toLowerCase().contains(q) ||
+        card.creditCardNumber.replaceAll(' ', '').contains(q) ||
+        (card.notes?.toLowerCase().contains(q) ?? false) ||
+        (card.tags?.any((t) => t.toLowerCase().contains(q)) ?? false);
   }
 
   Future<void> _showCardActionsSheet(CreditCard creditCard) async {
@@ -316,7 +426,7 @@ class _BodyState extends State<Body> {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.2),
+                        .withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -335,9 +445,8 @@ class _BodyState extends State<Body> {
                   icon: Icons.copy_rounded,
                   label: 'copyCardNumberAction'.tr(),
                   onTap: () {
-                    Clipboard.setData(
-                      ClipboardData(text: creditCard.creditCardNumber),
-                    );
+                    SensitiveClipboard.copy(creditCard.creditCardNumber);
+                    HapticFeedback.lightImpact();
                     Navigator.of(sheetContext).pop();
                     context.showSuccessSnackBar('copyInfo');
                   },
@@ -378,18 +487,14 @@ class _BodyState extends State<Body> {
 
   Future<void> showDialogDeleteData(
       BuildContext context, Future<void> Function() onConfirm) {
-    return showDialog<void>(
+    return showConfirmActionSheet(
       context: context,
-      builder: (context) {
-        return CustomDialog(
-          title: 'deleteCreditCard'.tr(),
-          content: 'deleteDataMessage'.tr(),
-          onConfirm: () async {
-            await onConfirm();
-            Get.back();
-            _resetDemoState();
-          },
-        );
+      title: 'deleteCreditCard'.tr(),
+      content: 'deleteDataMessage'.tr(),
+      onConfirm: () async {
+        await onConfirm();
+        Get.back();
+        _resetDemoState();
       },
     );
   }

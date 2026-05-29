@@ -5,13 +5,14 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
+import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 
 class IbanCardService {
   IbanCardService._internal();
   static final IbanCardService _instance = IbanCardService._internal();
   factory IbanCardService() => _instance;
 
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage = SecureStorageProvider.instance;
   Box<IbanCard>? _ibanCard;
   Future<void>? _openingFuture;
 
@@ -42,6 +43,11 @@ class IbanCardService {
 
   Future<void> openBox() async {
     await _ensureBoxReady();
+  }
+
+  Future<Stream<BoxEvent>> watch() async {
+    final box = await _ensureBoxReady();
+    return box.watch();
   }
 
   Future<void> deleteAllData() async {

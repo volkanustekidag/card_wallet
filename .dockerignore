@@ -1,0 +1,13 @@
+.git
+.dart_tool
+build
+ios/build
+android/.gradle
+android/app/.cxx
+.context
+**/Pods
+**/*.pem
+**/*.cer
+**/*.csr
+**/*service-account*.json
+**/google-service-account.json

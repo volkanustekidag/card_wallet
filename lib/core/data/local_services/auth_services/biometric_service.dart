@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 
 class BiometricService {
   static final BiometricService _instance = BiometricService._internal();
@@ -10,7 +10,7 @@ class BiometricService {
   BiometricService._internal();
 
   final LocalAuthentication _localAuth = LocalAuthentication();
-  static const _storage = FlutterSecureStorage();
+  static const _storage = SecureStorageProvider.instance;
 
   // Storage keys
   static const String _biometricEnabledKey = 'biometric_enabled';
@@ -97,6 +97,36 @@ class BiometricService {
         await updateLastActiveTime();
       }
 
+      return didAuthenticate;
+    } on PlatformException catch (e) {
+      throw BiometricException(_handlePlatformException(e));
+    } catch (e) {
+      throw BiometricException('${'biometricAuthError'.tr()}: $e');
+    }
+  }
+
+  /// Biometric prompt that ignores the app-level "biometric enabled" toggle.
+  /// Used by PIN recovery: the user forgot their PIN, so we accept device
+  /// biometric enrollment as proof of ownership regardless of whether they
+  /// previously turned biometric login on in the app's settings.
+  Future<bool> authenticateForRecovery({String? localizedReason}) async {
+    try {
+      final bool isAvailable = await isBiometricAvailable();
+      if (!isAvailable) {
+        throw BiometricException('biometricNotSupported'.tr());
+      }
+      final bool didAuthenticate = await _localAuth.authenticate(
+        localizedReason: localizedReason ?? 'biometricAuthenticateReason'.tr(),
+        options: const AuthenticationOptions(
+          useErrorDialogs: true,
+          stickyAuth: true,
+          biometricOnly: true,
+          sensitiveTransaction: false,
+        ),
+      );
+      if (didAuthenticate) {
+        await updateLastActiveTime();
+      }
       return didAuthenticate;
     } on PlatformException catch (e) {
       throw BiometricException(_handlePlatformException(e));

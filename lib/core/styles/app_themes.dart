@@ -19,9 +19,24 @@ class AppThemes {
   static const Color darkSuccess = Color(0xFF4ADE80);
   static const Color darkInfo = Color(0xFF22D3EE);
 
+  // Semantic color helpers — resolve to the right shade for the active theme.
+  static Color success(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.light
+          ? lightSuccess
+          : darkSuccess;
+  static Color warning(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.light
+          ? lightWarning
+          : darkWarning;
+  static Color info(BuildContext context) =>
+      Theme.of(context).brightness == Brightness.light
+          ? lightInfo
+          : darkInfo;
+
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
+    fontFamily: 'Poppins',
 
     // Color Scheme
     colorScheme: const ColorScheme.light(
@@ -86,7 +101,7 @@ class AppThemes {
     // Card Theme
     cardTheme: CardThemeData(
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.08),
+      shadowColor: Colors.black.withValues(alpha: 0.08),
       surfaceTintColor: Colors.white,
       color: Colors.white,
       margin: const EdgeInsets.all(8),
@@ -101,7 +116,7 @@ class AppThemes {
         elevation: 0,
         backgroundColor: lightPrimary,
         foregroundColor: Colors.white,
-        shadowColor: lightPrimary.withOpacity(0.3),
+        shadowColor: lightPrimary.withValues(alpha: 0.3),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -230,7 +245,7 @@ class AppThemes {
     // Chip Theme
     chipTheme: ChipThemeData(
       backgroundColor: const Color(0xFFF3F4F6),
-      selectedColor: lightPrimary.withOpacity(0.2),
+      selectedColor: lightPrimary.withValues(alpha: 0.2),
       disabledColor: const Color(0xFFE5E7EB),
       labelStyle: const TextStyle(color: Color(0xFF374151)),
       shape: RoundedRectangleBorder(
@@ -255,7 +270,7 @@ class AppThemes {
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected))
-          return lightPrimary.withOpacity(0.5);
+          return lightPrimary.withValues(alpha: 0.5);
         return const Color(0xFFD1D5DB);
       }),
     ),
@@ -263,9 +278,9 @@ class AppThemes {
     // Slider Theme
     sliderTheme: SliderThemeData(
       activeTrackColor: lightPrimary,
-      inactiveTrackColor: lightPrimary.withOpacity(0.3),
+      inactiveTrackColor: lightPrimary.withValues(alpha: 0.3),
       thumbColor: lightPrimary,
-      overlayColor: lightPrimary.withOpacity(0.2),
+      overlayColor: lightPrimary.withValues(alpha: 0.2),
     ),
 
     // Progress Indicator Theme
@@ -289,11 +304,65 @@ class AppThemes {
         borderRadius: BorderRadius.all(Radius.circular(8)),
       ),
     ),
+
+    // SnackBar Theme
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: const Color(0xFF111827),
+      contentTextStyle: const TextStyle(
+        color: Colors.white,
+        fontWeight: FontWeight.w500,
+        fontSize: 14,
+      ),
+      actionTextColor: const Color(0xFF93C5FD),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 4,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    ),
+
+    // Dialog Theme
+    dialogTheme: DialogThemeData(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      elevation: 8,
+      shadowColor: Colors.black.withValues(alpha: 0.12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      titleTextStyle: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF111827),
+      ),
+      contentTextStyle: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: Color(0xFF374151),
+      ),
+    ),
+
+    // Bottom Sheet Theme
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      modalBackgroundColor: Colors.white,
+      modalBarrierColor: Color(0x99000000),
+      elevation: 8,
+      modalElevation: 8,
+      showDragHandle: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      clipBehavior: Clip.antiAlias,
+    ),
   );
 
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
+    fontFamily: 'Poppins',
 
     // Color Scheme
     colorScheme: const ColorScheme.dark(
@@ -358,7 +427,7 @@ class AppThemes {
     // Card Theme
     cardTheme: CardThemeData(
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.3),
+      shadowColor: Colors.black.withValues(alpha: 0.3),
       surfaceTintColor: const Color(0xFF1E293B),
       color: const Color(0xFF1E293B),
       margin: const EdgeInsets.all(8),
@@ -373,7 +442,7 @@ class AppThemes {
         elevation: 0,
         backgroundColor: darkPrimary,
         foregroundColor: const Color(0xFF1E293B),
-        shadowColor: darkPrimary.withOpacity(0.3),
+        shadowColor: darkPrimary.withValues(alpha: 0.3),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -502,7 +571,7 @@ class AppThemes {
     // Chip Theme
     chipTheme: ChipThemeData(
       backgroundColor: const Color(0xFF334155),
-      selectedColor: darkPrimary.withOpacity(0.2),
+      selectedColor: darkPrimary.withValues(alpha: 0.2),
       disabledColor: const Color(0xFF475569),
       labelStyle: const TextStyle(color: Color(0xFFE2E8F0)),
       shape: RoundedRectangleBorder(
@@ -527,7 +596,7 @@ class AppThemes {
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected))
-          return darkPrimary.withOpacity(0.5);
+          return darkPrimary.withValues(alpha: 0.5);
         return const Color(0xFF334155);
       }),
     ),
@@ -535,9 +604,9 @@ class AppThemes {
     // Slider Theme
     sliderTheme: SliderThemeData(
       activeTrackColor: darkPrimary,
-      inactiveTrackColor: darkPrimary.withOpacity(0.3),
+      inactiveTrackColor: darkPrimary.withValues(alpha: 0.3),
       thumbColor: darkPrimary,
-      overlayColor: darkPrimary.withOpacity(0.2),
+      overlayColor: darkPrimary.withValues(alpha: 0.2),
     ),
 
     // Progress Indicator Theme
@@ -560,6 +629,59 @@ class AppThemes {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(8)),
       ),
+    ),
+
+    // SnackBar Theme
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: const Color(0xFF334155),
+      contentTextStyle: const TextStyle(
+        color: Color(0xFFF1F5F9),
+        fontWeight: FontWeight.w500,
+        fontSize: 14,
+      ),
+      actionTextColor: darkPrimary,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 4,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+    ),
+
+    // Dialog Theme
+    dialogTheme: DialogThemeData(
+      backgroundColor: const Color(0xFF1E293B),
+      surfaceTintColor: Colors.transparent,
+      elevation: 8,
+      shadowColor: Colors.black.withValues(alpha: 0.4),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      titleTextStyle: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFFF1F5F9),
+      ),
+      contentTextStyle: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w400,
+        color: Color(0xFFE2E8F0),
+      ),
+    ),
+
+    // Bottom Sheet Theme
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: Color(0xFF1E293B),
+      surfaceTintColor: Colors.transparent,
+      modalBackgroundColor: Color(0xFF1E293B),
+      modalBarrierColor: Color(0xCC000000),
+      elevation: 8,
+      modalElevation: 8,
+      showDragHandle: false,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      clipBehavior: Clip.antiAlias,
     ),
   );
 }

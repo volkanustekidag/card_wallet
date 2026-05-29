@@ -1,0 +1,7 @@
+{
+  "file_generated_by": "FlutterFire CLI",
+  "purpose": "FlutterFire CLI writes this file to record the FirebaseApp Id for the iOS app, which is used by the Crashlytics dSYM upload script.",
+  "GOOGLE_APP_ID": "1:532434673764:ios:36cfdb60612eecd69abf71",
+  "FIREBASE_PROJECT_ID": "x-app-c2e89",
+  "GCM_SENDER_ID": "532434673764"
+}

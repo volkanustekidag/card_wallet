@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="loyalty_widget_description">Quickly show your most recent loyalty card barcode.</string>
+    <string name="loyalty_widget_barcode_cd">Loyalty card barcode</string>
+    <string name="loyalty_tile_label">Loyalty card</string>
+</resources>

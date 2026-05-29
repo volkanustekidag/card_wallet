@@ -1,10 +1,10 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:flutter_iban_scanner/flutter_iban_scanner.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
-import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
 
@@ -24,126 +24,168 @@ class IbanTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AddIbanCardController>();
-    final premiumController = Get.find<PremiumController>();
     final theme = Theme.of(context);
-    final iconColor = premiumController.isPremium
-        ? theme.colorScheme.primary
-        : Colors.amber.shade700;
+    final iconColor = theme.colorScheme.primary;
 
-    return TextFieldCard(
-      controller: _ibanController,
-      focusNode: focusNode,
-      maxLength: 35,
-      label: 'IBAN',
-      iconData: Icons.credit_card_rounded,
-      emphasize: true,
-      textStyle: TextStyle(fontFamily: 'Poppins', 
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 1.2,
-        color: theme.colorScheme.onSurface,
-      ),
-      onChanged: (iban) => controller.updateCardField("iban", iban),
-      suffixIcon: Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: Container(
-          decoration: BoxDecoration(
-            color: iconColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(999),
-          ),
-          child: IconButton(
-            icon: Icon(
-              Icons.camera_alt_rounded,
-              color: iconColor,
-              size: 18,
+    return Obx(() {
+      final ibanValue = controller.currentCard.value.iban;
+      return TextFieldCard(
+        controller: _ibanController,
+        focusNode: focusNode,
+        maxLength: 35,
+        label: 'IBAN',
+        iconData: Icons.credit_card_rounded,
+        emphasize: true,
+        errorText: _ibanError(ibanValue),
+        textStyle: TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 1.2,
+          color: theme.colorScheme.onSurface,
+        ),
+        onChanged: (iban) => controller.updateCardField("iban", iban),
+        suffixIcon: Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: Container(
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(999),
             ),
-            tooltip: 'scanCardOptional'.tr(),
-            onPressed: () async {
-              if (!premiumController.isPremium) {
-                final shouldUpgrade = await Get.dialog<bool>(
-                      AlertDialog(
-                        title: Text('premiumFeatureLockedTitle'.tr()),
-                        content: Text('premiumFeatureLockedDescription'.tr()),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Get.back(result: false),
-                            child: Text('maybeLater'.tr()),
-                          ),
-                          ElevatedButton(
-                            onPressed: () => Get.back(result: true),
-                            child: Text('goPremium'.tr()),
-                          ),
-                        ],
-                      ),
-                    ) ??
-                    false;
-                if (shouldUpgrade) {
-                  Get.toNamed('/premium');
-                }
-                return;
-              }
-              focusNode.unfocus();
-              focusNode.canRequestFocus = false;
-
-              final cameraStatus = await Permission.camera.status;
-
-              if (cameraStatus.isDenied) {
-                final result = await Permission.camera.request();
-                if (!result.isGranted) {
-                  Get.snackbar(
-                    'Permission Required',
-                    'Camera permission is required to scan IBANs',
-                    snackPosition: SnackPosition.BOTTOM,
-                  );
-                  focusNode.canRequestFocus = true;
-                  return;
-                }
-              } else if (cameraStatus.isPermanentlyDenied) {
-                final shouldOpenSettings = await Get.dialog<bool>(
-                  AlertDialog(
-                    title: Text('Camera Permission Required'),
-                    content: const Text(
-                      'This app needs camera permission to scan IBANs. Please grant camera permission in your device settings.',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Get.back(result: false),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () => Get.back(result: true),
-                        child: const Text('Open Settings'),
-                      ),
-                    ],
-                  ),
+            child: IconButton(
+              icon: Icon(
+                Icons.camera_alt_rounded,
+                color: iconColor,
+                size: 18,
+              ),
+              tooltip: 'scanCardOptional'.tr(),
+              onPressed: () async {
+                focusNode.unfocus();
+                focusNode.canRequestFocus = false;
+                await _scanIbanFromCamera(
+                  controller: controller,
+                  focusNode: focusNode,
                 );
-
-                if (shouldOpenSettings == true) {
-                  await openAppSettings();
-                }
-                focusNode.canRequestFocus = true;
-                return;
-              }
-
-              Get.to(() => IBANScannerView(
-                    cameras: cameras,
-                    onScannerResult: (iban) {
-                      Get.back();
-                      controller.updateCardField("iban", iban);
-                      _ibanController.text = iban;
-                    },
-                  ));
-
-              Future.delayed(
-                const Duration(milliseconds: 100),
-                () {
-                  focusNode.canRequestFocus = true;
-                },
-              );
-            },
+              },
+            ),
           ),
         ),
-      ),
+      );
+    });
+  }
+
+  String? _ibanError(String value) {
+    final cleaned = value.replaceAll(RegExp(r'\s+'), '').toUpperCase();
+    if (cleaned.isEmpty) return null;
+    if (cleaned.length < 4) return null;
+    if (!RegExp(r'^[A-Z]{2}[0-9]{2}').hasMatch(cleaned)) {
+      return 'ibanInvalidFormat'.tr();
+    }
+    if (cleaned.length < 15) return 'ibanTooShortError'.tr();
+    if (cleaned.length > 34) return 'ibanTooLongError'.tr();
+    return null;
+  }
+
+  Future<void> _scanIbanFromCamera({
+    required AddIbanCardController controller,
+    required FocusNode focusNode,
+  }) async {
+    try {
+      final allowed = await _ensureCameraPermission();
+      if (!allowed) return;
+
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        imageQuality: 95,
+      );
+      if (picked == null) return;
+
+      final recognizer = TextRecognizer(script: TextRecognitionScript.latin);
+      try {
+        final recognized = await recognizer.processImage(
+          InputImage.fromFilePath(picked.path),
+        );
+        final iban = _extractIban(recognized.text);
+        if (iban == null) {
+          final ctx = Get.context;
+          if (ctx != null) {
+            ScaffoldMessenger.of(ctx).showSnackBar(
+              SnackBar(
+                content: Text('ibanNotFound'.tr()),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+          return;
+        }
+        controller.updateCardField("iban", iban);
+        _ibanController.text = iban;
+      } finally {
+        await recognizer.close();
+      }
+    } finally {
+      focusNode.canRequestFocus = true;
+    }
+  }
+
+  Future<bool> _ensureCameraPermission() async {
+    final cameraStatus = await Permission.camera.status;
+
+    if (cameraStatus.isDenied) {
+      final result = await Permission.camera.request();
+      if (!result.isGranted) {
+        final ctx = Get.context;
+        if (ctx != null) {
+          ScaffoldMessenger.of(ctx).showSnackBar(
+            SnackBar(
+              content: Text('cameraPermissionRequired'.tr()),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+        return false;
+      }
+    } else if (cameraStatus.isPermanentlyDenied) {
+      final shouldOpenSettings = await Get.dialog<bool>(
+        AlertDialog(
+          title: Text('cameraPermissionRequired'.tr()),
+          content: Text(
+            'cameraPermissionSettingsMessage'.tr(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: false),
+              child: Text('cancel'.tr()),
+            ),
+            TextButton(
+              onPressed: () => Get.back(result: true),
+              child: Text('openSettings'.tr()),
+            ),
+          ],
+        ),
+      );
+
+      if (shouldOpenSettings == true) {
+        await openAppSettings();
+      }
+      return false;
+    }
+
+    return true;
+  }
+
+  String? _extractIban(String text) {
+    final normalized = text.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
+    final match = RegExp(r'[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}').firstMatch(
+      normalized,
     );
+    if (match == null) return null;
+    final raw = match.group(0)!;
+    final buffer = StringBuffer();
+    for (var i = 0; i < raw.length; i++) {
+      if (i > 0 && i % 4 == 0) buffer.write(' ');
+      buffer.write(raw[i]);
+    }
+    return buffer.toString();
   }
 }

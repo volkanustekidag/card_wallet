@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "532434673764",
+    "project_id": "x-app-c2e89",
+    "storage_bucket": "x-app-c2e89.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:532434673764:android:778b32976cabe0329abf71",
+        "android_client_info": {
+          "package_name": "com.volkan.wallet_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQoZpv1WDFAkg-_ccVC7MBj3JjIamtfbQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

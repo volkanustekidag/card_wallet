@@ -1,15 +1,24 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wallet_app/core/constants/legal_urls.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/core/services/premium_service.dart';
+import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
 
+/// Paywall: tight hero, three side-by-side plan tiles (yearly default with
+/// BEST VALUE badge + per-month equivalent, monthly, weekly), a compact
+/// feature checklist, and a gold CTA that adapts to the selected plan.
+/// No trial copy, no lifetime tile.
 class PremiumPage extends StatefulWidget {
   const PremiumPage({Key? key}) : super(key: key);
 
@@ -17,122 +26,209 @@ class PremiumPage extends StatefulWidget {
   State<PremiumPage> createState() => _PremiumPageState();
 }
 
-class _PremiumPageState extends State<PremiumPage> {
+class _PremiumPageState extends State<PremiumPage>
+    with TickerProviderStateMixin {
   late final PremiumController _premiumController;
-  late final PageController _featurePageController;
-  Timer? _autoSlideTimer;
+  late final AnimationController _diamondController;
+  late final AnimationController _ctaPulseController;
   Worker? _productWorker;
-  int _currentFeatureIndex = 0;
   ProductDetails? _selectedProduct;
+  _PremiumFeatureSpec? _triggerFeature;
 
-  static const _autoSlideInterval = Duration(seconds: 3);
-  static const _autoSlideAnimation = Duration(milliseconds: 450);
-
-  static const List<_FeatureCardData> _featureCards = [
-    _FeatureCardData(
-      icon: Icons.credit_card,
-      titleKey: 'featureUnlimitedCardsTitle',
-      descriptionKey: 'featureUnlimitedCardsDesc',
+  // Each feature pairs a translation key with the icon that visually
+  // represents it; `ad-free` was dropped because the app has no ads.
+  static const List<_Feature> _features = [
+    _Feature('featureUnlimitedCardsTitle', Icons.credit_card_rounded),
+    _Feature('featureBackupRestoreTitle', Icons.cloud_sync_rounded),
+    _Feature(
+      'featureWalletExportTitle',
+      Icons.account_balance_wallet_rounded,
     ),
-    _FeatureCardData(
-      icon: Icons.document_scanner,
-      titleKey: 'featureIbanScanTitle',
-      descriptionKey: 'featureIbanScanDesc',
-    ),
-    _FeatureCardData(
-      icon: Icons.qr_code,
-      titleKey: 'featureQrCreateTitle',
-      descriptionKey: 'featureQrCreateDesc',
-    ),
-    _FeatureCardData(
-      icon: Icons.cloud_sync,
-      titleKey: 'featureBackupRestoreTitle',
-      descriptionKey: 'featureBackupRestoreDesc',
-    ),
-    _FeatureCardData(
-      icon: Icons.fingerprint,
-      titleKey: 'featureBiometricTitle',
-      descriptionKey: 'featureBiometricDesc',
-    ),
-    _FeatureCardData(
-      icon: Icons.block,
-      titleKey: 'featureAdFreeTitle',
-      descriptionKey: 'featureAdFreeDesc',
-    ),
+    _Feature('featureBiometricTitle', Icons.fingerprint_rounded),
+    _Feature('featureIbanScanTitle', Icons.document_scanner_rounded),
+    _Feature('featureQrCreateTitle', Icons.qr_code_rounded),
   ];
+
+  // Pass `arguments: {'feature': '<key>'}` when navigating to /premium to
+  // surface a single feature card (instead of the wrap of all features).
+  // The keys mirror the feature title keys without the title suffix.
+  static const Map<String, _PremiumFeatureSpec> _featureSpecs = {
+    'unlimitedCards': _PremiumFeatureSpec(
+      'featureUnlimitedCardsTitle',
+      'featureUnlimitedCardsDesc',
+      Icons.credit_card_rounded,
+    ),
+    'backupRestore': _PremiumFeatureSpec(
+      'featureBackupRestoreTitle',
+      'featureBackupRestoreDesc',
+      Icons.cloud_sync_rounded,
+    ),
+    'walletExport': _PremiumFeatureSpec(
+      'featureWalletExportTitle',
+      'featureWalletExportDesc',
+      Icons.account_balance_wallet_rounded,
+    ),
+    'biometric': _PremiumFeatureSpec(
+      'featureBiometricTitle',
+      'featureBiometricDesc',
+      Icons.fingerprint_rounded,
+    ),
+    'ibanScan': _PremiumFeatureSpec(
+      'featureIbanScanTitle',
+      'featureIbanScanDesc',
+      Icons.document_scanner_rounded,
+    ),
+    'qrCreate': _PremiumFeatureSpec(
+      'featureQrCreateTitle',
+      'featureQrCreateDesc',
+      Icons.qr_code_rounded,
+    ),
+  };
 
   @override
   void initState() {
     super.initState();
     _premiumController = Get.find<PremiumController>();
-    _featurePageController = PageController(viewportFraction: 0.86);
+    final args = Get.arguments;
+    String? triggerArg;
+    String? featureArg;
+    String? cardTypeArg;
+    if (args is Map) {
+      if (args['feature'] is String) {
+        featureArg = args['feature'] as String;
+        _triggerFeature = _featureSpecs[featureArg];
+      }
+      if (args['trigger'] is String) {
+        triggerArg = args['trigger'] as String;
+      }
+      if (args['card_type'] is String) {
+        cardTypeArg = args['card_type'] as String;
+      }
+    }
+    unawaited(
+      AnalyticsService.instance.logPaywallViewed(
+        trigger: triggerArg ?? (featureArg == null ? 'direct' : 'feature_gate'),
+        feature: featureArg,
+        cardType: cardTypeArg,
+      ),
+    );
+    _diamondController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 6),
+    )..repeat();
+    _ctaPulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    )..repeat(reverse: true);
     _productWorker = ever<List<ProductDetails>>(
       _premiumController.availableProductsRx,
       (_) => _ensureDefaultSelectedProduct(),
     );
     _ensureDefaultSelectedProduct();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _startAutoSlide());
   }
 
   @override
   void dispose() {
-    _autoSlideTimer?.cancel();
-    _featurePageController.dispose();
+    _diamondController.dispose();
+    _ctaPulseController.dispose();
     _productWorker?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    // Force light theme regardless of the app's theme setting — the
+    // gold-on-white design was tuned for that palette and reads as
+    // "premium" most clearly. Wrapping with Theme makes every Theme.of()
+    // call inside the page return the light values.
+    return Theme(
+      data: AppThemes.lightTheme,
+      child: Builder(builder: _buildBody),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'goPremium'.tr(),
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        iconTheme: IconThemeData(color: colorScheme.onSurface),
-        centerTitle: true,
-      ),
       backgroundColor: colorScheme.surface,
       body: Obx(() {
         final isLoading = _premiumController.isLoading;
-        final weeklyProduct = _premiumController.weeklyProduct;
-        final yearlyProduct = _premiumController.yearlyProduct;
+        final weekly = _premiumController.weeklyProduct;
+        final monthly = _premiumController.monthlyProduct;
+        final yearly = _premiumController.yearlyProduct;
+
+        // Weekly → monthly → yearly. Yearly sits on the right as the
+        // BEST VALUE anchor (still the default selection).
+        final orderedPlans = <ProductDetails>[
+          if (weekly != null) weekly,
+          if (monthly != null) monthly,
+          if (yearly != null) yearly,
+        ];
+        final bestValueId = _bestValueProductId(weekly, monthly, yearly);
 
         return Stack(
           children: [
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 380,
+              child: _HeroBackdrop(isDark: isDark),
+            ),
             SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+              physics: const BouncingScrollPhysics(),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildHeader(colorScheme),
-                  const SizedBox(height: 16),
-                  _buildFeatureCarousel(colorScheme),
-                  const SizedBox(height: 16),
-                  _buildPricingSection(
-                    colorScheme: colorScheme,
-                    weeklyProduct: weeklyProduct,
-                    yearlyProduct: yearlyProduct,
+                  SizedBox(
+                    height: 40,
+                  ),
+                  _TopBar(
+                    onClose: () => Get.back(),
+                    onRestore: _handleRestore,
+                  ),
+                  _Hero(controller: _diamondController),
+                  const SizedBox(height: 28),
+                  if (_triggerFeature != null)
+                    _BigFeatureCard(spec: _triggerFeature!)
+                  else
+                    _FeatureChecklist(features: _features),
+                  const SizedBox(height: 28),
+                  if (orderedPlans.isEmpty)
+                    _ProductsUnavailable()
+                  else
+                    _PricingRow(
+                      plans: orderedPlans,
+                      weeklyId: weekly?.id,
+                      monthlyId: monthly?.id,
+                      yearlyId: yearly?.id,
+                      bestValueId: bestValueId,
+                      selected: _selectedProduct,
+                      onSelected: _onPlanSelected,
+                    ),
+                  const SizedBox(height: 20),
+                  _CtaButton(
+                    product: _selectedProduct,
+                    pulseController: _ctaPulseController,
+                    onPressed: _selectedProduct == null
+                        ? null
+                        : () => _handlePurchase(_selectedProduct!),
                   ),
                   const SizedBox(height: 8),
-                  _buildLegalLinks(colorScheme),
-                  const SizedBox(height: 24),
+                  _CtaSubText(product: _selectedProduct),
+                  const SizedBox(height: 16),
+                  const _LegalDisclosure(),
+                  const SizedBox(height: 14),
+                  _LegalLinks(),
+                  const SizedBox(height: 28),
                 ],
               ),
             ),
             if (isLoading)
               Positioned.fill(
-                child: Container(
-                  color: colorScheme.surface.withOpacity(0.65),
+                child: ColoredBox(
+                  color: colorScheme.surface.withValues(alpha: 0.65),
                   child: const Center(child: LoadingWidget()),
                 ),
               ),
@@ -142,155 +238,455 @@ class _PremiumPageState extends State<PremiumPage> {
     );
   }
 
-  Widget _buildHeader(ColorScheme colorScheme) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'premiumHeaderTitle'.tr(),
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'premiumHeaderSubtitle'.tr(),
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: 14,
-            color: colorScheme.onSurface.withOpacity(0.7),
-            height: 1.4,
-          ),
-        ),
-      ],
-    );
+  Future<void> _handleRestore() async {
+    await _premiumController.restorePurchases();
+    if (!mounted) return;
+    context.showInfoSnackBar('purchaseRestoreCompleted');
   }
 
-  Widget _buildFeatureCarousel(ColorScheme colorScheme) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withOpacity(0.35),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: colorScheme.outline.withOpacity(0.15),
+  Future<void> _handlePurchase(ProductDetails product) async {
+    final result = await _premiumController.purchase(product);
+    if (!mounted) return;
+    switch (result) {
+      case PremiumPurchaseResult.success:
+        unawaited(
+          AnalyticsService.instance.logPurchaseSuccess(
+            productId: product.id,
+            price: product.rawPrice,
+            currency: product.currencyCode,
+          ),
+        );
+        HapticFeedback.mediumImpact();
+        (Get.context ?? context).showSuccessSnackBar('premiumActivated');
+        // Let the snackbar animate in before tearing the page down so the
+        // user gets visible confirmation that the purchase landed.
+        await Future.delayed(const Duration(milliseconds: 900));
+        if (mounted) Get.back();
+        break;
+      case PremiumPurchaseResult.canceled:
+        unawaited(
+          AnalyticsService.instance.logPurchaseCanceled(product.id),
+        );
+        // User backed out of the store sheet — no failure UI, they're
+        // already aware they cancelled.
+        break;
+      case PremiumPurchaseResult.error:
+        unawaited(
+          AnalyticsService.instance.logPurchaseFailed(product.id),
+        );
+        HapticFeedback.heavyImpact();
+        context.showErrorSnackBar('purchaseFailed');
+        break;
+    }
+  }
+
+  void _ensureDefaultSelectedProduct() {
+    if (_selectedProduct != null) return;
+    final candidate = _premiumController.yearlyProduct ??
+        _premiumController.monthlyProduct ??
+        _premiumController.weeklyProduct;
+    if (candidate != null && mounted) {
+      unawaited(
+        AnalyticsService.instance.logPaywallPlanSelected(
+          productId: candidate.id,
+          price: candidate.rawPrice,
+          currency: candidate.currencyCode,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 6),
+      );
+      setState(() => _selectedProduct = candidate);
+    }
+  }
+
+  void _onPlanSelected(ProductDetails product) {
+    if (_selectedProduct?.id == product.id) return;
+    HapticFeedback.selectionClick();
+    unawaited(
+      AnalyticsService.instance.logPaywallPlanSelected(
+        productId: product.id,
+        price: product.rawPrice,
+        currency: product.currencyCode,
+      ),
+    );
+    setState(() => _selectedProduct = product);
+  }
+
+  /// The cheapest plan on a per-month basis. Weekly is normalised by
+  /// ×52/12 ≈ 4.33 so all three plans share the same yardstick.
+  String? _bestValueProductId(
+    ProductDetails? weekly,
+    ProductDetails? monthly,
+    ProductDetails? yearly,
+  ) {
+    final candidates = <String, double>{};
+    if (yearly != null && yearly.rawPrice > 0) {
+      candidates[yearly.id] = yearly.rawPrice / 12;
+    }
+    if (monthly != null && monthly.rawPrice > 0) {
+      candidates[monthly.id] = monthly.rawPrice;
+    }
+    if (weekly != null && weekly.rawPrice > 0) {
+      candidates[weekly.id] = weekly.rawPrice * (52 / 12);
+    }
+    if (candidates.isEmpty) return null;
+    final sorted = candidates.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+    return sorted.first.key;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Hero backdrop — deeper gold radial glow.
+// ---------------------------------------------------------------------------
+
+class _HeroBackdrop extends StatelessWidget {
+  final bool isDark;
+  const _HeroBackdrop({required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: Alignment.topCenter,
+          radius: 1.0,
+          colors: isDark
+              ? [
+                  const Color(0x77B8862C),
+                  const Color(0x33B8862C),
+                  Colors.transparent,
+                ]
+              : [
+                  const Color(0x44E0B85F),
+                  const Color(0x1FE0B85F),
+                  Colors.transparent,
+                ],
+          stops: const [0, 0.55, 1],
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Top bar.
+// ---------------------------------------------------------------------------
+
+class _TopBar extends StatelessWidget {
+  final VoidCallback onClose;
+  final VoidCallback onRestore;
+  const _TopBar({required this.onClose, required this.onRestore});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
+      child: Row(
+        children: [
+          IconButton(
+            onPressed: onClose,
+            icon: Icon(
+              Icons.close_rounded,
+              color: colorScheme.onSurface.withValues(alpha: 0.85),
+            ),
+          ),
+          const Spacer(),
+          TextButton(
+            onPressed: onRestore,
+            style: TextButton.styleFrom(
+              foregroundColor: colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+            child: Text(
+              'restorePurchases'.tr(),
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ],
       ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Hero — diamond + PREMIUM eyebrow + big title.
+// ---------------------------------------------------------------------------
+
+class _Hero extends StatelessWidget {
+  final AnimationController controller;
+  const _Hero({required this.controller});
+
+  static const _gold = Color(0xFFC8A14A);
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(
-            height: 180,
-            child: PageView.builder(
-              controller: _featurePageController,
-              clipBehavior: Clip.none,
-              itemCount: _featureCards.length,
-              onPageChanged: (index) {
-                setState(() => _currentFeatureIndex = index);
-              },
-              itemBuilder: (context, index) {
-                final feature = _featureCards[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: _buildFeatureCard(feature, index, colorScheme),
-                );
-              },
+          // Big bold title — typography-only, no sparkle. FittedBox keeps
+          // long localisations (e.g. "Premium'a Geç") from overflowing on
+          // narrow screens.
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              'premiumHeroTitle'.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 42,
+                fontWeight: FontWeight.w700,
+                color: colorScheme.onSurface,
+                height: 1.05,
+                letterSpacing: -1.2,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          // First sub: dark "Unlimited cards." + gold "More control."
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                height: 1.25,
+              ),
+              children: [
+                TextSpan(
+                  text: 'premiumHeroSub'.tr(),
+                  style: TextStyle(
+                    color: colorScheme.onSurface,
+                    fontWeight: FontWeight.w400,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+                const TextSpan(text: ' '),
+                TextSpan(
+                  text: 'premiumHeroSubAccent'.tr(),
+                  style: const TextStyle(
+                    color: _gold,
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 6),
+          // Second sub: smaller muted tagline.
+          Text(
+            'premiumHeroTagline'.tr(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface.withValues(alpha: 0.5),
+              height: 1.3,
             ),
           ),
           const SizedBox(height: 12),
-          _buildPageIndicator(colorScheme),
+          const _HeroCardStack(),
         ],
       ),
     );
   }
+}
 
-  Widget _buildFeatureCard(
-    _FeatureCardData feature,
-    int index,
-    ColorScheme colorScheme,
-  ) {
-    const gradients = [
-      [Color(0xFF8B0000), Color(0xFFB71C1C)],
-      [Color(0xFF9C1F27), Color(0xFFD33C2D)],
-      [Color(0xFF8C1C3A), Color(0xFFCC5A2B)],
-    ];
-    final baseGradient = gradients[index % gradients.length];
-    final gradientColors = [
-      baseGradient[0],
-      baseGradient[1],
-      const Color(0xFFF2C94C),
-    ];
+// Three placeholder cards stacked: a big teal IBAN-style card in front,
+// purple + rose cards peeking at slight angles behind. Pure decoration —
+// sells the "your wallet, premium" feel without needing real data.
+class _HeroCardStack extends StatelessWidget {
+  const _HeroCardStack();
 
-    return AspectRatio(
-      aspectRatio: 16 / 9,
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: gradientColors,
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: const [0.0, 0.65, 1.0],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: gradientColors.first.withOpacity(0.35),
-              blurRadius: 16,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.16),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                feature.icon,
-                color: Colors.white,
-                size: 26,
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  feature.titleKey.tr(),
-                  style: const TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardWidth = (screenWidth * 0.62).clamp(220.0, 320.0);
+    final cardHeight = cardWidth / 1.6;
+
+    return SizedBox(
+      height: cardHeight + 20,
+      child: Stack(
+        alignment: Alignment.center,
+        clipBehavior: Clip.none,
+        children: [
+          // Left peek — purple
+          Transform.translate(
+            offset: Offset(-cardWidth * 0.42, 8),
+            child: Transform.rotate(
+              angle: -0.10,
+              child: Opacity(
+                opacity: 0.55,
+                child: _PlaceholderCard(
+                  width: cardWidth,
+                  height: cardHeight,
+                  isIban: true,
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFB084CC), Color(0xFF7B5BA0)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
                 ),
-                const SizedBox(height: 6),
+              ),
+            ),
+          ),
+          // Right peek — rose
+          Transform.translate(
+            offset: Offset(cardWidth * 0.42, 8),
+            child: Transform.rotate(
+              angle: 0.10,
+              child: Opacity(
+                opacity: 0.55,
+                child: _PlaceholderCard(
+                  width: cardWidth,
+                  height: cardHeight,
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFE0A0A8), Color(0xFFC07480)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Center — teal, prominent
+          _PlaceholderCard(
+            width: cardWidth,
+            height: cardHeight,
+            isFront: true,
+            gradient: const LinearGradient(
+              colors: [Color(0xFF2A7B6A), Color(0xFF1F5648)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlaceholderCard extends StatelessWidget {
+  final double width;
+  final double height;
+  final Gradient gradient;
+  final bool isFront;
+  final bool isIban;
+
+  const _PlaceholderCard({
+    required this.width,
+    required this.height,
+    required this.gradient,
+    this.isFront = false,
+    this.isIban = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        gradient: gradient,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: isFront
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.28),
+                  blurRadius: 24,
+                  offset: const Offset(0, 12),
+                ),
+              ]
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.10),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
                 Text(
-                  feature.descriptionKey.tr(),
+                  'AKBANK',
+                  style: const TextStyle(
+                    fontFamily: 'Poppins',
+                    color: Colors.white,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.6,
+                  ),
+                ),
+                const Spacer(),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Container(
+              width: 26,
+              height: 18,
+              decoration: BoxDecoration(
+                color: const Color(0xFFEAC76C),
+                borderRadius: BorderRadius.circular(3),
+              ),
+            ),
+            const Spacer(),
+            if (isIban)
+              Text(
+                'IBAN',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 7,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                ),
+              ),
+            const SizedBox(height: 2),
+            Text(
+              'TR12 1234 •••• •••• 6543',
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.6,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Text(
+                  'VOLKAN USTEKIDAG',
                   style: TextStyle(
                     fontFamily: 'Poppins',
-                    fontSize: 14,
-                    color: Colors.white.withOpacity(0.9),
-                    height: 1.4,
+                    color: Colors.white.withValues(alpha: 0.95),
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.4,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                ),
+                const Spacer(),
+                Text(
+                  '12345334',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    color: Colors.white.withValues(alpha: 0.9),
+                    fontSize: 9,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.4,
+                  ),
                 ),
               ],
             ),
@@ -299,24 +695,82 @@ class _PremiumPageState extends State<PremiumPage> {
       ),
     );
   }
+}
 
-  Widget _buildPageIndicator(ColorScheme colorScheme) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(
-        _featureCards.length,
-        (index) {
-          final isActive = index == _currentFeatureIndex;
-          return AnimatedContainer(
-            duration: const Duration(milliseconds: 240),
-            margin: const EdgeInsets.symmetric(horizontal: 4),
-            height: 6,
-            width: isActive ? 18 : 6,
-            decoration: BoxDecoration(
-              color: isActive
-                  ? colorScheme.onSurface
-                  : colorScheme.onSurface.withOpacity(0.35),
-              borderRadius: BorderRadius.circular(6),
+// ---------------------------------------------------------------------------
+// Pricing — three equal tiles (yearly / monthly / weekly). BEST VALUE badge
+// is applied programmatically to whichever plan has the lowest cost per
+// month; the yearly tile shows its per-month equivalent under the price.
+// ---------------------------------------------------------------------------
+
+class _PricingRow extends StatelessWidget {
+  final List<ProductDetails> plans;
+  final String? weeklyId;
+  final String? monthlyId;
+  final String? yearlyId;
+  final String? bestValueId;
+  final ProductDetails? selected;
+  final ValueChanged<ProductDetails> onSelected;
+
+  const _PricingRow({
+    required this.plans,
+    required this.weeklyId,
+    required this.monthlyId,
+    required this.yearlyId,
+    required this.bestValueId,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  // Inner horizontal padding of each tile (must match _PlanTile padding).
+  static const double _tileInnerHPadding = 12;
+  // Gap between adjacent tiles (must match the SizedBox(width: 8) below).
+  static const double _tileGap = 8;
+  // Target price font size when nothing needs scaling.
+  static const double _priceTargetSize = 22;
+  // Floor so prices never get unreadably small if all are very wide.
+  static const double _priceMinSize = 16;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      // Top padding leaves room for the BEST VALUE pill that floats
+      // half-above the card border.
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final gaps = plans.length > 1 ? plans.length - 1 : 0;
+          final tileWidth =
+              (constraints.maxWidth - (_tileGap * gaps)) / plans.length;
+          final priceMaxWidth = tileWidth - (_tileInnerHPadding * 2);
+          // One font size shared by all tiles so $14.99 and $0.99 render at
+          // the same visual scale instead of each tile scaling independently.
+          final priceFontSize = _computePriceFontSize(
+            priceMaxWidth,
+            Directionality.of(context),
+          );
+
+          return IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (var i = 0; i < plans.length; i++) ...[
+                  if (i > 0) const SizedBox(width: _tileGap),
+                  Expanded(
+                    child: _PlanTile(
+                      product: plans[i],
+                      isSelected: selected?.id == plans[i].id,
+                      isBestValue: plans[i].id == bestValueId,
+                      isWeekly: plans[i].id == weeklyId,
+                      isMonthly: plans[i].id == monthlyId,
+                      isYearly: plans[i].id == yearlyId,
+                      priceFontSize: priceFontSize,
+                      monthlyEquivalent: _equivalentFor(plans[i]),
+                      onTap: () => onSelected(plans[i]),
+                    ),
+                  ),
+                ],
+              ],
             ),
           );
         },
@@ -324,225 +778,318 @@ class _PremiumPageState extends State<PremiumPage> {
     );
   }
 
-  Widget _buildPricingSection({
-    required ColorScheme colorScheme,
-    required ProductDetails? weeklyProduct,
-    required ProductDetails? yearlyProduct,
-  }) {
-    if (weeklyProduct == null && yearlyProduct == null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Text(
-          'premiumProductsUnavailable'.tr(),
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            color: colorScheme.error,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withOpacity(0.35),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.outline.withOpacity(0.15)),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withOpacity(0.08),
-            blurRadius: 16,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'plansTitle'.tr(),
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-              const Spacer(),
-              _buildRestoreButton(colorScheme),
-            ],
-          ),
-          const SizedBox(height: 12),
-          if (yearlyProduct != null)
-            _buildPlanCard(
-              colorScheme: colorScheme,
-              product: yearlyProduct,
-              title: 'yearlyPlanTitle'.tr(),
-              price: '${yearlyProduct.price} ${'perYear'.tr()}',
-              badge: 'planBestValue'.tr(),
-              subtext: _buildMonthlyText(yearlyProduct),
-            ),
-          if (yearlyProduct != null && weeklyProduct != null)
-            const SizedBox(height: 12),
-          if (weeklyProduct != null)
-            _buildPlanCard(
-              colorScheme: colorScheme,
-              product: weeklyProduct,
-              title: 'weeklyPlanTitle'.tr(),
-              price: '${weeklyProduct.price} ${'perWeek'.tr()}',
-              description: 'weeklyPlanShortDesc'.tr(),
-            ),
-          const SizedBox(height: 16),
-          _buildPrimaryCta(colorScheme),
-        ],
-      ),
+  double _computePriceFontSize(
+      double priceMaxWidth, ui.TextDirection direction) {
+    if (priceMaxWidth <= 0) return _priceTargetSize;
+    double minScale = 1.0;
+    const baseStyle = TextStyle(
+      fontFamily: 'Poppins',
+      fontSize: _priceTargetSize,
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.4,
+      height: 1.1,
     );
+    for (final p in plans) {
+      final tp = TextPainter(
+        text: TextSpan(text: p.price, style: baseStyle),
+        textDirection: direction,
+        maxLines: 1,
+      )..layout();
+      if (tp.width > priceMaxWidth) {
+        final scale = priceMaxWidth / tp.width;
+        if (scale < minScale) minScale = scale;
+      }
+    }
+    final scaled = _priceTargetSize * minScale;
+    return scaled < _priceMinSize ? _priceMinSize : scaled;
   }
 
-  Widget _buildPlanCard({
-    required ColorScheme colorScheme,
-    required ProductDetails product,
-    required String title,
-    required String price,
-    String? description,
-    String? badge,
-    String? subtext,
-  }) {
-    final isSelected = _selectedProduct?.id == product.id;
+  String? _equivalentFor(ProductDetails plan) {
+    if (plan.id == yearlyId) {
+      return _formatPerMonth(plan.rawPrice / 12, plan);
+    }
+    if (plan.id == weeklyId) {
+      // 4.345 weeks per month — converts the weekly price into a
+      // per-month equivalent so the user sees the real monthly cost
+      // of staying on the weekly plan.
+      return _formatPerMonth(plan.rawPrice * 4.345, plan);
+    }
+    return null;
+  }
 
+  String _formatPerMonth(double amount, ProductDetails source) {
+    if (amount <= 0) return '';
+    final symbol = _extractSymbol(source.price) ?? source.currencyCode;
+    return NumberFormat.currency(symbol: symbol, decimalDigits: 2)
+        .format(amount);
+  }
+
+  String? _extractSymbol(String price) {
+    final match = RegExp(r'[^\d\s.,]+').firstMatch(price.trim());
+    return match?.group(0);
+  }
+}
+
+class _PlanTile extends StatefulWidget {
+  final ProductDetails product;
+  final bool isSelected;
+  final bool isBestValue;
+  final bool isWeekly;
+  final bool isMonthly;
+  final bool isYearly;
+  final double priceFontSize;
+  final String? monthlyEquivalent;
+  final VoidCallback onTap;
+
+  const _PlanTile({
+    required this.product,
+    required this.isSelected,
+    required this.isBestValue,
+    required this.isWeekly,
+    required this.isMonthly,
+    required this.isYearly,
+    required this.priceFontSize,
+    required this.monthlyEquivalent,
+    required this.onTap,
+  });
+
+  @override
+  State<_PlanTile> createState() => _PlanTileState();
+}
+
+class _PlanTileState extends State<_PlanTile>
+    with SingleTickerProviderStateMixin {
+  AnimationController? _shimmer;
+
+  static const _gold = Color(0xFFC8A14A);
+  static const _goldGradient = LinearGradient(
+    colors: [Color(0xFFE0B85F), Color(0xFFB8862C)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isBestValue) _ensureShimmer();
+  }
+
+  @override
+  void didUpdateWidget(covariant _PlanTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isBestValue) {
+      _ensureShimmer();
+    } else if (_shimmer != null) {
+      _shimmer!.dispose();
+      _shimmer = null;
+    }
+  }
+
+  void _ensureShimmer() {
+    _shimmer ??= AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2800),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _shimmer?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final showTopBadge = widget.isBestValue;
+    final topBadgeText = widget.isBestValue ? 'premiumPlanBest'.tr() : '';
+    final borderColor = widget.isSelected
+        ? _gold
+        : colorScheme.onSurface.withValues(alpha: 0.10);
+
+    // Row + IntrinsicHeight stretches every tile to the tallest one. The
+    // inner Column reserves a fixed slot for the equivalent-line so every
+    // tile has the same content height too — the bottom edges align even
+    // when the monthly tile has no equivalent-line text. The BEST VALUE
+    // badge sits in the outer Stack with a negative top so it floats
+    // above the card border without taking room inside.
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOutCubic,
       decoration: BoxDecoration(
-        color: isSelected
-            ? colorScheme.primary.withOpacity(0.08)
-            : colorScheme.surfaceContainerLowest.withOpacity(0.7),
-        borderRadius: BorderRadius.circular(16),
+        color: colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: isSelected
-              ? colorScheme.primary
-              : colorScheme.outline.withOpacity(0.25),
-          width: isSelected ? 1.4 : 1,
+          color: borderColor,
+          width: widget.isSelected ? 1.6 : 1,
         ),
-        boxShadow: [
-          if (isSelected)
-            BoxShadow(
-              color: colorScheme.primary.withOpacity(0.18),
-              blurRadius: 16,
-              offset: const Offset(0, 10),
-            ),
-        ],
+        boxShadow: widget.isSelected
+            ? [
+                BoxShadow(
+                  color: _gold.withValues(alpha: 0.22),
+                  blurRadius: 14,
+                  offset: const Offset(0, 8),
+                ),
+              ]
+            : null,
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () => _onPlanSelected(product),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: widget.onTap,
+          child: Stack(
+            clipBehavior: Clip.none,
+            fit: StackFit.expand,
             children: [
-              Expanded(
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 16, 12, 14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      children: [
-                        Text(
-                          title,
+                    // Fixed-height + FittedBox keeps the title baseline aligned
+                    // across all three tiles, and quietly scales down if a
+                    // localized title is unexpectedly wide.
+                    SizedBox(
+                      height: 14,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          _planTitle().toUpperCase(),
+                          maxLines: 1,
                           style: TextStyle(
                             fontFamily: 'Poppins',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.onSurface,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.8,
+                            color:
+                                colorScheme.onSurface.withValues(alpha: 0.55),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        if (badge != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: colorScheme.primary.withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: colorScheme.primary,
-                                width: 0.8,
-                              ),
-                            ),
-                            child: Text(
-                              badge,
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: colorScheme.primary,
-                              ),
-                            ),
-                          ),
-                      ],
+                      ),
                     ),
                     const SizedBox(height: 6),
-                    Text(
-                      price,
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: colorScheme.onSurface,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        widget.product.price,
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: widget.priceFontSize,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.4,
+                          color: colorScheme.onSurface,
+                          height: 1.1,
+                        ),
                       ),
                     ),
-                    if (description != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        description,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 12,
-                          color: colorScheme.onSurface.withOpacity(0.7),
-                        ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _cadenceLabel(),
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: colorScheme.onSurface.withValues(alpha: 0.55),
                       ),
-                    ],
-                    if (subtext != null) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        subtext,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 12,
-                          color: colorScheme.onSurface.withOpacity(0.6),
-                        ),
-                      ),
-                    ],
+                    ),
+                    const SizedBox(height: 6),
+                    // Reserve the equivalent-line slot on every tile (even
+                    // when empty on the monthly plan) so all three card
+                    // bottoms line up. FittedBox scales the text down for
+                    // long currency prefixes like "TRY225.90 / month"
+                    // instead of clipping with an ellipsis.
+                    SizedBox(
+                      height: 14,
+                      child: (widget.monthlyEquivalent != null &&
+                              widget.monthlyEquivalent!.isNotEmpty)
+                          ? FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'premiumPerMonthEq'
+                                    .tr(args: [widget.monthlyEquivalent!]),
+                                maxLines: 1,
+                                style: const TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: _gold,
+                                ),
+                              ),
+                            )
+                          : null,
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: isSelected ? colorScheme.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: isSelected
-                        ? colorScheme.primary
-                        : colorScheme.onSurface.withOpacity(0.25),
+              // Sheen sweep over the BEST VALUE tile. Clipped to the card's
+              // rounded rect, sat under the floating badge so the badge
+              // never gets washed out by the highlight.
+              if (widget.isBestValue && _shimmer != null)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: AnimatedBuilder(
+                        animation: _shimmer!,
+                        builder: (_, __) => CustomPaint(
+                          painter: _ShimmerPainter(
+                            progress: _shimmer!.value,
+                            widthFactor: 0.45,
+                            maxAlpha: 0.45,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-                child: isSelected
-                    ? Icon(
-                        Icons.check,
-                        size: 18,
-                        color: colorScheme.onPrimary,
-                      )
-                    : null,
-              ),
+              if (showTopBadge)
+                Positioned(
+                  top: -10,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: widget.isBestValue ? _goldGradient : null,
+                        color: widget.isBestValue
+                            ? null
+                            : colorScheme.onSurface.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: widget.isBestValue
+                            ? [
+                                BoxShadow(
+                                  color: _gold.withValues(alpha: 0.4),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Text(
+                        topBadgeText,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.8,
+                          color: widget.isBestValue
+                              ? Colors.white
+                              : colorScheme.onSurface.withValues(alpha: 0.85),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -550,177 +1097,488 @@ class _PremiumPageState extends State<PremiumPage> {
     );
   }
 
-  Widget _buildPrimaryCta(ColorScheme colorScheme) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: _selectedProduct == null
-            ? null
-            : () => _handlePurchase(_selectedProduct!),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: colorScheme.primary,
-          foregroundColor: colorScheme.onPrimary,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          textStyle: const TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        child: Text('continueWithSelectedPlan'.tr()),
-      ),
-    );
+  String _planTitle() {
+    if (widget.isYearly) return 'yearlyPlanTitle'.tr();
+    if (widget.isWeekly) return 'weeklyPlanTitle'.tr();
+    return 'monthlyPlanTitle'.tr();
   }
 
-  Widget _buildRestoreButton(ColorScheme colorScheme) {
-    return GestureDetector(
-      onTap: () async {
-        await _premiumController.restorePurchases();
-        context.showInfoSnackBar('purchaseRestoreCompleted');
-      },
+  String _cadenceLabel() {
+    if (widget.isYearly) return 'perYear'.tr();
+    if (widget.isWeekly) return 'perWeek'.tr();
+    return 'perMonth'.tr();
+  }
+}
+
+class _ProductsUnavailable extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Text(
-        'restorePurchases'.tr(),
+        'premiumProductsUnavailable'.tr(),
         style: TextStyle(
           fontFamily: 'Poppins',
-          fontSize: 12,
-          color: colorScheme.onSurface.withOpacity(0.6),
+          fontSize: 13,
+          color: colorScheme.error,
           fontWeight: FontWeight.w600,
         ),
       ),
     );
   }
+}
 
-  Future<void> _handlePurchase(ProductDetails product) async {
-    final success = await _premiumController.purchase(product);
-    if (!mounted) return;
+// ---------------------------------------------------------------------------
+// Feature checklist — single-line items, each with a soft gold-tinted icon
+// plate matching the feature it describes (no generic checkmarks).
+// ---------------------------------------------------------------------------
 
-    if (success) {
-      final messengerContext = Get.context ?? context;
-      messengerContext.showSuccessSnackBar('premiumActivated');
-    } else {
-      context.showErrorSnackBar('purchaseFailed');
-    }
+class _Feature {
+  final String titleKey;
+  final IconData icon;
+  const _Feature(this.titleKey, this.icon);
+}
+
+/// Spec used when the paywall is opened with a specific feature trigger
+/// (`Get.toNamed('/premium', arguments: {'feature': 'biometric'})`).
+/// Pairs a title + description + icon so the page can render a single
+/// hero feature card instead of the wrap of all features.
+class _PremiumFeatureSpec {
+  final String titleKey;
+  final String descKey;
+  final IconData icon;
+  const _PremiumFeatureSpec(this.titleKey, this.descKey, this.icon);
+}
+
+/// Minimal "the feature you tried to use" highlight. No card box, no
+/// dark fill — just a gold icon plate, the title and a short description
+/// centred on the page. A periodic shine sweeps over the icon to give
+/// the moment a hint of motion without feeling like a banner ad.
+class _BigFeatureCard extends StatefulWidget {
+  final _PremiumFeatureSpec spec;
+  const _BigFeatureCard({required this.spec});
+
+  @override
+  State<_BigFeatureCard> createState() => _BigFeatureCardState();
+}
+
+class _BigFeatureCardState extends State<_BigFeatureCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _shimmer;
+
+  static const _gold = Color(0xFFC8A14A);
+  static const _goldGradient = LinearGradient(
+    colors: [Color(0xFFE0B85F), Color(0xFFB8862C)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _shimmer = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3200),
+    )..repeat();
   }
 
-  void _ensureDefaultSelectedProduct() {
-    if (_selectedProduct != null) return;
-
-    final weeklyProduct = _premiumController.weeklyProduct;
-    final yearlyProduct = _premiumController.yearlyProduct;
-    final candidate = weeklyProduct ?? yearlyProduct;
-
-    if (candidate != null && mounted) {
-      setState(() {
-        _selectedProduct = candidate;
-      });
-    }
+  @override
+  void dispose() {
+    _shimmer.dispose();
+    super.dispose();
   }
 
-  void _startAutoSlide() {
-    _autoSlideTimer?.cancel();
-    if (_featureCards.length < 2) return;
-
-    _autoSlideTimer = Timer.periodic(_autoSlideInterval, (_) {
-      if (!_featurePageController.hasClients) return;
-      final nextPage = (_currentFeatureIndex + 1) % _featureCards.length;
-      _featurePageController.animateToPage(
-        nextPage,
-        duration: _autoSlideAnimation,
-        curve: Curves.easeInOut,
-      );
-    });
-  }
-
-  void _onPlanSelected(ProductDetails product) {
-    if (_selectedProduct?.id == product.id) return;
-    setState(() => _selectedProduct = product);
-  }
-
-  String _buildMonthlyText(ProductDetails yearlyProduct) {
-    final monthlyRaw = yearlyProduct.rawPrice / 12;
-    final currencySymbol = _extractCurrencySymbol(yearlyProduct.price) ??
-        yearlyProduct.currencyCode;
-    final formatter = NumberFormat.currency(
-      symbol: currencySymbol,
-      decimalDigits: 2,
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: Stack(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    gradient: _goldGradient,
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _gold.withValues(alpha: 0.32),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Icon(widget.spec.icon, color: Colors.white, size: 24),
+                ),
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: AnimatedBuilder(
+                      animation: _shimmer,
+                      builder: (_, __) => CustomPaint(
+                        painter: _ShimmerPainter(progress: _shimmer.value),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            widget.spec.titleKey.tr(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: colorScheme.onSurface,
+              height: 1.15,
+              letterSpacing: -0.2,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            widget.spec.descKey.tr(),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
+              height: 1.35,
+            ),
+          ),
+        ],
+      ),
     );
-    return 'monthlyEquivalent'.tr(args: [formatter.format(monthlyRaw)]);
+  }
+}
+
+/// Diagonal white sweep that travels from off-screen-left to off-screen-
+/// right during the first ~35 % of the cycle, then idles so the card
+/// doesn't strobe.
+class _ShimmerPainter extends CustomPainter {
+  final double progress;
+  final double widthFactor;
+  final double maxAlpha;
+  const _ShimmerPainter({
+    required this.progress,
+    this.widthFactor = 0.32,
+    this.maxAlpha = 0.22,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (progress > 0.35) return;
+    final t = progress / 0.35;
+    final shineWidth = size.width * widthFactor;
+    final dx = -shineWidth + (size.width + shineWidth * 2) * t;
+
+    final rect = Rect.fromLTWH(
+      dx,
+      -size.height * 0.2,
+      shineWidth,
+      size.height * 1.4,
+    );
+
+    final paint = Paint()
+      ..shader = LinearGradient(
+        colors: [
+          Colors.white.withValues(alpha: 0),
+          Colors.white.withValues(alpha: maxAlpha),
+          Colors.white.withValues(alpha: 0),
+        ],
+        stops: const [0, 0.5, 1],
+      ).createShader(rect);
+
+    canvas.save();
+    canvas.translate(rect.center.dx, rect.center.dy);
+    canvas.rotate(-0.35);
+    canvas.translate(-rect.center.dx, -rect.center.dy);
+    canvas.drawRect(rect, paint);
+    canvas.restore();
   }
 
-  String? _extractCurrencySymbol(String price) {
-    final trimmed = price.trim();
-    final match = RegExp(r'[^\d\s.,]+').firstMatch(trimmed);
-    return match?.group(0);
+  @override
+  bool shouldRepaint(covariant _ShimmerPainter oldDelegate) =>
+      oldDelegate.progress != progress ||
+      oldDelegate.widthFactor != widthFactor ||
+      oldDelegate.maxAlpha != maxAlpha;
+}
+
+class _FeatureChecklist extends StatelessWidget {
+  final List<_Feature> features;
+  const _FeatureChecklist({required this.features});
+
+  static const _gold = Color(0xFFC8A14A);
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          for (final f in features)
+            Container(
+              padding: const EdgeInsets.fromLTRB(10, 6, 12, 6),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: _gold.withValues(alpha: 0.22),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(f.icon, size: 14, color: _gold),
+                  const SizedBox(width: 6),
+                  Text(
+                    f.titleKey.tr(),
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurface,
+                      height: 1.1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// CTA — bigger, bolder, with subtle pulse and arrow.
+// ---------------------------------------------------------------------------
+
+class _CtaButton extends StatelessWidget {
+  final ProductDetails? product;
+  final AnimationController pulseController;
+  final VoidCallback? onPressed;
+
+  const _CtaButton({
+    required this.product,
+    required this.pulseController,
+    this.onPressed,
+  });
+
+  static const _gold = Color(0xFFC8A14A);
+  static const _goldGradient = LinearGradient(
+    colors: [Color(0xFFE0B85F), Color(0xFFB8862C)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  String _ctaLabel(ProductDetails? p) {
+    if (p == null) return 'getPremium'.tr();
+    if (p.id == PremiumService.yearlyProductId) {
+      return 'premiumCtaYearly'.tr();
+    }
+    if (p.id == PremiumService.monthlyProductId) {
+      return 'premiumCtaMonthly'.tr();
+    }
+    if (p.id == PremiumService.weeklyProductId) {
+      return 'premiumCtaWeekly'.tr();
+    }
+    return 'getPremium'.tr();
   }
 
-  Widget _buildLegalLinks(ColorScheme colorScheme) {
+  @override
+  Widget build(BuildContext context) {
+    final label = _ctaLabel(product);
+    final disabled = onPressed == null;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Opacity(
+        opacity: disabled ? 0.5 : 1,
+        child: AnimatedBuilder(
+          animation: pulseController,
+          builder: (_, __) {
+            final t = pulseController.value;
+            final glowAlpha = 0.35 + 0.25 * (0.5 - (t - 0.5).abs()) * 2;
+            return Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(32),
+                onTap: onPressed,
+                child: Container(
+                  height: 60,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    gradient: _goldGradient,
+                    borderRadius: BorderRadius.circular(32),
+                    boxShadow: disabled
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: _gold.withValues(alpha: glowAlpha),
+                              blurRadius: 22,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(
+                        Icons.arrow_forward_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _CtaSubText extends StatelessWidget {
+  final ProductDetails? product;
+  const _CtaSubText({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Text(
+      'premiumCancelAnytime'.tr(),
+      style: TextStyle(
+        fontFamily: 'Poppins',
+        fontSize: 11,
+        fontWeight: FontWeight.w500,
+        color: colorScheme.onSurface.withValues(alpha: 0.6),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Apple Guideline 3.1.2(a) — auto-renewal disclosure block must be visible
+// next to the subscribe button. Same copy applies on Android (Play also
+// requires clear subscription disclosure under their billing policy).
+// ---------------------------------------------------------------------------
+
+class _LegalDisclosure extends StatelessWidget {
+  const _LegalDisclosure();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Text(
+        'premiumLegalDisclosure'.tr(),
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 10,
+          height: 1.45,
+          fontWeight: FontWeight.w400,
+          color: colorScheme.onSurface.withValues(alpha: 0.55),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Footer.
+// ---------------------------------------------------------------------------
+
+class _LegalLinks extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        GestureDetector(
-          onTap: () => _launchUrl(
-              'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/'),
-          child: Text(
-            'termsOfUse'.tr(),
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 12,
-              color: Colors.blue,
-              decoration: TextDecoration.underline,
-              decorationColor: colorScheme.primary,
-            ),
-          ),
+        _LegalLink(
+          label: 'termsOfUse'.tr(),
+          url: LegalUrls.termsOfUse,
+          color: colorScheme.onSurface.withValues(alpha: 0.55),
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Text(
-            '•',
+            '·',
             style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 12,
-              color: colorScheme.onSurface.withOpacity(0.5),
+              color: colorScheme.onSurface.withValues(alpha: 0.4),
             ),
           ),
         ),
-        GestureDetector(
-          onTap: () => _launchUrl(
-              'https://sites.google.com/view/wallet-app-privacy-policy/ana-sayfa'),
-          child: Text(
-            'privacyPolicy'.tr(),
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 12,
-              color: colorScheme.primary,
-              decoration: TextDecoration.underline,
-              decorationColor: colorScheme.primary,
-            ),
-          ),
+        _LegalLink(
+          label: 'privacyPolicy'.tr(),
+          url: LegalUrls.privacyPolicy,
+          color: colorScheme.onSurface.withValues(alpha: 0.55),
         ),
       ],
     );
   }
-
-  Future<void> _launchUrl(String urlString) async {
-    final url = Uri.parse(urlString);
-    if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-      if (mounted) {
-        context.showErrorSnackBar('couldNotLaunchUrl');
-      }
-    }
-  }
 }
 
-class _FeatureCardData {
-  final IconData icon;
-  final String titleKey;
-  final String descriptionKey;
-
-  const _FeatureCardData({
-    required this.icon,
-    required this.titleKey,
-    required this.descriptionKey,
+class _LegalLink extends StatelessWidget {
+  final String label;
+  final String url;
+  final Color color;
+  const _LegalLink({
+    required this.label,
+    required this.url,
+    required this.color,
   });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => _launch(context, url),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _launch(BuildContext context, String urlString) async {
+    final uri = Uri.parse(urlString);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (context.mounted) context.showErrorSnackBar('couldNotLaunchUrl');
+    }
+  }
 }
