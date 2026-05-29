@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:hive/hive.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/router/getx_routes.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
@@ -13,57 +14,50 @@ import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 /// One-time intro shown before the home (or PIN, for migrated users) on
 /// first launch. Single screen with an auto-rotating feature card so the
 /// pitch reads as a quick teaser rather than a four-tap slideshow. The
-/// `onboarding_seen` flag in secure storage gates re-display; a re-install
-/// brings it back.
+/// `onboarding_seen` flag in a Hive box gates re-display; a re-install
+/// brings it back because Hive boxes live in the app's documents directory
+/// and are wiped on uninstall on both iOS and Android.
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({Key? key}) : super(key: key);
 
   static const String storageKey = 'onboarding_seen';
+  static const String _boxName = 'app_state';
 
-  /// `true` means re-show the onboarding on the next splash → home jump.
-  ///
-  /// iOS keeps `FlutterSecureStorage` entries in the Keychain across
-  /// uninstalls (we pin to `first_unlock_this_device` accessibility,
-  /// which survives app deletion). Without a stale-flag reset, a user who
-  /// reinstalls inherits `onboarding_seen=true` from their previous
-  /// lifetime and never sees the intro. The Hive auth box, by contrast,
-  /// *is* wiped on uninstall — so "no PIN set" is a reliable signal that
-  /// this is effectively a fresh install, regardless of what the
-  /// Keychain says.
-  ///
-  /// False positive: a user who completed onboarding but never set a PIN
-  /// (PIN is opt-in) will re-see the intro on a fresh launch. Acceptable
-  /// — the intro is a 3-slide teaser, and the audience that skips PIN
-  /// also tends to bounce around features early on.
+  // Earlier builds wrote the flag to FlutterSecureStorage. iOS Keychain
+  // survives uninstall, so a "no PIN ⇒ fresh install" heuristic was used
+  // to force re-display on reinstall — but PIN is opt-in, so the majority
+  // of users (who skip PIN) re-saw onboarding every launch. We migrated to
+  // Hive (wiped on uninstall) and clean up the stale Keychain entry once.
+  static bool _legacyCleanedUp = false;
+
+  static Future<Box<dynamic>> _openBox() async {
+    if (Hive.isBoxOpen(_boxName)) return Hive.box<dynamic>(_boxName);
+    return Hive.openBox<dynamic>(_boxName);
+  }
+
   static Future<bool> shouldShow() async {
     try {
-      const storage = SecureStorageProvider.instance;
-      final seen = (await storage.read(key: storageKey)) == 'true';
-      if (!seen) return true;
-
-      final hasPin = AuthenticationService().hasPasswordSync();
-      if (!hasPin) {
-        try {
-          await storage.delete(key: storageKey);
-        } catch (_) {
-          // Best-effort. If the delete fails the user will see onboarding
-          // this launch (we return true) but inherit a stale flag again —
-          // they'll see it once more next launch, no harm done.
-        }
-        return true;
-      }
-      return false;
+      final box = await _openBox();
+      final seen = box.get(storageKey) == true;
+      _cleanupLegacyFlag();
+      return !seen;
     } catch (_) {
       return false;
     }
   }
 
+  static void _cleanupLegacyFlag() {
+    if (_legacyCleanedUp) return;
+    _legacyCleanedUp = true;
+    unawaited(
+      SecureStorageProvider.instance.delete(key: storageKey).catchError((_) {}),
+    );
+  }
+
   static Future<void> _markSeen() async {
     try {
-      await SecureStorageProvider.instance.write(
-        key: storageKey,
-        value: 'true',
-      );
+      final box = await _openBox();
+      await box.put(storageKey, true);
     } catch (_) {
       // best-effort
     }

@@ -97,7 +97,7 @@ class _CardDetailSheetState extends State<CardDetailSheet> {
     final isLoyalty = widget.item.kind == WalletItemKind.loyalty;
 
     return DraggableScrollableSheet(
-      initialChildSize: 0.88,
+      initialChildSize: 0.95,
       minChildSize: 0.5,
       maxChildSize: 0.96,
       expand: false,
@@ -449,7 +449,6 @@ class _FieldGroup extends StatelessWidget {
     );
   }
 }
-
 
 /// Full-width "Add to Wallet" button for loyalty sheet. Sits on top of the
 /// gradient backdrop, mirrors the detail page's glass styling so the entry
