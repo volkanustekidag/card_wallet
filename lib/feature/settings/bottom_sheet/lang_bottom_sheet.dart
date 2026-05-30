@@ -78,53 +78,51 @@ class _LanguageBottomSheetBodyState extends State<LanguageBottomSheetBody> {
     final theme = Theme.of(context);
     final height = MediaQuery.of(context).size.height * 0.60;
 
-    return SafeArea(
-      child: SizedBox(
-        height: height,
-        child: Transform.translate(
-          offset: const Offset(0, -12),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "langSelection".tr(),
-                        style: theme.textTheme.titleLarge,
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: Text("cancel".tr()),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: _supportedLocales.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
-                    itemBuilder: (_, index) => _LanguageTile(
-                      label: _displayNames[index],
-                      code: _supportedLocales[index].languageCode.toUpperCase(),
-                      selected: index == _selectedIndex,
-                      onTap: () => setState(() => _selectedIndex = index),
+    return SizedBox(
+      height: height,
+      child: Transform.translate(
+        offset: const Offset(0, -12),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "langSelection".tr(),
+                      style: theme.textTheme.titleLarge,
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _onConfirm,
-                    child: Text("confirm".tr()),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text("cancel".tr()),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: _supportedLocales.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (_, index) => _LanguageTile(
+                    label: _displayNames[index],
+                    code: _supportedLocales[index].languageCode.toUpperCase(),
+                    selected: index == _selectedIndex,
+                    onTap: () => setState(() => _selectedIndex = index),
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _onConfirm,
+                  child: Text("confirm".tr()),
+                ),
+              ),
+            ],
           ),
         ),
       ),
