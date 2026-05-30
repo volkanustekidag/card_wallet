@@ -1,2 +1,3 @@
 #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
 #include "Generated.xcconfig"
+DART_DEFINES=V0FMTEVUX0VYUE9SVF9CQVNFX1VSTD1odHRwczovL2NhcmR3YWxsZXQtd2FsbGV0LWV4cG9ydC0xMzQ0NTcxMDU1OTcuZXVyb3BlLXdlc3QxLnJ1bi5hcHA=

@@ -27,7 +27,7 @@ export WALLET_PUBLIC_BASE_URL=https://wallet-api.example.com
 # Production default is App Check hard enforcement. For local legacy curl
 # testing only, set APP_CHECK_REQUIRED=false and provide WALLET_EXPORT_API_KEY.
 export APP_CHECK_REQUIRED=true
-export FIREBASE_PROJECT_ID=cardwallet-495118
+export FIREBASE_PROJECT_ID=x-app-c2e89
 
 # Optional tuning:
 export WALLET_RATE_LIMIT_MAX=30           # requests per IP per window
@@ -165,7 +165,7 @@ gcloud run deploy cardwallet-wallet-export \
   --max-instances 1 \
   --memory 256Mi \
   --cpu 1 \
-  --set-env-vars "APP_CHECK_REQUIRED=true,FIREBASE_PROJECT_ID=cardwallet-495118,WALLET_PUBLIC_BASE_URL=${SERVICE_URL},APPLE_PASS_TYPE_ID=pass.com.volkan.cardwallet.loyalty,APPLE_TEAM_ID=FXWKZB775S,APPLE_ORG_NAME=Card Wallet,APPLE_SIGNER_KEY_PATH=/secrets/apple-pass-key/pass-key.pem,APPLE_SIGNER_CERT_PATH=/secrets/apple-pass-cert/pass-cert.pem,APPLE_WWDR_CERT_PATH=/secrets/apple-wwdr/wwdr.pem,APPLE_ICON_PATH=/secrets/apple-icon/icon.png,APPLE_LOGO_PATH=/secrets/apple-logo/logo.png,GOOGLE_SERVICE_ACCOUNT_PATH=/secrets/google-wallet-service-account/google-service-account.json,GOOGLE_WALLET_ISSUER_ID=3388000000023114775,GOOGLE_WALLET_CLASS_SUFFIX=cardwallet_loyalty,GOOGLE_WALLET_ISSUER_NAME=Card Wallet,GOOGLE_WALLET_PROGRAM_NAME=Card Wallet Loyalty,GOOGLE_WALLET_LOGO_URL=https://www.olkan.dev/apps/cardwallet-icon.png,GOOGLE_WALLET_ORIGINS=${SERVICE_URL}" \
+  --set-env-vars "APP_CHECK_REQUIRED=true,FIREBASE_PROJECT_ID=x-app-c2e89,WALLET_PUBLIC_BASE_URL=${SERVICE_URL},APPLE_PASS_TYPE_ID=pass.com.volkan.cardwallet.loyalty,APPLE_TEAM_ID=FXWKZB775S,APPLE_ORG_NAME=Card Wallet,APPLE_SIGNER_KEY_PATH=/secrets/apple-pass-key/pass-key.pem,APPLE_SIGNER_CERT_PATH=/secrets/apple-pass-cert/pass-cert.pem,APPLE_WWDR_CERT_PATH=/secrets/apple-wwdr/wwdr.pem,APPLE_ICON_PATH=/secrets/apple-icon/icon.png,APPLE_LOGO_PATH=/secrets/apple-logo/logo.png,GOOGLE_SERVICE_ACCOUNT_PATH=/secrets/google-wallet-service-account/google-service-account.json,GOOGLE_WALLET_ISSUER_ID=3388000000023114775,GOOGLE_WALLET_CLASS_SUFFIX=cardwallet_loyalty,GOOGLE_WALLET_ISSUER_NAME=Card Wallet,GOOGLE_WALLET_PROGRAM_NAME=Card Wallet Loyalty,GOOGLE_WALLET_LOGO_URL=https://www.olkan.dev/apps/cardwallet-icon.png,GOOGLE_WALLET_ORIGINS=${SERVICE_URL}" \
   --update-secrets "/secrets/apple-pass-key/pass-key.pem=apple-pass-key:latest,/secrets/apple-pass-cert/pass-cert.pem=apple-pass-cert:latest,/secrets/apple-wwdr/wwdr.pem=apple-wwdr:latest,/secrets/apple-icon/icon.png=apple-icon:latest,/secrets/apple-logo/logo.png=apple-logo:latest,/secrets/google-wallet-service-account/google-service-account.json=google-wallet-service-account:latest" \
   --quiet
 ```
