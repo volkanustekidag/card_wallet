@@ -98,7 +98,7 @@ class PremiumController extends GetxController {
     }
 
     sub = PremiumService.purchaseResultStream.listen(finish);
-    timeout = Timer(const Duration(seconds: 90), () {
+    timeout = Timer(const Duration(seconds: 30), () {
       finish(PremiumPurchaseResult.error);
     });
 

@@ -278,10 +278,17 @@ class PremiumService {
           if (!_allRecognisedProductIds.contains(details.productID)) {
             break;
           }
+          // StoreKit sometimes reports a fresh auto-renewable subscription
+          // purchase as `.restored` (common in sandbox when the same Apple ID
+          // has bought before). Outside the programmatic restore window any
+          // event — purchased or restored — is the result of an active buy
+          // attempt, so the paywall is waiting for a result either way.
+          final isActiveBuyResult = details.status == PurchaseStatus.purchased ||
+              !_isInsideRefreshWindow();
           if (!_hasUsableVerificationData(details)) {
             debugPrint('[Premium] rejecting ${details.productID}: '
                 'empty receipt verification data');
-            if (details.status == PurchaseStatus.purchased) {
+            if (isActiveBuyResult) {
               _emitPurchaseResult(PremiumPurchaseResult.error);
             }
             break;
@@ -291,13 +298,12 @@ class PremiumService {
           if (isLifetimeProduct) {
             _setLifetime(true);
           } else if (_subscriptionProductIds.contains(details.productID)) {
-            if (_activeRefreshUntil != null &&
-                DateTime.now().isBefore(_activeRefreshUntil!)) {
+            if (_isInsideRefreshWindow()) {
               _sawActiveSubscriptionInWindow = true;
             }
             _setSubscriptionActive(true, productId: details.productID);
           }
-          if (details.status == PurchaseStatus.purchased) {
+          if (isActiveBuyResult) {
             _emitPurchaseResult(PremiumPurchaseResult.success);
           }
           break;
@@ -312,6 +318,11 @@ class PremiumService {
   static void _emitPurchaseResult(PremiumPurchaseResult result) {
     if (_purchaseResultController.isClosed) return;
     _purchaseResultController.add(result);
+  }
+
+  static bool _isInsideRefreshWindow() {
+    final until = _activeRefreshUntil;
+    return until != null && DateTime.now().isBefore(until);
   }
 
   static bool _hasUsableVerificationData(PurchaseDetails details) {
