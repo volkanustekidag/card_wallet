@@ -11,6 +11,7 @@ import 'package:wallet_app/feature/add_credit_card/widgets/colors_list_view.dart
 import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/widgets/notes_and_tags_section.dart';
+import 'package:wallet_app/core/widgets/notification_permission_banner.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/upper_case_formatter.dart';
 
@@ -436,6 +437,9 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
           ),
         ),
         const SizedBox(height: 12),
+        const NotificationPermissionBanner(
+          margin: EdgeInsets.only(bottom: 12),
+        ),
         _buildReminderSwitch(
           theme: theme,
           icon: Icons.event_available_outlined,

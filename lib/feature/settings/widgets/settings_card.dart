@@ -6,6 +6,7 @@ class SettingsCard extends StatefulWidget {
   final IconData iconData;
   final String title;
   final String? subtitle;
+  final Color? subtitleColor;
   final Widget? trailing;
   final VoidCallback? onTap;
   final bool isDestructive;
@@ -20,6 +21,7 @@ class SettingsCard extends StatefulWidget {
     required this.iconData,
     required this.title,
     this.subtitle,
+    this.subtitleColor,
     this.trailing,
     this.onTap,
     this.isDestructive = false,
@@ -120,7 +122,7 @@ class _SettingsCardState extends State<SettingsCard> {
                               fontFamily: 'Poppins',
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
-                              color:
+                              color: widget.subtitleColor ??
                                   colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),

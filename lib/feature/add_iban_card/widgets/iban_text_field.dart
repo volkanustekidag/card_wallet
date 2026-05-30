@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:wallet_app/core/services/camera_permission_service.dart';
 import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
@@ -91,7 +91,7 @@ class IbanTextField extends StatelessWidget {
     required FocusNode focusNode,
   }) async {
     try {
-      final allowed = await _ensureCameraPermission();
+      final allowed = await CameraPermissionService.ensureGranted();
       if (!allowed) return;
 
       final picked = await ImagePicker().pickImage(
@@ -126,52 +126,6 @@ class IbanTextField extends StatelessWidget {
     } finally {
       focusNode.canRequestFocus = true;
     }
-  }
-
-  Future<bool> _ensureCameraPermission() async {
-    final cameraStatus = await Permission.camera.status;
-
-    if (cameraStatus.isDenied) {
-      final result = await Permission.camera.request();
-      if (!result.isGranted) {
-        final ctx = Get.context;
-        if (ctx != null) {
-          ScaffoldMessenger.of(ctx).showSnackBar(
-            SnackBar(
-              content: Text('cameraPermissionRequired'.tr()),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-        return false;
-      }
-    } else if (cameraStatus.isPermanentlyDenied) {
-      final shouldOpenSettings = await Get.dialog<bool>(
-        AlertDialog(
-          title: Text('cameraPermissionRequired'.tr()),
-          content: Text(
-            'cameraPermissionSettingsMessage'.tr(),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Get.back(result: false),
-              child: Text('cancel'.tr()),
-            ),
-            TextButton(
-              onPressed: () => Get.back(result: true),
-              child: Text('openSettings'.tr()),
-            ),
-          ],
-        ),
-      );
-
-      if (shouldOpenSettings == true) {
-        await openAppSettings();
-      }
-      return false;
-    }
-
-    return true;
   }
 
   String? _extractIban(String text) {

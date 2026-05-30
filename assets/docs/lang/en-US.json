@@ -462,6 +462,15 @@
     "failedToLoadCreditCards": "Could not load credit cards: {}",
     "onboardingSkipForNow": "Skip for now",
     "ibanNotFound": "IBAN not found",
-    "cameraPermissionSettingsMessage": "This app needs camera permission to scan IBANs. Please grant camera permission in your device settings.",
+    "cameraPermissionSettingsMessage": "Camera access is needed to scan cards. Please grant camera permission in your device settings.",
+    "cameraPermissionRestrictedMessage": "Camera access is restricted on this device. Check parental controls or device restrictions.",
+    "notificationPermissionRequired": "Notification permission is required",
+    "notificationPermissionSettingsMessage": "Notifications are needed to deliver card reminders. Please enable them in your device settings.",
+    "notificationsDisabledBannerTitle": "Notifications are off",
+    "notificationsDisabledBannerBody": "Reminders you enable here can't be delivered.",
+    "sectionNotifications": "Notifications",
+    "notificationsRowTitle": "Notification Permission",
+    "notificationsStatusEnabled": "On",
+    "notificationsStatusDisabled": "Off — reminders can't be delivered",
     "openSettings": "Open Settings"
 }

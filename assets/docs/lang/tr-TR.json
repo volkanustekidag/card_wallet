@@ -462,6 +462,15 @@
     "failedToLoadCreditCards": "Kredi kartları yüklenemedi: {}",
     "onboardingSkipForNow": "Şimdilik atla",
     "ibanNotFound": "IBAN bulunamadı",
-    "cameraPermissionSettingsMessage": "IBAN taramak için kamera izni gerekiyor. Lütfen cihaz ayarlarından kamera izni verin.",
+    "cameraPermissionSettingsMessage": "Kart taramak için kamera izni gerekiyor. Lütfen cihaz ayarlarından kamera izni verin.",
+    "cameraPermissionRestrictedMessage": "Bu cihazda kamera erişimi kısıtlanmış. Ebeveyn kontrolü veya cihaz kısıtlamalarını kontrol edin.",
+    "notificationPermissionRequired": "Bildirim izni gerekli",
+    "notificationPermissionSettingsMessage": "Kart hatırlatmalarını alabilmek için bildirim izni gerekiyor. Lütfen cihaz ayarlarından bildirimlere izin verin.",
+    "notificationsDisabledBannerTitle": "Bildirimler kapalı",
+    "notificationsDisabledBannerBody": "Hatırlatma açtığınız kartlar için bildirim gönderilemez.",
+    "sectionNotifications": "Bildirimler",
+    "notificationsRowTitle": "Bildirim İzni",
+    "notificationsStatusEnabled": "Açık",
+    "notificationsStatusDisabled": "Kapalı — hatırlatmalar gönderilemez",
     "openSettings": "Ayarları Aç"
 }

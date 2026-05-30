@@ -42,11 +42,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera so you can scan or capture card images inside the app.</string>
+	<string>CardWallet uses the camera to scan your credit cards, IBANs, and loyalty card barcodes. Card data stays on your device.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>We need Face ID or Touch ID to secure your wallet and provide quick access to your cards.</string>
+	<string>CardWallet uses Face ID or Touch ID to unlock your wallet and protect access to your cards.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library to let you select existing card images to add to your wallet.</string>
+	<string>CardWallet reads images from your library so you can scan a card photo or barcode you already have saved.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

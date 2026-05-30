@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/services/camera_permission_service.dart';
 
 class QRIbanScannerService {
   final ImagePicker _picker = ImagePicker();
@@ -13,10 +13,7 @@ class QRIbanScannerService {
   // QR kod ile IBAN tarama
   Future<Map<String, String>?> scanQRForIban() async {
     try {
-      // Kamera izni kontrol et
-      final cameraPermission = await Permission.camera.request();
-      if (!cameraPermission.isGranted) {
-        Get.context?.showErrorSnackBar('cameraPermissionRequired'.tr());
+      if (!await CameraPermissionService.ensureGranted()) {
         return null;
       }
 

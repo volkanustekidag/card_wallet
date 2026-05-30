@@ -3,8 +3,11 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:get/get.dart' hide Trans;
+import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
@@ -149,6 +152,20 @@ class CardReminderService {
     _payloadController.add(payload);
   }
 
+  /// Lightweight, non-prompting status check used by UI banners and the
+  /// settings screen. Returns true when notifications can actually fire,
+  /// false when the OS would silently drop them.
+  Future<bool> notificationsEnabled() async {
+    await init();
+    return _notificationsAllowed(promptForPermissions: false);
+  }
+
+  /// Opens the system app-settings screen so the user can flip the
+  /// notification toggle. Returns true if the platform call succeeded.
+  Future<bool> openNotificationSettings() async {
+    return openAppSettings();
+  }
+
   Future<bool> _notificationsAllowed({
     required bool promptForPermissions,
   }) async {
@@ -161,20 +178,44 @@ class CardReminderService {
       final enabled = await androidPlugin?.areNotificationsEnabled();
       if (enabled == true) return true;
       if (!promptForPermissions) return false;
-      return await androidPlugin?.requestNotificationsPermission() ?? false;
+
+      final granted =
+          await androidPlugin?.requestNotificationsPermission() ?? false;
+      if (granted) return true;
+
+      // On Android 13+, if the user has dismissed the OS prompt twice the
+      // system silently denies subsequent requests. permission_handler exposes
+      // the permanentlyDenied state so we can route the user to settings.
+      final status = await Permission.notification.status;
+      if (status.isPermanentlyDenied) {
+        await _offerNotificationSettings();
+      }
+      return false;
     }
 
     if (Platform.isIOS) {
       final iosPlugin = _notifications.resolvePlatformSpecificImplementation<
           IOSFlutterLocalNotificationsPlugin>();
       final permissions = await iosPlugin?.checkPermissions();
+      // isEnabled covers authorized + provisional on iOS.
       if (permissions?.isEnabled == true) return true;
       if (!promptForPermissions) return false;
-      return await iosPlugin?.requestPermissions(
+
+      final granted = await iosPlugin?.requestPermissions(
             alert: true,
             sound: true,
+            badge: true,
           ) ??
           false;
+      if (granted) return true;
+
+      // Once the user has answered the iOS prompt, a re-request is a no-op —
+      // the only path forward is the system Settings app.
+      final post = await iosPlugin?.checkPermissions();
+      if (post != null && post.isEnabled != true) {
+        await _offerNotificationSettings();
+      }
+      return false;
     }
 
     if (Platform.isMacOS) {
@@ -186,11 +227,35 @@ class CardReminderService {
       return await macPlugin?.requestPermissions(
             alert: true,
             sound: true,
+            badge: true,
           ) ??
           false;
     }
 
     return true;
+  }
+
+  Future<void> _offerNotificationSettings() async {
+    if (Get.context == null) return;
+    final shouldOpen = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('notificationPermissionRequired'.tr()),
+        content: Text('notificationPermissionSettingsMessage'.tr()),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('cancel'.tr()),
+          ),
+          TextButton(
+            onPressed: () => Get.back(result: true),
+            child: Text('openSettings'.tr()),
+          ),
+        ],
+      ),
+    );
+    if (shouldOpen == true) {
+      await openAppSettings();
+    }
   }
 
   Future<void> _configureLocalTimeZone() async {

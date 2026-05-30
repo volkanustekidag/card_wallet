@@ -3,8 +3,8 @@ import 'package:get/get.dart' hide Trans;
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/services/camera_permission_service.dart';
 
 class LoyaltyBarcodeScanResult {
   final String rawValue;
@@ -19,9 +19,7 @@ class LoyaltyBarcodeScannerService {
   final BarcodeScanner _barcodeScanner = BarcodeScanner();
 
   Future<LoyaltyBarcodeScanResult?> scanFromCamera() async {
-    final permission = await Permission.camera.request();
-    if (!permission.isGranted) {
-      Get.context?.showErrorSnackBar('cameraPermissionRequired'.tr());
+    if (!await CameraPermissionService.ensureGranted()) {
       return null;
     }
     return _pickAndDecode(ImageSource.camera);

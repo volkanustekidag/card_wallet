@@ -15,6 +15,7 @@ import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/data/services/backup_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/services/rate_app_service.dart';
 import 'package:wallet_app/core/widgets/premium_status_widget.dart';
@@ -32,7 +33,37 @@ class SettingsBody extends StatefulWidget {
   State<SettingsBody> createState() => _SettingsBodyState();
 }
 
-class _SettingsBodyState extends State<SettingsBody> {
+class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver {
+  bool? _notificationsEnabled;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _refreshNotificationStatus();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshNotificationStatus();
+    }
+  }
+
+  Future<void> _refreshNotificationStatus() async {
+    final enabled = await CardReminderService().notificationsEnabled();
+    if (!mounted) return;
+    if (enabled != _notificationsEnabled) {
+      setState(() => _notificationsEnabled = enabled);
+    }
+  }
+
   String _getCurrentLanguageName(BuildContext context) {
     switch (context.locale.languageCode) {
       case 'tr':
@@ -97,6 +128,10 @@ class _SettingsBodyState extends State<SettingsBody> {
             FadeSlideIn(
               delay: const Duration(milliseconds: 220),
               child: _buildSecuritySection(context, authController),
+            ),
+            FadeSlideIn(
+              delay: const Duration(milliseconds: 260),
+              child: _buildNotificationsSection(context),
             ),
             FadeSlideIn(
               delay: const Duration(milliseconds: 300),
@@ -296,6 +331,35 @@ class _SettingsBodyState extends State<SettingsBody> {
       if (created != true) return;
     }
     await authController.toggleBiometric(desiredValue);
+  }
+
+  Widget _buildNotificationsSection(BuildContext context) {
+    final enabled = _notificationsEnabled;
+    final theme = Theme.of(context);
+    final subtitle = enabled == null
+        ? null
+        : enabled
+            ? 'notificationsStatusEnabled'.tr()
+            : 'notificationsStatusDisabled'.tr();
+    final isDisabled = enabled == false;
+
+    return _Section(
+      title: 'sectionNotifications'.tr(),
+      children: [
+        SettingsCard(
+          iconData: isDisabled
+              ? Icons.notifications_off_outlined
+              : Icons.notifications_active_outlined,
+          title: 'notificationsRowTitle'.tr(),
+          subtitle: subtitle,
+          subtitleColor: isDisabled ? theme.colorScheme.error : null,
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: () async {
+            await CardReminderService().openNotificationSettings();
+          },
+        ),
+      ],
+    );
   }
 
   Widget _buildDataSection(BuildContext context) {
