@@ -46,7 +46,7 @@ android {
     defaultConfig {
         applicationId "com.volkan.wallet_app"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = flutter.versionCode.toInteger()
         versionName = flutter.versionName
     }
