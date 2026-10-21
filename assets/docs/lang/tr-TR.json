@@ -459,7 +459,7 @@
     "verificationError": "PIN doğrulanamadı. Lütfen tekrar deneyin.",
     "pinChangedSuccessfully": "PIN başarıyla değiştirildi",
     "failedToChangePin": "PIN değiştirilemedi. Lütfen tekrar deneyin.",
-    "failedToLoadCreditCards": "Kredi kartları yüklenemedi: {}",
+    "failedToLoadCreditCards": "Kredi kartları yüklenemedi.",
     "onboardingSkipForNow": "Şimdilik atla",
     "ibanNotFound": "IBAN bulunamadı",
     "cameraPermissionSettingsMessage": "Kart taramak için kamera izni gerekiyor. Lütfen cihaz ayarlarından kamera izni verin.",
@@ -504,5 +504,8 @@
     "shareMaskedOption": "Maskeli numara",
     "shareMaskedSubtitle": "Banka, kart sahibi ve son 4 hane (•••• {})",
     "shareFullOption": "Tam kart numarası",
-    "shareFullWarning": "Numara, kart sahibi ve son kullanma tarihi dahil — online ödeme için yeterli. Sadece güvendiğin kişilerle paylaş."
+    "shareFullWarning": "Numara, kart sahibi ve son kullanma tarihi dahil — online ödeme için yeterli. Sadece güvendiğin kişilerle paylaş.",
+    "ibanCardUpdatedSuccessfully": "IBAN kartı güncellendi",
+    "failedToSaveIbanCard": "IBAN kartı kaydedilemedi. Lütfen tekrar dene.",
+    "failedToScanQR": "QR kod okunamadı."
 }

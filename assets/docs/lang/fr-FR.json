@@ -448,7 +448,7 @@
     "verificationError": "Impossible de vérifier votre PIN. Veuillez réessayer.",
     "pinChangedSuccessfully": "PIN modifié avec succès",
     "failedToChangePin": "Impossible de modifier le PIN. Veuillez réessayer.",
-    "failedToLoadCreditCards": "Impossible de charger les cartes de crédit : {}",
+    "failedToLoadCreditCards": "Impossible de charger les cartes bancaires.",
     "onboardingSkipForNow": "Passer pour l'instant",
     "ibanNotFound": "IBAN introuvable",
     "cameraPermissionSettingsMessage": "Cette app a besoin de l'autorisation de la caméra pour scanner les cartes. Veuillez l'accorder dans les réglages de votre appareil.",
@@ -504,5 +504,8 @@
     "shareMaskedOption": "Numéro masqué",
     "shareMaskedSubtitle": "Banque, titulaire et 4 derniers chiffres (•••• {})",
     "shareFullOption": "Numéro de carte complet",
-    "shareFullWarning": "Inclut le numéro, le titulaire et la date d'expiration : assez pour payer en ligne. À ne partager qu'avec des personnes de confiance."
+    "shareFullWarning": "Inclut le numéro, le titulaire et la date d'expiration : assez pour payer en ligne. À ne partager qu'avec des personnes de confiance.",
+    "ibanCardUpdatedSuccessfully": "Carte IBAN mise à jour",
+    "failedToSaveIbanCard": "Impossible d'enregistrer la carte IBAN. Veuillez réessayer.",
+    "failedToScanQR": "Impossible de lire le QR code."
 }

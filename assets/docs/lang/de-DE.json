@@ -448,7 +448,7 @@
     "verificationError": "PIN konnte nicht überprüft werden. Bitte erneut versuchen.",
     "pinChangedSuccessfully": "PIN erfolgreich geändert",
     "failedToChangePin": "PIN konnte nicht geändert werden. Bitte erneut versuchen.",
-    "failedToLoadCreditCards": "Kreditkarten konnten nicht geladen werden: {}",
+    "failedToLoadCreditCards": "Kreditkarten konnten nicht geladen werden.",
     "onboardingSkipForNow": "Vorerst überspringen",
     "ibanNotFound": "IBAN nicht gefunden",
     "cameraPermissionSettingsMessage": "Diese App benötigt die Kameraberechtigung, um Karten zu scannen. Bitte erlaube den Kamerazugriff in den Geräteeinstellungen.",
@@ -504,5 +504,8 @@
     "shareMaskedOption": "Maskierte Nummer",
     "shareMaskedSubtitle": "Bank, Inhaber und letzte 4 Ziffern (•••• {})",
     "shareFullOption": "Vollständige Kartennummer",
-    "shareFullWarning": "Enthält Nummer, Inhaber und Ablaufdatum – genug für Online-Zahlungen. Nur mit Personen teilen, denen du vertraust."
+    "shareFullWarning": "Enthält Nummer, Inhaber und Ablaufdatum – genug für Online-Zahlungen. Nur mit Personen teilen, denen du vertraust.",
+    "ibanCardUpdatedSuccessfully": "IBAN-Karte aktualisiert",
+    "failedToSaveIbanCard": "IBAN-Karte konnte nicht gespeichert werden. Bitte versuche es erneut.",
+    "failedToScanQR": "QR-Code konnte nicht gelesen werden."
 }

@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/services/error_reporter.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
@@ -159,7 +160,7 @@ class AddIbanCardController extends GetxController {
         await _ibanCardService.updateIbanCard(_originalCard!, updatedCard);
         HapticFeedback.mediumImpact();
         Get.back();
-        Get.context?.showSuccessSnackBar('IBAN card updated successfully');
+        Get.context?.showSuccessSnackBar('ibanCardUpdatedSuccessfully');
       } else {
         // Yeni kart ekleme işlemi - yeni string ID
         final newCard = IbanCard(
@@ -179,7 +180,7 @@ class AddIbanCardController extends GetxController {
         );
         HapticFeedback.mediumImpact();
         Get.back();
-        Get.context?.showSuccessSnackBar('IBAN card added successfully');
+        Get.context?.showSuccessSnackBar('ibanCardAddedSuccessfully');
       }
 
       // IBAN kartları yeniden yükle
@@ -212,10 +213,9 @@ class AddIbanCardController extends GetxController {
           // Best-effort prompt; never break the save.
         }
       }
-    } catch (e) {
-      debugPrint('Error saving IBAN card: $e');
-      Get.context
-          ?.showErrorSnackBar('Failed to save IBAN card: ${e.toString()}');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'saveIbanCard');
+      Get.context?.showErrorSnackBar('failedToSaveIbanCard');
     } finally {
       isLoading.value = false;
     }

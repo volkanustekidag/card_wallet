@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:easy_localization/easy_localization.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
@@ -40,10 +40,9 @@ class IbanCardController extends GetxController {
       await _ibanCardService.openBox();
       final result = await _ibanCardService.getAllIbanCards();
       ibanCards.value = result;
-    } catch (e) {
-      debugPrint('Error loading IBAN cards: $e');
-      Get.context?.showErrorSnackBar(
-          '${'failedToLoadIbanCards'.tr()}: ${e.toString()}');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'loadIbanCards');
+      Get.context?.showErrorSnackBar('failedToLoadIbanCards'.tr());
       // Keep whatever was seeded — don't blank on error.
     } finally {
       isLoading.value = false;
@@ -55,10 +54,9 @@ class IbanCardController extends GetxController {
       await _ibanCardService.removeIbanCard(ibanCard);
       ibanCards.remove(ibanCard);
       Get.context?.showSuccessSnackBar('ibanCardDeletedSuccessfully'.tr());
-    } catch (e) {
-      debugPrint('Error removing IBAN card: $e');
-      Get.context?.showErrorSnackBar(
-          '${'failedToDeleteIbanCard'.tr()}: ${e.toString()}');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'removeIbanCard');
+      Get.context?.showErrorSnackBar('failedToDeleteIbanCard'.tr());
     }
   }
 
@@ -68,10 +66,9 @@ class IbanCardController extends GetxController {
       await _ibanCardService.addIbanCard(ibanCard);
       await loadIbanCards();
       Get.context?.showSuccessSnackBar('ibanCardAddedSuccessfully'.tr());
-    } catch (e) {
-      debugPrint('Error adding IBAN card: $e');
-      Get.context
-          ?.showErrorSnackBar('${'failedToAddIbanCard'.tr()}: ${e.toString()}');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'addIbanCard');
+      Get.context?.showErrorSnackBar('failedToAddIbanCard'.tr());
     }
   }
 }

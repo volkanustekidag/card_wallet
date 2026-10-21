@@ -448,7 +448,7 @@
     "qaMyCards": "Mijn kaarten",
     "qaMyCardsSub": "Bekijk alle kaarten",
     "setupPinForBiometric": "Maak eerst een pincode aan om biometrie te gebruiken",
-    "failedToLoadCreditCards": "Kan creditcards niet laden: {}",
+    "failedToLoadCreditCards": "Creditcards konden niet worden geladen.",
     "onboardingSkipForNow": "Voor nu overslaan",
     "ibanNotFound": "IBAN niet gevonden",
     "cameraPermissionSettingsMessage": "Deze app heeft cameratoestemming nodig om kaarten te scannen. Geef cameratoestemming in de apparaatinstellingen.",
@@ -504,5 +504,8 @@
     "shareMaskedOption": "Gemaskeerd nummer",
     "shareMaskedSubtitle": "Bank, houder en laatste 4 cijfers (•••• {})",
     "shareFullOption": "Volledig kaartnummer",
-    "shareFullWarning": "Bevat nummer, houder en vervaldatum: genoeg om online te betalen. Deel alleen met mensen die je vertrouwt."
+    "shareFullWarning": "Bevat nummer, houder en vervaldatum: genoeg om online te betalen. Deel alleen met mensen die je vertrouwt.",
+    "ibanCardUpdatedSuccessfully": "IBAN-kaart bijgewerkt",
+    "failedToSaveIbanCard": "IBAN-kaart kon niet worden opgeslagen. Probeer het opnieuw.",
+    "failedToScanQR": "QR-code kon niet worden gelezen."
 }

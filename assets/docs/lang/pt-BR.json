@@ -448,7 +448,7 @@
     "qaMyCards": "Meus cartões",
     "qaMyCardsSub": "Ver todos os cartões",
     "setupPinForBiometric": "Crie um PIN primeiro para usar biometria",
-    "failedToLoadCreditCards": "Não foi possível carregar os cartões de crédito: {}",
+    "failedToLoadCreditCards": "Não foi possível carregar os cartões de crédito.",
     "onboardingSkipForNow": "Pular por enquanto",
     "ibanNotFound": "IBAN não encontrado",
     "cameraPermissionSettingsMessage": "Este app precisa de permissão da câmera para escanear cartões. Conceda a permissão da câmera nas configurações do dispositivo.",
@@ -504,5 +504,8 @@
     "shareMaskedOption": "Número mascarado",
     "shareMaskedSubtitle": "Banco, titular e últimos 4 dígitos (•••• {})",
     "shareFullOption": "Número completo do cartão",
-    "shareFullWarning": "Inclui número, titular e validade — o suficiente para pagar online. Compartilhe só com quem você confia."
+    "shareFullWarning": "Inclui número, titular e validade — o suficiente para pagar online. Compartilhe só com quem você confia.",
+    "ibanCardUpdatedSuccessfully": "Cartão IBAN atualizado",
+    "failedToSaveIbanCard": "Não foi possível salvar o cartão IBAN. Tente novamente.",
+    "failedToScanQR": "Não foi possível ler o QR code."
 }

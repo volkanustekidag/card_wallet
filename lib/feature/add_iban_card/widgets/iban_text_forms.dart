@@ -116,7 +116,7 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
         context.showSuccessSnackBar('qrScanSuccess');
       }
     } catch (e) {
-      context.showErrorSnackBar('Failed to scan QR code');
+      context.showErrorSnackBar('failedToScanQR');
     } finally {
       setState(() {
         _isScanning = false;
@@ -158,7 +158,7 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
         context.showSuccessSnackBar('qrScanSuccess');
       }
     } catch (e) {
-      context.showErrorSnackBar('Failed to scan QR code');
+      context.showErrorSnackBar('failedToScanQR');
     } finally {
       setState(() {
         _isScanning = false;

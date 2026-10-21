@@ -459,7 +459,7 @@
     "verificationError": "Could not verify your PIN. Please try again.",
     "pinChangedSuccessfully": "PIN changed successfully",
     "failedToChangePin": "Could not change your PIN. Please try again.",
-    "failedToLoadCreditCards": "Could not load credit cards: {}",
+    "failedToLoadCreditCards": "Could not load credit cards.",
     "onboardingSkipForNow": "Skip for now",
     "ibanNotFound": "IBAN not found",
     "cameraPermissionSettingsMessage": "Camera access is needed to scan cards. Please grant camera permission in your device settings.",
@@ -504,5 +504,8 @@
     "shareMaskedOption": "Masked number",
     "shareMaskedSubtitle": "Bank, holder and last 4 digits (•••• {})",
     "shareFullOption": "Full card number",
-    "shareFullWarning": "Includes number, holder and expiry date — enough to pay online. Share only with people you trust."
+    "shareFullWarning": "Includes number, holder and expiry date — enough to pay online. Share only with people you trust.",
+    "ibanCardUpdatedSuccessfully": "IBAN card updated",
+    "failedToSaveIbanCard": "Could not save IBAN card. Please try again.",
+    "failedToScanQR": "Could not read the QR code."
 }
