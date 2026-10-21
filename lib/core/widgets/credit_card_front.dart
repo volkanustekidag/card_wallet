@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wallet_app/core/utils/card_number_layout.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/widgets/bank_logo.dart';
@@ -181,35 +182,16 @@ class CreditCardFront extends StatelessWidget {
   }
 
   String _formatCardNumber(String number) {
-    final sanitized = number.replaceAll(RegExp(r'\s+'), '');
-    if (sanitized.isEmpty) return '•••• •••• •••• ••••';
-
-    final buffer = StringBuffer();
-    for (var i = 0; i < sanitized.length; i++) {
-      buffer.write(sanitized[i]);
-      final isLast = i == sanitized.length - 1;
-      if (!isLast && (i + 1) % 4 == 0) {
-        buffer.write(' ');
-      }
+    if (CardNumberLayout.digitsOf(number).isEmpty) {
+      return '•••• •••• •••• ••••';
     }
-    return buffer.toString();
+    return CardNumberLayout.format(number);
   }
 
-  /// Mask all but the last 4 digits of the card number, keeping the
-  /// "•••• •••• •••• 1234" grouping so the layout stays steady.
   String _maskCardNumber(String number) {
-    final sanitized = number.replaceAll(RegExp(r'\s+'), '');
-    if (sanitized.isEmpty) return '•••• •••• •••• ••••';
-    if (sanitized.length <= 4) return sanitized;
-
-    final tail = sanitized.substring(sanitized.length - 4);
-    final hiddenLen = sanitized.length - 4;
-    final buffer = StringBuffer();
-    for (var i = 0; i < hiddenLen; i++) {
-      buffer.write('•');
-      if ((i + 1) % 4 == 0) buffer.write(' ');
+    if (CardNumberLayout.digitsOf(number).isEmpty) {
+      return '•••• •••• •••• ••••';
     }
-    buffer.write(tail);
-    return buffer.toString();
+    return CardNumberLayout.mask(number);
   }
 }

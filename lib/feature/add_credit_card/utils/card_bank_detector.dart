@@ -355,13 +355,17 @@ class CardBankDetector {
       if (first3 >= 644 && first3 <= 649) return CardNetwork.discover;
     }
 
-    // Diners: 300-305, 36, 38
-    if (digits.startsWith('36') || digits.startsWith('38')) {
+    // Diners: 300-305, 309, 36, 38, 39
+    if (digits.startsWith('36') ||
+        digits.startsWith('38') ||
+        digits.startsWith('39')) {
       return CardNetwork.dinersClub;
     }
     if (digits.length >= 3) {
       final first3 = int.parse(digits.substring(0, 3));
-      if (first3 >= 300 && first3 <= 305) return CardNetwork.dinersClub;
+      if ((first3 >= 300 && first3 <= 305) || first3 == 309) {
+        return CardNetwork.dinersClub;
+      }
     }
 
     // JCB: 3528-3589

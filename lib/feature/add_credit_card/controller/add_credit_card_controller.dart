@@ -15,6 +15,7 @@ import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/rate_app_service.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/utils/pin_setup_prompt.dart';
+import 'package:wallet_app/core/utils/card_number_layout.dart';
 import 'package:wallet_app/core/utils/validators.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
@@ -284,12 +285,11 @@ class AddCreditCardController extends GetxController {
   }
 
   bool _isCardValid(CreditCard card) {
-    final sanitizedNumber =
-        card.creditCardNumber.replaceAll(RegExp(r'\s+'), '');
     final expirationPattern = RegExp(r'^\d{2}\s?\/\s?\d{2}$');
 
+    // 13-19 digits depending on the network (Amex 15, Diners 14, Visa 13/16/19…).
     return card.bankName.trim().isNotEmpty &&
-        sanitizedNumber.length >= 16 &&
+        CardNumberLayout.isValidLength(card.creditCardNumber) &&
         card.cardHolder.trim().isNotEmpty &&
         expirationPattern.hasMatch(card.expirationDate.trim());
   }

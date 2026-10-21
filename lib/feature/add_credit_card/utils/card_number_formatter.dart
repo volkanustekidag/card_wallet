@@ -1,27 +1,20 @@
 import 'package:flutter/services.dart';
+import 'package:wallet_app/core/utils/card_number_layout.dart';
 
+/// Groups card digits by network (Amex 4-6-5, Diners 4-6-4, others 4-4-4-4…)
+/// and caps the length at what the IIN allows. Expects digits only (run
+/// after [FilteringTextInputFormatter.digitsOnly]).
 class CardNumberFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
     TextEditingValue previousValue,
     TextEditingValue nextValue,
   ) {
-    var inputText = nextValue.text;
-
     if (nextValue.selection.baseOffset == 0) {
       return nextValue;
     }
 
-    var bufferString = StringBuffer();
-    for (int i = 0; i < inputText.length; i++) {
-      bufferString.write(inputText[i]);
-      var nonZeroIndexValue = i + 1;
-      if (nonZeroIndexValue % 4 == 0 && nonZeroIndexValue != inputText.length) {
-        bufferString.write(' ');
-      }
-    }
-
-    var string = bufferString.toString();
+    final string = CardNumberLayout.format(nextValue.text);
     return nextValue.copyWith(
       text: string,
       selection: TextSelection.collapsed(
