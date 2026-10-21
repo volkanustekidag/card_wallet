@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import UniformTypeIdentifiers
 import WatchConnectivity
 
 @main
@@ -15,33 +16,93 @@ import WatchConnectivity
   private let watchSyncChannelName = "app.cardwallet/watch_sync"
   private var watchSyncChannel: FlutterMethodChannel?
 
+  /// Dart `SensitiveClipboard` copies card numbers / IBANs / barcodes
+  /// through here so iOS itself expires them — a Dart timer can't fire
+  /// while the app is suspended.
+  private let clipboardChannelName = "app.cardwallet/sensitive_clipboard"
+  private var clipboardChannel: FlutterMethodChannel?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     activateWatchSession()
+    observeSceneActivation()
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     registerWatchSyncChannel(with: engineBridge.pluginRegistry)
+    registerClipboardChannel(with: engineBridge.pluginRegistry)
   }
 
-  override func applicationWillResignActive(_ application: UIApplication) {
-    super.applicationWillResignActive(application)
-    presentPrivacyOverlay()
+  // MARK: - Sensitive clipboard
+
+  private func registerClipboardChannel(with registry: FlutterPluginRegistry) {
+    guard let messenger = registry.registrar(forPlugin: "SensitiveClipboardChannel")?.messenger() else {
+      return
+    }
+    let channel = FlutterMethodChannel(name: clipboardChannelName, binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "copy" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      guard let args = call.arguments as? [String: Any],
+            let text = args["text"] as? String else {
+        result(FlutterError(code: "invalid_args", message: "text is required", details: nil))
+        return
+      }
+      let seconds = (args["expiresInSeconds"] as? NSNumber)?.doubleValue ?? 60
+      // localOnly keeps it off Universal Clipboard (other Apple devices);
+      // expirationDate makes iOS drop it even if we're suspended.
+      UIPasteboard.general.setItems(
+        [[UTType.utf8PlainText.identifier: text]],
+        options: [
+          .localOnly: true,
+          .expirationDate: Date().addingTimeInterval(seconds),
+        ]
+      )
+      result(true)
+    }
+    clipboardChannel = channel
   }
 
-  override func applicationDidBecomeActive(_ application: UIApplication) {
-    super.applicationDidBecomeActive(application)
+  // MARK: - App-switcher privacy overlay
+
+  /// The app runs on UIScene (FlutterSceneDelegate in Info.plist), so the
+  /// UIApplicationDelegate resign/become-active callbacks are never called.
+  /// Listen for the scene notifications instead; they fire for every scene
+  /// regardless of which object is its delegate.
+  private func observeSceneActivation() {
+    let center = NotificationCenter.default
+    center.addObserver(
+      self,
+      selector: #selector(sceneWillDeactivate(_:)),
+      name: UIScene.willDeactivateNotification,
+      object: nil
+    )
+    center.addObserver(
+      self,
+      selector: #selector(sceneDidActivate(_:)),
+      name: UIScene.didActivateNotification,
+      object: nil
+    )
+  }
+
+  @objc private func sceneWillDeactivate(_ notification: Notification) {
+    guard let scene = notification.object as? UIWindowScene else { return }
+    presentPrivacyOverlay(in: scene)
+  }
+
+  @objc private func sceneDidActivate(_ notification: Notification) {
     dismissPrivacyOverlay()
   }
 
-  private func presentPrivacyOverlay() {
+  private func presentPrivacyOverlay(in scene: UIWindowScene) {
     guard privacyOverlay == nil,
-          let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow })
-            ?? UIApplication.shared.windows.first else {
+          let window = scene.keyWindow ?? scene.windows.first else {
       return
     }
 

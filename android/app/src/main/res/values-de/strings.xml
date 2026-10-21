@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="loyalty_widget_description">Zeige schnell den Barcode deiner zuletzt genutzten Bonuskarte.</string>
+    <string name="loyalty_widget_barcode_cd">Barcode der Bonuskarte</string>
+    <string name="loyalty_tile_label">Bonuskarte</string>
+    <string name="loyalty_empty_title">Bonuskarten</string>
+    <string name="loyalty_add_card">Karte hinzufügen</string>
+    <string name="loyalty_tap_to_show_barcode">Tippen, um den Barcode anzuzeigen</string>
+</resources>

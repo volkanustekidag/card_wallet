@@ -18,10 +18,12 @@ import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/l
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/services/rate_app_service.dart';
-import 'package:wallet_app/core/services/widget_data_service.dart';
+import 'package:wallet_app/core/services/wallet_surfaces_sync.dart';
 import 'package:wallet_app/core/services/widget_deep_link_handler.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
@@ -66,9 +68,12 @@ void main() async {
         FirebaseCrashlytics.instance.recordFlutterFatalError(details);
       }
     };
+    // Uncaught async errors are handled by the platform dispatcher and the
+    // app keeps running, so they are non-fatal. Only FlutterError.onError
+    // (framework build/layout/paint failures) is reported as fatal.
     PlatformDispatcher.instance.onError = (error, stack) {
       if (!kDebugMode) {
-        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
       }
       return true;
     };
@@ -89,7 +94,14 @@ void main() async {
     // — otherwise a service would cache pre-migration records as the
     // "current" state. No-op on every launch after the first one that
     // actually has a migration to run.
-    await HiveMigrationRunner.runIfNeeded();
+    // A failed migration is reported (non-fatal) inside the runner and
+    // retried next launch. It must not stop runApp: an uncaught throw here
+    // leaves the user on a blank native splash forever.
+    try {
+      await HiveMigrationRunner.runIfNeeded();
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'HiveMigrationRunner');
+    }
 
     // Critical-path: auth box must be open before the lock screen renders, and
     // the theme must be resolved before MaterialApp builds (otherwise the lock
@@ -100,20 +112,13 @@ void main() async {
     // Non-critical services boot in the background. Card services only matter
     // once the user reaches a card screen, and PremiumService self-recovers if
     // accessed before init completes.
-    unawaited(_bootstrapCreditCardsAndReminders());
+    _creditCardsReady = _bootstrapCreditCardsAndReminders();
     unawaited(IbanCardService().init());
-    unawaited(LoyaltyCardService().init().then((_) async {
-      // Don't wait for the user to wander into the loyalty cards page —
-      // the home/lock-screen widget should populate the moment the app
-      // has any cards on disk. Reads the encrypted Hive box once,
-      // pushes the newest card to the widget container.
-      try {
-        final cards = await LoyaltyCardService().getAllLoyaltyCards();
-        await WidgetDataService.instance.reconcile(cards);
-      } catch (e) {
-        debugPrint('loyalty widget reconcile error: $e');
-      }
-    }));
+    // Once the loyalty box is open, keep the widget, quick tile and Apple
+    // Watch in step with it — on launch and on every later change.
+    unawaited(LoyaltyCardService()
+        .init()
+        .then((_) => WalletSurfacesSync.instance.start()));
     unawaited(PremiumService.initialize());
     unawaited(RateAppService.instance.init());
     // Widget deep-link handler must capture the cold-launch URI *before*
@@ -128,6 +133,9 @@ void main() async {
       ),
       permanent: true,
     );
+    // Warm re-lock after the app has been in the background. Must be
+    // registered before runApp so it observes the very first pause.
+    Get.put(AppLockService(), permanent: true);
 
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -157,18 +165,21 @@ void main() async {
     );
   }, (error, stack) {
     if (!kDebugMode) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
     }
   });
 }
 
+/// Credit card box + notification plugin. Reminders themselves are
+/// (re)scheduled after the first frame — see [_AppWrapperState] — because
+/// their texts are rendered with `.tr()` and must not be baked in before
+/// translations are loaded.
 Future<void> _bootstrapCreditCardsAndReminders() async {
-  final creditCardService = CreditCardService();
-  await creditCardService.init();
+  await CreditCardService().init();
   await CardReminderService().init();
-  final cards = await creditCardService.getAllCreditCards();
-  await CardReminderService().scheduleAllCreditCardReminders(cards);
 }
+
+Future<void>? _creditCardsReady;
 
 class AppWrapper extends StatefulWidget {
   const AppWrapper({Key? key}) : super(key: key);
@@ -185,6 +196,18 @@ class _AppWrapperState extends State<AppWrapper> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     RateAppService.instance.scheduleInitialPrompt();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_rescheduleReminders(context.locale));
+    });
+  }
+
+  Future<void> _rescheduleReminders(Locale locale) async {
+    try {
+      await _creditCardsReady;
+      await CardReminderService().rescheduleAll(locale: locale);
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'rescheduleReminders');
+    }
   }
 
   @override

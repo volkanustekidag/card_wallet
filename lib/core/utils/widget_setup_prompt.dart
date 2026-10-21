@@ -24,10 +24,12 @@ const String _kWidgetSetupSeenKey = 'widget_setup_seen';
 ///      (`loyaltyCountAfterAdd == 1`).
 ///   2. They haven't already seen the tutorial (persisted flag).
 ///   3. A live BuildContext is available (no-op otherwise).
-Future<void> maybePromptWidgetSetup({
+///
+/// Returns true when the tutorial was shown.
+Future<bool> maybePromptWidgetSetup({
   required int loyaltyCountAfterAdd,
 }) async {
-  if (loyaltyCountAfterAdd != 1) return;
+  if (loyaltyCountAfterAdd != 1) return false;
 
   const storage = SecureStorageProvider.instance;
   String? seen;
@@ -45,7 +47,7 @@ Future<void> maybePromptWidgetSetup({
     // value of showing it to true fresh installs is high (widget
     // adoption is the single biggest retention lever we have).
     final hasPin = AuthenticationService().hasPasswordSync();
-    if (hasPin) return;
+    if (hasPin) return false;
     try {
       await storage.delete(key: _kWidgetSetupSeenKey);
     } catch (_) {
@@ -55,7 +57,7 @@ Future<void> maybePromptWidgetSetup({
   }
 
   final context = Get.context;
-  if (context == null) return;
+  if (context == null) return false;
 
   final platform = Platform.isIOS ? 'ios' : 'android';
   unawaited(AnalyticsService.instance.logWidgetSetupShown(platform));
@@ -76,6 +78,7 @@ Future<void> maybePromptWidgetSetup({
   } catch (_) {
     // Best-effort; worst case we ask one more time on the next loyalty add.
   }
+  return true;
 }
 
 class _WidgetSetupDialog extends StatelessWidget {

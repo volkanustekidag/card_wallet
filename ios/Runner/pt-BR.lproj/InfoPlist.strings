@@ -1,0 +1,5 @@
+/* Localized permission prompts shown by iOS. Keep in sync with Info.plist. */
+
+"NSCameraUsageDescription" = "O CardWallet usa a câmera para escanear seus cartões de crédito, IBANs e códigos de barras de cartões de fidelidade. Os dados ficam no seu dispositivo.";
+"NSFaceIDUsageDescription" = "O CardWallet usa o Face ID ou Touch ID para desbloquear sua carteira e proteger o acesso aos seus cartões.";
+"NSPhotoLibraryUsageDescription" = "O CardWallet lê imagens da sua biblioteca para que você possa escanear uma foto de cartão ou código de barras já salvo.";

@@ -1,4 +1,3 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
@@ -7,19 +6,20 @@ import 'package:wallet_app/core/services/camera_permission_service.dart';
 import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
+import 'package:wallet_app/core/utils/scan_photo_cleanup.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 class IbanTextField extends StatelessWidget {
   const IbanTextField({
     Key? key,
     required TextEditingController ibanController,
     required this.focusNode,
-    required this.cameras,
   })  : _ibanController = ibanController,
         super(key: key);
 
   final TextEditingController _ibanController;
   final FocusNode focusNode;
-  final List<CameraDescription> cameras;
 
   @override
   Widget build(BuildContext context) {
@@ -90,14 +90,19 @@ class IbanTextField extends StatelessWidget {
     required AddIbanCardController controller,
     required FocusNode focusNode,
   }) async {
+    XFile? picked;
     try {
       final allowed = await CameraPermissionService.ensureGranted();
       if (!allowed) return;
 
-      final picked = await ImagePicker().pickImage(
+      AnalyticsService.instance.logScanStarted(
+        type: AnalyticsCardType.iban,
+        method: AnalyticsScanMethod.camera,
+      );
+      picked = await AppLockService.guard(() => ImagePicker().pickImage(
         source: ImageSource.camera,
         imageQuality: 95,
-      );
+      ));
       if (picked == null) return;
 
       final recognizer = TextRecognizer(script: TextRecognitionScript.latin);
@@ -107,6 +112,10 @@ class IbanTextField extends StatelessWidget {
         );
         final iban = _extractIban(recognized.text);
         if (iban == null) {
+          AnalyticsService.instance.logScanFailed(
+            type: AnalyticsCardType.iban,
+            method: AnalyticsScanMethod.camera,
+          );
           final ctx = Get.context;
           if (ctx != null) {
             ScaffoldMessenger.of(ctx).showSnackBar(
@@ -118,12 +127,17 @@ class IbanTextField extends StatelessWidget {
           }
           return;
         }
+        AnalyticsService.instance.logScanSucceeded(
+          type: AnalyticsCardType.iban,
+          method: AnalyticsScanMethod.camera,
+        );
         controller.updateCardField("iban", iban);
         _ibanController.text = iban;
       } finally {
         await recognizer.close();
       }
     } finally {
+      await deleteScanPhoto(picked, fromCamera: true);
       focusNode.canRequestFocus = true;
     }
   }

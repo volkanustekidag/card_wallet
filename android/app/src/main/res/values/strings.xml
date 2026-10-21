@@ -3,4 +3,7 @@
     <string name="loyalty_widget_description">Quickly show your most recent loyalty card barcode.</string>
     <string name="loyalty_widget_barcode_cd">Loyalty card barcode</string>
     <string name="loyalty_tile_label">Loyalty card</string>
+    <string name="loyalty_empty_title">Loyalty</string>
+    <string name="loyalty_add_card">Add a card</string>
+    <string name="loyalty_tap_to_show_barcode">Tap to show barcode</string>
 </resources>

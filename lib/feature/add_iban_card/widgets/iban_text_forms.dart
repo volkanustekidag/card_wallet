@@ -1,4 +1,3 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:easy_localization/easy_localization.dart';
@@ -13,13 +12,11 @@ import 'package:wallet_app/core/widgets/notes_and_tags_section.dart';
 class IbanTextFieldForms extends StatefulWidget {
   final TextEditingController ibanController;
   final FocusNode focusNode;
-  final List<CameraDescription> cameras;
 
   const IbanTextFieldForms({
     Key? key,
     required this.ibanController,
     required this.focusNode,
-    required this.cameras,
   }) : super(key: key);
 
   @override
@@ -116,7 +113,7 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
         context.showSuccessSnackBar('qrScanSuccess');
       }
     } catch (e) {
-      context.showErrorSnackBar('Failed to scan QR code');
+      context.showErrorSnackBar('failedToScanQR');
     } finally {
       setState(() {
         _isScanning = false;
@@ -158,7 +155,7 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
         context.showSuccessSnackBar('qrScanSuccess');
       }
     } catch (e) {
-      context.showErrorSnackBar('Failed to scan QR code');
+      context.showErrorSnackBar('failedToScanQR');
     } finally {
       setState(() {
         _isScanning = false;
@@ -246,7 +243,6 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
         IbanTextField(
           ibanController: widget.ibanController,
           focusNode: widget.focusNode,
-          cameras: widget.cameras,
         ),
         const SizedBox(height: 12),
         _buildQrButton(context),

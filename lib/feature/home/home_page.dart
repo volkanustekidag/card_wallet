@@ -50,9 +50,7 @@ class _HomePageState extends State<HomePage> {
     final args = Get.arguments;
     if (args is! Map || args['open_add_card_sheet'] != true) return;
     _initialAddSheetHandled = true;
-    if (_homeController.isLoading.value) {
-      await _homeController.loadHomeContent();
-    }
+    await _homeController.ensureLoaded();
     if (!mounted) return;
     // Short breathing room so the user perceives the home screen — but
     // not so long that the transition feels stuck. The loading spinner
@@ -115,9 +113,7 @@ class _HomePageState extends State<HomePage> {
     if (!mounted || _isReminderSheetOpen) return;
     CardReminderService().takePendingPayload();
 
-    if (_homeController.isLoading.value) {
-      await _homeController.loadHomeContent();
-    }
+    await _homeController.ensureLoaded();
 
     var card = _findCreditCard(payload.cardId);
     if (card == null) {
@@ -157,7 +153,8 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         backgroundColor: colorScheme.surface,
         body: Obx(() {
-          if (_homeController.isLoading.value) {
+          if (_homeController.isInitialLoading.value &&
+              _homeController.walletItems.isEmpty) {
             return const LoadingWidget();
           }
           return HomeBody(controller: _homeController);

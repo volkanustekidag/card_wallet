@@ -14,6 +14,8 @@ import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
+import 'package:wallet_app/core/utils/locale_upper.dart';
 
 /// Paywall: tight hero, three side-by-side plan tiles (yearly default with
 /// BEST VALUE badge + per-month equivalent, monthly, weekly), a compact
@@ -34,6 +36,15 @@ class _PremiumPageState extends State<PremiumPage>
   Worker? _productWorker;
   ProductDetails? _selectedProduct;
   _PremiumFeatureSpec? _triggerFeature;
+
+  /// Premium subscribers see a status card instead of the plan picker; this
+  /// flips to the picker when they tap "Change plan".
+  bool _changingPlan = false;
+
+  // For paywall_dismissed: how the user got here and whether they bought.
+  String? _trigger;
+  String? _featureArg;
+  bool _purchased = false;
 
   // Each feature pairs a translation key with the icon that visually
   // represents it; `ad-free` was dropped because the app has no ads.
@@ -105,9 +116,11 @@ class _PremiumPageState extends State<PremiumPage>
         cardTypeArg = args['card_type'] as String;
       }
     }
+    _trigger = triggerArg ?? (featureArg == null ? 'direct' : 'feature_gate');
+    _featureArg = featureArg;
     unawaited(
       AnalyticsService.instance.logPaywallViewed(
-        trigger: triggerArg ?? (featureArg == null ? 'direct' : 'feature_gate'),
+        trigger: _trigger,
         feature: featureArg,
         cardType: cardTypeArg,
       ),
@@ -129,6 +142,10 @@ class _PremiumPageState extends State<PremiumPage>
 
   @override
   void dispose() {
+    if (!_purchased && !_premiumController.isPremium) {
+      AnalyticsService.instance
+          .logPaywallDismissed(trigger: _trigger, feature: _featureArg);
+    }
     _diamondController.dispose();
     _ctaPulseController.dispose();
     _productWorker?.dispose();
@@ -155,17 +172,25 @@ class _PremiumPageState extends State<PremiumPage>
       backgroundColor: colorScheme.surface,
       body: Obx(() {
         final isLoading = _premiumController.isLoading;
+        final isPremium = _premiumController.isPremium;
+        final currentPlanId = _premiumController.currentPlanId;
+        final showPicker = !isPremium || _changingPlan;
         final weekly = _premiumController.weeklyProduct;
         final monthly = _premiumController.monthlyProduct;
         final yearly = _premiumController.yearlyProduct;
 
         // Weekly → monthly → yearly. Yearly sits on the right as the
-        // BEST VALUE anchor (still the default selection).
+        // BEST VALUE anchor (still the default selection). When changing
+        // plan, the current one is left out so it can't be bought twice.
         final orderedPlans = <ProductDetails>[
           if (weekly != null) weekly,
           if (monthly != null) monthly,
           if (yearly != null) yearly,
-        ];
+        ].where((p) => !isPremium || p.id != currentPlanId).toList();
+        final selected = _selectedProduct != null &&
+                orderedPlans.any((p) => p.id == _selectedProduct!.id)
+            ? _selectedProduct
+            : null;
         final bestValueId = _bestValueProductId(weekly, monthly, yearly);
 
         return Stack(
@@ -195,28 +220,41 @@ class _PremiumPageState extends State<PremiumPage>
                   else
                     _FeatureChecklist(features: _features),
                   const SizedBox(height: 28),
-                  if (orderedPlans.isEmpty)
-                    _ProductsUnavailable()
-                  else
-                    _PricingRow(
-                      plans: orderedPlans,
-                      weeklyId: weekly?.id,
-                      monthlyId: monthly?.id,
-                      yearlyId: yearly?.id,
-                      bestValueId: bestValueId,
-                      selected: _selectedProduct,
-                      onSelected: _onPlanSelected,
+                  if (!showPicker)
+                    _PremiumActiveCard(
+                      planLabel: _planLabel(currentPlanId),
+                      onManage: PremiumService.hasActiveSubscription
+                          ? _openManageSubscription
+                          : null,
+                      onChangePlan: PremiumService.hasActiveSubscription
+                          ? _startPlanChange
+                          : null,
+                    )
+                  else ...[
+                    if (orderedPlans.isEmpty)
+                      _ProductsUnavailable()
+                    else
+                      _PricingRow(
+                        plans: orderedPlans,
+                        weeklyId: weekly?.id,
+                        monthlyId: monthly?.id,
+                        yearlyId: yearly?.id,
+                        bestValueId: bestValueId,
+                        selected: selected,
+                        onSelected: _onPlanSelected,
+                      ),
+                    const SizedBox(height: 20),
+                    _CtaButton(
+                      product: selected,
+                      label: isPremium ? 'switchPlanCta'.tr() : null,
+                      pulseController: _ctaPulseController,
+                      onPressed: selected == null
+                          ? null
+                          : () => _handlePurchase(selected),
                     ),
-                  const SizedBox(height: 20),
-                  _CtaButton(
-                    product: _selectedProduct,
-                    pulseController: _ctaPulseController,
-                    onPressed: _selectedProduct == null
-                        ? null
-                        : () => _handlePurchase(_selectedProduct!),
-                  ),
-                  const SizedBox(height: 8),
-                  _CtaSubText(product: _selectedProduct),
+                    const SizedBox(height: 8),
+                    _CtaSubText(product: selected),
+                  ],
                   const SizedBox(height: 16),
                   const _LegalDisclosure(),
                   const SizedBox(height: 14),
@@ -239,9 +277,57 @@ class _PremiumPageState extends State<PremiumPage>
   }
 
   Future<void> _handleRestore() async {
-    await _premiumController.restorePurchases();
+    final result = await _premiumController.restorePurchases();
     if (!mounted) return;
-    context.showInfoSnackBar('purchaseRestoreCompleted');
+    switch (result) {
+      case PremiumRestoreResult.restored:
+        context.showSuccessSnackBar('purchaseRestored');
+        break;
+      case PremiumRestoreResult.notFound:
+        context.showInfoSnackBar('purchaseRestoreNotFound');
+        break;
+      case PremiumRestoreResult.failed:
+        context.showErrorSnackBar('purchaseRestoreFailed');
+        break;
+    }
+  }
+
+  String _planLabel(String? productId) {
+    if (productId == PremiumService.yearlyProductId) {
+      return 'yearlyPlanTitle'.tr();
+    }
+    if (productId == PremiumService.monthlyProductId) {
+      return 'monthlyPlanTitle'.tr();
+    }
+    if (productId == PremiumService.weeklyProductId) {
+      return 'weeklyPlanTitle'.tr();
+    }
+    return 'lifetimePlanTitle'.tr();
+  }
+
+  void _startPlanChange() {
+    HapticFeedback.selectionClick();
+    // Android can only switch in-app once Play has handed us the current
+    // purchase token; otherwise the store's own screen is the safe path.
+    if (!PremiumService.canChangePlanInApp) {
+      context.showInfoSnackBar('planChangeViaStore');
+      _openManageSubscription();
+      return;
+    }
+    setState(() {
+      _changingPlan = true;
+      _selectedProduct = null;
+    });
+  }
+
+  Future<void> _openManageSubscription() async {
+    final uri = Theme.of(context).platform == TargetPlatform.iOS
+        ? Uri.parse('https://apps.apple.com/account/subscriptions')
+        : Uri.parse('https://play.google.com/store/account/subscriptions');
+    final launched = await AppLockService.guard(
+      () => launchUrl(uri, mode: LaunchMode.externalApplication),
+    );
+    if (!launched && mounted) context.showErrorSnackBar('couldNotLaunchUrl');
   }
 
   Future<void> _handlePurchase(ProductDetails product) async {
@@ -249,6 +335,7 @@ class _PremiumPageState extends State<PremiumPage>
     if (!mounted) return;
     switch (result) {
       case PremiumPurchaseResult.success:
+        _purchased = true;
         unawaited(
           AnalyticsService.instance.logPurchaseSuccess(
             productId: product.id,
@@ -262,6 +349,11 @@ class _PremiumPageState extends State<PremiumPage>
         // user gets visible confirmation that the purchase landed.
         await Future.delayed(const Duration(milliseconds: 900));
         if (mounted) Get.back();
+        break;
+      case PremiumPurchaseResult.pending:
+        // Ask to Buy / pending payment: not a failure. The purchase stream
+        // flips premium on by itself once the store approves it.
+        context.showInfoSnackBar('purchasePending');
         break;
       case PremiumPurchaseResult.canceled:
         unawaited(
@@ -282,6 +374,9 @@ class _PremiumPageState extends State<PremiumPage>
 
   void _ensureDefaultSelectedProduct() {
     if (_selectedProduct != null) return;
+    // Premium users pick explicitly in "Change plan" — no default that
+    // could be their current plan.
+    if (_premiumController.isPremium) return;
     final candidate = _premiumController.yearlyProduct ??
         _premiumController.monthlyProduct ??
         _premiumController.weeklyProduct;
@@ -620,7 +715,7 @@ class _PlaceholderCard extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  'AKBANK',
+                  context.upper('placeholderBankName'.tr()),
                   style: const TextStyle(
                     fontFamily: 'Poppins',
                     color: Colors.white,
@@ -655,7 +750,7 @@ class _PlaceholderCard extends StatelessWidget {
               ),
             const SizedBox(height: 2),
             Text(
-              'TR12 1234 •••• •••• 6543',
+              '${_ibanCountryFor(context)}12 1234 •••• •••• 6543',
               style: const TextStyle(
                 fontFamily: 'Poppins',
                 color: Colors.white,
@@ -668,7 +763,7 @@ class _PlaceholderCard extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  'VOLKAN USTEKIDAG',
+                  context.upper('placeholderHolderName'.tr()),
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     color: Colors.white.withValues(alpha: 0.95),
@@ -690,6 +785,131 @@ class _PlaceholderCard extends StatelessWidget {
                 ),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// IBAN country prefix that matches the UI language so the sample card reads
+/// as local (Brazilian Portuguese → BR, English → GB).
+String _ibanCountryFor(BuildContext context) {
+  switch (Localizations.maybeLocaleOf(context)?.languageCode) {
+    case 'tr':
+      return 'TR';
+    case 'de':
+      return 'DE';
+    case 'fr':
+      return 'FR';
+    case 'es':
+      return 'ES';
+    case 'pt':
+      return 'BR';
+    case 'it':
+      return 'IT';
+    case 'nl':
+      return 'NL';
+    case 'pl':
+      return 'PL';
+    default:
+      return 'GB';
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Premium subscriber state — replaces the plan picker so an active
+// subscriber can't start a second subscription by accident.
+// ---------------------------------------------------------------------------
+
+class _PremiumActiveCard extends StatelessWidget {
+  final String planLabel;
+  final VoidCallback? onManage;
+  final VoidCallback? onChangePlan;
+
+  const _PremiumActiveCard({
+    required this.planLabel,
+    this.onManage,
+    this.onChangePlan,
+  });
+
+  static const _gold = Color(0xFFC8A14A);
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: _gold.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: _gold.withValues(alpha: 0.45)),
+        ),
+        child: Column(
+          children: [
+            const Icon(Icons.workspace_premium_rounded, color: _gold, size: 40),
+            const SizedBox(height: 10),
+            Text(
+              'premiumActiveTitle'.tr(),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'premiumActiveSubtitle'.tr(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 13,
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'premiumCurrentPlan'.tr(args: [planLabel]),
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            if (onManage != null || onChangePlan != null) ...[
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  if (onManage != null)
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: onManage,
+                        child: Text(
+                          'manageSubscription'.tr(),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  if (onManage != null && onChangePlan != null)
+                    const SizedBox(width: 12),
+                  if (onChangePlan != null)
+                    Expanded(
+                      child: FilledButton(
+                        style: FilledButton.styleFrom(backgroundColor: _gold),
+                        onPressed: onChangePlan,
+                        child: Text(
+                          'changePlan'.tr(),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -957,7 +1177,7 @@ class _PlanTileState extends State<_PlanTile>
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          _planTitle().toUpperCase(),
+                          context.upper(_planTitle()),
                           maxLines: 1,
                           style: TextStyle(
                             fontFamily: 'Poppins',
@@ -1370,12 +1590,14 @@ class _FeatureChecklist extends StatelessWidget {
 
 class _CtaButton extends StatelessWidget {
   final ProductDetails? product;
+  final String? label;
   final AnimationController pulseController;
   final VoidCallback? onPressed;
 
   const _CtaButton({
     required this.product,
     required this.pulseController,
+    this.label,
     this.onPressed,
   });
 
@@ -1402,7 +1624,7 @@ class _CtaButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = _ctaLabel(product);
+    final label = this.label ?? _ctaLabel(product);
     final disabled = onPressed == null;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -1577,7 +1799,7 @@ class _LegalLink extends StatelessWidget {
 
   Future<void> _launch(BuildContext context, String urlString) async {
     final uri = Uri.parse(urlString);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+    if (!await AppLockService.guard(() => launchUrl(uri, mode: LaunchMode.externalApplication))) {
       if (context.mounted) context.showErrorSnackBar('couldNotLaunchUrl');
     }
   }

@@ -7,6 +7,7 @@ import 'package:wallet_app/core/data/local_services/auth_services/authentication
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/router/getx_routes.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_card_detail_page.dart';
 
 /// Routes incoming widget taps (`cardwallet://loyalty?id=<id>`) to the
@@ -92,12 +93,20 @@ class WidgetDeepLinkHandler {
     return _routeForUri(synthetic, fromColdLaunch: true);
   }
 
-  Future<bool> _routeForUri(Uri uri, {required bool fromColdLaunch}) async {
-    if (uri.scheme != _scheme) return false;
-    if (uri.host != _loyaltyHost) return false;
+  /// Loyalty card id from a widget / quick tile URI
+  /// (`cardwallet://loyalty?id=<id>[&homeWidget=1]`), or null when the URI
+  /// isn't one of ours or carries no id.
+  static String? loyaltyCardIdFromUri(Uri uri) {
+    if (uri.scheme != _scheme) return null;
+    if (uri.host != _loyaltyHost) return null;
+    final id = uri.queryParameters[_idParam]?.trim();
+    if (id == null || id.isEmpty) return null;
+    return id;
+  }
 
-    final id = uri.queryParameters[_idParam];
-    if (id == null || id.isEmpty) return false;
+  Future<bool> _routeForUri(Uri uri, {required bool fromColdLaunch}) async {
+    final id = loyaltyCardIdFromUri(uri);
+    if (id == null) return false;
 
     try {
       final service = LoyaltyCardService();
@@ -112,6 +121,10 @@ class WidgetDeepLinkHandler {
       }
       if (match == null) return false;
       final card = match;
+      // Without an unlocked session the page must not expose edit, delete,
+      // share or wallet export — only the barcode the cashier needs.
+      final readOnly = AppLockService.maybeInstance?.isLocked ??
+          AuthenticationService().hasPasswordSync();
 
       if (fromColdLaunch) {
         // Seed the stack with the auth (or home, if no PIN is set)
@@ -127,10 +140,14 @@ class WidgetDeepLinkHandler {
         // transition has time to wire up — pushing synchronously can
         // miss the navigator stack and silently no-op.
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          Get.to<void>(() => LoyaltyCardDetailPage(card: card));
+          Get.to<void>(
+            () => LoyaltyCardDetailPage(card: card, readOnly: readOnly),
+          );
         });
       } else {
-        await Get.to<void>(() => LoyaltyCardDetailPage(card: card));
+        await Get.to<void>(
+          () => LoyaltyCardDetailPage(card: card, readOnly: readOnly),
+        );
       }
       return true;
     } catch (e) {

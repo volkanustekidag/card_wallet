@@ -127,20 +127,10 @@ class HiveMigrationRunner {
     }
 
     // Already at or past current — common case on every launch after the
-    // first. No-op.
+    // first. No-op. A stored version above current (older build sideloaded
+    // over a newer one) also lands here: there are no rollback migrations
+    // and the stored version is left alone.
     if (stored >= _currentSchemaVersion) return;
-
-    // Downgrade (user installed a newer build, then sideloaded an older
-    // one). We don't have rollback migrations and silently nuking newer
-    // data would be worse than no-op — leave the stored version alone and
-    // log so we notice the situation in Crashlytics.
-    if (stored > _currentSchemaVersion) {
-      debugPrint(
-        '[HiveMigration] stored=$stored > current=$_currentSchemaVersion; '
-        'refusing to downgrade.',
-      );
-      return;
-    }
 
     // From here on we know a real migration is needed. Register adapters
     // up front so migration functions can open typed boxes.

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/widgets/bank_logo.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
+import 'package:wallet_app/core/utils/locale_upper.dart';
 
 /// Live preview shown while the user fills the IBAN form. Mirrors the
 /// teal-tile look used in the wallet carousel so what they see while
@@ -177,7 +178,7 @@ class _ExpandedLayout extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  hasBank ? ibanCard.bankName : 'bName'.tr().toUpperCase(),
+                  hasBank ? ibanCard.bankName : context.upper('bName'.tr()),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -319,7 +320,7 @@ class _CompactLayout extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              hasBank ? ibanCard.bankName : 'bName'.tr().toUpperCase(),
+              hasBank ? ibanCard.bankName : context.upper('bName'.tr()),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(

@@ -17,6 +17,7 @@ class PremiumController extends GetxController {
   bool _creditCountInitialized = false;
   bool _ibanCountInitialized = false;
   bool _loyaltyCountInitialized = false;
+  StreamSubscription<bool>? _statusSub;
 
   bool get isPremium => _isPremium.value;
   bool get isLoading => _isLoading.value;
@@ -47,7 +48,7 @@ class PremiumController extends GetxController {
     _isPremium.value = PremiumService.isPremium;
     unawaited(AnalyticsService.instance.setIsPremium(_isPremium.value));
 
-    PremiumService.premiumStatusStream.listen((status) {
+    _statusSub = PremiumService.premiumStatusStream.listen((status) {
       _isPremium.value = status;
       unawaited(AnalyticsService.instance.setIsPremium(status));
       update();
@@ -119,12 +120,13 @@ class PremiumController extends GetxController {
     }
   }
 
-  Future<void> restorePurchases() async {
+  Future<PremiumRestoreResult> restorePurchases() async {
     _isLoading.value = true;
     try {
-      await PremiumService.restorePurchases();
+      return await PremiumService.restorePurchases();
     } catch (e) {
       debugPrint('Error restoring purchases: $e');
+      return PremiumRestoreResult.failed;
     } finally {
       _isLoading.value = false;
     }
@@ -184,9 +186,17 @@ class PremiumController extends GetxController {
     }
   }
 
+  /// Product id of the active subscription, null for lifetime / free.
+  String? get currentPlanId => PremiumService.hasActiveSubscription
+      ? PremiumService.lastSubscriptionProductId
+      : null;
+
   @override
   void onClose() {
-    PremiumService.dispose();
+    // Only drop our own listener. PremiumService's streams and the store
+    // purchase subscription are app-wide: closing them here stopped
+    // purchases from being processed and completePurchase from running.
+    _statusSub?.cancel();
     super.onClose();
   }
 }

@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wallet_app/core/utils/share_origin.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 
 /// Renders [widget] into a PNG and hands it off to the system share sheet.
 ///
@@ -88,14 +89,14 @@ Future<bool> shareWidgetAsImage({
     final file = File('${dir.path}/$filename');
     await file.writeAsBytes(bytes, flush: true);
 
-    await SharePlus.instance.share(
+    await AppLockService.guard(() => SharePlus.instance.share(
       ShareParams(
         files: [XFile(file.path, mimeType: 'image/png')],
         text: text,
         subject: subject,
         sharePositionOrigin: shareOrigin,
       ),
-    );
+    ));
     return true;
   } catch (_) {
     return false;

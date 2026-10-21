@@ -14,6 +14,7 @@ import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart'
 import 'package:wallet_app/feature/add_loyalty_card/controller/add_loyalty_card_controller.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_formats.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_brand_presets.dart';
+import 'package:wallet_app/core/utils/premium_gate.dart';
 
 class AddLoyaltyCardPage extends StatefulWidget {
   final LoyaltyCard? card;
@@ -733,7 +734,7 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                 return GestureDetector(
                   onTap: () {
                     if (locked) {
-                      Get.toNamed('/premium');
+                      openPremiumGate('premiumColors');
                       return;
                     }
                     _controller.updateField('colorId', index);

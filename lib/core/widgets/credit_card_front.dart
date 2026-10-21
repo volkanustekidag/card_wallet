@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:wallet_app/core/utils/card_number_layout.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/widgets/bank_logo.dart';
 import 'package:wallet_app/core/widgets/card_network_badge.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:wallet_app/core/utils/locale_upper.dart';
 
 class CreditCardFront extends StatelessWidget {
   final CreditCard creditCard;
@@ -119,7 +121,7 @@ class CreditCardFront extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              _buildMetaRow(cardHolder, expiration),
+              _buildMetaRow(context, cardHolder, expiration),
             ],
           ),
         ),
@@ -129,6 +131,7 @@ class CreditCardFront extends StatelessWidget {
   }
 
   Widget _buildMetaRow(
+    BuildContext context,
     String cardHolder,
     String expiration,
   ) {
@@ -155,7 +158,7 @@ class CreditCardFront extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("hName".tr().toUpperCase(), style: labelStyle),
+              Text(context.upper("hName".tr()), style: labelStyle),
               const SizedBox(height: 2),
               Text(
                 cardHolder,
@@ -171,7 +174,7 @@ class CreditCardFront extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("valid".tr().toUpperCase(), style: labelStyle),
+            Text(context.upper("valid".tr()), style: labelStyle),
             const SizedBox(height: 2),
             Text(expiration, style: valueStyle),
           ],
@@ -181,35 +184,16 @@ class CreditCardFront extends StatelessWidget {
   }
 
   String _formatCardNumber(String number) {
-    final sanitized = number.replaceAll(RegExp(r'\s+'), '');
-    if (sanitized.isEmpty) return '•••• •••• •••• ••••';
-
-    final buffer = StringBuffer();
-    for (var i = 0; i < sanitized.length; i++) {
-      buffer.write(sanitized[i]);
-      final isLast = i == sanitized.length - 1;
-      if (!isLast && (i + 1) % 4 == 0) {
-        buffer.write(' ');
-      }
+    if (CardNumberLayout.digitsOf(number).isEmpty) {
+      return '•••• •••• •••• ••••';
     }
-    return buffer.toString();
+    return CardNumberLayout.format(number);
   }
 
-  /// Mask all but the last 4 digits of the card number, keeping the
-  /// "•••• •••• •••• 1234" grouping so the layout stays steady.
   String _maskCardNumber(String number) {
-    final sanitized = number.replaceAll(RegExp(r'\s+'), '');
-    if (sanitized.isEmpty) return '•••• •••• •••• ••••';
-    if (sanitized.length <= 4) return sanitized;
-
-    final tail = sanitized.substring(sanitized.length - 4);
-    final hiddenLen = sanitized.length - 4;
-    final buffer = StringBuffer();
-    for (var i = 0; i < hiddenLen; i++) {
-      buffer.write('•');
-      if ((i + 1) % 4 == 0) buffer.write(' ');
+    if (CardNumberLayout.digitsOf(number).isEmpty) {
+      return '•••• •••• •••• ••••';
     }
-    buffer.write(tail);
-    return buffer.toString();
+    return CardNumberLayout.mask(number);
   }
 }

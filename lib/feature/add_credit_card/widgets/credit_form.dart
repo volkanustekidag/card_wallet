@@ -252,7 +252,9 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
         TextFieldCard(
           controller: cardNumberController,
           focusNode: widget.cardNumberFocusNode,
-          maxLength: 19,
+          // 19 digits + 4 group spaces; CardNumberFormatter enforces the
+          // per-network limit (Amex 15, Diners 14).
+          maxLength: 23,
           onChanged: _onCardNumberChanged,
           label: "cardNumberLabel".tr(),
           hintText: "0000 0000 0000 0000",

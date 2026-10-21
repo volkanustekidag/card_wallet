@@ -12,12 +12,13 @@ import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
-import 'package:wallet_app/core/services/rate_app_service.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
-import 'package:wallet_app/core/utils/pin_setup_prompt.dart';
+import 'package:wallet_app/core/utils/session_prompt_gate.dart';
+import 'package:wallet_app/core/utils/card_number_layout.dart';
 import 'package:wallet_app/core/utils/validators.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 
 class AddCreditCardController extends GetxController {
   final CreditCardService _creditCardService = CreditCardService();
@@ -69,9 +70,6 @@ class AddCreditCardController extends GetxController {
 
     // Trigger refresh to ensure UI updates
     currentCard.refresh();
-
-    debugPrint(
-        'Edit mode initialized for card: ${card.bankName} - ${card.creditCardNumber}');
   }
 
   // Yeni kart oluşturma modu için başlatma
@@ -118,12 +116,14 @@ class AddCreditCardController extends GetxController {
         break;
       case "expiryReminderEnabled":
         card.expiryReminderEnabled = value as bool;
+        if (value) AnalyticsService.instance.logReminderEnabled('expiry');
         break;
       case "expiryReminderDaysBefore":
         card.expiryReminderDaysBefore = value as int;
         break;
       case "paymentReminderEnabled":
         card.paymentReminderEnabled = value as bool;
+        if (value) AnalyticsService.instance.logReminderEnabled('payment');
         break;
       case "paymentDueDay":
         card.paymentDueDay = value as int?;
@@ -245,25 +245,15 @@ class AddCreditCardController extends GetxController {
           final loyalty = await LoyaltyCardService().getAllLoyaltyCards();
           final total = cc.length + iban.length + loyalty.length;
           unawaited(AnalyticsService.instance.setCardCountTotal(total));
-          if (total >= 3) {
-            // Success-moment trigger: 3-card milestone is a strong happiness
-            // signal, so skip the session-count/install-age gates that the
-            // splash-time check uses. Still respects the 60-day window.
-            unawaited(
-              RateAppService.instance.requestAfterMilestone(
-                milestone: 'third_card_added',
-              ),
-            );
-          }
-          await maybePromptPinSetup(totalCardCountAfterAdd: total);
+          // One prompt per session: PIN > widget tutorial > rating.
+          await PostAddPrompts().run(totalCards: total);
         } catch (_) {
           // Best-effort prompt; failure here must never break the save.
         }
       }
-    } catch (e) {
-      debugPrint('Error saving card: $e');
-      Get.context?.showErrorSnackBar(
-          "failedToSaveCreditCard".tr(args: [e.toString()]));
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'saveCreditCard');
+      Get.context?.showErrorSnackBar("failedToSaveCreditCard".tr());
     } finally {
       isLoading.value = false;
     }
@@ -284,12 +274,11 @@ class AddCreditCardController extends GetxController {
   }
 
   bool _isCardValid(CreditCard card) {
-    final sanitizedNumber =
-        card.creditCardNumber.replaceAll(RegExp(r'\s+'), '');
     final expirationPattern = RegExp(r'^\d{2}\s?\/\s?\d{2}$');
 
+    // 13-19 digits depending on the network (Amex 15, Diners 14, Visa 13/16/19…).
     return card.bankName.trim().isNotEmpty &&
-        sanitizedNumber.length >= 16 &&
+        CardNumberLayout.isValidLength(card.creditCardNumber) &&
         card.cardHolder.trim().isNotEmpty &&
         expirationPattern.hasMatch(card.expirationDate.trim());
   }

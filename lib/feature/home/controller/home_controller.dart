@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
@@ -14,6 +13,7 @@ import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/utils/card_reminder_rules.dart';
 import 'package:wallet_app/core/utils/card_sorting.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 
 class HomeController extends GetxController {
   final CreditCardService _creditCardService = CreditCardService();
@@ -23,7 +23,15 @@ class HomeController extends GetxController {
   var creditCards = <CreditCard>[].obs;
   var ibanCards = <IbanCard>[].obs;
   var loyaltyCards = <LoyaltyCard>[].obs;
+  /// True while any load is running. Background refreshes (resume, box
+  /// watchers) flip it too, so the UI must not swap to a spinner on it.
   var isLoading = false.obs;
+
+  /// True until the first load finishes. The only state that may show the
+  /// full-screen spinner — later refreshes keep the current content, scroll
+  /// position and filters on screen.
+  final isInitialLoading = true.obs;
+  final Completer<void> _firstLoad = Completer<void>();
   final latestCreditCard = Rxn<CreditCard>();
   final latestIbanCard = Rxn<IbanCard>();
   final latestLoyaltyCard = Rxn<LoyaltyCard>();
@@ -72,8 +80,8 @@ class HomeController extends GetxController {
       _ibanSub = ibanStream.listen((_) => _scheduleRefresh());
       final loyaltyStream = await _loyaltyCardService.watch();
       _loyaltySub = loyaltyStream.listen((_) => _scheduleRefresh());
-    } catch (e) {
-      debugPrint('HomeController: watcher setup failed: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'HomeController.watchers');
     }
   }
 
@@ -114,6 +122,13 @@ class HomeController extends GetxController {
           creditCardList.length + ibanCardList.length + loyaltyCardList.length,
         ),
       );
+      unawaited(
+        AnalyticsService.instance.setCardCounts(
+          credit: creditCardList.length,
+          iban: ibanCardList.length,
+          loyalty: loyaltyCardList.length,
+        ),
+      );
 
       // Single sort here — every consumer reads walletItems instead of
       // calling mergeAndSort() in their build path.
@@ -142,12 +157,17 @@ class HomeController extends GetxController {
           loyaltyCount: loyaltyCardList.length,
         );
       }
-    } catch (e) {
-      debugPrint('Error loading home content: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'HomeController.load');
     } finally {
       isLoading.value = false;
+      isInitialLoading.value = false;
+      if (!_firstLoad.isCompleted) _firstLoad.complete();
     }
   }
+
+  /// Resolves once the first load has finished (immediately afterwards).
+  Future<void> ensureLoaded() => _firstLoad.future;
 
   void refreshData() {
     loadHomeContent();

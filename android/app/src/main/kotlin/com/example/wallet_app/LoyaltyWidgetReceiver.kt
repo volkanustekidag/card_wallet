@@ -72,8 +72,14 @@ class LoyaltyWidgetReceiver : AppWidgetProvider() {
         if (id.isEmpty() || barcode.isEmpty()) {
             // Empty state — user hasn't opened any loyalty card yet, or
             // the cached one was deleted.
-            views.setTextViewText(R.id.loyalty_widget_title, "Loyalty")
-            views.setTextViewText(R.id.loyalty_widget_subtitle, "Add a card")
+            views.setTextViewText(
+                R.id.loyalty_widget_title,
+                context.getString(R.string.loyalty_empty_title),
+            )
+            views.setTextViewText(
+                R.id.loyalty_widget_subtitle,
+                context.getString(R.string.loyalty_add_card),
+            )
             views.setTextViewText(R.id.loyalty_widget_number, "")
             views.setImageViewBitmap(R.id.loyalty_widget_barcode, placeholderBitmap())
             views.setOnClickPendingIntent(

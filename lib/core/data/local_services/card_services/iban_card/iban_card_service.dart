@@ -6,6 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/utils/secure_storage_provider.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 
 class IbanCardService {
   IbanCardService._internal();
@@ -59,7 +60,9 @@ class IbanCardService {
     try {
       final box = await _ensureBoxReady();
       return box.values.toList();
-    } catch (e) {
+    } catch (e, st) {
+      // Callers render an empty list; make the failure visible.
+      ErrorReporter.report(e, st, reason: 'getAllIbanCards');
       return [];
     }
   }

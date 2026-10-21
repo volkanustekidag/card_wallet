@@ -13,6 +13,10 @@ import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.da
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/services/wallet_pass_export_service.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
+import 'package:wallet_app/core/utils/premium_gate.dart';
 
 /// Shared "Add to Apple Wallet / Google Wallet" entry point. Used by the
 /// loyalty card detail page and the home detail sheet so both surfaces fire
@@ -56,7 +60,7 @@ Future<void> addLoyaltyCardToWallet(
   LoyaltyCard card,
 ) async {
   if (!PremiumService.isPremium) {
-    await Get.toNamed('/premium', arguments: {'feature': 'walletExport'});
+    await openPremiumGate('walletExport');
     return;
   }
 
@@ -66,13 +70,24 @@ Future<void> addLoyaltyCardToWallet(
     return;
   }
 
+  final analytics = AnalyticsService.instance;
+  final providerName = provider.name;
+  void fail(String errorKey) => analytics.logWalletExportFailed(
+        provider: providerName,
+        errorKey: errorKey,
+      );
+  analytics.logWalletExportAttempt(providerName);
+
   final service = WalletPassExportService();
   if (!service.isConfigured) {
+    fail('walletExportNotConfigured');
     context.showErrorSnackBar('walletExportNotConfigured');
     return;
   }
   if (!service.isBarcodeSupported(provider, card)) {
-    context.showErrorSnackBar(service.unsupportedBarcodeMessageKey(provider));
+    final key = service.unsupportedBarcodeMessageKey(provider);
+    fail(key);
+    context.showErrorSnackBar(key);
     return;
   }
 
@@ -88,10 +103,6 @@ Future<void> addLoyaltyCardToWallet(
     loadingShown = true;
 
     final colors = _walletPassColors(card);
-    debugPrint(
-      'Wallet pass colors → bg=${colors.background} fg=${colors.foreground} '
-      'label=${colors.label} (colorId=${card.colorId})',
-    );
     final response = await service.createLoyaltyPass(
       provider: provider,
       card: card,
@@ -108,36 +119,52 @@ Future<void> addLoyaltyCardToWallet(
 
     if (provider == WalletPassProvider.apple) {
       final added = await _presentApplePass(response.launchUri);
-      if (added) return;
+      if (added) {
+        analytics.logWalletExportSuccess(providerName);
+        return;
+      }
       // Native PassKit reddetti — Safari fallback'e düş.
     }
 
     if (provider == WalletPassProvider.google) {
       final added = await _presentGooglePass(response.launchUri);
-      if (added == true) return;
-      if (added == false) return; // kullanıcı iptal etti, fallback açma
+      if (added == true) {
+        analytics.logWalletExportSuccess(providerName);
+        return;
+      }
+      if (added == false) {
+        // kullanıcı iptal etti, fallback açma
+        fail('canceled');
+        return;
+      }
       // null = native başarısız, Chrome fallback'e düş.
     }
 
-    final opened = await launchUrl(
+    final opened = await AppLockService.guard(() => launchUrl(
       response.launchUri,
       mode: LaunchMode.externalApplication,
-    );
-    if (!opened && context.mounted) {
-      context.showErrorSnackBar('walletExportOpenFailed');
+    ));
+    if (opened) {
+      // Browser fallback: the add itself completes on the wallet web page.
+      analytics.logWalletExportSuccess(providerName);
+    } else {
+      fail('walletExportOpenFailed');
+      if (context.mounted) context.showErrorSnackBar('walletExportOpenFailed');
     }
   } on WalletPassExportException catch (e) {
     if (loadingShown && Get.isDialogOpen == true) {
       Get.back();
       loadingShown = false;
     }
+    fail(e.messageKey);
     if (context.mounted) context.showErrorSnackBar(e.messageKey);
   } catch (e, st) {
     if (loadingShown && Get.isDialogOpen == true) {
       Get.back();
       loadingShown = false;
     }
-    debugPrint('Wallet export failed: $e\n$st');
+    fail('walletExportFailed');
+    ErrorReporter.report(e, st, reason: 'walletExport');
     if (context.mounted) context.showErrorSnackBar('walletExportFailed');
   }
 }
@@ -164,7 +191,7 @@ Future<bool> _presentApplePass(Uri passUri) async {
     if (!isAvailable || !canAddPasses) return false;
 
     final passBytes = await _downloadPkPass(passUri);
-    await passKit.addPass(passBytes);
+    await AppLockService.guard(() => passKit.addPass(passBytes));
     return true;
   } catch (e, st) {
     debugPrint('Apple PassKit native add failed: $e\n$st');
@@ -216,10 +243,10 @@ Future<bool?> _presentGooglePass(Uri passUri) async {
   if (jwt.isEmpty) return null;
   try {
     const channel = MethodChannel('app.cardwallet/google_wallet');
-    final ok = await channel.invokeMethod<bool>(
-      'saveToWallet',
-      <String, dynamic>{'jwt': jwt},
-    );
+    final ok = await AppLockService.guard(() => channel.invokeMethod<bool>(
+          'saveToWallet',
+          <String, dynamic>{'jwt': jwt},
+        ));
     return ok;
   } on MissingPluginException {
     // iOS veya channel kayıtlı değil — fallback iste.

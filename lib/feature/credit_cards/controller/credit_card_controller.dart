@@ -1,6 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/services/error_reporter.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -43,10 +43,9 @@ class CreditCardController extends GetxController {
 
       final result = await _creditCardService.getAllCreditCards();
       creditCards.value = result;
-    } catch (e) {
-      debugPrint('Error loading credit cards: $e');
-      Get.context?.showErrorSnackBar(
-          "failedToLoadCreditCards".tr(args: [e.toString()]));
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'loadCreditCards');
+      Get.context?.showErrorSnackBar("failedToLoadCreditCards".tr());
       // Keep whatever was seeded — don't blank the screen on error.
     } finally {
       isLoading.value = false;
@@ -58,10 +57,9 @@ class CreditCardController extends GetxController {
       await _creditCardService.removeToCreditCard(creditCard);
       creditCards.remove(creditCard);
       Get.context?.showSuccessSnackBar("creditCardDeletedSuccessfully".tr());
-    } catch (e) {
-      debugPrint('Error removing credit card: $e');
-      Get.context?.showErrorSnackBar(
-          "failedToDeleteCreditCard".tr(args: [e.toString()]));
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'removeCreditCard');
+      Get.context?.showErrorSnackBar("failedToDeleteCreditCard".tr());
     }
   }
 
@@ -71,10 +69,9 @@ class CreditCardController extends GetxController {
       await _creditCardService.addToCreditCard(creditCard);
       await loadCreditCards();
       Get.context?.showSuccessSnackBar("creditCardAddedSuccessfully".tr());
-    } catch (e) {
-      debugPrint('Error adding credit card: $e');
-      Get.context?.showErrorSnackBar(
-          "failedToSaveCreditCard".tr(args: [e.toString()]));
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'addCreditCard');
+      Get.context?.showErrorSnackBar("failedToSaveCreditCard".tr());
     }
   }
 }

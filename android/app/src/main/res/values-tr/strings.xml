@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="loyalty_widget_description">Son açtığın sadakat kartının barkodunu hızlıca göster.</string>
+    <string name="loyalty_widget_barcode_cd">Sadakat kartı barkodu</string>
+    <string name="loyalty_tile_label">Sadakat kartı</string>
+    <string name="loyalty_empty_title">Sadakat</string>
+    <string name="loyalty_add_card">Kart ekle</string>
+    <string name="loyalty_tap_to_show_barcode">Barkodu göstermek için dokun</string>
+</resources>

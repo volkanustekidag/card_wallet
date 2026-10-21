@@ -6,6 +6,7 @@ import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 import 'package:wallet_app/feature/home/widgets/sections/premium_marks.dart';
+import 'package:wallet_app/core/utils/locale_upper.dart';
 
 /// Evergreen premium upsell shown to free users with at least one card.
 /// Drops the older "X/Y limit reached" copy because the per-category
@@ -124,7 +125,7 @@ class _Strip extends StatelessWidget {
                     ],
                   ),
                   child: Text(
-                    'getPremium'.tr().toUpperCase(),
+                    context.upper('getPremium'.tr()),
                     style: const TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w800,

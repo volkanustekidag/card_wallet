@@ -1,0 +1,5 @@
+/* Localized permission prompts shown by iOS. Keep in sync with Info.plist. */
+
+"NSCameraUsageDescription" = "CardWallet gebruikt de camera om je creditcards, IBAN's en barcodes van klantenkaarten te scannen. Kaartgegevens blijven op je apparaat.";
+"NSFaceIDUsageDescription" = "CardWallet gebruikt Face ID of Touch ID om je wallet te ontgrendelen en de toegang tot je kaarten te beschermen.";
+"NSPhotoLibraryUsageDescription" = "CardWallet leest afbeeldingen uit je bibliotheek zodat je een opgeslagen kaartfoto of barcode kunt scannen.";

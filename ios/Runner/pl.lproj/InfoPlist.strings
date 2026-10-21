@@ -1,0 +1,5 @@
+/* Localized permission prompts shown by iOS. Keep in sync with Info.plist. */
+
+"NSCameraUsageDescription" = "CardWallet używa aparatu do skanowania kart kredytowych, numerów IBAN i kodów kreskowych kart lojalnościowych. Dane kart pozostają na urządzeniu.";
+"NSFaceIDUsageDescription" = "CardWallet używa Face ID lub Touch ID, aby odblokować portfel i chronić dostęp do Twoich kart.";
+"NSPhotoLibraryUsageDescription" = "CardWallet odczytuje obrazy z biblioteki, aby można było zeskanować zapisane zdjęcie karty lub kod kreskowy.";

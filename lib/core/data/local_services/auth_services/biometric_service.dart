@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/utils/secure_storage_provider.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 
 class BiometricService {
   static final BiometricService _instance = BiometricService._internal();
@@ -14,16 +15,19 @@ class BiometricService {
 
   // Storage keys
   static const String _biometricEnabledKey = 'biometric_enabled';
-  static const String _autoLockTimeKey = 'auto_lock_time';
+  // Legacy minute-based value; migrated to [_autoLockSecondsKey] on read.
+  static const String _legacyAutoLockMinutesKey = 'auto_lock_time';
+  static const String _autoLockSecondsKey = 'auto_lock_seconds';
+  // No longer written; still cleared so old installs don't keep it around.
   static const String _lastActiveTimeKey = 'last_active_time';
+
+  static const int defaultAutoLockSeconds = 30;
 
   /// Check if biometric authentication is available on device
   Future<bool> isBiometricAvailable() async {
     try {
       final bool isAvailable = await _localAuth.canCheckBiometrics;
       final bool isDeviceSupported = await _localAuth.isDeviceSupported();
-      debugPrint('Can check biometrics: $isAvailable');
-      debugPrint('Device supported: $isDeviceSupported');
       return isAvailable && isDeviceSupported;
     } catch (e) {
       debugPrint('Error checking biometric availability: $e');
@@ -34,9 +38,7 @@ class BiometricService {
   /// Get available biometric types
   Future<List<BiometricType>> getAvailableBiometrics() async {
     try {
-      final biometrics = await _localAuth.getAvailableBiometrics();
-      debugPrint('Raw biometrics from device: $biometrics');
-      return biometrics;
+      return await _localAuth.getAvailableBiometrics();
     } catch (e) {
       debugPrint('Error getting biometrics: $e');
       return [];
@@ -58,8 +60,9 @@ class BiometricService {
     try {
       await _storage.write(
           key: _biometricEnabledKey, value: enabled.toString());
-    } catch (e) {
-      throw Exception('${'biometricSettingsSaveError'.tr()}: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'setBiometricEnabled');
+      throw Exception('biometricSettingsSaveError'.tr());
     }
   }
 
@@ -93,15 +96,16 @@ class BiometricService {
         ),
       );
 
-      if (didAuthenticate) {
-        await updateLastActiveTime();
-      }
 
       return didAuthenticate;
-    } on PlatformException catch (e) {
-      throw BiometricException(_handlePlatformException(e));
-    } catch (e) {
-      throw BiometricException('${'biometricAuthError'.tr()}: $e');
+    } on PlatformException catch (e, st) {
+      throw BiometricException(_handlePlatformException(e, st));
+    } on BiometricException {
+      // Already user-facing (not supported / not enabled); don't re-wrap.
+      rethrow;
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'biometricAuth');
+      throw BiometricException('biometricAuthError'.tr());
     }
   }
 
@@ -124,63 +128,47 @@ class BiometricService {
           sensitiveTransaction: false,
         ),
       );
-      if (didAuthenticate) {
-        await updateLastActiveTime();
-      }
       return didAuthenticate;
-    } on PlatformException catch (e) {
-      throw BiometricException(_handlePlatformException(e));
-    } catch (e) {
-      throw BiometricException('${'biometricAuthError'.tr()}: $e');
+    } on PlatformException catch (e, st) {
+      throw BiometricException(_handlePlatformException(e, st));
+    } on BiometricException {
+      // Already user-facing (not supported / not enabled); don't re-wrap.
+      rethrow;
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'biometricAuth');
+      throw BiometricException('biometricAuthError'.tr());
     }
   }
 
-  /// Set auto-lock timer (in minutes)
-  Future<void> setAutoLockTime(int minutes) async {
+  /// Persist the auto-lock delay. Must be one of [AutoLockTime.options].
+  Future<void> setAutoLockSeconds(int seconds) async {
     try {
-      await _storage.write(key: _autoLockTimeKey, value: minutes.toString());
-    } catch (e) {
-      throw Exception('${'autoLockTimeSaveError'.tr()}: $e');
+      await _storage.write(key: _autoLockSecondsKey, value: '$seconds');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'setAutoLockSeconds');
+      throw Exception('autoLockTimeSaveError'.tr());
     }
   }
 
-  /// Get auto-lock timer (in minutes)
-  Future<int> getAutoLockTime() async {
+  /// Auto-lock delay in seconds (0 = immediately). Migrates the old
+  /// minute-based value the first time it is read.
+  Future<int> getAutoLockSeconds() async {
     try {
-      final String? time = await _storage.read(key: _autoLockTimeKey);
-      return int.tryParse(time ?? '5') ?? 5; // Default 5 minutes
+      final stored = int.tryParse(
+        await _storage.read(key: _autoLockSecondsKey) ?? '',
+      );
+      if (stored != null) return AutoLockTime.normalize(stored);
+
+      final legacyMinutes = int.tryParse(
+        await _storage.read(key: _legacyAutoLockMinutesKey) ?? '',
+      );
+      if (legacyMinutes == null) return defaultAutoLockSeconds;
+      final migrated = AutoLockTime.normalize(legacyMinutes * 60);
+      await _storage.write(key: _autoLockSecondsKey, value: '$migrated');
+      await _storage.delete(key: _legacyAutoLockMinutesKey);
+      return migrated;
     } catch (e) {
-      return 5;
-    }
-  }
-
-  /// Update last active time
-  Future<void> updateLastActiveTime() async {
-    try {
-      final now = DateTime.now().millisecondsSinceEpoch.toString();
-      await _storage.write(key: _lastActiveTimeKey, value: now);
-    } catch (e) {
-      // Silent fail - not critical
-    }
-  }
-
-  /// Check if app should be locked based on auto-lock timer
-  Future<bool> shouldLockApp() async {
-    try {
-      final String? lastActiveStr =
-          await _storage.read(key: _lastActiveTimeKey);
-      if (lastActiveStr == null) return true;
-
-      final int lastActive = int.tryParse(lastActiveStr) ?? 0;
-      final int autoLockMinutes = await getAutoLockTime();
-      final int autoLockMs = autoLockMinutes * 60 * 1000;
-
-      final int now = DateTime.now().millisecondsSinceEpoch;
-      final int timeDiff = now - lastActive;
-
-      return timeDiff > autoLockMs;
-    } catch (e) {
-      return true; // Default to locked if error
+      return defaultAutoLockSeconds;
     }
   }
 
@@ -202,7 +190,7 @@ class BiometricService {
   }
 
   /// Handle platform exception and return user-friendly message
-  String _handlePlatformException(PlatformException e) {
+  String _handlePlatformException(PlatformException e, StackTrace stack) {
     switch (e.code) {
       case 'NotAvailable':
         return 'biometricNotAvailable'.tr();
@@ -223,7 +211,10 @@ class BiometricService {
       case 'NotSupported':
         return 'biometricOperationNotSupported'.tr();
       default:
-        return '${'biometricUnknownError'.tr()}: ${e.message}';
+        // Platform messages are raw, untranslated and may be technical;
+        // keep them in Crashlytics, show the user a translated sentence.
+        ErrorReporter.report(e, stack, reason: 'biometric:${e.code}');
+        return 'biometricUnknownError'.tr();
     }
   }
 
@@ -231,7 +222,8 @@ class BiometricService {
   Future<void> clearBiometricSettings() async {
     try {
       await _storage.delete(key: _biometricEnabledKey);
-      await _storage.delete(key: _autoLockTimeKey);
+      await _storage.delete(key: _legacyAutoLockMinutesKey);
+      await _storage.delete(key: _autoLockSecondsKey);
       await _storage.delete(key: _lastActiveTimeKey);
     } catch (e) {
       // Silent fail
@@ -248,12 +240,25 @@ class BiometricException implements Exception {
   String toString() => 'BiometricException: $message';
 }
 
-/// Auto-lock time options
+/// Auto-lock delay options shown in Settings › Security.
 class AutoLockTime {
-  static const List<int> options = [1, 2, 5, 10, 15, 30]; // minutes
+  static const List<int> options = [0, 30, 60, 300, 900]; // seconds
 
-  static String getDisplayText(int minutes) {
-    if (minutes == 1) return 'oneMinute'.tr();
-    return '$minutes ${'minutes'.tr()}';
+  /// Snaps any stored value to the closest option that is not longer than
+  /// it, so a migrated "2 minutes" becomes "1 minute" rather than "5".
+  static int normalize(int seconds) {
+    var result = options.first;
+    for (final option in options) {
+      if (option <= seconds) result = option;
+    }
+    return result;
+  }
+
+  static String label(int seconds) {
+    if (seconds <= 0) return 'autoLockImmediately'.tr();
+    if (seconds < 60) return 'autoLockAfterSeconds'.tr(args: ['$seconds']);
+    final minutes = seconds ~/ 60;
+    if (minutes == 1) return 'autoLockAfterOneMinute'.tr();
+    return 'autoLockAfterMinutes'.tr(args: ['$minutes']);
   }
 }

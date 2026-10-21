@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 
 class CameraPermissionService {
   const CameraPermissionService._();
@@ -55,7 +56,7 @@ class CameraPermissionService {
       ),
     );
     if (shouldOpenSettings == true) {
-      await openAppSettings();
+      await AppLockService.guard(() => openAppSettings());
     }
   }
 }

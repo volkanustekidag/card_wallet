@@ -1,9 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/camera_permission_service.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
+import 'package:wallet_app/core/utils/scan_photo_cleanup.dart';
+import 'package:wallet_app/core/utils/card_number_layout.dart';
+import 'package:wallet_app/core/utils/validators.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 class CreditCardScannerService {
   final ImagePicker _picker = ImagePicker();
@@ -11,17 +17,22 @@ class CreditCardScannerService {
 
   // Kredi kartı tarama
   Future<Map<String, String>?> scanCreditCard() async {
+    XFile? photo;
     try {
       if (!await CameraPermissionService.ensureGranted()) {
         return null;
       }
 
+      AnalyticsService.instance.logScanStarted(
+        type: AnalyticsCardType.credit,
+        method: AnalyticsScanMethod.camera,
+      );
       // Kameradan fotoğraf çek
-      final XFile? photo = await _picker.pickImage(
+      photo = await AppLockService.guard(() => _picker.pickImage(
         source: ImageSource.camera,
         imageQuality: 100,
         preferredCameraDevice: CameraDevice.rear,
-      );
+      ));
 
       if (photo == null) return null;
 
@@ -31,20 +42,31 @@ class CreditCardScannerService {
           await _textRecognizer.processImage(inputImage);
 
       // Kredi kartı bilgilerini parse et
-      return _parseCreditCardInfo(recognizedText.text);
+      return _reportScan(
+        _parseCreditCardInfo(recognizedText.text),
+        AnalyticsScanMethod.camera,
+      );
     } catch (e) {
-      Get.context?.showErrorSnackBar('qrScanError'.tr());
+      _logScanFailed(AnalyticsScanMethod.camera);
+      Get.context?.showErrorSnackBar('failedToScanCreditCard'.tr());
       return null;
+    } finally {
+      await deleteScanPhoto(photo, fromCamera: true);
     }
   }
 
   // Galeriden fotoğraf seç
   Future<Map<String, String>?> scanFromGallery() async {
+    XFile? photo;
     try {
-      final XFile? photo = await _picker.pickImage(
+      AnalyticsService.instance.logScanStarted(
+        type: AnalyticsCardType.credit,
+        method: AnalyticsScanMethod.gallery,
+      );
+      photo = await AppLockService.guard(() => _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 100,
-      );
+      ));
 
       if (photo == null) return null;
 
@@ -52,9 +74,15 @@ class CreditCardScannerService {
       final RecognizedText recognizedText =
           await _textRecognizer.processImage(inputImage);
 
-      return _parseCreditCardInfo(recognizedText.text);
+      return _reportScan(
+        _parseCreditCardInfo(recognizedText.text),
+        AnalyticsScanMethod.gallery,
+      );
     } catch (e) {
+      _logScanFailed(AnalyticsScanMethod.gallery);
       return null;
+    } finally {
+      await deleteScanPhoto(photo, fromCamera: false);
     }
   }
 
@@ -67,24 +95,13 @@ class CreditCardScannerService {
     };
 
     final lines = text.split('\n');
+    final cardNumber = extractCardNumber(text);
+    if (cardNumber != null) {
+      cardInfo['cardNumber'] = CardNumberLayout.format(cardNumber);
+    }
 
     for (String line in lines) {
       final cleanLine = line.trim().toUpperCase();
-
-      // Kart numarası (16 haneli)
-      final cardNumberMatch =
-          RegExp(r'\b(\d{4}[\s\-]?\d{4}[\s\-]?\d{4}[\s\-]?\d{4})\b')
-              .firstMatch(cleanLine);
-      if (cardNumberMatch != null && cardInfo['cardNumber']!.isEmpty) {
-        cardInfo['cardNumber'] =
-            cardNumberMatch.group(1)!.replaceAll(RegExp(r'[\s\-]'), ' ');
-        // 4'lü gruplara böl
-        final digits = cardInfo['cardNumber']!.replaceAll(' ', '');
-        if (digits.length == 16) {
-          cardInfo['cardNumber'] =
-              '${digits.substring(0, 4)} ${digits.substring(4, 8)} ${digits.substring(8, 12)} ${digits.substring(12, 16)}';
-        }
-      }
 
       // Son kullanma tarihi (MM/YY veya MM/YYYY formatında)
       final expiryMatch = RegExp(r'\b(0[1-9]|1[0-2])[\s\/\-]?(\d{2}|\d{4})\b')
@@ -113,6 +130,52 @@ class CreditCardScannerService {
 
     return cardInfo;
   }
+
+  /// Finds a 13-19 digit card number (Amex 15, Diners 14, Visa 19…) in OCR
+  /// text. Groups may be separated by spaces or dashes; only candidates that
+  /// pass the Luhn check are accepted, which filters out phone numbers and
+  /// account numbers printed on the card.
+  @visibleForTesting
+  static String? extractCardNumber(String text) {
+    final run = RegExp(r'\d+(?:[ \-]\d+)*');
+    for (final line in text.split('\n')) {
+      for (final match in run.allMatches(line)) {
+        final groups = match.group(0)!.split(RegExp(r'[ \-]'));
+        // Try every run of consecutive groups and keep the longest valid
+        // one, so "4111 1111 1111 1111 12/30" or a 19-digit number isn't
+        // cut short by a prefix that happens to pass Luhn.
+        String? best;
+        for (var i = 0; i < groups.length; i++) {
+          var digits = '';
+          for (var j = i; j < groups.length; j++) {
+            digits += groups[j];
+            if (digits.length > CardNumberLayout.maxDigits) break;
+            if (digits.length >= CardNumberLayout.minDigits &&
+                CardValidators.isValidLuhn(digits) &&
+                (best == null || digits.length > best.length)) {
+              best = digits;
+            }
+          }
+        }
+        if (best != null) return best;
+      }
+    }
+    return null;
+  }
+
+  /// A scan "succeeds" when OCR found a card number.
+  Map<String, String> _reportScan(Map<String, String> info, String method) {
+    if (info['cardNumber']?.isNotEmpty == true) {
+      AnalyticsService.instance
+          .logScanSucceeded(type: AnalyticsCardType.credit, method: method);
+    } else {
+      _logScanFailed(method);
+    }
+    return info;
+  }
+
+  void _logScanFailed(String method) => AnalyticsService.instance
+      .logScanFailed(type: AnalyticsCardType.credit, method: method);
 
   // Kart sahibi ismini formatla
   String _formatCardHolderName(String name) {

@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/services/error_reporter.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
@@ -13,9 +14,8 @@ import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
-import 'package:wallet_app/core/services/rate_app_service.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
-import 'package:wallet_app/core/utils/pin_setup_prompt.dart';
+import 'package:wallet_app/core/utils/session_prompt_gate.dart';
 import 'package:wallet_app/core/utils/validators.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 
@@ -59,9 +59,6 @@ class AddIbanCardController extends GetxController {
 
     // Trigger refresh
     currentCard.refresh();
-
-    debugPrint(
-        'Edit mode initialized for IBAN card: ${card.cardHolder} - ${card.iban}');
   }
 
   // Yeni kart oluşturma modu için başlatma
@@ -78,8 +75,6 @@ class AddIbanCardController extends GetxController {
 
     // Trigger refresh
     currentCard.refresh();
-
-    debugPrint('Create mode initialized for IBAN card');
   }
 
   void updateCardField(String fieldName, dynamic value) {
@@ -109,7 +104,17 @@ class AddIbanCardController extends GetxController {
     currentCard.refresh(); // Trigger UI update
   }
 
+  /// Holder name and an IBAN of plausible length are required; everything
+  /// else (bank, SWIFT, notes) is optional. The shortest IBANs (Norway) have
+  /// 15 characters.
+  static bool hasRequiredFields(IbanCard card) =>
+      card.cardHolder.trim().isNotEmpty &&
+      card.iban.replaceAll(RegExp(r'\s'), '').length >= 15;
+
+  bool get canSave => hasRequiredFields(currentCard.value);
+
   Future<void> saveCard() async {
+    if (!canSave) return;
     try {
       isLoading.value = true;
       final wasEditMode = isEditMode.value;
@@ -164,7 +169,7 @@ class AddIbanCardController extends GetxController {
         await _ibanCardService.updateIbanCard(_originalCard!, updatedCard);
         HapticFeedback.mediumImpact();
         Get.back();
-        Get.context?.showSuccessSnackBar('IBAN card updated successfully');
+        Get.context?.showSuccessSnackBar('ibanCardUpdatedSuccessfully');
       } else {
         // Yeni kart ekleme işlemi - yeni string ID
         final newCard = IbanCard(
@@ -178,15 +183,13 @@ class AddIbanCardController extends GetxController {
           tags: currentCard.value.tags,
         );
 
-        debugPrint('Adding new IBAN card with ID: ${newCard.id}');
-
         await _ibanCardService.addIbanCard(newCard);
         unawaited(
           AnalyticsService.instance.logCardAdded(AnalyticsCardType.iban),
         );
         HapticFeedback.mediumImpact();
         Get.back();
-        Get.context?.showSuccessSnackBar('IBAN card added successfully');
+        Get.context?.showSuccessSnackBar('ibanCardAddedSuccessfully');
       }
 
       // IBAN kartları yeniden yükle
@@ -204,25 +207,15 @@ class AddIbanCardController extends GetxController {
           final loyalty = await LoyaltyCardService().getAllLoyaltyCards();
           final total = cc.length + iban.length + loyalty.length;
           unawaited(AnalyticsService.instance.setCardCountTotal(total));
-          if (total >= 3) {
-            // Success-moment trigger: 3-card milestone is a strong happiness
-            // signal, so skip the session-count/install-age gates that the
-            // splash-time check uses. Still respects the 60-day window.
-            unawaited(
-              RateAppService.instance.requestAfterMilestone(
-                milestone: 'third_card_added',
-              ),
-            );
-          }
-          await maybePromptPinSetup(totalCardCountAfterAdd: total);
+          // One prompt per session: PIN > widget tutorial > rating.
+          await PostAddPrompts().run(totalCards: total);
         } catch (_) {
           // Best-effort prompt; never break the save.
         }
       }
-    } catch (e) {
-      debugPrint('Error saving IBAN card: $e');
-      Get.context
-          ?.showErrorSnackBar('Failed to save IBAN card: ${e.toString()}');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'saveIbanCard');
+      Get.context?.showErrorSnackBar('failedToSaveIbanCard');
     } finally {
       isLoading.value = false;
     }

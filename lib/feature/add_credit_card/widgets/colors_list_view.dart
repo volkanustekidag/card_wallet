@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_controller.dart';
+import 'package:wallet_app/core/utils/premium_gate.dart';
 
 class ColorsListView extends StatelessWidget {
   const ColorsListView({Key? key}) : super(key: key);
@@ -27,7 +28,7 @@ class ColorsListView extends StatelessWidget {
           return GestureDetector(
             onTap: () {
               if (locked) {
-                Get.toNamed('/premium');
+                openPremiumGate('premiumColors');
                 return;
               }
               controller.updateCardField('cardColorId', index);

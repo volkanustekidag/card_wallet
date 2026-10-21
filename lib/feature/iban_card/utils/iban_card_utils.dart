@@ -6,6 +6,8 @@ import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 import 'package:wallet_app/core/utils/share_origin.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 /// QR Code Display Utilities
 class IbanCardUtils {
@@ -328,16 +330,18 @@ class QRDialog extends StatelessWidget {
   }
 
   void _copyToClipboard(BuildContext context) {
-    SensitiveClipboard.copy(qrData);
+    SensitiveClipboard.copy(qrData, cardType: AnalyticsCardType.iban);
     context.showSuccessSnackBar('qrCodeCopied');
   }
 
   void _shareQR(BuildContext context) {
-    Share.share(
+    AnalyticsService.instance
+        .logCardShared(cardType: AnalyticsCardType.iban, masked: false);
+    AppLockService.guard(() => Share.share(
       qrData,
       subject: '${'qrCodeSubject'.tr()} - $beneficiaryName',
       sharePositionOrigin: shareOriginFromContext(context),
-    );
+    ));
   }
 }
 
@@ -563,16 +567,18 @@ class QRBottomSheet extends StatelessWidget {
   }
 
   void _copyToClipboard(BuildContext context) {
-    SensitiveClipboard.copy(qrData);
+    SensitiveClipboard.copy(qrData, cardType: AnalyticsCardType.iban);
     context.showSuccessSnackBar('qrCodeCopied');
   }
 
   void _shareQR(BuildContext context) {
-    Share.share(
+    AnalyticsService.instance
+        .logCardShared(cardType: AnalyticsCardType.iban, masked: false);
+    AppLockService.guard(() => Share.share(
       qrData,
       subject: '${'qrCodeSubject'.tr()} - $beneficiaryName',
       sharePositionOrigin: shareOriginFromContext(context),
-    );
+    ));
   }
 }
 
@@ -662,11 +668,13 @@ class QRFullScreenPage extends StatelessWidget {
   }
 
   void _shareQR(BuildContext context) {
-    Share.share(
+    AnalyticsService.instance
+        .logCardShared(cardType: AnalyticsCardType.iban, masked: false);
+    AppLockService.guard(() => Share.share(
       qrData,
       subject: '${'qrCodeSubject'.tr()} - $beneficiaryName',
       sharePositionOrigin: shareOriginFromContext(context),
-    );
+    ));
   }
 }
 
