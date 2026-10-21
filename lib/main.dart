@@ -20,6 +20,7 @@ import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/services/rate_app_service.dart';
 import 'package:wallet_app/core/services/wallet_surfaces_sync.dart';
@@ -101,7 +102,7 @@ void main() async {
     // Non-critical services boot in the background. Card services only matter
     // once the user reaches a card screen, and PremiumService self-recovers if
     // accessed before init completes.
-    unawaited(_bootstrapCreditCardsAndReminders());
+    _creditCardsReady = _bootstrapCreditCardsAndReminders();
     unawaited(IbanCardService().init());
     // Once the loyalty box is open, keep the widget, quick tile and Apple
     // Watch in step with it — on launch and on every later change.
@@ -159,13 +160,16 @@ void main() async {
   });
 }
 
+/// Credit card box + notification plugin. Reminders themselves are
+/// (re)scheduled after the first frame — see [_AppWrapperState] — because
+/// their texts are rendered with `.tr()` and must not be baked in before
+/// translations are loaded.
 Future<void> _bootstrapCreditCardsAndReminders() async {
-  final creditCardService = CreditCardService();
-  await creditCardService.init();
+  await CreditCardService().init();
   await CardReminderService().init();
-  final cards = await creditCardService.getAllCreditCards();
-  await CardReminderService().scheduleAllCreditCardReminders(cards);
 }
+
+Future<void>? _creditCardsReady;
 
 class AppWrapper extends StatefulWidget {
   const AppWrapper({Key? key}) : super(key: key);
@@ -182,6 +186,18 @@ class _AppWrapperState extends State<AppWrapper> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     RateAppService.instance.scheduleInitialPrompt();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_rescheduleReminders(context.locale));
+    });
+  }
+
+  Future<void> _rescheduleReminders(Locale locale) async {
+    try {
+      await _creditCardsReady;
+      await CardReminderService().rescheduleAll(locale: locale);
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'rescheduleReminders');
+    }
   }
 
   @override

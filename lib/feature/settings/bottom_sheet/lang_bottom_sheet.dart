@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:get/get.dart' hide Trans;
 
 Future<bool?> showLangChoseeBottomSheet(BuildContext context) async {
@@ -69,6 +72,9 @@ class _LanguageBottomSheetBodyState extends State<LanguageBottomSheetBody> {
     // MaterialApp keeps the old locale.
     Get.locale = selectedLocale;
     await context.setLocale(selectedLocale);
+    // Scheduled notifications carry their text; re-render them in the new
+    // language.
+    unawaited(CardReminderService().rescheduleAll(locale: selectedLocale));
     if (!mounted) return;
     Navigator.pop(context, true);
   }
