@@ -494,5 +494,7 @@
     "purchaseRestoreFailed": "Mağazaya ulaşılamadı. Bağlantını kontrol edip tekrar dene.",
     "purchasePending": "Onay bekleniyor. Ödeme onaylanınca Premium açılır.",
     "placeholderBankName": "Bankan",
-    "placeholderHolderName": "Adın Soyadın"
+    "placeholderHolderName": "Adın Soyadın",
+    "deleteAllDataSuccess": "Tüm veriler silindi.",
+    "deleteAllDataError": "Bazı veriler silinemedi. Lütfen tekrar dene."
 }

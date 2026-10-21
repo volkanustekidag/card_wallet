@@ -11,13 +11,12 @@ import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/biometric_service.dart';
-import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
-import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
-import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/data/services/backup_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
+import 'package:wallet_app/core/services/wallet_data_wiper.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/services/rate_app_service.dart';
 import 'package:wallet_app/core/widgets/premium_status_widget.dart';
@@ -649,16 +648,35 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
   }
 
   Future<void> showDialogDeleteData(BuildContext context) async {
-    await showConfirmActionSheet(
+    final confirmed = await showConfirmActionSheet(
       context: context,
       title: 'areUSure'.tr(),
       cancelText: 'cancel'.tr(),
-      onConfirm: () async {
-        await CreditCardService().deleteAllData();
-        await IbanCardService().deleteAllData();
-        await LoyaltyCardService().deleteAllData();
-      },
     );
+    if (!confirmed || !mounted) return;
+
+    // Wiping the wallet is as sensitive as turning the lock off: someone
+    // holding the unlocked phone must not be able to do it without the PIN.
+    final auth = Get.find<AuthController>();
+    if (auth.hasPassword.value) {
+      final verified = await Get.to<bool>(
+        () => const PinActionPage(),
+        arguments: PinAction.verify,
+      );
+      if (verified != true || !mounted) return;
+    }
+
+    try {
+      await WalletDataWiper().wipe();
+      if (!mounted) return;
+      // ignore: use_build_context_synchronously
+      context.showSuccessSnackBar('deleteAllDataSuccess');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'deleteAllData');
+      if (!mounted) return;
+      // ignore: use_build_context_synchronously
+      context.showErrorSnackBar('deleteAllDataError');
+    }
   }
 }
 

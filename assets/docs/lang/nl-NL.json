@@ -494,5 +494,7 @@
     "purchaseRestoreFailed": "Kan de store niet bereiken. Controleer je verbinding en probeer het opnieuw.",
     "purchasePending": "Wachten op goedkeuring. Premium wordt actief zodra de betaling is bevestigd.",
     "placeholderBankName": "Jouw bank",
-    "placeholderHolderName": "Jouw naam"
+    "placeholderHolderName": "Jouw naam",
+    "deleteAllDataSuccess": "Alle gegevens zijn verwijderd.",
+    "deleteAllDataError": "Sommige gegevens konden niet worden verwijderd. Probeer het opnieuw."
 }

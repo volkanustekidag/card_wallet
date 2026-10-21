@@ -494,5 +494,7 @@
     "purchaseRestoreFailed": "Couldn't reach the store. Check your connection and try again.",
     "purchasePending": "Waiting for approval. Premium unlocks as soon as the payment is confirmed.",
     "placeholderBankName": "Your Bank",
-    "placeholderHolderName": "Your Name"
+    "placeholderHolderName": "Your Name",
+    "deleteAllDataSuccess": "All data deleted.",
+    "deleteAllDataError": "Some data could not be deleted. Please try again."
 }

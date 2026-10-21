@@ -494,5 +494,7 @@
     "purchaseRestoreFailed": "Nie udało się połączyć ze sklepem. Sprawdź połączenie i spróbuj ponownie.",
     "purchasePending": "Oczekiwanie na zatwierdzenie. Premium zostanie odblokowane po potwierdzeniu płatności.",
     "placeholderBankName": "Twój bank",
-    "placeholderHolderName": "Twoje imię"
+    "placeholderHolderName": "Twoje imię",
+    "deleteAllDataSuccess": "Wszystkie dane zostały usunięte.",
+    "deleteAllDataError": "Nie udało się usunąć części danych. Spróbuj ponownie."
 }

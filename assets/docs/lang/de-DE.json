@@ -494,5 +494,7 @@
     "purchaseRestoreFailed": "Store nicht erreichbar. Prüfe deine Verbindung und versuche es erneut.",
     "purchasePending": "Warte auf Bestätigung. Premium wird freigeschaltet, sobald die Zahlung bestätigt ist.",
     "placeholderBankName": "Deine Bank",
-    "placeholderHolderName": "Dein Name"
+    "placeholderHolderName": "Dein Name",
+    "deleteAllDataSuccess": "Alle Daten wurden gelöscht.",
+    "deleteAllDataError": "Einige Daten konnten nicht gelöscht werden. Bitte versuche es erneut."
 }

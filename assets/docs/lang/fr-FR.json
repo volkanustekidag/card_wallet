@@ -494,5 +494,7 @@
     "purchaseRestoreFailed": "Impossible de joindre le store. Vérifiez votre connexion et réessayez.",
     "purchasePending": "En attente d'approbation. Premium sera activé dès la confirmation du paiement.",
     "placeholderBankName": "Votre banque",
-    "placeholderHolderName": "Votre nom"
+    "placeholderHolderName": "Votre nom",
+    "deleteAllDataSuccess": "Toutes les données ont été supprimées.",
+    "deleteAllDataError": "Certaines données n'ont pas pu être supprimées. Veuillez réessayer."
 }

@@ -494,5 +494,7 @@
     "purchaseRestoreFailed": "Não foi possível acessar a loja. Verifique a conexão e tente novamente.",
     "purchasePending": "Aguardando aprovação. O Premium será liberado assim que o pagamento for confirmado.",
     "placeholderBankName": "Seu banco",
-    "placeholderHolderName": "Seu nome"
+    "placeholderHolderName": "Seu nome",
+    "deleteAllDataSuccess": "Todos os dados foram excluídos.",
+    "deleteAllDataError": "Alguns dados não puderam ser excluídos. Tente novamente."
 }

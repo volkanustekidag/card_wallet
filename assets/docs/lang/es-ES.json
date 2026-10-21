@@ -494,5 +494,7 @@
     "purchaseRestoreFailed": "No se pudo conectar con la tienda. Revisa tu conexión e inténtalo de nuevo.",
     "purchasePending": "Esperando aprobación. Premium se activará en cuanto se confirme el pago.",
     "placeholderBankName": "Tu banco",
-    "placeholderHolderName": "Tu nombre"
+    "placeholderHolderName": "Tu nombre",
+    "deleteAllDataSuccess": "Se han eliminado todos los datos.",
+    "deleteAllDataError": "No se pudieron eliminar algunos datos. Inténtalo de nuevo."
 }
