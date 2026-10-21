@@ -20,6 +20,7 @@ import WatchConnectivity
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     activateWatchSession()
+    observeSceneActivation()
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
@@ -28,20 +29,40 @@ import WatchConnectivity
     registerWatchSyncChannel(with: engineBridge.pluginRegistry)
   }
 
-  override func applicationWillResignActive(_ application: UIApplication) {
-    super.applicationWillResignActive(application)
-    presentPrivacyOverlay()
+  // MARK: - App-switcher privacy overlay
+
+  /// The app runs on UIScene (FlutterSceneDelegate in Info.plist), so the
+  /// UIApplicationDelegate resign/become-active callbacks are never called.
+  /// Listen for the scene notifications instead; they fire for every scene
+  /// regardless of which object is its delegate.
+  private func observeSceneActivation() {
+    let center = NotificationCenter.default
+    center.addObserver(
+      self,
+      selector: #selector(sceneWillDeactivate(_:)),
+      name: UIScene.willDeactivateNotification,
+      object: nil
+    )
+    center.addObserver(
+      self,
+      selector: #selector(sceneDidActivate(_:)),
+      name: UIScene.didActivateNotification,
+      object: nil
+    )
   }
 
-  override func applicationDidBecomeActive(_ application: UIApplication) {
-    super.applicationDidBecomeActive(application)
+  @objc private func sceneWillDeactivate(_ notification: Notification) {
+    guard let scene = notification.object as? UIWindowScene else { return }
+    presentPrivacyOverlay(in: scene)
+  }
+
+  @objc private func sceneDidActivate(_ notification: Notification) {
     dismissPrivacyOverlay()
   }
 
-  private func presentPrivacyOverlay() {
+  private func presentPrivacyOverlay(in scene: UIWindowScene) {
     guard privacyOverlay == nil,
-          let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow })
-            ?? UIApplication.shared.windows.first else {
+          let window = scene.keyWindow ?? scene.windows.first else {
       return
     }
 
