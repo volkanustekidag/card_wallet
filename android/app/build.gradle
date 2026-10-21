@@ -86,7 +86,12 @@ android {
     packagingOptions {
         jniLibs {
             excludes += ["**/libdigitalink.so", "**/libtextclassifier3_jni_tclib.so"]
-            // Paket içinde .so'ların ZIP içinde tutulmasını engelle (uncompressed native libs kapatma)
+            // Legacy packaging: .so files are stored compressed and extracted
+            // at install time, so APK zip alignment does not matter. 16 KB
+            // page-size devices still need 16 KB-aligned ELF LOAD segments;
+            // verified 2026-10-21 with `llvm-objdump -p`: barhopper_v3,
+            // mlkit_google_ocr_pipeline, image_processing_util_jni,
+            // surface_util_jni, datastore_shared_counter = 2**14, flutter/app = 2**16.
             useLegacyPackaging true
         }
     }
