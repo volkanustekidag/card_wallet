@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import UniformTypeIdentifiers
 import WatchConnectivity
 
 @main
@@ -15,6 +16,12 @@ import WatchConnectivity
   private let watchSyncChannelName = "app.cardwallet/watch_sync"
   private var watchSyncChannel: FlutterMethodChannel?
 
+  /// Dart `SensitiveClipboard` copies card numbers / IBANs / barcodes
+  /// through here so iOS itself expires them — a Dart timer can't fire
+  /// while the app is suspended.
+  private let clipboardChannelName = "app.cardwallet/sensitive_clipboard"
+  private var clipboardChannel: FlutterMethodChannel?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -27,6 +34,39 @@ import WatchConnectivity
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     registerWatchSyncChannel(with: engineBridge.pluginRegistry)
+    registerClipboardChannel(with: engineBridge.pluginRegistry)
+  }
+
+  // MARK: - Sensitive clipboard
+
+  private func registerClipboardChannel(with registry: FlutterPluginRegistry) {
+    guard let messenger = registry.registrar(forPlugin: "SensitiveClipboardChannel")?.messenger() else {
+      return
+    }
+    let channel = FlutterMethodChannel(name: clipboardChannelName, binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "copy" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      guard let args = call.arguments as? [String: Any],
+            let text = args["text"] as? String else {
+        result(FlutterError(code: "invalid_args", message: "text is required", details: nil))
+        return
+      }
+      let seconds = (args["expiresInSeconds"] as? NSNumber)?.doubleValue ?? 60
+      // localOnly keeps it off Universal Clipboard (other Apple devices);
+      // expirationDate makes iOS drop it even if we're suspended.
+      UIPasteboard.general.setItems(
+        [[UTType.utf8PlainText.identifier: text]],
+        options: [
+          .localOnly: true,
+          .expirationDate: Date().addingTimeInterval(seconds),
+        ]
+      )
+      result(true)
+    }
+    clipboardChannel = channel
   }
 
   // MARK: - App-switcher privacy overlay

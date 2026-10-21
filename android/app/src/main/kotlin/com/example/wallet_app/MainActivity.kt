@@ -1,8 +1,14 @@
 package com.volkan.wallet_app
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipDescription
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.WindowManager
 import com.google.android.gms.pay.Pay
 import com.google.android.gms.pay.PayClient
@@ -12,6 +18,7 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterFragmentActivity() {
     private val walletChannel = "app.cardwallet/google_wallet"
+    private val clipboardChannel = "app.cardwallet/sensitive_clipboard"
     private val savePassRequestCode = 4242
 
     private lateinit var payClient: PayClient
@@ -45,6 +52,40 @@ class MainActivity : FlutterFragmentActivity() {
                     else -> result.notImplemented()
                 }
             }
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, clipboardChannel)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "copy" -> {
+                        val text = call.argument<String>("text")
+                        if (text == null) {
+                            result.error("invalid_args", "text is required", null)
+                            return@setMethodCallHandler
+                        }
+                        copySensitive(text)
+                        result.success(true)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    /**
+     * Marks the clip as sensitive so Android 13+ hides it from the
+     * clipboard preview overlay and keyboard suggestions. The Dart side
+     * still clears it after 60 s.
+     */
+    private fun copySensitive(text: String) {
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("", text)
+        val sensitiveKey = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ClipDescription.EXTRA_IS_SENSITIVE
+        } else {
+            "android.content.extra.IS_SENSITIVE"
+        }
+        clip.description.extras = PersistableBundle().apply {
+            putBoolean(sensitiveKey, true)
+        }
+        clipboard.setPrimaryClip(clip)
     }
 
     private fun startSavePass(jwt: String, result: MethodChannel.Result) {
