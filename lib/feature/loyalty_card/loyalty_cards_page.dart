@@ -10,6 +10,7 @@ import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
 import 'package:wallet_app/core/utils/card_sorting.dart';
+import 'package:wallet_app/core/utils/loyalty_usage.dart';
 import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 import 'package:wallet_app/core/widgets/card_search_bar.dart';
 import 'package:wallet_app/core/widgets/empty_list_info.dart';
@@ -31,7 +32,7 @@ class LoyaltyCardsPage extends StatefulWidget {
 class _LoyaltyCardsPageState extends State<LoyaltyCardsPage> {
   late final LoyaltyCardController _controller;
   String _searchQuery = '';
-  CardSortOption _sortOption = CardSortOption.newest;
+  CardSortOption _sortOption = CardSortOption.mostUsed;
 
   @override
   void initState() {
@@ -104,6 +105,10 @@ class _LoyaltyCardsPageState extends State<LoyaltyCardsPage> {
               sort: _sortOption,
               onQueryChanged: (q) => setState(() => _searchQuery = q),
               onSortChanged: (s) => setState(() => _sortOption = s),
+              options: const [
+                CardSortOption.mostUsed,
+                ...CardSortOption.common,
+              ],
             ),
             Expanded(
               child: filtered.isEmpty
@@ -134,6 +139,9 @@ class _LoyaltyCardsPageState extends State<LoyaltyCardsPage> {
         : cards.where((c) => _matchesQuery(c, _searchQuery)).toList();
 
     switch (_sortOption) {
+      case CardSortOption.mostUsed:
+        filtered.sort(compareLoyaltyByUsage);
+        break;
       case CardSortOption.newest:
         filtered.sort((a, b) => compareNewestFirst(
               aCreatedAt: a.createdAt,

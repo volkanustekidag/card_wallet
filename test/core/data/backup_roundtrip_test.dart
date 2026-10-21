@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wallet_app/core/data/services/backup_crypto.dart';
 import 'package:wallet_app/core/data/services/backup_service.dart';
+import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 
 final _payload = <String, dynamic>{
   'creditCards': [
@@ -142,6 +143,52 @@ void main() {
         _decode(jsonEncode({'version': '1.0', 'data': {'creditCards': 1}})),
         throwsA(_backupError(BackupErrorKind.invalidFormat)),
       );
+    });
+  });
+
+  group('loyalty usage fields (2.2)', () {
+    test('lastUsedAt / useCount survive export → encrypt → restore', () async {
+      final lastUsed = DateTime.utc(2026, 10, 20, 18, 30);
+      final card = LoyaltyCard(
+        id: 'l1',
+        name: 'Migros',
+        barcode: '123',
+        barcodeFormat: 'EAN_13',
+        colorId: 2,
+        tags: ['favorite'],
+        lastUsedAt: lastUsed,
+        useCount: 7,
+      );
+      final payload = {
+        'creditCards': const [],
+        'ibanCards': const [],
+        'loyaltyCards': [BackupService.loyaltyCardToJson(card)],
+      };
+      final raw = jsonEncode(encryptBackupPayload(BackupEncryptRequest(
+        plaintext: jsonEncode(payload),
+        password: 'secret123',
+        timestamp: DateTime(2026, 10, 21),
+        iterations: 1000,
+      )));
+
+      final data = await _decode(raw);
+      final restored = BackupService.loyaltyCardFromJson(
+        (data!['loyaltyCards'] as List).single as Map,
+      );
+      expect(restored.useCount, 7);
+      expect(restored.lastUsedAt, lastUsed);
+      expect(restored.name, 'Migros');
+      expect(restored.tags, ['favorite']);
+    });
+
+    test('backups from before 2.2 restore with no usage', () async {
+      final data = await _decode(_encryptedFile('secret123'));
+      final restored = BackupService.loyaltyCardFromJson(
+        (data!['loyaltyCards'] as List).single as Map,
+      );
+      expect(restored.id, 'l1');
+      expect(restored.useCount, isNull);
+      expect(restored.lastUsedAt, isNull);
     });
   });
 }

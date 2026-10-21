@@ -6,6 +6,7 @@ import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 const _allowedParams = {
   'source', 'type', 'method', 'provider', 'error_key', 'card_type', 'masked',
   'kind', 'trigger', 'feature', 'value', 'format', 'with_qr',
+  'results_count', 'selected_type',
 };
 
 void main() {
@@ -37,6 +38,7 @@ void main() {
     await a.logReminderEnabled('payment');
     await a.logPaywallDismissed(trigger: 'feature_gate', feature: 'walletExport');
     await a.logPremiumGateTapped('qrCreate');
+    await a.logSearchUsed(resultsCount: 3, selectedType: 'loyalty');
     await a.setCardCounts(credit: 2, iban: 1, loyalty: 5);
     await a.setHasPin(true);
 
@@ -45,6 +47,7 @@ void main() {
       'wallet_export_attempt', 'wallet_export_success', 'wallet_export_failed',
       'backup_created', 'backup_restored', 'card_copied', 'card_shared',
       'reminder_enabled', 'paywall_dismissed', 'premium_gate_tapped',
+      'search_used',
       'user_property:credit_card_count', 'user_property:iban_card_count',
       'user_property:loyalty_card_count', 'user_property:has_pin',
     ]));

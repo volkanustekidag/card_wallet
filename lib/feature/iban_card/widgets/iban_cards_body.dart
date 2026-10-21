@@ -101,6 +101,7 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
     final filtered = work.toList();
 
     switch (_sortOption) {
+      case CardSortOption.mostUsed: // loyalty-only, not offered here
       case CardSortOption.newest:
         filtered.sort((a, b) => compareNewestFirst(
               aCreatedAt: a.createdAt,

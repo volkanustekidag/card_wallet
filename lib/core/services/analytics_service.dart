@@ -58,6 +58,9 @@ class AnalyticsEvents {
   // Premium gates
   static const String paywallDismissed = 'paywall_dismissed';
   static const String premiumGateTapped = 'premium_gate_tapped';
+
+  // Home search
+  static const String searchUsed = 'search_used';
 }
 
 class AnalyticsUserProps {
@@ -338,6 +341,17 @@ class AnalyticsService {
   Future<void> logPremiumGateTapped(String feature) => logEvent(
       AnalyticsEvents.premiumGateTapped,
       params: {'feature': feature});
+
+  /// One per search session. [selectedType] is the [AnalyticsCardType] of
+  /// the opened result, or `none`. The query text is never logged.
+  Future<void> logSearchUsed({
+    required int resultsCount,
+    required String selectedType,
+  }) =>
+      logEvent(AnalyticsEvents.searchUsed, params: {
+        'results_count': resultsCount,
+        'selected_type': selectedType,
+      });
 
   Future<void> setCardCounts({
     required int credit,

@@ -7,6 +7,7 @@ import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/utils/loyalty_brand_resolver.dart';
+import 'package:wallet_app/core/utils/loyalty_usage.dart';
 import 'package:wallet_app/core/utils/tag_index.dart';
 import 'package:wallet_app/core/widgets/bank_logo.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
@@ -41,19 +42,42 @@ class RecentCardsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (scrollOffset == null) return _buildAt(context, 0);
+    // Filter (and sort) once per data/filter change, not per scroll frame.
+    final visible = visibleItems(items, activeFilter, maxRows);
+    if (scrollOffset == null) return _buildAt(context, visible, 0);
     return ValueListenableBuilder<double>(
       valueListenable: scrollOffset!,
       builder: (context, value, _) {
-        return _buildAt(context, bottomPanelProminence(value));
+        return _buildAt(context, visible, bottomPanelProminence(value));
       },
     );
   }
 
-  Widget _buildAt(BuildContext context, double prominence) {
+  /// Rows for [filter]. [items] arrive newest first; the Loyalty filter
+  /// re-orders by usage (favourites → most used → newest) so the card you
+  /// show at the till is on top.
+  @visibleForTesting
+  static List<WalletItem> visibleItems(
+    List<WalletItem> items,
+    HomeFilter filter,
+    int maxRows,
+  ) {
+    final filtered = items.where(filter.matches).toList();
+    if (filter == HomeFilter.loyalty) {
+      filtered.sort((a, b) => compareLoyaltyByUsage(
+            a.card as LoyaltyCard,
+            b.card as LoyaltyCard,
+          ));
+    }
+    return filtered.take(maxRows).toList();
+  }
+
+  Widget _buildAt(
+    BuildContext context,
+    List<WalletItem> visible,
+    double prominence,
+  ) {
     final colorScheme = Theme.of(context).colorScheme;
-    final filtered = items.where(activeFilter.matches).toList();
-    final visible = filtered.take(maxRows).toList();
 
     final radius = 14 + 2 * prominence;
 
@@ -322,7 +346,7 @@ class _RowTileState extends State<_RowTile>
               ),
               child: Row(
                 children: [
-                  _ChromeBadge(
+                  WalletItemBadge(
                     item: widget.item,
                     prominence: widget.prominence,
                   ),
@@ -380,10 +404,13 @@ class _RevealAction extends StatelessWidget {
   }
 }
 
-class _ChromeBadge extends StatelessWidget {
+/// Logo (or kind icon) badge for a [WalletItem] row. Also used by the home
+/// search results.
+class WalletItemBadge extends StatelessWidget {
   final WalletItem item;
   final double prominence;
-  const _ChromeBadge({required this.item, this.prominence = 0});
+  const WalletItemBadge({Key? key, required this.item, this.prominence = 0})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

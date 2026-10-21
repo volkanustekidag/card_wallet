@@ -2,12 +2,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 /// Sticky search + sort bar shared by all three card list pages.
-/// Sort options correspond to [CardSortOption].
+/// Sort options correspond to [CardSortOption]; [options] defaults to all
+/// but [CardSortOption.mostUsed], which only loyalty cards track.
 class CardSearchBar extends StatelessWidget {
   final String query;
   final CardSortOption sort;
   final ValueChanged<String> onQueryChanged;
   final ValueChanged<CardSortOption> onSortChanged;
+  final List<CardSortOption> options;
 
   const CardSearchBar({
     Key? key,
@@ -15,6 +17,7 @@ class CardSearchBar extends StatelessWidget {
     required this.sort,
     required this.onQueryChanged,
     required this.onSortChanged,
+    this.options = CardSortOption.common,
   }) : super(key: key);
 
   @override
@@ -52,7 +55,7 @@ class CardSearchBar extends StatelessWidget {
             icon: Icon(Icons.sort_rounded, color: colorScheme.onSurface),
             onSelected: onSortChanged,
             itemBuilder: (_) => [
-              for (final option in CardSortOption.values)
+              for (final option in options)
                 PopupMenuItem(
                   value: option,
                   child: Row(
@@ -80,6 +83,8 @@ class CardSearchBar extends StatelessWidget {
 }
 
 enum CardSortOption {
+  /// Favourites → most used → newest (loyalty cards only).
+  mostUsed('sortMostUsed'),
   newest('sortNewest'),
   oldest('sortOldest'),
   nameAsc('sortNameAsc'),
@@ -88,4 +93,12 @@ enum CardSortOption {
 
   final String label;
   const CardSortOption(this.label);
+
+  static const List<CardSortOption> common = [
+    newest,
+    oldest,
+    nameAsc,
+    nameDesc,
+    bank,
+  ];
 }

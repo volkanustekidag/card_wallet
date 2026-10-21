@@ -127,19 +127,7 @@ class BackupService {
     for (var i = 0; i < loyaltyCardsBox.length; i++) {
       final card = loyaltyCardsBox.getAt(i);
       if (card == null) continue;
-      loyaltyCards.add({
-        'id': card.id,
-        'name': card.name,
-        'brand': card.brand,
-        'barcode': card.barcode,
-        'barcodeFormat': card.barcodeFormat,
-        'colorId': card.colorId,
-        'notes': card.notes,
-        'createdAt': card.createdAt?.toIso8601String(),
-        'logoAsset': card.logoAsset,
-        'tags': card.tags,
-        'website': card.website,
-      });
+      loyaltyCards.add(loyaltyCardToJson(card));
     }
 
     return {
@@ -489,7 +477,29 @@ class BackupService {
     );
   }
 
-  LoyaltyCard _buildLoyaltyCard(Map raw) {
+  LoyaltyCard _buildLoyaltyCard(Map raw) => loyaltyCardFromJson(raw);
+
+  /// Backup shape of a loyalty card. `lastUsedAt` / `useCount` (2.2+) feed
+  /// the usage ordering.
+  static Map<String, dynamic> loyaltyCardToJson(LoyaltyCard card) => {
+        'id': card.id,
+        'name': card.name,
+        'brand': card.brand,
+        'barcode': card.barcode,
+        'barcodeFormat': card.barcodeFormat,
+        'colorId': card.colorId,
+        'notes': card.notes,
+        'createdAt': card.createdAt?.toIso8601String(),
+        'logoAsset': card.logoAsset,
+        'tags': card.tags,
+        'website': card.website,
+        'lastUsedAt': card.lastUsedAt?.toIso8601String(),
+        'useCount': card.useCount,
+      };
+
+  /// Inverse of [loyaltyCardToJson]. Backups from before 2.2 have no usage
+  /// fields; they restore as null (never used).
+  static LoyaltyCard loyaltyCardFromJson(Map raw) {
     return LoyaltyCard(
       id: (raw['id'] ?? '') as String,
       name: (raw['name'] ?? '') as String,
@@ -502,17 +512,19 @@ class BackupService {
       logoAsset: raw['logoAsset'] as String?,
       tags: _parseStringList(raw['tags']),
       website: raw['website'] as String?,
+      lastUsedAt: _parseDate(raw['lastUsedAt']),
+      useCount: (raw['useCount'] as num?)?.toInt(),
     );
   }
 
-  DateTime? _parseDate(dynamic value) {
+  static DateTime? _parseDate(dynamic value) {
     if (value is String && value.isNotEmpty) {
       return DateTime.tryParse(value);
     }
     return null;
   }
 
-  List<String>? _parseStringList(dynamic value) {
+  static List<String>? _parseStringList(dynamic value) {
     if (value is List) {
       return value.map((e) => e.toString()).toList();
     }

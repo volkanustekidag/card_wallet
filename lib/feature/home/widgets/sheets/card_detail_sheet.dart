@@ -7,6 +7,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
+import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
@@ -1055,6 +1056,7 @@ class _LoyaltyDetailBodyState extends State<_LoyaltyDetailBody> {
     super.initState();
     BarcodeDisplayBoost.instance.acquire();
     AnalyticsService.instance.logBarcodeShown('detail_sheet');
+    LoyaltyCardService().recordUseInBackground(widget.card.id);
   }
 
   @override

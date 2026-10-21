@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
+import 'package:wallet_app/core/utils/loyalty_usage.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
 
 /// Bridges loyalty cards from Dart → native iOS → Apple Watch.
@@ -69,7 +70,7 @@ class WatchSyncService {
 
   Future<bool> _pushNow(List<LoyaltyCard> cards) async {
     try {
-      final json = _encodePayload(cards);
+      final json = encodePayload(cards);
       final byteLen = utf8.encode(json).length;
       if (byteLen > _wcPayloadWarnBytes) {
         debugPrint(
@@ -124,9 +125,13 @@ class WatchSyncService {
     return Platform.isIOS;
   }
 
-  String _encodePayload(List<LoyaltyCard> cards) {
+  /// JSON posted to the watch. Cards go in usage order (favourites → most
+  /// used → newest) so the watch list puts the till card first; `useCount`
+  /// and `lastUsedAt` are additive keys older watch builds ignore.
+  @visibleForTesting
+  static String encodePayload(List<LoyaltyCard> cards) {
     final gradients = LinearGradients().linearGradientList;
-    final cardMaps = cards.map((c) {
+    final cardMaps = sortLoyaltyByUsage(cards).map((c) {
       final gradient =
           gradients[c.colorId.clamp(0, gradients.length - 1)];
       final colors = gradient.colors;
@@ -141,6 +146,8 @@ class WatchSyncService {
         'format': c.barcodeFormat,
         'color1': _hex(color1),
         'color2': _hex(color2),
+        'useCount': c.useCount ?? 0,
+        'lastUsedAt': c.lastUsedAt?.toUtc().toIso8601String(),
       };
     }).toList();
 
@@ -150,7 +157,7 @@ class WatchSyncService {
     });
   }
 
-  String _hex(Color c) {
+  static String _hex(Color c) {
     final argb = c.toARGB32();
     return '#${(argb & 0xFFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase()}';
   }

@@ -52,6 +52,15 @@ class LoyaltyCard extends HiveObject {
   @HiveField(10)
   String? website;
 
+  /// Last time the barcode was shown (detail sheet / page, widget). Drives
+  /// the "most used" ordering. Null for cards never opened since 2.2.
+  @HiveField(11)
+  DateTime? lastUsedAt;
+
+  /// How many times the barcode was shown. Null reads as 0.
+  @HiveField(12)
+  int? useCount;
+
   LoyaltyCard({
     required this.id,
     required this.name,
@@ -64,5 +73,7 @@ class LoyaltyCard extends HiveObject {
     this.logoAsset,
     this.tags,
     this.website,
+    this.lastUsedAt,
+    this.useCount,
   });
 }

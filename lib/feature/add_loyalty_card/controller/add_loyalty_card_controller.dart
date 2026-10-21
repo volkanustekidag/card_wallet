@@ -101,8 +101,8 @@ class AddLoyaltyCardController extends GetxController {
     currentCard.refresh();
   }
 
-  /// The saved card for an edit: identity and creation date from
-  /// [original], everything the form can change from [draft] — including
+  /// The saved card for an edit: identity, creation date and usage stats
+  /// from [original], everything the form can change from [draft] — including
   /// tags, which carry the favourite flag.
   @visibleForTesting
   static LoyaltyCard mergeEdit(LoyaltyCard original, LoyaltyCard draft) {
@@ -118,6 +118,8 @@ class AddLoyaltyCardController extends GetxController {
       logoAsset: draft.logoAsset,
       tags: draft.tags,
       website: draft.website,
+      lastUsedAt: original.lastUsedAt,
+      useCount: original.useCount,
     );
   }
 
