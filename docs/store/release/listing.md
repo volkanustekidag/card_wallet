@@ -1,12 +1,12 @@
-# Card Wallet 2.1 — Mağaza sayfası metinleri
+# Card Wallet 2.2.0 (45) — Mağaza sayfası metinleri
 
 Başlangıç noktası Mayıs taslakları (`toronto/app_store_metadata_2026-05-26.md`, `google_play_metadata_by_language_2026-05-28.md`, `aso_country_strategy_2026-05-28.md`, `store_metadata_plan_2026-05-26.md`). Bu sürümde yapılan değişiklikler:
 
-| Konu | Mayıs taslağı | 2.1 |
+| Konu | Mayıs taslağı | 2.2.0 |
 |---|---|---|
 | Konumlandırma (TR) | Banka kartları başta | Kart + IBAN + sadakat kartı tek güvenli cüzdanda; IBAN QR, hatırlatıcılar, PIN + Face ID |
 | Konumlandırma (EN ve AB dilleri) | "Bank cards" başta | Sadakat kartı önce: hesap yok, internet gerekmez, reklam yok, şifreli. Ardından Apple Watch + widget ve Wallet'a ekleme. Kredi kartı ve IBAN ikinci planda |
-| Premium | "Premium sınırsız kart + gelişmiş özellikler" | Ücretsiz sınırlar (5 sadakat / 2 kredi / 2 IBAN) ve Premium'a bağlı özellikler açıkça yazıldı. Face ID, yedekleme, Wallet'a ekleme ve IBAN QR kodda Premium'a bağlı |
+| Premium | "Premium sınırsız kart + gelişmiş özellikler" | Ücretsiz sınırlar (5 sadakat / 2 kredi / 2 IBAN) ve Premium'a bağlı özellikler açıkça yazıldı. Yedekleme, Wallet'a ekleme ve IBAN QR kod Premium'a bağlı; Face ID / Touch ID / parmak izi ve IBAN tarama ücretsiz |
 | Play metinleri | Apple Watch ve Apple Wallet geçiyordu | Android'de olanlar yazıldı: Google Wallet, widget, Hızlı Ayarlar kutucuğu, parmak izi / yüz tanıma |
 | App Store dilleri | TR, EN, FR, DE, IT, PT-PT, ES | 9 dil. **nl-NL, pl-PL ve pt-BR App Store Connect'te yeni dil olarak eklenmeli** (bkz. release_checklist) |
 | Veri cümlesi | "Kart verileri cihazdan çıkmaz" | "Wallet'a eklerken yalnızca o sadakat kartının adı, numarası ve notu imzalama servisine gider." Kod tam olarak bunu gönderiyor (`wallet_pass_export_service.dart` `_payload`) |
@@ -15,9 +15,12 @@ Kurallar:
 - Rakip uygulama adı yok (App Store 2.3.7, Play Metadata politikası). "Ücretsiz deneme" ifadesi yok, çünkü trial yok. "Ücretsiz sürüm" ifadesi geçiyor ve doğru.
 - App Store anahtar kelimelerinde isim/alt başlıktaki kelimeler tekrarlanmıyor (Apple bunları zaten indeksliyor). Virgülden sonra boşluk yok. Sınır **bayt** cinsinden ölçülüyor: ü, ş, ı, ł gibi harfler 2 bayt sayılıyor.
 - Abonelik paragrafı (otomatik yenileme, 24 saat, iptal yeri) App Store açıklamasında duruyor; Apple 3.1.2 inceleme notu bunu bekliyor.
-- **Bilerek yazılmayanlar:** IBAN'ı görsel olarak paylaşma özelliği yok. Kodda IBAN için yalnızca metin paylaşımı ve QR var; görsel paylaşımı sadece sadakat kartlarında. Bu yüzden metinlerde "QR ile paylaş" yazıyor, "görselle paylaş" yazmıyor. IBAN tarama da hiçbir yerde vaat edilmedi.
+- **Biyometrik:** herkese ücretsiz. Premium listesinden çıkarıldı ve ücretsiz tarafta kaybolmasın diye güvenlik bloğundaki PIN satırına eklendi. tr-TR anahtar kelimelerindeki `face id` hâlâ doğru.
+- **IBAN görsel paylaşımı:** ücretsiz, IBAN satırında "metin ya da kart görseli olarak paylaş" diye geçiyor. Görseldeki ödeme QR'ı Premium; Premium listesindeki "IBAN QR kodu" satırı bunu zaten kapsıyor.
+- **Arama:** home'daki arama tüm kart türlerinde çalışıyor (kredi kartı: isim, banka, etiket, son 4; IBAN: isim, banka, son 4; sadakat: isim, marka, etiket, not). Metinde "isim, banka, etiket ya da son 4 hane" diye özetlendi. Tam kart numarası aranamıyor, o yüzden yazılmadı.
+- **Bilerek yazılmayanlar:** IBAN tarama ücretsiz ama mağaza metninde vaat edilmiyor. "En çok kullanılan" sıralaması yalnızca sürüm notlarında geçiyor.
 
-Uzunlukları yeniden saymak için: `python3 tools/check_store_text.py --write docs/store/v2.1/listing.md`
+Uzunlukları yeniden saymak için: `python3 tools/check_store_text.py --write docs/store/release/listing.md`
 
 <!-- lengths:start -->
 | Dil | Alan | Uzunluk | Sınır | Durum |
@@ -25,75 +28,75 @@ Uzunlukları yeniden saymak için: `python3 tools/check_store_text.py --write do
 | en-US | App Store — Name | 25 | 30 | ✅ |
 | en-US | App Store — Subtitle | 28 | 30 | ✅ |
 | en-US | App Store — Keywords | 96 bayt | 100 bayt | ✅ |
-| en-US | App Store — Promotional Text | 155 | 170 | ✅ |
-| en-US | App Store — Description | 2077 | 4000 | ✅ |
+| en-US | App Store — Promotional Text | 139 | 170 | ✅ |
+| en-US | App Store — Description | 2176 | 4000 | ✅ |
 | en-US | Google Play — Title | 25 | 30 | ✅ |
 | en-US | Google Play — Short description | 76 | 80 | ✅ |
-| en-US | Google Play — Full description | 1984 | 4000 | ✅ |
+| en-US | Google Play — Full description | 2078 | 4000 | ✅ |
 | tr-TR | App Store — Name | 24 | 30 | ✅ |
 | tr-TR | App Store — Subtitle | 30 | 30 | ✅ |
 | tr-TR | App Store — Keywords | 86 bayt | 100 bayt | ✅ |
-| tr-TR | App Store — Promotional Text | 143 | 170 | ✅ |
-| tr-TR | App Store — Description | 2277 | 4000 | ✅ |
+| tr-TR | App Store — Promotional Text | 146 | 170 | ✅ |
+| tr-TR | App Store — Description | 2343 | 4000 | ✅ |
 | tr-TR | Google Play — Title | 24 | 30 | ✅ |
 | tr-TR | Google Play — Short description | 75 | 80 | ✅ |
-| tr-TR | Google Play — Full description | 2212 | 4000 | ✅ |
+| tr-TR | Google Play — Full description | 2270 | 4000 | ✅ |
 | de-DE | App Store — Name | 24 | 30 | ✅ |
 | de-DE | App Store — Subtitle | 30 | 30 | ✅ |
 | de-DE | App Store — Keywords | 100 bayt | 100 bayt | ✅ |
-| de-DE | App Store — Promotional Text | 150 | 170 | ✅ |
-| de-DE | App Store — Description | 2387 | 4000 | ✅ |
+| de-DE | App Store — Promotional Text | 139 | 170 | ✅ |
+| de-DE | App Store — Description | 2489 | 4000 | ✅ |
 | de-DE | Google Play — Title | 24 | 30 | ✅ |
 | de-DE | Google Play — Short description | 77 | 80 | ✅ |
-| de-DE | Google Play — Full description | 2289 | 4000 | ✅ |
+| de-DE | Google Play — Full description | 2391 | 4000 | ✅ |
 | fr-FR | App Store — Name | 28 | 30 | ✅ |
 | fr-FR | App Store — Subtitle | 30 | 30 | ✅ |
 | fr-FR | App Store — Keywords | 99 bayt | 100 bayt | ✅ |
-| fr-FR | App Store — Promotional Text | 156 | 170 | ✅ |
-| fr-FR | App Store — Description | 2463 | 4000 | ✅ |
+| fr-FR | App Store — Promotional Text | 158 | 170 | ✅ |
+| fr-FR | App Store — Description | 2567 | 4000 | ✅ |
 | fr-FR | Google Play — Title | 28 | 30 | ✅ |
 | fr-FR | Google Play — Short description | 72 | 80 | ✅ |
-| fr-FR | Google Play — Full description | 2409 | 4000 | ✅ |
+| fr-FR | Google Play — Full description | 2488 | 4000 | ✅ |
 | es-ES | App Store — Name | 30 | 30 | ✅ |
 | es-ES | App Store — Subtitle | 29 | 30 | ✅ |
 | es-ES | App Store — Keywords | 95 bayt | 100 bayt | ✅ |
-| es-ES | App Store — Promotional Text | 159 | 170 | ✅ |
-| es-ES | App Store — Description | 2314 | 4000 | ✅ |
+| es-ES | App Store — Promotional Text | 154 | 170 | ✅ |
+| es-ES | App Store — Description | 2411 | 4000 | ✅ |
 | es-ES | Google Play — Title | 30 | 30 | ✅ |
 | es-ES | Google Play — Short description | 77 | 80 | ✅ |
-| es-ES | Google Play — Full description | 2220 | 4000 | ✅ |
+| es-ES | Google Play — Full description | 2300 | 4000 | ✅ |
 | pt-BR | App Store — Name | 29 | 30 | ✅ |
 | pt-BR | App Store — Subtitle | 30 | 30 | ✅ |
 | pt-BR | App Store — Keywords | 99 bayt | 100 bayt | ✅ |
-| pt-BR | App Store — Promotional Text | 161 | 170 | ✅ |
-| pt-BR | App Store — Description | 2279 | 4000 | ✅ |
+| pt-BR | App Store — Promotional Text | 149 | 170 | ✅ |
+| pt-BR | App Store — Description | 2377 | 4000 | ✅ |
 | pt-BR | Google Play — Title | 29 | 30 | ✅ |
 | pt-BR | Google Play — Short description | 74 | 80 | ✅ |
-| pt-BR | Google Play — Full description | 2200 | 4000 | ✅ |
+| pt-BR | Google Play — Full description | 2282 | 4000 | ✅ |
 | it-IT | App Store — Name | 25 | 30 | ✅ |
 | it-IT | App Store — Subtitle | 27 | 30 | ✅ |
 | it-IT | App Store — Keywords | 99 bayt | 100 bayt | ✅ |
-| it-IT | App Store — Promotional Text | 153 | 170 | ✅ |
-| it-IT | App Store — Description | 2330 | 4000 | ✅ |
+| it-IT | App Store — Promotional Text | 143 | 170 | ✅ |
+| it-IT | App Store — Description | 2419 | 4000 | ✅ |
 | it-IT | Google Play — Title | 25 | 30 | ✅ |
 | it-IT | Google Play — Short description | 70 | 80 | ✅ |
-| it-IT | Google Play — Full description | 2257 | 4000 | ✅ |
+| it-IT | Google Play — Full description | 2318 | 4000 | ✅ |
 | nl-NL | App Store — Name | 26 | 30 | ✅ |
 | nl-NL | App Store — Subtitle | 30 | 30 | ✅ |
 | nl-NL | App Store — Keywords | 100 bayt | 100 bayt | ✅ |
-| nl-NL | App Store — Promotional Text | 158 | 170 | ✅ |
-| nl-NL | App Store — Description | 2247 | 4000 | ✅ |
+| nl-NL | App Store — Promotional Text | 148 | 170 | ✅ |
+| nl-NL | App Store — Description | 2343 | 4000 | ✅ |
 | nl-NL | Google Play — Title | 26 | 30 | ✅ |
 | nl-NL | Google Play — Short description | 79 | 80 | ✅ |
-| nl-NL | Google Play — Full description | 2153 | 4000 | ✅ |
+| nl-NL | Google Play — Full description | 2238 | 4000 | ✅ |
 | pl-PL | App Store — Name | 28 | 30 | ✅ |
 | pl-PL | App Store — Subtitle | 27 | 30 | ✅ |
 | pl-PL | App Store — Keywords | 95 bayt | 100 bayt | ✅ |
-| pl-PL | App Store — Promotional Text | 143 | 170 | ✅ |
-| pl-PL | App Store — Description | 2304 | 4000 | ✅ |
+| pl-PL | App Store — Promotional Text | 161 | 170 | ✅ |
+| pl-PL | App Store — Description | 2397 | 4000 | ✅ |
 | pl-PL | Google Play — Title | 28 | 30 | ✅ |
 | pl-PL | Google Play — Short description | 77 | 80 | ✅ |
-| pl-PL | Google Play — Full description | 2234 | 4000 | ✅ |
+| pl-PL | Google Play — Full description | 2318 | 4000 | ✅ |
 <!-- lengths:end -->
 
 ---
@@ -123,7 +126,7 @@ rewards,barcode,qr,membership,points,store,iban,credit,debit,scanner,pass,widget
 #### App Store — Promotional Text (≤170)
 
 ```text
-New in 2.1: auto-lock, American Express and Diners Club support, and brighter barcodes. Your cards stay encrypted on this iPhone and out of iCloud backups.
+Face ID and Touch ID are now free for everyone. Plus search across all your cards, IBANs shared as images, auto-lock and brighter barcodes.
 ```
 
 #### App Store — Description (≤4000)
@@ -138,7 +141,7 @@ PRIVATE BY DESIGN
 • No ads
 • Works offline
 • Cards are stored encrypted on your device and aren't included in iCloud backups
-• PIN lock with auto-lock, and your cards are hidden in the app switcher
+• PIN, Face ID or Touch ID lock with auto-lock, and your cards are hidden in the app switcher
 
 LOYALTY CARDS
 • Scan a barcode or QR code with the camera, pick it from a photo, or type it in
@@ -149,7 +152,8 @@ LOYALTY CARDS
 
 CREDIT CARDS AND IBANS TOO
 • Keep credit cards and IBANs next to your loyalty cards
-• Copy or share an IBAN in one tap
+• Search all your cards from the home screen by name, bank, tag or last 4 digits
+• Copy an IBAN in one tap, or share it as text or as a card image
 • Payment and expiry reminders for credit cards
 • American Express and Diners Club supported
 • Available in 9 languages
@@ -158,7 +162,6 @@ PREMIUM
 The free version includes 5 loyalty cards, 2 credit cards and 2 IBANs. Premium adds:
 • Unlimited cards
 • Add loyalty cards to Apple Wallet
-• Unlock with Face ID or Touch ID
 • Encrypted backup and restore, for example when you move to a new phone
 • IBAN QR codes
 • Extra card colors
@@ -199,7 +202,7 @@ Private by design
 • No ads
 • Works offline
 • Cards are stored encrypted on your device and aren't included in cloud backups
-• PIN lock with auto-lock, and card screens are hidden from screenshots and the recent apps view
+• PIN, fingerprint or face lock with auto-lock, and card screens are hidden from screenshots and the recent apps view
 
 Loyalty cards
 • Scan a barcode or QR code with the camera, pick it from a photo, or type it in
@@ -210,7 +213,8 @@ Loyalty cards
 
 Credit cards and IBANs too
 • Keep credit cards and IBANs next to your loyalty cards
-• Copy or share an IBAN in one tap
+• Search all your cards from the home screen by name, bank, tag or last 4 digits
+• Copy an IBAN in one tap, or share it as text or as a card image
 • Payment and expiry reminders for credit cards
 • American Express and Diners Club supported
 • Available in 9 languages
@@ -219,7 +223,6 @@ Premium
 The free version includes 5 loyalty cards, 2 credit cards and 2 IBANs. Premium adds:
 • Unlimited cards
 • Save loyalty cards to Google Wallet
-• Unlock with your fingerprint or face
 • Encrypted backup and restore, for example when you move to a new phone
 • IBAN QR codes
 • Extra card colors
@@ -259,7 +262,7 @@ cüzdan,banka,kredi,barkod,üyelik,puan,market,şifreli,yedek,face id,pin,widget
 #### App Store — Promotional Text (≤170)
 
 ```text
-2.1'de yeni: otomatik kilit, Amex ve Diners Club desteği, barkodda tam parlaklık. Kartların bu iPhone'da şifreli kalır, iCloud yedeğine girmez.
+Face ID ve Touch ID artık herkese ücretsiz. Ayrıca tüm kartlarında arama, IBAN'ı görsel olarak paylaşma, otomatik kilit ve barkodda tam parlaklık.
 ```
 
 #### App Store — Description (≤4000)
@@ -267,10 +270,10 @@ cüzdan,banka,kredi,barkod,üyelik,puan,market,şifreli,yedek,face id,pin,widget
 ```text
 CardWallet; kredi kartlarını, IBAN'larını ve sadakat kartlarını tek bir güvenli cüzdanda toplar. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
 
-IBAN'ını tek dokunuşla kopyala ya da paylaş, karşındakine QR kodla okut. Kasada sadakat kartını aç, ekran kendiliğinden parlasın. Kredi kartının ödeme ve son kullanma tarihini hatırlatıcılar senin yerine takip etsin.
+IBAN'ını tek dokunuşla kopyala ya da paylaş, karşındakine QR kodla okut. Kasada sadakat kartını aç, ekran kendiliğinden parlasın. Kredi kartının ödeme ve son kullanma tarihini hatırlatıcılar senin yerine takip etsin. Aradığın kartı ana ekrandaki aramayla isim, banka, etiket ya da son 4 haneyle bul.
 
 GÜVENLİK
-• PIN ile kilit, Premium'da Face ID veya Touch ID
+• PIN, Face ID veya Touch ID ile kilit
 • Otomatik kilit: uygulamadan çıktığında cüzdan kendini kilitler
 • Uygulama geçişinde kartların görünmez
 • Kartların cihazında şifreli saklanır, iCloud yedeğine girmez
@@ -285,7 +288,7 @@ KREDİ KARTLARI
 
 IBAN
 • IBAN'larını isim ve bankayla birlikte sakla
-• Tek dokunuşla kopyala, mesajla paylaş
+• Tek dokunuşla kopyala; metin ya da kart görseli olarak paylaş
 • QR kod oluştur, karşı taraf telefonuyla okutsun (Premium)
 
 SADAKAT KARTLARI
@@ -298,7 +301,6 @@ SADAKAT KARTLARI
 PREMIUM
 Ücretsiz sürümde 2 kredi kartı, 2 IBAN ve 5 sadakat kartı saklayabilirsin. Premium ile:
 • Sınırsız kart
-• Face ID / Touch ID ile açma
 • Şifreli yedekleme ve geri yükleme (yeni telefona geçerken de)
 • Sadakat kartlarını Apple Cüzdan'a ekleme
 • IBAN QR kodu
@@ -333,10 +335,10 @@ Kart, IBAN ve sadakat kartların tek güvenli cüzdanda. IBAN'ı QR ile paylaş.
 ```text
 CardWallet; kredi kartlarını, IBAN'larını ve sadakat kartlarını tek bir güvenli cüzdanda toplar. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
 
-IBAN'ını tek dokunuşla kopyala ya da paylaş, karşındakine QR kodla okut. Kasada sadakat kartını aç, ekran kendiliğinden parlasın. Kredi kartının ödeme ve son kullanma tarihini hatırlatıcılar senin yerine takip etsin.
+IBAN'ını tek dokunuşla kopyala ya da paylaş, karşındakine QR kodla okut. Kasada sadakat kartını aç, ekran kendiliğinden parlasın. Kredi kartının ödeme ve son kullanma tarihini hatırlatıcılar senin yerine takip etsin. Aradığın kartı ana ekrandaki aramayla isim, banka, etiket ya da son 4 haneyle bul.
 
 Güvenlik
-• PIN ile kilit, Premium'da parmak izi veya yüz tanıma
+• PIN, parmak izi veya yüz tanımayla kilit
 • Otomatik kilit: uygulamadan çıktığında cüzdan kendini kilitler
 • Kart ekranları ekran görüntüsünde ve son uygulamalar listesinde gizlenir
 • Kartların cihazında şifreli saklanır, bulut yedeğine girmez
@@ -351,7 +353,7 @@ Kredi kartları
 
 IBAN
 • IBAN'larını isim ve bankayla birlikte sakla
-• Tek dokunuşla kopyala, mesajla paylaş
+• Tek dokunuşla kopyala; metin ya da kart görseli olarak paylaş
 • QR kod oluştur, karşı taraf telefonuyla okutsun (Premium)
 
 Sadakat kartları
@@ -364,7 +366,6 @@ Sadakat kartları
 Premium
 Ücretsiz sürümde 2 kredi kartı, 2 IBAN ve 5 sadakat kartı saklayabilirsin. Premium ile:
 • Sınırsız kart
-• Parmak izi veya yüz tanımayla açma
 • Şifreli yedekleme ve geri yükleme (yeni telefona geçerken de)
 • Sadakat kartlarını Google Cüzdan'a ekleme
 • IBAN QR kodu
@@ -405,7 +406,7 @@ treuekarte,bonuskarte,barcode,qr,wallet,punkte,mitglied,iban,kreditkarte,verschl
 #### App Store — Promotional Text (≤170)
 
 ```text
-Neu in 2.1: automatische Sperre, Amex und Diners Club, hellere Barcodes. Deine Karten bleiben verschlüsselt auf dem iPhone und nicht im iCloud-Backup.
+Face ID und Touch ID jetzt für alle kostenlos. Dazu Suche über alle Karten, IBAN als Bild teilen, automatische Sperre und hellere Barcodes.
 ```
 
 #### App Store — Description (≤4000)
@@ -420,7 +421,7 @@ PRIVAT VON ANFANG AN
 • Keine Werbung
 • Funktioniert offline
 • Karten werden verschlüsselt auf deinem Gerät gespeichert und landen nicht im iCloud-Backup
-• PIN-Sperre mit automatischer Sperre; im App-Umschalter sind deine Karten verdeckt
+• Sperre per PIN, Face ID oder Touch ID mit automatischer Sperre; im App-Umschalter sind deine Karten verdeckt
 
 KUNDENKARTEN
 • Barcode oder QR-Code mit der Kamera scannen, aus einem Foto übernehmen oder eintippen
@@ -431,7 +432,8 @@ KUNDENKARTEN
 
 AUCH FÜR KREDITKARTEN UND IBANS
 • Kreditkarten und IBANs neben deinen Kundenkarten aufbewahren
-• IBAN mit einem Tippen kopieren oder teilen
+• Alle Karten vom Startbildschirm aus durchsuchen: Name, Bank, Tag oder letzte 4 Ziffern
+• IBAN mit einem Tippen kopieren oder als Text bzw. Kartenbild teilen
 • Erinnerungen an Zahlungs- und Ablaufdaten von Kreditkarten
 • American Express und Diners Club werden unterstützt
 • In 9 Sprachen verfügbar
@@ -440,7 +442,6 @@ PREMIUM
 Die kostenlose Version umfasst 5 Kundenkarten, 2 Kreditkarten und 2 IBANs. Mit Premium bekommst du:
 • Unbegrenzt viele Karten
 • Kundenkarten zu Apple Wallet hinzufügen
-• Entsperren mit Face ID oder Touch ID
 • Verschlüsselte Sicherung und Wiederherstellung, zum Beispiel beim Umzug auf ein neues Telefon
 • IBAN-QR-Codes
 • Zusätzliche Kartenfarben
@@ -481,7 +482,7 @@ Privat von Anfang an
 • Keine Werbung
 • Funktioniert offline
 • Karten werden verschlüsselt auf deinem Gerät gespeichert und landen nicht im Cloud-Backup
-• PIN-Sperre mit automatischer Sperre; Kartenansichten sind in Screenshots und in der Übersicht der letzten Apps verborgen
+• Sperre per PIN, Fingerabdruck oder Gesichtserkennung mit automatischer Sperre; Kartenansichten sind in Screenshots und in der Übersicht der letzten Apps verborgen
 
 Kundenkarten
 • Barcode oder QR-Code mit der Kamera scannen, aus einem Foto übernehmen oder eintippen
@@ -492,7 +493,8 @@ Kundenkarten
 
 Auch für Kreditkarten und IBANs
 • Kreditkarten und IBANs neben deinen Kundenkarten aufbewahren
-• IBAN mit einem Tippen kopieren oder teilen
+• Alle Karten vom Startbildschirm aus durchsuchen: Name, Bank, Tag oder letzte 4 Ziffern
+• IBAN mit einem Tippen kopieren oder als Text bzw. Kartenbild teilen
 • Erinnerungen an Zahlungs- und Ablaufdaten von Kreditkarten
 • American Express und Diners Club werden unterstützt
 • In 9 Sprachen verfügbar
@@ -501,7 +503,6 @@ Premium
 Die kostenlose Version umfasst 5 Kundenkarten, 2 Kreditkarten und 2 IBANs. Mit Premium bekommst du:
 • Unbegrenzt viele Karten
 • Kundenkarten in Google Wallet speichern
-• Entsperren per Fingerabdruck oder Gesichtserkennung
 • Verschlüsselte Sicherung und Wiederherstellung, zum Beispiel beim Umzug auf ein neues Telefon
 • IBAN-QR-Codes
 • Zusätzliche Kartenfarben
@@ -541,7 +542,7 @@ carte de fidélité,code-barres,qr,portefeuille,points,magasin,membre,iban,banca
 #### App Store — Promotional Text (≤170)
 
 ```text
-Nouveau dans la 2.1 : verrouillage auto, Amex et Diners Club, codes-barres plus lumineux. Vos cartes restent chiffrées sur l'iPhone, hors sauvegarde iCloud.
+Face ID et Touch ID désormais gratuits pour tous. Et aussi : recherche dans toutes vos cartes, IBAN en image, verrouillage auto et codes-barres plus lumineux.
 ```
 
 #### App Store — Description (≤4000)
@@ -556,7 +557,7 @@ PRIVÉE PAR CONCEPTION
 • Pas de publicité
 • Fonctionne hors ligne
 • Les cartes sont chiffrées sur votre appareil et ne sont pas incluses dans la sauvegarde iCloud
-• Verrouillage par code PIN avec verrouillage auto ; vos cartes sont masquées dans le sélecteur d'apps
+• Verrouillage par code PIN, Face ID ou Touch ID avec verrouillage auto ; vos cartes sont masquées dans le sélecteur d'apps
 
 CARTES DE FIDÉLITÉ
 • Scannez un code-barres ou un QR code avec l'appareil photo, depuis une photo, ou saisissez-le
@@ -567,7 +568,8 @@ CARTES DE FIDÉLITÉ
 
 AUSSI POUR LES CARTES BANCAIRES ET LES IBAN
 • Gardez cartes bancaires et IBAN à côté de vos cartes de fidélité
-• Copiez ou partagez un IBAN d'un geste
+• Cherchez dans toutes vos cartes depuis l'accueil : nom, banque, étiquette ou 4 derniers chiffres
+• Copiez un IBAN d'un geste, ou partagez-le en texte ou en image
 • Rappels d'échéance de paiement et d'expiration
 • American Express et Diners Club pris en charge
 • Disponible en 9 langues
@@ -576,7 +578,6 @@ PREMIUM
 La version gratuite comprend 5 cartes de fidélité, 2 cartes bancaires et 2 IBAN. Premium ajoute :
 • Cartes illimitées
 • Ajout des cartes de fidélité à Apple Wallet
-• Déverrouillage par Face ID ou Touch ID
 • Sauvegarde et restauration chiffrées, par exemple pour passer à un nouveau téléphone
 • QR codes pour vos IBAN
 • Couleurs de carte supplémentaires
@@ -617,7 +618,7 @@ Privée par conception
 • Pas de publicité
 • Fonctionne hors ligne
 • Les cartes sont chiffrées sur votre appareil et ne sont pas incluses dans les sauvegardes cloud
-• Verrouillage par code PIN avec verrouillage auto ; les écrans de carte sont masqués dans les captures et les apps récentes
+• Verrouillage par code PIN, empreinte ou visage avec verrouillage auto ; les écrans de carte sont masqués dans les captures et les apps récentes
 
 Cartes de fidélité
 • Scannez un code-barres ou un QR code avec l'appareil photo, depuis une photo, ou saisissez-le
@@ -628,7 +629,8 @@ Cartes de fidélité
 
 Aussi pour les cartes bancaires et les IBAN
 • Gardez cartes bancaires et IBAN à côté de vos cartes de fidélité
-• Copiez ou partagez un IBAN d'un geste
+• Cherchez dans toutes vos cartes depuis l'accueil : nom, banque, étiquette ou 4 derniers chiffres
+• Copiez un IBAN d'un geste, ou partagez-le en texte ou en image
 • Rappels d'échéance de paiement et d'expiration
 • American Express et Diners Club pris en charge
 • Disponible en 9 langues
@@ -637,7 +639,6 @@ Premium
 La version gratuite comprend 5 cartes de fidélité, 2 cartes bancaires et 2 IBAN. Premium ajoute :
 • Cartes illimitées
 • Enregistrement des cartes de fidélité dans Google Wallet
-• Déverrouillage par empreinte digitale ou reconnaissance faciale
 • Sauvegarde et restauration chiffrées, par exemple pour passer à un nouveau téléphone
 • QR codes pour vos IBAN
 • Couleurs de carte supplémentaires
@@ -677,7 +678,7 @@ puntos,codigo de barras,qr,socio,tienda,monedero,offline,sin cuenta,iban,credito
 #### App Store — Promotional Text (≤170)
 
 ```text
-Novedades de la 2.1: bloqueo automático, Amex y Diners Club, y códigos más brillantes. Tus tarjetas siguen cifradas en el iPhone y fuera de la copia de iCloud.
+Face ID y Touch ID ahora gratis para todos. Además: búsqueda en todas tus tarjetas, IBAN como imagen, bloqueo automático y códigos de barras más visibles.
 ```
 
 #### App Store — Description (≤4000)
@@ -692,7 +693,7 @@ PRIVADA DESDE EL PRINCIPIO
 • Sin anuncios
 • Funciona sin conexión
 • Las tarjetas se guardan cifradas en tu dispositivo y no se incluyen en la copia de iCloud
-• Bloqueo con PIN y bloqueo automático; tus tarjetas se ocultan al cambiar de app
+• Bloqueo con PIN, Face ID o Touch ID y bloqueo automático; tus tarjetas se ocultan al cambiar de app
 
 TARJETAS DE FIDELIDAD
 • Escanea un código de barras o QR con la cámara, elígelo de una foto o escríbelo
@@ -703,7 +704,8 @@ TARJETAS DE FIDELIDAD
 
 TAMBIÉN TARJETAS BANCARIAS E IBAN
 • Guarda tarjetas de crédito e IBAN junto a tus tarjetas de fidelidad
-• Copia o comparte un IBAN con un toque
+• Busca en todas tus tarjetas desde el inicio: nombre, banco, etiqueta o últimos 4 dígitos
+• Copia un IBAN con un toque o compártelo como texto o imagen
 • Recordatorios de pago y de caducidad de tus tarjetas
 • Compatible con American Express y Diners Club
 • Disponible en 9 idiomas
@@ -712,7 +714,6 @@ PREMIUM
 La versión gratuita incluye 5 tarjetas de fidelidad, 2 tarjetas de crédito y 2 IBAN. Premium añade:
 • Tarjetas ilimitadas
 • Añadir tarjetas de fidelidad a Apple Wallet
-• Desbloqueo con Face ID o Touch ID
 • Copia de seguridad cifrada y restauración, por ejemplo al cambiar de teléfono
 • Códigos QR para tus IBAN
 • Más colores de tarjeta
@@ -753,7 +754,7 @@ Privada desde el principio
 • Sin anuncios
 • Funciona sin conexión
 • Las tarjetas se guardan cifradas en tu dispositivo y no se incluyen en las copias en la nube
-• Bloqueo con PIN y bloqueo automático; las pantallas de tarjetas no salen en capturas ni en apps recientes
+• Bloqueo con PIN, huella o cara y bloqueo automático; las pantallas de tarjetas no salen en capturas ni en apps recientes
 
 Tarjetas de fidelidad
 • Escanea un código de barras o QR con la cámara, elígelo de una foto o escríbelo
@@ -764,7 +765,8 @@ Tarjetas de fidelidad
 
 También tarjetas bancarias e IBAN
 • Guarda tarjetas de crédito e IBAN junto a tus tarjetas de fidelidad
-• Copia o comparte un IBAN con un toque
+• Busca en todas tus tarjetas desde el inicio: nombre, banco, etiqueta o últimos 4 dígitos
+• Copia un IBAN con un toque o compártelo como texto o imagen
 • Recordatorios de pago y de caducidad de tus tarjetas
 • Compatible con American Express y Diners Club
 • Disponible en 9 idiomas
@@ -773,7 +775,6 @@ Premium
 La versión gratuita incluye 5 tarjetas de fidelidad, 2 tarjetas de crédito y 2 IBAN. Premium añade:
 • Tarjetas ilimitadas
 • Guardar tarjetas de fidelidad en Google Wallet
-• Desbloqueo con huella o reconocimiento facial
 • Copia de seguridad cifrada y restauración, por ejemplo al cambiar de teléfono
 • Códigos QR para tus IBAN
 • Más colores de tarjeta
@@ -813,7 +814,7 @@ pontos,código de barras,qr,clube,loja,membro,sem conta,cartões,crédito,cripto
 #### App Store — Promotional Text (≤170)
 
 ```text
-Novidades da 2.1: bloqueio automático, Amex e Diners Club e códigos de barras mais claros. Seus cartões ficam criptografados no iPhone, fora do backup do iCloud.
+Face ID e Touch ID agora grátis para todos. E mais: busca em todos os cartões, IBAN como imagem, bloqueio automático e códigos de barras mais claros.
 ```
 
 #### App Store — Description (≤4000)
@@ -828,7 +829,7 @@ PRIVADO DESDE O INÍCIO
 • Sem anúncios
 • Funciona offline
 • Os cartões ficam criptografados no seu aparelho e não entram no backup do iCloud
-• Bloqueio por PIN com bloqueio automático; seus cartões ficam escondidos na troca de apps
+• Bloqueio por PIN, Face ID ou Touch ID com bloqueio automático; seus cartões ficam escondidos na troca de apps
 
 CARTÕES FIDELIDADE
 • Escaneie código de barras ou QR com a câmera, escolha de uma foto ou digite
@@ -839,7 +840,8 @@ CARTÕES FIDELIDADE
 
 TAMBÉM CARTÕES DE CRÉDITO E IBAN
 • Guarde cartões de crédito e IBANs junto com seus cartões fidelidade
-• Copie ou compartilhe um IBAN com um toque
+• Busque em todos os seus cartões na tela inicial: nome, banco, etiqueta ou últimos 4 dígitos
+• Copie um IBAN com um toque ou compartilhe como texto ou imagem
 • Lembretes de pagamento e de vencimento do cartão
 • Suporte a American Express e Diners Club
 • Disponível em 9 idiomas
@@ -848,7 +850,6 @@ PREMIUM
 A versão gratuita inclui 5 cartões fidelidade, 2 cartões de crédito e 2 IBANs. O Premium adiciona:
 • Cartões ilimitados
 • Adicionar cartões fidelidade à Apple Wallet
-• Desbloqueio com Face ID ou Touch ID
 • Backup criptografado e restauração, por exemplo ao trocar de celular
 • QR code para seus IBANs
 • Mais cores de cartão
@@ -889,7 +890,7 @@ Privado desde o início
 • Sem anúncios
 • Funciona offline
 • Os cartões ficam criptografados no seu aparelho e não entram em backups na nuvem
-• Bloqueio por PIN com bloqueio automático; as telas dos cartões não aparecem em capturas nem em apps recentes
+• Bloqueio por PIN, impressão digital ou rosto com bloqueio automático; as telas dos cartões não aparecem em capturas nem em apps recentes
 
 Cartões fidelidade
 • Escaneie código de barras ou QR com a câmera, escolha de uma foto ou digite
@@ -900,7 +901,8 @@ Cartões fidelidade
 
 Também cartões de crédito e IBAN
 • Guarde cartões de crédito e IBANs junto com seus cartões fidelidade
-• Copie ou compartilhe um IBAN com um toque
+• Busque em todos os seus cartões na tela inicial: nome, banco, etiqueta ou últimos 4 dígitos
+• Copie um IBAN com um toque ou compartilhe como texto ou imagem
 • Lembretes de pagamento e de vencimento do cartão
 • Suporte a American Express e Diners Club
 • Disponível em 9 idiomas
@@ -909,7 +911,6 @@ Premium
 A versão gratuita inclui 5 cartões fidelidade, 2 cartões de crédito e 2 IBANs. O Premium adiciona:
 • Cartões ilimitados
 • Salvar cartões fidelidade na Google Wallet
-• Desbloqueio com impressão digital ou reconhecimento facial
 • Backup criptografado e restauração, por exemplo ao trocar de celular
 • QR code para seus IBANs
 • Mais cores de cartão
@@ -949,7 +950,7 @@ tessera,punti,codice a barre,qr,offline,portafoglio,negozio,socio,iban,credito,c
 #### App Store — Promotional Text (≤170)
 
 ```text
-Novità della 2.1: blocco automatico, Amex e Diners Club, codici a barre più luminosi. Le tue carte restano cifrate sull'iPhone e fuori dal backup iCloud.
+Face ID e Touch ID ora gratis per tutti. E poi: ricerca in tutte le carte, IBAN come immagine, blocco automatico e codici a barre più luminosi.
 ```
 
 #### App Store — Description (≤4000)
@@ -964,7 +965,7 @@ PRIVATA FIN DALL'INIZIO
 • Nessuna pubblicità
 • Funziona offline
 • Le carte sono salvate cifrate sul tuo dispositivo e non finiscono nel backup iCloud
-• Blocco con PIN e blocco automatico; le tue carte sono nascoste quando passi da un'app all'altra
+• Blocco con PIN, Face ID o Touch ID e blocco automatico; le tue carte sono nascoste quando passi da un'app all'altra
 
 CARTE FEDELTÀ
 • Scansiona un codice a barre o un QR con la fotocamera, prendilo da una foto o digitalo
@@ -975,7 +976,8 @@ CARTE FEDELTÀ
 
 ANCHE CARTE DI CREDITO E IBAN
 • Tieni carte di credito e IBAN accanto alle carte fedeltà
-• Copia o condividi un IBAN con un tocco
+• Cerca in tutte le carte dalla home: nome, banca, etichetta o ultime 4 cifre
+• Copia un IBAN con un tocco o condividilo come testo o immagine
 • Promemoria per pagamenti e scadenze delle carte
 • Supporto per American Express e Diners Club
 • Disponibile in 9 lingue
@@ -984,7 +986,6 @@ PREMIUM
 La versione gratuita include 5 carte fedeltà, 2 carte di credito e 2 IBAN. Premium aggiunge:
 • Carte illimitate
 • Aggiunta delle carte fedeltà ad Apple Wallet
-• Sblocco con Face ID o Touch ID
 • Backup cifrato e ripristino, per esempio quando cambi telefono
 • Codici QR per i tuoi IBAN
 • Colori aggiuntivi per le carte
@@ -1025,7 +1026,7 @@ Privata fin dall'inizio
 • Nessuna pubblicità
 • Funziona offline
 • Le carte sono salvate cifrate sul tuo dispositivo e non finiscono nei backup sul cloud
-• Blocco con PIN e blocco automatico; le schermate delle carte non compaiono negli screenshot né nelle app recenti
+• Blocco con PIN, impronta o volto e blocco automatico; le schermate delle carte non compaiono negli screenshot né nelle app recenti
 
 Carte fedeltà
 • Scansiona un codice a barre o un QR con la fotocamera, prendilo da una foto o digitalo
@@ -1036,7 +1037,8 @@ Carte fedeltà
 
 Anche carte di credito e IBAN
 • Tieni carte di credito e IBAN accanto alle carte fedeltà
-• Copia o condividi un IBAN con un tocco
+• Cerca in tutte le carte dalla home: nome, banca, etichetta o ultime 4 cifre
+• Copia un IBAN con un tocco o condividilo come testo o immagine
 • Promemoria per pagamenti e scadenze delle carte
 • Supporto per American Express e Diners Club
 • Disponibile in 9 lingue
@@ -1045,7 +1047,6 @@ Premium
 La versione gratuita include 5 carte fedeltà, 2 carte di credito e 2 IBAN. Premium aggiunge:
 • Carte illimitate
 • Salvataggio delle carte fedeltà in Google Wallet
-• Sblocco con impronta digitale o riconoscimento del volto
 • Backup cifrato e ripristino, per esempio quando cambi telefono
 • Codici QR per i tuoi IBAN
 • Colori aggiuntivi per le carte
@@ -1085,7 +1086,7 @@ klantenkaart,spaarkaart,pasjes,barcode,qr,punten,winkel,lid,iban,creditcard,vers
 #### App Store — Promotional Text (≤170)
 
 ```text
-Nieuw in 2.1: automatisch vergrendelen, Amex en Diners Club en fellere barcodes. Je kaarten blijven versleuteld op je iPhone en buiten de iCloud-reservekopie.
+Face ID en Touch ID nu gratis voor iedereen. Plus: zoeken in al je kaarten, IBAN delen als afbeelding, automatisch vergrendelen en fellere barcodes.
 ```
 
 #### App Store — Description (≤4000)
@@ -1100,7 +1101,7 @@ PRIVÉ VANAF HET BEGIN
 • Geen reclame
 • Werkt offline
 • Kaarten worden versleuteld op je apparaat bewaard en zitten niet in de iCloud-reservekopie
-• Vergrendeling met pincode en automatisch vergrendelen; je kaarten zijn verborgen in de appkiezer
+• Vergrendeling met pincode, Face ID of Touch ID en automatisch vergrendelen; je kaarten zijn verborgen in de appkiezer
 
 KLANTENKAARTEN
 • Scan een barcode of QR-code met de camera, kies hem uit een foto of typ hem in
@@ -1111,7 +1112,8 @@ KLANTENKAARTEN
 
 OOK VOOR CREDITCARDS EN IBAN'S
 • Bewaar creditcards en IBAN's naast je klantenkaarten
-• Kopieer of deel een IBAN met één tik
+• Zoek vanaf het beginscherm in al je kaarten: naam, bank, label of laatste 4 cijfers
+• Kopieer een IBAN met één tik of deel hem als tekst of afbeelding
 • Herinneringen voor betaal- en vervaldatums van je creditcards
 • Ondersteunt American Express en Diners Club
 • Beschikbaar in 9 talen
@@ -1120,7 +1122,6 @@ PREMIUM
 De gratis versie bevat 5 klantenkaarten, 2 creditcards en 2 IBAN's. Premium voegt toe:
 • Onbeperkt kaarten
 • Klantenkaarten toevoegen aan Apple Wallet
-• Ontgrendelen met Face ID of Touch ID
 • Versleutelde back-up en herstel, bijvoorbeeld als je overstapt naar een nieuwe telefoon
 • QR-codes voor je IBAN's
 • Extra kaartkleuren
@@ -1161,7 +1162,7 @@ Privé vanaf het begin
 • Geen reclame
 • Werkt offline
 • Kaarten worden versleuteld op je apparaat bewaard en zitten niet in cloudback-ups
-• Vergrendeling met pincode en automatisch vergrendelen; kaartschermen zijn verborgen in screenshots en recente apps
+• Vergrendeling met pincode, vingerafdruk of gezicht en automatisch vergrendelen; kaartschermen zijn verborgen in screenshots en recente apps
 
 Klantenkaarten
 • Scan een barcode of QR-code met de camera, kies hem uit een foto of typ hem in
@@ -1172,7 +1173,8 @@ Klantenkaarten
 
 Ook voor creditcards en IBAN's
 • Bewaar creditcards en IBAN's naast je klantenkaarten
-• Kopieer of deel een IBAN met één tik
+• Zoek vanaf het beginscherm in al je kaarten: naam, bank, label of laatste 4 cijfers
+• Kopieer een IBAN met één tik of deel hem als tekst of afbeelding
 • Herinneringen voor betaal- en vervaldatums van je creditcards
 • Ondersteunt American Express en Diners Club
 • Beschikbaar in 9 talen
@@ -1181,7 +1183,6 @@ Premium
 De gratis versie bevat 5 klantenkaarten, 2 creditcards en 2 IBAN's. Premium voegt toe:
 • Onbeperkt kaarten
 • Klantenkaarten opslaan in Google Wallet
-• Ontgrendelen met vingerafdruk of gezichtsherkenning
 • Versleutelde back-up en herstel, bijvoorbeeld als je overstapt naar een nieuwe telefoon
 • QR-codes voor je IBAN's
 • Extra kaartkleuren
@@ -1221,7 +1222,7 @@ kod kreskowy,qr,punkty,bez konta,bez reklam,sklep,klub,iban,kredytowa,szyfrowani
 #### App Store — Promotional Text (≤170)
 
 ```text
-Nowość w 2.1: automatyczna blokada, Amex i Diners Club oraz jaśniejsze kody kreskowe. Karty zostają zaszyfrowane na iPhonie, poza kopią iCloud.
+Face ID i Touch ID teraz bezpłatnie dla wszystkich. Do tego wyszukiwanie we wszystkich kartach, IBAN jako obraz, automatyczna blokada i jaśniejsze kody kreskowe.
 ```
 
 #### App Store — Description (≤4000)
@@ -1236,7 +1237,7 @@ PRYWATNOŚĆ OD POCZĄTKU
 • Bez reklam
 • Działa offline
 • Karty są zapisywane w postaci zaszyfrowanej na urządzeniu i nie trafiają do kopii iCloud
-• Blokada PIN-em i automatyczna blokada; przy przełączaniu aplikacji karty są zasłonięte
+• Blokada PIN-em, Face ID lub Touch ID i automatyczna blokada; przy przełączaniu aplikacji karty są zasłonięte
 
 KARTY LOJALNOŚCIOWE
 • Zeskanuj kod kreskowy lub QR aparatem, wybierz go ze zdjęcia albo wpisz ręcznie
@@ -1247,7 +1248,8 @@ KARTY LOJALNOŚCIOWE
 
 TAKŻE KARTY PŁATNICZE I IBAN
 • Trzymaj karty kredytowe i numery IBAN obok kart lojalnościowych
-• Kopiuj lub udostępniaj IBAN jednym dotknięciem
+• Szukaj we wszystkich kartach z ekranu głównego: nazwa, bank, etykieta lub ostatnie 4 cyfry
+• Kopiuj IBAN jednym dotknięciem lub udostępniaj jako tekst albo obraz
 • Przypomnienia o terminie płatności i ważności karty
 • Obsługa American Express i Diners Club
 • Dostępna w 9 językach
@@ -1256,7 +1258,6 @@ PREMIUM
 Wersja bezpłatna obejmuje 5 kart lojalnościowych, 2 karty kredytowe i 2 numery IBAN. Premium dodaje:
 • Nieograniczoną liczbę kart
 • Dodawanie kart lojalnościowych do Apple Wallet
-• Odblokowywanie przez Face ID lub Touch ID
 • Szyfrowaną kopię zapasową i przywracanie, np. przy zmianie telefonu
 • Kody QR dla numerów IBAN
 • Dodatkowe kolory kart
@@ -1297,7 +1298,7 @@ Prywatność od początku
 • Bez reklam
 • Działa offline
 • Karty są zapisywane w postaci zaszyfrowanej na urządzeniu i nie trafiają do kopii w chmurze
-• Blokada PIN-em i automatyczna blokada; ekrany kart są ukryte na zrzutach ekranu i w ostatnich aplikacjach
+• Blokada PIN-em, odciskiem palca lub twarzą i automatyczna blokada; ekrany kart są ukryte na zrzutach ekranu i w ostatnich aplikacjach
 
 Karty lojalnościowe
 • Zeskanuj kod kreskowy lub QR aparatem, wybierz go ze zdjęcia albo wpisz ręcznie
@@ -1308,7 +1309,8 @@ Karty lojalnościowe
 
 Także karty płatnicze i IBAN
 • Trzymaj karty kredytowe i numery IBAN obok kart lojalnościowych
-• Kopiuj lub udostępniaj IBAN jednym dotknięciem
+• Szukaj we wszystkich kartach z ekranu głównego: nazwa, bank, etykieta lub ostatnie 4 cyfry
+• Kopiuj IBAN jednym dotknięciem lub udostępniaj jako tekst albo obraz
 • Przypomnienia o terminie płatności i ważności karty
 • Obsługa American Express i Diners Club
 • Dostępna w 9 językach
@@ -1317,7 +1319,6 @@ Premium
 Wersja bezpłatna obejmuje 5 kart lojalnościowych, 2 karty kredytowe i 2 numery IBAN. Premium dodaje:
 • Nieograniczoną liczbę kart
 • Zapisywanie kart lojalnościowych w Google Wallet
-• Odblokowywanie odciskiem palca lub rozpoznawaniem twarzy
 • Szyfrowaną kopię zapasową i przywracanie, np. przy zmianie telefonu
 • Kody QR dla numerów IBAN
 • Dodatkowe kolory kart

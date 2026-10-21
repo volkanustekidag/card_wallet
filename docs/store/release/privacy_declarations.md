@@ -1,12 +1,12 @@
-# Card Wallet 2.1 — Gizlilik beyanları
+# Card Wallet 2.2.0 (45) — Gizlilik beyanları
 
-Bu doküman kodu okuyarak hazırlandı (`origin/main` 0d92076 + bu PR). Her cevabın yanında hangi dosyadan çıkarıldığı yazıyor. SDK davranışı için Google'ın resmi açıklama sayfaları kullanıldı (en altta). Konsolda cevap verirken bu tabloları kullan. Kod değişirse burayı da güncelle.
+Bu doküman kodu okuyarak hazırlandı (`origin/main` 0d92076 + PR #8; PR #9 sonrası b4e27e1'de yeni olaylar için tekrar kontrol edildi). Her cevabın yanında hangi dosyadan çıkarıldığı yazıyor. SDK davranışı için Google'ın resmi açıklama sayfaları kullanıldı (en altta). Konsolda cevap verirken bu tabloları kullan. Kod değişirse burayı da güncelle.
 
 ## 0. Uygulamadan dışarı çıkan veri (envanter)
 
 | Akış | Ne gidiyor | Nereye | Ne zaman | Kaynak |
 |---|---|---|---|---|
-| Firebase Analytics | Olaylar: `app_open`, `card_added {card_type}`, `barcode_shown {source}`, `scan_* {type, method}`, `paywall_*`, `purchase_* {product_id, value, currency}`, `wallet_export_* {provider, error_key}`, `backup_*`, `card_copied/shared {card_type, masked}`, `reminder_enabled {kind}`, `premium_gate_tapped {feature}`, ekran görüntülemeleri (route adı). Kullanıcı özellikleri: `is_premium`, kart sayıları, `has_pin`, `app_locale`, `days_since_install`. SDK otomatik olarak app instance ID, oturum/ekran olayları, in-app purchase olayları (ürün ID, fiyat) ve maskelenmiş IP'den türetilen kaba konum ekliyor | Google (Firebase) | Release build'de her zaman açık, uygulamada kapatma seçeneği yok | `lib/core/services/analytics_service.dart`, `lib/main.dart:130` |
+| Firebase Analytics | Olaylar: `app_open`, `card_added {card_type}`, `barcode_shown {source}`, `scan_* {type, method}`, `paywall_*`, `purchase_* {product_id, value, currency}`, `wallet_export_* {provider, error_key}`, `backup_*`, `card_copied {card_type}`, `card_shared {card_type, masked, format, with_qr}`, `search_used {results_count, selected_type}` (arama metni gönderilmiyor), `reminder_enabled {kind}`, `premium_gate_tapped {feature}`, ekran görüntülemeleri (route adı). Kullanıcı özellikleri: `is_premium`, kart sayıları, `has_pin`, `app_locale`, `days_since_install`. SDK otomatik olarak app instance ID, oturum/ekran olayları, in-app purchase olayları (ürün ID, fiyat) ve maskelenmiş IP'den türetilen kaba konum ekliyor | Google (Firebase) | Release build'de her zaman açık, uygulamada kapatma seçeneği yok | `lib/core/services/analytics_service.dart`, `lib/main.dart:130` |
 | Firebase Crashlytics | Crash/non-fatal stack trace, uygulama durumu, cihaz modeli/OS, Crashlytics installation UUID. `reason` alanında yalnızca sabit etiketler var (ör. `initFirebase`, `orphan_box_<kutu>`) | Google (Firebase) | Release build'de açık | `lib/core/services/error_reporter.dart`, `lib/main.dart:111-129` |
 | Firebase App Check | App Attest (iOS) / Play Integrity (Android) attestation token'ı, Firebase user agent | Google (Firebase) | Uygulama açılışında aktive ediliyor, token Wallet export isteğine ekleniyor | `lib/main.dart:104`, `wallet_pass_export_service.dart:_fetchAppCheckToken` |
 | Firebase Installations | Firebase installation ID (FID), user agent | Google (Firebase) | Analytics/Crashlytics/App Check'in bağımlılığı | — |
@@ -55,6 +55,7 @@ Burada listelenmeyen her tür **Not collected** olarak işaretlenmeli.
 
 **Not collected:**
 - Personal info: ad, e-posta, telefon vb. Kart sahibi adı cihazdan çıkmıyor.
+- App activity › In-app search history: arama metni loglanmıyor. `search_used` yalnızca sonuç sayısını ve açılan kartın türünü gönderiyor (`analytics_service.dart` `logSearchUsed`, bunu doğrulayan test PR #9'da).
 - Financial info › User payment info: kart numarası/CVV cihazdan çıkmıyor.
 - Photos and videos: OCR on-device çalışıyor, fotoğraf `finally` bloğunda siliniyor.
 - Audio, Contacts, Calendar, Messages, Health, Web browsing, Files and docs: yedek dosyası bize gelmiyor.
