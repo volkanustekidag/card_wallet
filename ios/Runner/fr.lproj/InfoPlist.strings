@@ -1,0 +1,5 @@
+/* Localized permission prompts shown by iOS. Keep in sync with Info.plist. */
+
+"NSCameraUsageDescription" = "CardWallet utilise l'appareil photo pour scanner vos cartes bancaires, IBAN et codes-barres de cartes de fidélité. Les données restent sur votre appareil.";
+"NSFaceIDUsageDescription" = "CardWallet utilise Face ID ou Touch ID pour déverrouiller votre portefeuille et protéger l'accès à vos cartes.";
+"NSPhotoLibraryUsageDescription" = "CardWallet lit les images de votre photothèque pour vous permettre de scanner une photo de carte ou un code-barres déjà enregistré.";

@@ -165,11 +165,13 @@ private struct AccessoryRectangularView: View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 4) {
                 Image(systemName: "barcode")
-                Text(entry.hasCard ? entry.displayName : "Loyalty")
+                // Ternaries of literals type-check as `String` and skip the
+                // string catalog, so build the localized Text explicitly.
+                (entry.hasCard ? Text(verbatim: entry.displayName) : Text("Loyalty"))
                     .font(.headline)
                     .lineLimit(1)
             }
-            Text(entry.hasCard ? "Tap to show barcode" : "Add a loyalty card")
+            Text(entry.hasCard ? LocalizedStringKey("Tap to show barcode") : LocalizedStringKey("Add a loyalty card"))
                 .font(.caption2)
                 .lineLimit(1)
                 .opacity(0.8)

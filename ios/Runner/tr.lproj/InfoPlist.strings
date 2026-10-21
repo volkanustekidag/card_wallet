@@ -1,0 +1,5 @@
+/* Localized permission prompts shown by iOS. Keep in sync with Info.plist. */
+
+"NSCameraUsageDescription" = "CardWallet, kredi kartlarını, IBAN'ları ve sadakat kartı barkodlarını taramak için kamerayı kullanır. Kart verilerin cihazında kalır.";
+"NSFaceIDUsageDescription" = "CardWallet, cüzdanının kilidini açmak ve kartlarına erişimi korumak için Face ID veya Touch ID kullanır.";
+"NSPhotoLibraryUsageDescription" = "CardWallet, kayıtlı bir kart fotoğrafını veya barkodu tarayabilmen için fotoğraf arşivindeki görselleri okur.";
