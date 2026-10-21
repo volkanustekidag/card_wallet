@@ -98,8 +98,6 @@
     "featureQrCreateDesc": "Kart bilgilerini paylaşmak için QR kod üret.",
     "featureBackupRestoreTitle": "Yedekleme & geri yükleme",
     "featureBackupRestoreDesc": "Kartlarını güvende tut, istediğinde geri getir.",
-    "featureBiometricTitle": "Biyometrik giriş",
-    "featureBiometricDesc": "Yüz Tanıma/Parmak izi ile anında aç.",
     "perYear": "/ yıl",
     "perWeek": "/ hafta",
     "weeklyPlanTitle": "Haftalık",

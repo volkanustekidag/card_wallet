@@ -95,8 +95,6 @@
     "featureQrCreateDesc": "Genereer QR-codes om kaartgegevens te delen.",
     "featureBackupRestoreTitle": "Back-up en herstel",
     "featureBackupRestoreDesc": "Houd je kaarten veilig en haal ze altijd terug.",
-    "featureBiometricTitle": "Biometrisch inloggen",
-    "featureBiometricDesc": "Direct ontgrendelen met Face ID of vingerafdruk.",
     "perYear": "/ jaar",
     "perWeek": "/ week",
     "weeklyPlanTitle": "Wekelijks",

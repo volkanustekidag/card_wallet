@@ -95,8 +95,6 @@
     "featureQrCreateDesc": "Gere códigos QR para compartilhar dados de cartão.",
     "featureBackupRestoreTitle": "Backup e restauração",
     "featureBackupRestoreDesc": "Mantenha seus cartões seguros e recupere-os a qualquer momento.",
-    "featureBiometricTitle": "Login biométrico",
-    "featureBiometricDesc": "Desbloqueie na hora com Face ID ou impressão digital.",
     "perYear": "/ ano",
     "perWeek": "/ semana",
     "weeklyPlanTitle": "Semanal",

@@ -95,8 +95,6 @@
     "featureQrCreateDesc": "Erzeuge QR-Codes, um Kartendaten zu teilen.",
     "featureBackupRestoreTitle": "Backup & Wiederherstellung",
     "featureBackupRestoreDesc": "Sichere Karten und stelle sie jederzeit wieder her.",
-    "featureBiometricTitle": "Biometrischer Login",
-    "featureBiometricDesc": "Sofort öffnen mit Face ID oder Fingerabdruck.",
     "perYear": "/ Jahr",
     "perWeek": "/ Woche",
     "weeklyPlanTitle": "Wöchentlich",

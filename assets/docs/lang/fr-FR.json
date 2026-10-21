@@ -95,8 +95,6 @@
     "featureQrCreateDesc": "Générez des QR codes pour partager vos cartes.",
     "featureBackupRestoreTitle": "Sauvegarde & restauration",
     "featureBackupRestoreDesc": "Gardez vos cartes en sécurité et restaurez-les quand vous voulez.",
-    "featureBiometricTitle": "Connexion biométrique",
-    "featureBiometricDesc": "Déverrouillez instantanément avec Face ID ou empreinte.",
     "perYear": "/ an",
     "perWeek": "/ semaine",
     "weeklyPlanTitle": "Hebdo",

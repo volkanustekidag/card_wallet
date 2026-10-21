@@ -55,7 +55,6 @@ class _PremiumPageState extends State<PremiumPage>
       'featureWalletExportTitle',
       Icons.account_balance_wallet_rounded,
     ),
-    _Feature('featureBiometricTitle', Icons.fingerprint_rounded),
     _Feature('featureIbanScanTitle', Icons.document_scanner_rounded),
     _Feature('featureQrCreateTitle', Icons.qr_code_rounded),
   ];
@@ -78,11 +77,6 @@ class _PremiumPageState extends State<PremiumPage>
       'featureWalletExportTitle',
       'featureWalletExportDesc',
       Icons.account_balance_wallet_rounded,
-    ),
-    'biometric': _PremiumFeatureSpec(
-      'featureBiometricTitle',
-      'featureBiometricDesc',
-      Icons.fingerprint_rounded,
     ),
     'ibanScan': _PremiumFeatureSpec(
       'featureIbanScanTitle',
@@ -1361,7 +1355,7 @@ class _Feature {
 }
 
 /// Spec used when the paywall is opened with a specific feature trigger
-/// (`Get.toNamed('/premium', arguments: {'feature': 'biometric'})`).
+/// (`Get.toNamed('/premium', arguments: {'feature': 'walletExport'})`).
 /// Pairs a title + description + icon so the page can render a single
 /// hero feature card instead of the wrap of all features.
 class _PremiumFeatureSpec {

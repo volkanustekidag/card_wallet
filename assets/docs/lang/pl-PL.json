@@ -95,8 +95,6 @@
     "featureQrCreateDesc": "Generuj kody QR, aby udostępniać dane karty.",
     "featureBackupRestoreTitle": "Kopia zapasowa i przywracanie",
     "featureBackupRestoreDesc": "Zachowaj swoje karty bezpieczne i odzyskuj je w dowolnym momencie.",
-    "featureBiometricTitle": "Logowanie biometryczne",
-    "featureBiometricDesc": "Odblokuj natychmiast za pomocą Face ID lub odcisku palca.",
     "perYear": "/ rok",
     "perWeek": "/ tydzień",
     "weeklyPlanTitle": "Tygodniowy",

@@ -95,8 +95,6 @@
     "featureQrCreateDesc": "Genera codici QR per condividere i dettagli della carta.",
     "featureBackupRestoreTitle": "Backup e ripristino",
     "featureBackupRestoreDesc": "Mantieni le tue carte al sicuro e recuperale quando vuoi.",
-    "featureBiometricTitle": "Accesso biometrico",
-    "featureBiometricDesc": "Sblocca all'istante con Face ID o impronta digitale.",
     "perYear": "/ anno",
     "perWeek": "/ settimana",
     "weeklyPlanTitle": "Settimanale",

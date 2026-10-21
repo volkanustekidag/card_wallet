@@ -36,7 +36,7 @@ void main() {
     await a.logCardShared(cardType: 'credit', masked: true);
     await a.logReminderEnabled('payment');
     await a.logPaywallDismissed(trigger: 'feature_gate', feature: 'walletExport');
-    await a.logPremiumGateTapped('biometric');
+    await a.logPremiumGateTapped('qrCreate');
     await a.setCardCounts(credit: 2, iban: 1, loyalty: 5);
     await a.setHasPin(true);
 

@@ -95,8 +95,6 @@
     "featureQrCreateDesc": "Generate QR codes to share card details.",
     "featureBackupRestoreTitle": "Backup & restore",
     "featureBackupRestoreDesc": "Keep your cards safe and bring them back anytime.",
-    "featureBiometricTitle": "Biometric login",
-    "featureBiometricDesc": "Unlock instantly with Face ID or fingerprint.",
     "perYear": "/ year",
     "perWeek": "/ week",
     "weeklyPlanTitle": "Weekly",
