@@ -58,10 +58,10 @@
     "paymentDescription": "Descrizione del pagamento",
     "amount": "Importo",
     "backupSuccess": "Backup creato con successo:",
-    "backupError": "Errore di backup:",
+    "backupError": "Impossibile creare il backup. Riprova.",
     "restoreTitle": "Ripristino dati",
     "restoreSuccess": "Dati ripristinati con successo",
-    "restoreError": "Errore di ripristino:",
+    "restoreError": "Impossibile ripristinare il backup. I dati esistenti sono stati mantenuti.",
     "scanQR": "Scansiona codice QR",
     "scanQRSubtitle": "Usa la fotocamera per scansionare il codice QR",
     "chooseFromGallery": "Scegli dalla galleria",
@@ -496,5 +496,8 @@
     "placeholderBankName": "La tua banca",
     "placeholderHolderName": "Il tuo nome",
     "deleteAllDataSuccess": "Tutti i dati sono stati eliminati.",
-    "deleteAllDataError": "Alcuni dati non sono stati eliminati. Riprova."
+    "deleteAllDataError": "Alcuni dati non sono stati eliminati. Riprova.",
+    "legacyBackupWarningTitle": "Backup non crittografato",
+    "legacyBackupWarningBody": "Questo backup è stato creato da una versione precedente e non è crittografato: chiunque abbia il file può leggere le tue carte. Dopo il ripristino elimina il vecchio file e crea un nuovo backup crittografato.",
+    "legacyBackupWarningConfirm": "Ripristina comunque"
 }

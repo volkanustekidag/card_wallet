@@ -499,14 +499,14 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
       );
       if (!mounted) return;
       if (filePath == null) return; // User cancelled the save dialog.
-      debugPrint(filePath);
       context.showSuccessSnackBar('backupSuccess'.tr());
     } on BackupError catch (e) {
       if (!mounted) return;
       context.showErrorSnackBar(_localizeBackupError(e));
-    } catch (e) {
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'createBackup');
       if (!mounted) return;
-      context.showErrorSnackBar('${'backupError'.tr()} $e');
+      context.showErrorSnackBar('backupError');
     }
   }
 
@@ -532,23 +532,47 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
 
     try {
       final backupService = BackupService();
-      await backupService.restoreFromFile(
+      final restored = await backupService.restoreFromFile(
         passwordProvider: () async => _promptPassword(
           Get.context ?? context,
           title: 'restorePasswordTitle'.tr(),
           description: 'restorePasswordDescription'.tr(),
           confirmRequired: false,
         ),
+        confirmLegacyPlaintext: _confirmLegacyPlaintextRestore,
       );
-      if (!mounted) return;
+      if (!restored || !mounted) return;
       context.showSuccessSnackBar('restoreSuccess');
     } on BackupError catch (e) {
       if (!mounted) return;
       context.showErrorSnackBar(_localizeBackupError(e));
-    } catch (e) {
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'restoreBackup');
       if (!mounted) return;
-      context.showErrorSnackBar('${'restoreError'.tr()} $e');
+      context.showErrorSnackBar('restoreError');
     }
+  }
+
+  /// v1.0 backups are plain JSON: anyone holding the file can read the card
+  /// numbers. Make the user acknowledge that before restoring one.
+  Future<bool> _confirmLegacyPlaintextRestore() async {
+    final result = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text('legacyBackupWarningTitle'.tr()),
+        content: Text('legacyBackupWarningBody'.tr()),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('cancel'.tr()),
+          ),
+          ElevatedButton(
+            onPressed: () => Get.back(result: true),
+            child: Text('legacyBackupWarningConfirm'.tr()),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
   }
 
   String _localizeBackupError(BackupError e) {

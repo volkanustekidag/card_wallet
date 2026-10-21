@@ -61,10 +61,10 @@
     "paymentDescription": "Ödeme açıklaması",
     "amount": "Tutar",
     "backupSuccess": "Yedekleme başarıyla oluşturuldu:",
-    "backupError": "Yedekleme hatası:",
+    "backupError": "Yedek oluşturulamadı. Lütfen tekrar dene.",
     "restoreTitle": "Veri Geri Yükleme",
     "restoreSuccess": "Veriler başarıyla geri yüklendi",
-    "restoreError": "Geri yükleme hatası:",
+    "restoreError": "Yedek geri yüklenemedi. Mevcut verilerin korundu.",
     "scanQR": "QR Kod Tara",
     "scanQRSubtitle": "QR kodu taramak için kamerayı kullan",
     "chooseFromGallery": "Galeriden Seç",
@@ -496,5 +496,8 @@
     "placeholderBankName": "Bankan",
     "placeholderHolderName": "Adın Soyadın",
     "deleteAllDataSuccess": "Tüm veriler silindi.",
-    "deleteAllDataError": "Bazı veriler silinemedi. Lütfen tekrar dene."
+    "deleteAllDataError": "Bazı veriler silinemedi. Lütfen tekrar dene.",
+    "legacyBackupWarningTitle": "Şifrelenmemiş yedek",
+    "legacyBackupWarningBody": "Bu yedek eski bir sürümle alınmış ve şifreli değil: dosyaya sahip olan herkes kart bilgilerini okuyabilir. Geri yükledikten sonra eski dosyayı sil ve yeni, şifreli bir yedek oluştur.",
+    "legacyBackupWarningConfirm": "Yine de geri yükle"
 }

@@ -58,10 +58,10 @@
     "paymentDescription": "Descrição do pagamento",
     "amount": "Valor",
     "backupSuccess": "Backup criado com sucesso:",
-    "backupError": "Erro de backup:",
+    "backupError": "Não foi possível criar o backup. Tente novamente.",
     "restoreTitle": "Restauração de dados",
     "restoreSuccess": "Dados restaurados com sucesso",
-    "restoreError": "Erro de restauração:",
+    "restoreError": "Não foi possível restaurar o backup. Seus dados atuais foram mantidos.",
     "scanQR": "Escanear código QR",
     "scanQRSubtitle": "Use a câmera para escanear o código QR",
     "chooseFromGallery": "Escolher da galeria",
@@ -496,5 +496,8 @@
     "placeholderBankName": "Seu banco",
     "placeholderHolderName": "Seu nome",
     "deleteAllDataSuccess": "Todos os dados foram excluídos.",
-    "deleteAllDataError": "Alguns dados não puderam ser excluídos. Tente novamente."
+    "deleteAllDataError": "Alguns dados não puderam ser excluídos. Tente novamente.",
+    "legacyBackupWarningTitle": "Backup sem criptografia",
+    "legacyBackupWarningBody": "Este backup foi feito por uma versão antiga e não é criptografado: qualquer pessoa com o arquivo pode ler seus cartões. Depois de restaurar, apague o arquivo antigo e crie um novo backup criptografado.",
+    "legacyBackupWarningConfirm": "Restaurar mesmo assim"
 }

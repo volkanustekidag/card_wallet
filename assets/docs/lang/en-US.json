@@ -58,10 +58,10 @@
     "paymentDescription": "Payment description",
     "amount": "Amount",
     "backupSuccess": "Backup created successfully:",
-    "backupError": "Backup error:",
+    "backupError": "Backup could not be created. Please try again.",
     "restoreTitle": "Data Restore",
     "restoreSuccess": "Data restored successfully",
-    "restoreError": "Restore error:",
+    "restoreError": "Backup could not be restored. Your existing data was kept.",
     "scanQR": "Scan QR Code",
     "scanQRSubtitle": "Use camera to scan QR code",
     "chooseFromGallery": "Choose from Gallery",
@@ -496,5 +496,8 @@
     "placeholderBankName": "Your Bank",
     "placeholderHolderName": "Your Name",
     "deleteAllDataSuccess": "All data deleted.",
-    "deleteAllDataError": "Some data could not be deleted. Please try again."
+    "deleteAllDataError": "Some data could not be deleted. Please try again.",
+    "legacyBackupWarningTitle": "Unencrypted backup",
+    "legacyBackupWarningBody": "This backup was made by an older version and is not encrypted: anyone with the file can read your card details. After restoring, delete the old file and create a new encrypted backup.",
+    "legacyBackupWarningConfirm": "Restore anyway"
 }

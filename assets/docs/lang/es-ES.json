@@ -58,10 +58,10 @@
     "paymentDescription": "Descripción del pago",
     "amount": "Importe",
     "backupSuccess": "Copia de seguridad creada con éxito:",
-    "backupError": "Error de copia de seguridad:",
+    "backupError": "No se pudo crear la copia de seguridad. Inténtalo de nuevo.",
     "restoreTitle": "Restauración de datos",
     "restoreSuccess": "Datos restaurados con éxito",
-    "restoreError": "Error de restauración:",
+    "restoreError": "No se pudo restaurar la copia. Se conservaron tus datos actuales.",
     "scanQR": "Escanear código QR",
     "scanQRSubtitle": "Usa la cámara para escanear el código QR",
     "chooseFromGallery": "Elegir de la galería",
@@ -496,5 +496,8 @@
     "placeholderBankName": "Tu banco",
     "placeholderHolderName": "Tu nombre",
     "deleteAllDataSuccess": "Se han eliminado todos los datos.",
-    "deleteAllDataError": "No se pudieron eliminar algunos datos. Inténtalo de nuevo."
+    "deleteAllDataError": "No se pudieron eliminar algunos datos. Inténtalo de nuevo.",
+    "legacyBackupWarningTitle": "Copia de seguridad sin cifrar",
+    "legacyBackupWarningBody": "Esta copia se hizo con una versión antigua y no está cifrada: cualquiera con el archivo puede leer tus tarjetas. Después de restaurarla, borra el archivo antiguo y crea una copia nueva cifrada.",
+    "legacyBackupWarningConfirm": "Restaurar de todos modos"
 }

@@ -58,10 +58,10 @@
     "paymentDescription": "Beschrijving betaling",
     "amount": "Bedrag",
     "backupSuccess": "Back-up succesvol aangemaakt:",
-    "backupError": "Back-upfout:",
+    "backupError": "Back-up kon niet worden gemaakt. Probeer het opnieuw.",
     "restoreTitle": "Gegevensherstel",
     "restoreSuccess": "Gegevens succesvol hersteld",
-    "restoreError": "Herstelfout:",
+    "restoreError": "Back-up kon niet worden hersteld. Je bestaande gegevens zijn bewaard.",
     "scanQR": "QR-code scannen",
     "scanQRSubtitle": "Gebruik de camera om de QR-code te scannen",
     "chooseFromGallery": "Kies uit galerij",
@@ -496,5 +496,8 @@
     "placeholderBankName": "Jouw bank",
     "placeholderHolderName": "Jouw naam",
     "deleteAllDataSuccess": "Alle gegevens zijn verwijderd.",
-    "deleteAllDataError": "Sommige gegevens konden niet worden verwijderd. Probeer het opnieuw."
+    "deleteAllDataError": "Sommige gegevens konden niet worden verwijderd. Probeer het opnieuw.",
+    "legacyBackupWarningTitle": "Onversleutelde back-up",
+    "legacyBackupWarningBody": "Deze back-up is gemaakt met een oudere versie en is niet versleuteld: iedereen met het bestand kan je kaartgegevens lezen. Verwijder na het herstellen het oude bestand en maak een nieuwe, versleutelde back-up.",
+    "legacyBackupWarningConfirm": "Toch herstellen"
 }

@@ -58,10 +58,10 @@
     "paymentDescription": "Description du paiement",
     "amount": "Montant",
     "backupSuccess": "Sauvegarde créée avec succès :",
-    "backupError": "Erreur de sauvegarde :",
+    "backupError": "Impossible de créer la sauvegarde. Veuillez réessayer.",
     "restoreTitle": "Restauration des données",
     "restoreSuccess": "Données restaurées avec succès",
-    "restoreError": "Erreur de restauration :",
+    "restoreError": "Impossible de restaurer la sauvegarde. Vos données actuelles ont été conservées.",
     "scanQR": "Scanner le code QR",
     "scanQRSubtitle": "Utiliser la caméra pour scanner le code QR",
     "chooseFromGallery": "Choisir dans la galerie",
@@ -496,5 +496,8 @@
     "placeholderBankName": "Votre banque",
     "placeholderHolderName": "Votre nom",
     "deleteAllDataSuccess": "Toutes les données ont été supprimées.",
-    "deleteAllDataError": "Certaines données n'ont pas pu être supprimées. Veuillez réessayer."
+    "deleteAllDataError": "Certaines données n'ont pas pu être supprimées. Veuillez réessayer.",
+    "legacyBackupWarningTitle": "Sauvegarde non chiffrée",
+    "legacyBackupWarningBody": "Cette sauvegarde provient d'une ancienne version et n'est pas chiffrée : toute personne disposant du fichier peut lire vos cartes. Après la restauration, supprimez l'ancien fichier et créez une nouvelle sauvegarde chiffrée.",
+    "legacyBackupWarningConfirm": "Restaurer quand même"
 }

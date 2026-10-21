@@ -1,21 +1,21 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
-import 'package:encrypt/encrypt.dart' as enc;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
-import 'package:pointycastle/export.dart' as pc;
 
 import '../../constants/keys.dart';
-import '../../utils/secure_storage_provider.dart';
 import '../../domain/models/credit_card_model/credit_card.dart';
 import '../../domain/models/iban_card_model/iban_card.dart';
 import '../../domain/models/loyalty_card_model/loyalty_card.dart';
+import '../../services/app_lock_service.dart';
 import '../../services/card_reminder_service.dart';
-import 'package:wallet_app/core/services/app_lock_service.dart';
+import '../../services/wallet_surfaces_sync.dart';
+import '../local_services/card_services/credi_card/credit_card_service.dart';
+import '../local_services/card_services/iban_card/iban_card_service.dart';
+import '../local_services/card_services/loyalty_card/loyalty_card_service.dart';
+import 'backup_crypto.dart';
 
 /// Errors surfaced by [BackupService]. The UI layer maps these to user-facing
 /// localized strings.
@@ -36,76 +36,45 @@ class BackupError implements Exception {
 }
 
 class BackupService {
-  static const FlutterSecureStorage _secureStorage =
-      SecureStorageProvider.instance;
+  /// Backups are small JSON files; refuse anything that clearly isn't one
+  /// before reading it into memory.
+  static const int _maxBackupBytes = 10 * 1024 * 1024;
 
-  static const String _currentBackupVersion = '2.1';
-  static const int _pbkdf2Iterations = 100000;
-  static const int _keyLengthBytes = 32;
-  static const int _saltLengthBytes = 16;
-  static const int _gcmNonceLengthBytes = 12;
-
+  // Boxes are opened through the card services so they always use the
+  // encrypted cipher. There is deliberately no plain `Hive.openBox`
+  // fallback: opening an encrypted box without its key would either fail
+  // or create an empty unencrypted box and restore card data into it.
   Future<Box<CreditCard>> _getCreditCardsBox() async {
-    if (Hive.isBoxOpen(C_CARD_BOX_NAME)) {
-      return Hive.box<CreditCard>(C_CARD_BOX_NAME);
-    }
-    try {
-      final secureKey =
-          await _secureStorage.read(key: C_CARD_SECURE_STORAGE_KEY);
-      if (secureKey != null) {
-        final encryptionKey =
-            (json.decode(secureKey) as List<dynamic>).cast<int>();
-        return await Hive.openBox<CreditCard>(
-          C_CARD_BOX_NAME,
-          encryptionCipher: HiveAesCipher(encryptionKey),
-        );
-      }
-    } catch (e) {
-      debugPrint('Error opening credit cards box: $e');
-    }
-    return await Hive.openBox<CreditCard>(C_CARD_BOX_NAME);
+    await _openThroughService(CreditCardService().openBox, 'credit');
+    return _openBoxOrThrow<CreditCard>(C_CARD_BOX_NAME);
   }
 
   Future<Box<LoyaltyCard>> _getLoyaltyCardsBox() async {
-    if (Hive.isBoxOpen(LOYALTY_CARD_BOX_NAME)) {
-      return Hive.box<LoyaltyCard>(LOYALTY_CARD_BOX_NAME);
-    }
-    try {
-      final secureKey =
-          await _secureStorage.read(key: LOYALTY_CARD_SECURE_STORAGE_KEY);
-      if (secureKey != null) {
-        final encryptionKey =
-            (json.decode(secureKey) as List<dynamic>).cast<int>();
-        return await Hive.openBox<LoyaltyCard>(
-          LOYALTY_CARD_BOX_NAME,
-          encryptionCipher: HiveAesCipher(encryptionKey),
-        );
-      }
-    } catch (e) {
-      debugPrint('Error opening loyalty cards box: $e');
-    }
-    return await Hive.openBox<LoyaltyCard>(LOYALTY_CARD_BOX_NAME);
+    await _openThroughService(LoyaltyCardService().openBox, 'loyalty');
+    return _openBoxOrThrow<LoyaltyCard>(LOYALTY_CARD_BOX_NAME);
   }
 
   Future<Box<IbanCard>> _getIbanCardsBox() async {
-    if (Hive.isBoxOpen(I_CARD_BOX_NAME)) {
-      return Hive.box<IbanCard>(I_CARD_BOX_NAME);
-    }
+    await _openThroughService(IbanCardService().openBox, 'IBAN');
+    return _openBoxOrThrow<IbanCard>(I_CARD_BOX_NAME);
+  }
+
+  Future<void> _openThroughService(
+    Future<void> Function() open,
+    String label,
+  ) async {
     try {
-      final secureKey =
-          await _secureStorage.read(key: I_CARD_SECURE_STORAGE_KEY);
-      if (secureKey != null) {
-        final encryptionKey =
-            (json.decode(secureKey) as List<dynamic>).cast<int>();
-        return await Hive.openBox<IbanCard>(
-          I_CARD_BOX_NAME,
-          encryptionCipher: HiveAesCipher(encryptionKey),
-        );
-      }
+      await open();
     } catch (e) {
-      debugPrint('Error opening IBAN cards box: $e');
+      throw BackupError(BackupErrorKind.io, 'Could not open $label box: $e');
     }
-    return await Hive.openBox<IbanCard>(I_CARD_BOX_NAME);
+  }
+
+  Box<T> _openBoxOrThrow<T>(String name) {
+    if (!Hive.isBoxOpen(name)) {
+      throw BackupError(BackupErrorKind.io, 'Box $name is not open');
+    }
+    return Hive.box<T>(name);
   }
 
   Future<Map<String, dynamic>> _exportPlainData() async {
@@ -199,26 +168,15 @@ class BackupService {
       final plainData = await _exportPlainData();
       final plaintext = jsonEncode(plainData);
 
-      final salt = _randomBytes(_saltLengthBytes);
-      final nonce = _randomBytes(_gcmNonceLengthBytes);
-      final key = _deriveKey(password, salt);
-
-      final encrypter = enc.Encrypter(
-        enc.AES(enc.Key(key), mode: enc.AESMode.gcm, padding: null),
+      // PBKDF2 (100k rounds) + AES off the UI thread.
+      final envelope = await compute(
+        encryptBackupPayload,
+        BackupEncryptRequest(
+          plaintext: plaintext,
+          password: password,
+          timestamp: DateTime.now(),
+        ),
       );
-      final encrypted = encrypter.encrypt(plaintext, iv: enc.IV(nonce));
-
-      final envelope = <String, dynamic>{
-        'version': _currentBackupVersion,
-        'encrypted': true,
-        'algorithm': 'AES-256-GCM',
-        'kdf': 'PBKDF2-HMAC-SHA256',
-        'iterations': _pbkdf2Iterations,
-        'salt': base64Encode(salt),
-        'nonce': base64Encode(nonce),
-        'data': encrypted.base64,
-        'timestamp': DateTime.now().toIso8601String(),
-      };
 
       final bytes =
           Uint8List.fromList(utf8.encode(jsonEncode(envelope)));
@@ -243,34 +201,58 @@ class BackupService {
   }
 
   /// Picks a backup file and restores its contents. [passwordProvider] is
-  /// invoked when the file is encrypted (v2.0+). Returns true on success.
-  Future<void> restoreFromFile({
+  /// invoked when the file is encrypted (v2.0+). [confirmLegacyPlaintext] is
+  /// asked before restoring an unencrypted v1.0 backup.
+  ///
+  /// Returns false when the user cancels (file picker, password prompt or
+  /// the plaintext warning), true after a successful restore.
+  Future<bool> restoreFromFile({
     required Future<String?> Function() passwordProvider,
+    required Future<bool> Function() confirmLegacyPlaintext,
   }) async {
+    final String raw;
     try {
-      final result = await AppLockService.guard(() => FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['json'],
-      ));
+      // FileType.any: Android file managers often report .json backups as
+      // application/octet-stream, which a ['json'] filter greys out. The
+      // content is validated below instead.
+      final result = await AppLockService.guard(
+        () => FilePicker.platform.pickFiles(type: FileType.any),
+      );
+      final path = result?.files.single.path;
+      if (path == null) return false;
 
-      if (result == null || result.files.single.path == null) {
-        throw BackupError(BackupErrorKind.io, 'No file selected');
+      final file = File(path);
+      if (await file.length() > _maxBackupBytes) {
+        throw BackupError(BackupErrorKind.invalidFormat, 'File too large');
       }
-
-      final file = File(result.files.single.path!);
-      await restoreFromFileContent(file, passwordProvider: passwordProvider);
+      raw = await file.readAsString();
     } on BackupError {
       rethrow;
+    } on FileSystemException catch (e) {
+      throw BackupError(BackupErrorKind.io, 'Could not read file: $e');
     } catch (e) {
-      throw BackupError(BackupErrorKind.io, 'Restore failed: $e');
+      // readAsString throws on binary (non UTF-8) files: not a backup.
+      throw BackupError(BackupErrorKind.invalidFormat, 'Not a backup: $e');
     }
+
+    final data = await decodeBackup(
+      raw,
+      passwordProvider: passwordProvider,
+      confirmLegacyPlaintext: confirmLegacyPlaintext,
+    );
+    if (data == null) return false;
+    await _restorePayload(data);
+    return true;
   }
 
-  Future<void> restoreFromFileContent(
-    File file, {
+  /// Validates and decodes a backup file's text into the card payload.
+  /// Returns null if the user declined the plaintext (v1.0) warning.
+  @visibleForTesting
+  static Future<Map<String, dynamic>?> decodeBackup(
+    String raw, {
     required Future<String?> Function() passwordProvider,
+    required Future<bool> Function() confirmLegacyPlaintext,
   }) async {
-    final raw = await file.readAsString();
     Map<String, dynamic> decoded;
     try {
       decoded = jsonDecode(raw) as Map<String, dynamic>;
@@ -286,7 +268,7 @@ class BackupService {
     }
 
     final version = decoded['version'].toString();
-    Map<String, dynamic> data;
+    final Map<String, dynamic> data;
 
     if (version == '1.0') {
       // Legacy unencrypted format.
@@ -294,6 +276,7 @@ class BackupService {
       if (legacy is! Map<String, dynamic>) {
         throw BackupError(BackupErrorKind.invalidFormat, 'Bad legacy data');
       }
+      if (!await confirmLegacyPlaintext()) return null;
       data = legacy;
     } else if (version.startsWith('2.')) {
       data = await _decryptV2(decoded, passwordProvider);
@@ -319,15 +302,21 @@ class BackupService {
         'Backup loyalty cards must be a list',
       );
     }
-
-    await _atomicReplace(
-      newCreditCards: creditCardsData,
-      newIbanCards: ibanCardsData,
-      newLoyaltyCards: loyaltyCardsData,
-    );
+    return data;
   }
 
-  Future<Map<String, dynamic>> _decryptV2(
+  Future<void> _restorePayload(Map<String, dynamic> data) async {
+    await _atomicReplace(
+      newCreditCards: data['creditCards'] as List,
+      newIbanCards: data['ibanCards'] as List,
+      newLoyaltyCards: (data['loyaltyCards'] as List?) ?? const <dynamic>[],
+    );
+    // Widget, quick tile and Watch should show the restored cards now, not
+    // after the debounce.
+    await WalletSurfacesSync.instance.syncNow();
+  }
+
+  static Future<Map<String, dynamic>> _decryptV2(
     Map<String, dynamic> envelope,
     Future<String?> Function() passwordProvider,
   ) async {
@@ -342,16 +331,7 @@ class BackupService {
         'Encrypted flag missing on v2 backup',
       );
     }
-
-    final saltStr = envelope['salt'];
-    final algorithm = (envelope['algorithm'] as String?) ?? 'AES-256-CBC';
-    final nonceStr = envelope['nonce'];
-    final ivStr = envelope['iv'];
-    final dataStr = envelope['data'];
-    // Tolerate hand-edited backups where iterations is encoded as a double.
-    final iterations =
-        (envelope['iterations'] as num?)?.toInt() ?? _pbkdf2Iterations;
-    if (saltStr is! String || dataStr is! String) {
+    if (envelope['salt'] is! String || envelope['data'] is! String) {
       throw BackupError(
         BackupErrorKind.invalidFormat,
         'Encrypted backup missing salt/data',
@@ -366,39 +346,17 @@ class BackupService {
       );
     }
 
-    final salt = base64Decode(saltStr);
-    final key = _deriveKey(password, salt, iterations: iterations);
-
     try {
-      late final enc.Encrypter encrypter;
-      late final enc.IV iv;
-      if (algorithm == 'AES-256-GCM') {
-        if (nonceStr is! String) {
-          throw const FormatException('Encrypted backup missing nonce');
-        }
-        encrypter = enc.Encrypter(
-          enc.AES(enc.Key(key), mode: enc.AESMode.gcm, padding: null),
-        );
-        iv = enc.IV(base64Decode(nonceStr));
-      } else if (algorithm == 'AES-256-CBC') {
-        if (ivStr is! String) {
-          throw const FormatException('Encrypted backup missing iv');
-        }
-        // Legacy v2.0 backup format. New backups use AES-GCM so corrupted or
-        // tampered files fail authentication before restore.
-        encrypter = enc.Encrypter(
-          enc.AES(enc.Key(key), mode: enc.AESMode.cbc, padding: 'PKCS7'),
-        );
-        iv = enc.IV(base64Decode(ivStr));
-      } else {
-        throw FormatException('Unsupported backup algorithm: $algorithm');
-      }
-      final decrypted = encrypter.decrypt64(dataStr, iv: iv);
-      return jsonDecode(decrypted) as Map<String, dynamic>;
-    } catch (e) {
+      return await compute(
+        decryptBackupPayload,
+        BackupDecryptRequest(envelope: envelope, password: password),
+      );
+    } on BackupCryptoException catch (e) {
       throw BackupError(
-        BackupErrorKind.wrongPassword,
-        'Decryption failed (wrong password or corrupted file)',
+        e.wrongPassword
+            ? BackupErrorKind.wrongPassword
+            : BackupErrorKind.invalidFormat,
+        e.message,
       );
     }
   }
@@ -559,40 +517,5 @@ class BackupService {
       return value.map((e) => e.toString()).toList();
     }
     return null;
-  }
-
-  Future<void> clearAllData() async {
-    final creditCardsBox = await _getCreditCardsBox();
-    final ibanCardsBox = await _getIbanCardsBox();
-    final loyaltyCardsBox = await _getLoyaltyCardsBox();
-    await creditCardsBox.clear();
-    await ibanCardsBox.clear();
-    await loyaltyCardsBox.clear();
-  }
-
-  // PBKDF2-HMAC-SHA256
-  static Uint8List _deriveKey(
-    String password,
-    List<int> salt, {
-    int iterations = _pbkdf2Iterations,
-  }) {
-    final params = pc.Pbkdf2Parameters(
-      Uint8List.fromList(salt),
-      iterations,
-      _keyLengthBytes,
-    );
-    final derivator = pc.PBKDF2KeyDerivator(
-      pc.HMac(pc.SHA256Digest(), 64),
-    )..init(params);
-    return derivator.process(Uint8List.fromList(utf8.encode(password)));
-  }
-
-  static Uint8List _randomBytes(int length) {
-    final rand = Random.secure();
-    final bytes = Uint8List(length);
-    for (var i = 0; i < length; i++) {
-      bytes[i] = rand.nextInt(256);
-    }
-    return bytes;
   }
 }
