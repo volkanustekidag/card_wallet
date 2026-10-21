@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="loyalty_widget_description">Mostre rapidamente o código de barras do seu último cartão de fidelidade.</string>
+    <string name="loyalty_widget_barcode_cd">Código de barras do cartão de fidelidade</string>
+    <string name="loyalty_tile_label">Cartão de fidelidade</string>
+    <string name="loyalty_empty_title">Fidelidade</string>
+    <string name="loyalty_add_card">Adicionar cartão</string>
+    <string name="loyalty_tap_to_show_barcode">Toque para mostrar o código de barras</string>
+</resources>

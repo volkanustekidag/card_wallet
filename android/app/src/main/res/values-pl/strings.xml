@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="loyalty_widget_description">Szybko pokaż kod kreskowy ostatnio używanej karty lojalnościowej.</string>
+    <string name="loyalty_widget_barcode_cd">Kod kreskowy karty lojalnościowej</string>
+    <string name="loyalty_tile_label">Karta lojalnościowa</string>
+    <string name="loyalty_empty_title">Karty lojalnościowe</string>
+    <string name="loyalty_add_card">Dodaj kartę</string>
+    <string name="loyalty_tap_to_show_barcode">Dotknij, aby pokazać kod kreskowy</string>
+</resources>

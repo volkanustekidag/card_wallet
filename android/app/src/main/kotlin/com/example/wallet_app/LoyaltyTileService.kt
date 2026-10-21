@@ -61,7 +61,7 @@ class LoyaltyTileService : TileService() {
     /**
      * Mirror the cached card's display name onto the tile when possible,
      * so the user sees which card they'd be opening. Falls back to
-     * "Loyalty" when nothing is cached.
+     * a localized "Loyalty" title when nothing is cached.
      */
     private fun refreshTileLabel() {
         val tile = qsTile ?: return
@@ -72,10 +72,12 @@ class LoyaltyTileService : TileService() {
         val name = prefs.getString("last_loyalty_name", "").orEmpty()
         val hasCard = prefs.getString("last_loyalty_id", "").orEmpty().isNotEmpty()
 
-        tile.label = if (hasCard && name.isNotEmpty()) name else "Loyalty"
+        tile.label = if (hasCard && name.isNotEmpty()) name else getString(R.string.loyalty_empty_title)
         tile.state = if (hasCard) Tile.STATE_ACTIVE else Tile.STATE_INACTIVE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            tile.subtitle = if (hasCard) "Tap to show barcode" else "Add a card"
+            tile.subtitle = getString(
+                if (hasCard) R.string.loyalty_tap_to_show_barcode else R.string.loyalty_add_card,
+            )
         }
         tile.updateTile()
     }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="loyalty_widget_description">Toon snel de barcode van je laatst gebruikte klantenkaart.</string>
+    <string name="loyalty_widget_barcode_cd">Barcode van klantenkaart</string>
+    <string name="loyalty_tile_label">Klantenkaart</string>
+    <string name="loyalty_empty_title">Klantenkaarten</string>
+    <string name="loyalty_add_card">Kaart toevoegen</string>
+    <string name="loyalty_tap_to_show_barcode">Tik om de barcode te tonen</string>
+</resources>
