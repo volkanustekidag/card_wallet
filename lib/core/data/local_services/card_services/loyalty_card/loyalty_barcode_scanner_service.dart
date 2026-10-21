@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/camera_permission_service.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
+import 'package:wallet_app/core/utils/scan_photo_cleanup.dart';
 
 class LoyaltyBarcodeScanResult {
   final String rawValue;
@@ -31,8 +32,9 @@ class LoyaltyBarcodeScannerService {
   }
 
   Future<LoyaltyBarcodeScanResult?> _pickAndDecode(ImageSource source) async {
+    XFile? photo;
     try {
-      final XFile? photo = await AppLockService.guard(() => _picker.pickImage(
+      photo = await AppLockService.guard(() => _picker.pickImage(
         source: source,
         imageQuality: 100,
         preferredCameraDevice: CameraDevice.rear,
@@ -61,6 +63,8 @@ class LoyaltyBarcodeScannerService {
       debugPrint('Loyalty scan error: $e');
       Get.context?.showErrorSnackBar('loyaltyBarcodeScanError'.tr());
       return null;
+    } finally {
+      await deleteScanPhoto(photo, fromCamera: source == ImageSource.camera);
     }
   }
 
