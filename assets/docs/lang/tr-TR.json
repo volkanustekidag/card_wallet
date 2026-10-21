@@ -481,5 +481,18 @@
     "autoLockAfterMinutes": "{} dakika sonra",
     "durationMinutesShort": "{} dk",
     "durationSecondsShort": "{} sn",
-    "openApp": "Uygulamayı aç"
+    "openApp": "Uygulamayı aç",
+    "premiumActiveTitle": "Premium üyesin",
+    "premiumActiveSubtitle": "Tüm premium özellikler açık.",
+    "premiumCurrentPlan": "Mevcut plan: {}",
+    "lifetimePlanTitle": "Ömür boyu",
+    "changePlan": "Planı değiştir",
+    "switchPlanCta": "Plana geç",
+    "planChangeViaStore": "Plan değişikliği mağazanın abonelik ayarlarından yapılır.",
+    "purchaseRestored": "Satın alımlar geri yüklendi. Premium aktif.",
+    "purchaseRestoreNotFound": "Bu hesapta önceki bir satın alma bulunamadı.",
+    "purchaseRestoreFailed": "Mağazaya ulaşılamadı. Bağlantını kontrol edip tekrar dene.",
+    "purchasePending": "Onay bekleniyor. Ödeme onaylanınca Premium açılır.",
+    "placeholderBankName": "Bankan",
+    "placeholderHolderName": "Adın Soyadın"
 }

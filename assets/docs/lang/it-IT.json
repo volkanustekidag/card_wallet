@@ -481,5 +481,18 @@
     "autoLockAfterMinutes": "Dopo {} minuti",
     "durationMinutesShort": "{} min",
     "durationSecondsShort": "{} s",
-    "openApp": "Apri l'app"
+    "openApp": "Apri l'app",
+    "premiumActiveTitle": "Sei Premium",
+    "premiumActiveSubtitle": "Tutte le funzioni Premium sono sbloccate.",
+    "premiumCurrentPlan": "Piano attuale: {}",
+    "lifetimePlanTitle": "A vita",
+    "changePlan": "Cambia piano",
+    "switchPlanCta": "Cambia piano",
+    "planChangeViaStore": "Il cambio di piano si fa nelle impostazioni abbonamento dello store.",
+    "purchaseRestored": "Acquisti ripristinati. Premium è attivo.",
+    "purchaseRestoreNotFound": "Nessun acquisto precedente trovato per questo account.",
+    "purchaseRestoreFailed": "Impossibile raggiungere lo store. Controlla la connessione e riprova.",
+    "purchasePending": "In attesa di approvazione. Premium si attiva appena il pagamento è confermato.",
+    "placeholderBankName": "La tua banca",
+    "placeholderHolderName": "Il tuo nome"
 }

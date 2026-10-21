@@ -481,5 +481,18 @@
     "autoLockAfterMinutes": "Na {} minuten",
     "durationMinutesShort": "{} min",
     "durationSecondsShort": "{} s",
-    "openApp": "App openen"
+    "openApp": "App openen",
+    "premiumActiveTitle": "Je hebt Premium",
+    "premiumActiveSubtitle": "Alle Premium-functies zijn ontgrendeld.",
+    "premiumCurrentPlan": "Huidig abonnement: {}",
+    "lifetimePlanTitle": "Levenslang",
+    "changePlan": "Abonnement wijzigen",
+    "switchPlanCta": "Overstappen",
+    "planChangeViaStore": "Je wijzigt je abonnement in de abonnementsinstellingen van de store.",
+    "purchaseRestored": "Aankopen hersteld. Premium is actief.",
+    "purchaseRestoreNotFound": "Geen eerdere aankoop gevonden voor dit account.",
+    "purchaseRestoreFailed": "Kan de store niet bereiken. Controleer je verbinding en probeer het opnieuw.",
+    "purchasePending": "Wachten op goedkeuring. Premium wordt actief zodra de betaling is bevestigd.",
+    "placeholderBankName": "Jouw bank",
+    "placeholderHolderName": "Jouw naam"
 }

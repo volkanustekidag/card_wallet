@@ -53,6 +53,9 @@ dependencies:
   encrypt: ^5.0.3
   path_provider: ^2.1.1
   in_app_purchase: ^3.3.0
+  # Direct import for GooglePlayPurchaseParam / ChangeSubscriptionParam
+  # (Android plan switches). Same version in_app_purchase already pins.
+  in_app_purchase_android: ^0.5.0
   google_mlkit_barcode_scanning: ^0.14.2
   cached_network_image: ^3.4.1
   pointycastle: ^3.9.1

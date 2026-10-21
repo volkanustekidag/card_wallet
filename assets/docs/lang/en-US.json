@@ -481,5 +481,18 @@
     "autoLockAfterMinutes": "After {} minutes",
     "durationMinutesShort": "{} min",
     "durationSecondsShort": "{} s",
-    "openApp": "Open app"
+    "openApp": "Open app",
+    "premiumActiveTitle": "You're Premium",
+    "premiumActiveSubtitle": "All premium features are unlocked.",
+    "premiumCurrentPlan": "Current plan: {}",
+    "lifetimePlanTitle": "Lifetime",
+    "changePlan": "Change plan",
+    "switchPlanCta": "Switch plan",
+    "planChangeViaStore": "Plan changes are made in your store subscription settings.",
+    "purchaseRestored": "Purchases restored. Premium is active.",
+    "purchaseRestoreNotFound": "No previous purchase found for this account.",
+    "purchaseRestoreFailed": "Couldn't reach the store. Check your connection and try again.",
+    "purchasePending": "Waiting for approval. Premium unlocks as soon as the payment is confirmed.",
+    "placeholderBankName": "Your Bank",
+    "placeholderHolderName": "Your Name"
 }

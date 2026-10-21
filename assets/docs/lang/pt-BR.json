@@ -481,5 +481,18 @@
     "autoLockAfterMinutes": "Após {} minutos",
     "durationMinutesShort": "{} min",
     "durationSecondsShort": "{} s",
-    "openApp": "Abrir o app"
+    "openApp": "Abrir o app",
+    "premiumActiveTitle": "Você é Premium",
+    "premiumActiveSubtitle": "Todos os recursos Premium estão liberados.",
+    "premiumCurrentPlan": "Plano atual: {}",
+    "lifetimePlanTitle": "Vitalício",
+    "changePlan": "Mudar de plano",
+    "switchPlanCta": "Trocar de plano",
+    "planChangeViaStore": "A troca de plano é feita nas configurações de assinatura da loja.",
+    "purchaseRestored": "Compras restauradas. O Premium está ativo.",
+    "purchaseRestoreNotFound": "Nenhuma compra anterior encontrada nesta conta.",
+    "purchaseRestoreFailed": "Não foi possível acessar a loja. Verifique a conexão e tente novamente.",
+    "purchasePending": "Aguardando aprovação. O Premium será liberado assim que o pagamento for confirmado.",
+    "placeholderBankName": "Seu banco",
+    "placeholderHolderName": "Seu nome"
 }
