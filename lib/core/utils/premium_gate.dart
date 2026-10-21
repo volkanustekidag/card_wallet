@@ -3,9 +3,10 @@ import 'package:wallet_app/core/services/analytics_service.dart';
 
 /// Opens the paywall for a premium-only feature the user just tapped and
 /// records `premium_gate_tapped {feature}`. [feature] is one of the keys
-/// PremiumPage understands (`walletExport`, `backupRestore`, `ibanScan`,
-/// `qrCreate`, `unlimitedCards`) or `premiumColors`. Biometric unlock is
-/// free and never opens the paywall.
+/// PremiumPage understands (`walletExport`, `backupRestore`, `qrCreate`,
+/// `unlimitedCards`) or `premiumColors`. Biometric unlock and IBAN scanning
+/// (camera OCR, QR camera, QR from gallery) are free and never open the
+/// paywall; creating an IBAN QR (`qrCreate`) stays Premium.
 Future<T?>? openPremiumGate<T>(
   String feature, {
   Map<String, dynamic> extraArguments = const {},

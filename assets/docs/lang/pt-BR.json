@@ -89,8 +89,6 @@
     "premiumUpgrade": "Atualizar para Premium",
     "featureUnlimitedCardsTitle": "Cartões ilimitados",
     "featureUnlimitedCardsDesc": "Salve todos os cartões de que precisar, sem limites.",
-    "featureIbanScanTitle": "Escaneamento de IBAN com câmera",
-    "featureIbanScanDesc": "Escaneie IBANs com sua câmera para guardá-los rapidamente.",
     "featureQrCreateTitle": "Criar códigos QR",
     "featureQrCreateDesc": "Gere códigos QR para compartilhar dados de cartão.",
     "featureBackupRestoreTitle": "Backup e restauração",

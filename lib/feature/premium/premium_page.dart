@@ -55,7 +55,6 @@ class _PremiumPageState extends State<PremiumPage>
       'featureWalletExportTitle',
       Icons.account_balance_wallet_rounded,
     ),
-    _Feature('featureIbanScanTitle', Icons.document_scanner_rounded),
     _Feature('featureQrCreateTitle', Icons.qr_code_rounded),
   ];
 
@@ -77,11 +76,6 @@ class _PremiumPageState extends State<PremiumPage>
       'featureWalletExportTitle',
       'featureWalletExportDesc',
       Icons.account_balance_wallet_rounded,
-    ),
-    'ibanScan': _PremiumFeatureSpec(
-      'featureIbanScanTitle',
-      'featureIbanScanDesc',
-      Icons.document_scanner_rounded,
     ),
     'qrCreate': _PremiumFeatureSpec(
       'featureQrCreateTitle',

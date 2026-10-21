@@ -92,8 +92,6 @@
     "premiumUpgrade": "Premium'a yükselt",
     "featureUnlimitedCardsTitle": "Sınırsız kartlar",
     "featureUnlimitedCardsDesc": "Tüm kartlarını limitsiz kaydet.",
-    "featureIbanScanTitle": "IBAN kamera tarama",
-    "featureIbanScanDesc": "IBAN'ı kamerayla tara ve hızla kaydet.",
     "featureQrCreateTitle": "QR kod oluşturma",
     "featureQrCreateDesc": "Kart bilgilerini paylaşmak için QR kod üret.",
     "featureBackupRestoreTitle": "Yedekleme & geri yükleme",
