@@ -58,7 +58,7 @@ class LoyaltyBarcodeScannerService {
         format: _mapFormat(first.format),
       );
     } catch (e) {
-      debugPrint('Loyalty barcode scan error: $e');
+      debugPrint('Loyalty scan error: $e');
       Get.context?.showErrorSnackBar('loyaltyBarcodeScanError'.tr());
       return null;
     }

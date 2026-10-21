@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:easy_localization/easy_localization.dart';
 
 /// Banking Standard IBAN QR Code Generator for Flutter
@@ -836,78 +835,4 @@ class QRMetadata {
   String get bankName => bankCode != null
       ? IBANQRGenerator.getTurkishBankName(bankCode!) ?? 'unknownBank'.tr()
       : 'notSpecified'.tr();
-}
-
-/// Example usage with banking standards compliance
-class BankingCompliantExample {
-  static void demonstrateUsage() {
-    // Turkish IBAN example - Static QR (TR-KAREKOD format)
-    final turkishStaticPayment = IBANQRGenerator.createPaymentData(
-      iban: 'TR330006100519786457841326',
-      beneficiaryName: 'Volkan Üstekidağ',
-      currency: 'TRY',
-      reference: 'STATIC-QR',
-      description: 'Hesap bilgisi QR kodu',
-    );
-
-    final turkishStaticResult = IBANQRGenerator.generateQRCode(
-      turkishStaticPayment,
-      format: IBANQRGenerator.formatTRKareKod,
-    );
-    debugPrint(
-        'Turkish Static QR (${turkishStaticResult.metadata?.standard}): ${turkishStaticResult.data}');
-
-    // Turkish IBAN example - Dynamic QR with amount (TR-FAST format)
-    final turkishDynamicPayment = IBANQRGenerator.createPaymentData(
-      iban: 'TR330006100519786457841326',
-      beneficiaryName: 'Volkan Üstekidağ',
-      amount: 150.00,
-      currency: 'TRY',
-      reference: 'INV-2024-001',
-      description: 'Fatura ödemesi',
-    );
-
-    final turkishDynamicResult = IBANQRGenerator.generateQRCode(
-      turkishDynamicPayment,
-      format: IBANQRGenerator.formatTRFast,
-    );
-    debugPrint(
-        'Turkish Dynamic QR (${turkishDynamicResult.metadata?.standard}): ${turkishDynamicResult.data}');
-
-    // Auto-detection example (will choose appropriate format)
-    final autoPayment = IBANQRGenerator.createPaymentData(
-      iban: 'TR330006100519786457841326',
-      beneficiaryName: 'Volkan Üstekidağ',
-      amount: 75.50,
-      currency: 'TRY',
-    );
-
-    final autoResult = IBANQRGenerator.generateQRCode(autoPayment);
-    debugPrint(
-        'Auto-detected QR (${autoResult.metadata?.standard}): ${autoResult.data}');
-
-    // European IBAN example (EPC format)
-    final europeanPayment = IBANQRGenerator.createPaymentData(
-      iban: 'DE89370400440532013000',
-      beneficiaryName: 'Max Mustermann',
-      amount: 100.00,
-      currency: 'EUR',
-      reference: 'RF18539007547034',
-      bic: 'COBADEFFXXX',
-    );
-
-    final europeanResult = IBANQRGenerator.generateQRCode(europeanPayment);
-    debugPrint(
-        'European QR (${europeanResult.metadata?.standard}): ${europeanResult.data}');
-
-    // Validation examples
-    debugPrint(
-        'IBAN Valid: ${IBANQRGenerator.validateIBAN('TR330006100519786457841326')}');
-    debugPrint('BIC Valid: ${IBANQRGenerator.validateBIC('COBADEFFXXX')}');
-    debugPrint(
-        'Formatted IBAN: ${IBANQRGenerator.formatIBANForDisplay('TR330006100519786457841326')}');
-
-    // Bank name lookup
-    debugPrint('Bank Name: ${IBANQRGenerator.getTurkishBankName('0006')}');
-  }
 }

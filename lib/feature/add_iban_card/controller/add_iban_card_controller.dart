@@ -59,9 +59,6 @@ class AddIbanCardController extends GetxController {
 
     // Trigger refresh
     currentCard.refresh();
-
-    debugPrint(
-        'Edit mode initialized for IBAN card: ${card.cardHolder} - ${card.iban}');
   }
 
   // Yeni kart oluşturma modu için başlatma
@@ -78,8 +75,6 @@ class AddIbanCardController extends GetxController {
 
     // Trigger refresh
     currentCard.refresh();
-
-    debugPrint('Create mode initialized for IBAN card');
   }
 
   void updateCardField(String fieldName, dynamic value) {
@@ -177,8 +172,6 @@ class AddIbanCardController extends GetxController {
           notes: currentCard.value.notes,
           tags: currentCard.value.tags,
         );
-
-        debugPrint('Adding new IBAN card with ID: ${newCard.id}');
 
         await _ibanCardService.addIbanCard(newCard);
         unawaited(

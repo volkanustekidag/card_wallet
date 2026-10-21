@@ -70,9 +70,6 @@ class AddCreditCardController extends GetxController {
 
     // Trigger refresh to ensure UI updates
     currentCard.refresh();
-
-    debugPrint(
-        'Edit mode initialized for card: ${card.bankName} - ${card.creditCardNumber}');
   }
 
   // Yeni kart oluşturma modu için başlatma

@@ -27,8 +27,6 @@ class BiometricService {
     try {
       final bool isAvailable = await _localAuth.canCheckBiometrics;
       final bool isDeviceSupported = await _localAuth.isDeviceSupported();
-      debugPrint('Can check biometrics: $isAvailable');
-      debugPrint('Device supported: $isDeviceSupported');
       return isAvailable && isDeviceSupported;
     } catch (e) {
       debugPrint('Error checking biometric availability: $e');
@@ -39,9 +37,7 @@ class BiometricService {
   /// Get available biometric types
   Future<List<BiometricType>> getAvailableBiometrics() async {
     try {
-      final biometrics = await _localAuth.getAvailableBiometrics();
-      debugPrint('Raw biometrics from device: $biometrics');
-      return biometrics;
+      return await _localAuth.getAvailableBiometrics();
     } catch (e) {
       debugPrint('Error getting biometrics: $e');
       return [];

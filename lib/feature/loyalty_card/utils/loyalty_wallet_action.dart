@@ -89,10 +89,6 @@ Future<void> addLoyaltyCardToWallet(
     loadingShown = true;
 
     final colors = _walletPassColors(card);
-    debugPrint(
-      'Wallet pass colors → bg=${colors.background} fg=${colors.foreground} '
-      'label=${colors.label} (colorId=${card.colorId})',
-    );
     final response = await service.createLoyaltyPass(
       provider: provider,
       card: card,
