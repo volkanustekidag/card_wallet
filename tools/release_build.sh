@@ -47,7 +47,13 @@ build_android() {
   echo "    output: build/app/outputs/bundle/release/app-release.aab"
 }
 
+sync_ios_versions() {
+  echo "==> Syncing pubspec version ${VERSION} into widget/watch targets"
+  ruby tools/sync_ios_versions.rb
+}
+
 build_ios() {
+  sync_ios_versions
   echo "==> iOS IPA (obfuscated, symbols -> ${SYMBOL_DIR}/ios)"
   # shellcheck disable=SC2086
   flutter build ipa \
