@@ -472,5 +472,13 @@
     "notificationsRowTitle": "Bildirim İzni",
     "notificationsStatusEnabled": "Açık",
     "notificationsStatusDisabled": "Kapalı — hatırlatmalar gönderilemez",
-    "openSettings": "Ayarları Aç"
+    "openSettings": "Ayarları Aç",
+    "autoLock": "Otomatik kilit",
+    "autoLockSubtitle": "Uygulama arka planda kaldıktan sonra PIN'i yeniden sor.",
+    "autoLockImmediately": "Hemen",
+    "autoLockAfterSeconds": "{} saniye sonra",
+    "autoLockAfterOneMinute": "1 dakika sonra",
+    "autoLockAfterMinutes": "{} dakika sonra",
+    "durationMinutesShort": "{} dk",
+    "durationSecondsShort": "{} sn"
 }

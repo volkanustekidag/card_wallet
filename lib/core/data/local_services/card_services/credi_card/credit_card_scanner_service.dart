@@ -4,6 +4,7 @@ import 'package:get/get.dart' hide Trans;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/camera_permission_service.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 
 class CreditCardScannerService {
   final ImagePicker _picker = ImagePicker();
@@ -17,11 +18,11 @@ class CreditCardScannerService {
       }
 
       // Kameradan fotoğraf çek
-      final XFile? photo = await _picker.pickImage(
+      final XFile? photo = await AppLockService.guard(() => _picker.pickImage(
         source: ImageSource.camera,
         imageQuality: 100,
         preferredCameraDevice: CameraDevice.rear,
-      );
+      ));
 
       if (photo == null) return null;
 
@@ -41,10 +42,10 @@ class CreditCardScannerService {
   // Galeriden fotoğraf seç
   Future<Map<String, String>?> scanFromGallery() async {
     try {
-      final XFile? photo = await _picker.pickImage(
+      final XFile? photo = await AppLockService.guard(() => _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 100,
-      );
+      ));
 
       if (photo == null) return null;
 

@@ -5,6 +5,7 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 
 enum PremiumPurchaseResult { success, canceled, error }
 
@@ -127,7 +128,7 @@ class PremiumService {
     try {
       _activeRefreshUntil = DateTime.now().add(_refreshWindow);
       _sawActiveSubscriptionInWindow = false;
-      await _iap.restorePurchases();
+      await AppLockService.guard(() => _iap.restorePurchases());
 
       await Future.delayed(_refreshWindow);
 
@@ -153,7 +154,9 @@ class PremiumService {
       if (!available) return false;
 
       final purchaseParam = PurchaseParam(productDetails: productDetails);
-      return _iap.buyNonConsumable(purchaseParam: purchaseParam);
+      return AppLockService.guard(
+        () => _iap.buyNonConsumable(purchaseParam: purchaseParam),
+      );
     } catch (e) {
       debugPrint('[Premium] purchaseProduct error: $e');
       return false;

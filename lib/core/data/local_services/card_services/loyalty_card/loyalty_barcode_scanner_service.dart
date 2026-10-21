@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/camera_permission_service.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 
 class LoyaltyBarcodeScanResult {
   final String rawValue;
@@ -31,11 +32,11 @@ class LoyaltyBarcodeScannerService {
 
   Future<LoyaltyBarcodeScanResult?> _pickAndDecode(ImageSource source) async {
     try {
-      final XFile? photo = await _picker.pickImage(
+      final XFile? photo = await AppLockService.guard(() => _picker.pickImage(
         source: source,
         imageQuality: 100,
         preferredCameraDevice: CameraDevice.rear,
-      );
+      ));
       if (photo == null) return null;
 
       final inputImage = InputImage.fromFilePath(photo.path);

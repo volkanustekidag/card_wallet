@@ -202,7 +202,7 @@ class _AuthViewsState extends State<AuthViews>
                                     ? Text(
                                         key: const ValueKey('pin-locked'),
                                         'pinLockedMessage'.tr(args: [
-                                          _formatRemaining(
+                                          AuthController.formatLockRemaining(
                                               authController.pinLockRemaining),
                                         ]),
                                         textAlign: TextAlign.center,
@@ -227,15 +227,6 @@ class _AuthViewsState extends State<AuthViews>
         ),
       ],
     );
-  }
-
-  String _formatRemaining(Duration d) {
-    final secs = d.inSeconds;
-    if (secs >= 60) {
-      final minutes = (secs / 60).ceil();
-      return '$minutes min';
-    }
-    return '$secs s';
   }
 }
 

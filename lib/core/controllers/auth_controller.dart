@@ -8,6 +8,7 @@ import 'package:wallet_app/core/data/local_services/auth_services/authentication
 import 'package:wallet_app/core/data/local_services/auth_services/biometric_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 
 class AuthController extends GetxController {
@@ -40,7 +41,11 @@ class AuthController extends GetxController {
   // PIN field auto-focuses for one frame, pops the keyboard, and only then
   // the biometric prompt slides in over it.
   var biometricInitDone = false.obs;
-  var autoLockTime = 5.obs;
+
+  /// Set by [AuthenticationPage] when it is shown as the warm re-lock screen
+  /// ([AppLockService]). Successful unlocks then pop back to where the user
+  /// was instead of resetting the stack to /home.
+  bool unlockMode = false;
 
   // Rate limiting state
   final pinFailureCount = 0.obs;
@@ -81,7 +86,6 @@ class AuthController extends GetxController {
     // probe doesn't read a stale "enabled=true" left behind by a previous
     // install before the cleanup write lands.
     unawaited(_bootstrapAuthState());
-    unawaited(loadAutoLockTime());
   }
 
   Future<void> _bootstrapAuthState() async {
@@ -146,13 +150,11 @@ class AuthController extends GetxController {
 
       if (result == true) {
         await _resetRateLimitState();
-        authenticationSuccess.value = true;
-        // Navigate first; deliberately do *not* clear isLoading. The auth
-        // route is being torn down — toggling state here would re-render the
-        // PIN form for one frame between offAllNamed and the home route's
-        // first paint, which is the "flash back to lock screen" the user
-        // sees today.
-        Get.offAllNamed('/home');
+        // Navigate first; deliberately do *not* clear isLoading on the cold
+        // flow. The auth route is being torn down — toggling state here
+        // would re-render the PIN form for one frame between offAllNamed
+        // and the home route's first paint ("flash back to lock screen").
+        _completeAuthentication();
         return;
       }
 
@@ -174,8 +176,7 @@ class AuthController extends GetxController {
       await _authenticationService.creatPassword(password);
       isRegistering.value = false;
       hasPassword.value = true;
-      authenticationSuccess.value = true;
-      Get.offAllNamed('/home');
+      _completeAuthentication();
     } catch (_) {
       Get.context?.showErrorSnackBar('errorDuringRegistration'.tr());
       _flashAuthFailure();
@@ -225,6 +226,9 @@ class AuthController extends GetxController {
       await _authenticationService.creatPassword(pin);
       isRegistering.value = false;
       hasPassword.value = true;
+      // The user is already inside the app, so this session counts as
+      // unlocked — the next background/resume cycle can re-lock it.
+      AppLockService.maybeInstance?.markUnlocked();
       return true;
     } catch (_) {
       Get.context?.showErrorSnackBar('errorDuringRegistration'.tr());
@@ -270,6 +274,22 @@ class AuthController extends GetxController {
     authenticationSuccess.value = false;
   }
 
+  /// Single exit for every successful unlock (PIN, biometric, recovery,
+  /// registration). Cold launch resets the stack to /home; the warm re-lock
+  /// screen just pops so the user lands back on the same screen.
+  void _completeAuthentication() {
+    authenticationSuccess.value = true;
+    final lock = AppLockService.maybeInstance;
+    lock?.markUnlocked();
+    if (unlockMode) {
+      unlockMode = false;
+      isLoading.value = false;
+      lock?.dismissLockScreen();
+      return;
+    }
+    Get.offAllNamed('/home');
+  }
+
   /// Authenticate using biometric
   Future<void> authenticateWithBiometric() async {
     isLoading.value = true;
@@ -279,8 +299,7 @@ class AuthController extends GetxController {
       );
 
       if (success) {
-        authenticationSuccess.value = true;
-        Get.offAllNamed('/home');
+        _completeAuthentication();
         return;
       }
       _flashAuthFailure();
@@ -355,44 +374,6 @@ class AuthController extends GetxController {
     return _biometricService.getBiometricTypeDisplayName(availableBiometrics);
   }
 
-  /// Check if app should be locked based on auto-lock timer
-  Future<bool> shouldLockApp() async {
-    try {
-      return await _biometricService.shouldLockApp();
-    } catch (e) {
-      return true; // Default to locked if error
-    }
-  }
-
-  /// Update last active time (call this on user interaction)
-  Future<void> updateLastActiveTime() async {
-    try {
-      await _biometricService.updateLastActiveTime();
-    } catch (e) {
-      // Silent fail - not critical
-    }
-  }
-
-  /// Load auto-lock time from storage
-  Future<void> loadAutoLockTime() async {
-    try {
-      final time = await _biometricService.getAutoLockTime();
-      autoLockTime.value = time;
-    } catch (e) {
-      autoLockTime.value = 5; // Default value
-    }
-  }
-
-  /// Update auto-lock time
-  Future<void> updateAutoLockTime(int time) async {
-    try {
-      await _biometricService.setAutoLockTime(time);
-      autoLockTime.value = time;
-    } catch (e) {
-      Get.context?.showErrorSnackBar('autoLockTimeUpdateError'.tr());
-    }
-  }
-
   // -------------------------------------------------------------------------
   // PIN rate limiting
   // -------------------------------------------------------------------------
@@ -409,13 +390,16 @@ class AuthController extends GetxController {
     return delta.isNegative ? Duration.zero : delta;
   }
 
-  String _formatLockRemaining() {
-    final secs = pinLockRemaining.inSeconds;
+  String _formatLockRemaining() => formatLockRemaining(pinLockRemaining);
+
+  /// Localized "3 min" / "45 s" label for the PIN lockout countdown.
+  static String formatLockRemaining(Duration remaining) {
+    final secs = remaining.inSeconds;
     if (secs >= 60) {
       final minutes = (secs / 60).ceil();
-      return '$minutes min';
+      return 'durationMinutesShort'.tr(args: ['$minutes']);
     }
-    return '$secs s';
+    return 'durationSecondsShort'.tr(args: ['$secs']);
   }
 
   Future<void> _restoreRateLimitState() async {
@@ -500,8 +484,7 @@ class AuthController extends GetxController {
       }
       await _resetRateLimitState();
       recoveryPromptPending.value = true;
-      authenticationSuccess.value = true;
-      Get.offAllNamed('/home');
+      _completeAuthentication();
       return true;
     } on BiometricException catch (e) {
       Get.context?.showErrorSnackBar(e.message);

@@ -472,5 +472,13 @@
     "notificationsRowTitle": "Notification Permission",
     "notificationsStatusEnabled": "On",
     "notificationsStatusDisabled": "Off — reminders can't be delivered",
-    "openSettings": "Open Settings"
+    "openSettings": "Open Settings",
+    "autoLock": "Auto-lock",
+    "autoLockSubtitle": "Ask for your PIN again after the app has been in the background.",
+    "autoLockImmediately": "Immediately",
+    "autoLockAfterSeconds": "After {} seconds",
+    "autoLockAfterOneMinute": "After 1 minute",
+    "autoLockAfterMinutes": "After {} minutes",
+    "durationMinutesShort": "{} min",
+    "durationSecondsShort": "{} s"
 }

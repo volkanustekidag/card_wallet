@@ -18,6 +18,7 @@ import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/l
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/services/rate_app_service.dart';
@@ -128,6 +129,9 @@ void main() async {
       ),
       permanent: true,
     );
+    // Warm re-lock after the app has been in the background. Must be
+    // registered before runApp so it observes the very first pause.
+    Get.put(AppLockService(), permanent: true);
 
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,

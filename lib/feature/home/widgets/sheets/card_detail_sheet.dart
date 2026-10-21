@@ -36,6 +36,7 @@ import 'package:wallet_app/feature/loyalty_card/controller/loyalty_card_controll
 import 'package:wallet_app/feature/loyalty_card/utils/loyalty_wallet_action.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/barcode_renderer.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/shareable_loyalty_card.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 
 /// Open the unified card detail sheet. Slides up as a draggable modal
 /// bottom sheet so the home stays visible behind it (Apple Wallet feel).
@@ -732,10 +733,10 @@ class _CreditDetailBodyState extends State<_CreditDetailBody> {
     final c = widget.card;
     final text =
         '${c.bankName} • ${c.creditCardNumber} • ${c.cardHolder} • ${c.expirationDate}';
-    await Share.share(
+    await AppLockService.guard(() => Share.share(
       text,
       sharePositionOrigin: shareOriginFromContext(context),
-    );
+    ));
   }
 
   void _edit(BuildContext context) {
@@ -969,10 +970,10 @@ class _IbanDetailBodyState extends State<_IbanDetailBody> {
   Future<void> _share(BuildContext context) async {
     final c = widget.card;
     final text = '${c.bankName}\nIBAN: ${c.iban}\n${c.cardHolder}';
-    await Share.share(
+    await AppLockService.guard(() => Share.share(
       text,
       sharePositionOrigin: shareOriginFromContext(context),
-    );
+    ));
   }
 
   void _qrFullscreen(BuildContext context) {

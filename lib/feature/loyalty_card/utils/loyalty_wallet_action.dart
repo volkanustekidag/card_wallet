@@ -13,6 +13,7 @@ import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.da
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/services/wallet_pass_export_service.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 
 /// Shared "Add to Apple Wallet / Google Wallet" entry point. Used by the
 /// loyalty card detail page and the home detail sheet so both surfaces fire
@@ -119,10 +120,10 @@ Future<void> addLoyaltyCardToWallet(
       // null = native başarısız, Chrome fallback'e düş.
     }
 
-    final opened = await launchUrl(
+    final opened = await AppLockService.guard(() => launchUrl(
       response.launchUri,
       mode: LaunchMode.externalApplication,
-    );
+    ));
     if (!opened && context.mounted) {
       context.showErrorSnackBar('walletExportOpenFailed');
     }
@@ -164,7 +165,7 @@ Future<bool> _presentApplePass(Uri passUri) async {
     if (!isAvailable || !canAddPasses) return false;
 
     final passBytes = await _downloadPkPass(passUri);
-    await passKit.addPass(passBytes);
+    await AppLockService.guard(() => passKit.addPass(passBytes));
     return true;
   } catch (e, st) {
     debugPrint('Apple PassKit native add failed: $e\n$st');
@@ -216,10 +217,10 @@ Future<bool?> _presentGooglePass(Uri passUri) async {
   if (jwt.isEmpty) return null;
   try {
     const channel = MethodChannel('app.cardwallet/google_wallet');
-    final ok = await channel.invokeMethod<bool>(
-      'saveToWallet',
-      <String, dynamic>{'jwt': jwt},
-    );
+    final ok = await AppLockService.guard(() => channel.invokeMethod<bool>(
+          'saveToWallet',
+          <String, dynamic>{'jwt': jwt},
+        ));
     return ok;
   } on MissingPluginException {
     // iOS veya channel kayıtlı değil — fallback iste.

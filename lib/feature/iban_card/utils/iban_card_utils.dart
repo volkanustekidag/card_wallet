@@ -6,6 +6,7 @@ import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 import 'package:wallet_app/core/utils/share_origin.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 
 /// QR Code Display Utilities
 class IbanCardUtils {
@@ -333,11 +334,11 @@ class QRDialog extends StatelessWidget {
   }
 
   void _shareQR(BuildContext context) {
-    Share.share(
+    AppLockService.guard(() => Share.share(
       qrData,
       subject: '${'qrCodeSubject'.tr()} - $beneficiaryName',
       sharePositionOrigin: shareOriginFromContext(context),
-    );
+    ));
   }
 }
 
@@ -568,11 +569,11 @@ class QRBottomSheet extends StatelessWidget {
   }
 
   void _shareQR(BuildContext context) {
-    Share.share(
+    AppLockService.guard(() => Share.share(
       qrData,
       subject: '${'qrCodeSubject'.tr()} - $beneficiaryName',
       sharePositionOrigin: shareOriginFromContext(context),
-    );
+    ));
   }
 }
 
@@ -662,11 +663,11 @@ class QRFullScreenPage extends StatelessWidget {
   }
 
   void _shareQR(BuildContext context) {
-    Share.share(
+    AppLockService.guard(() => Share.share(
       qrData,
       subject: '${'qrCodeSubject'.tr()} - $beneficiaryName',
       sharePositionOrigin: shareOriginFromContext(context),
-    );
+    ));
   }
 }
 

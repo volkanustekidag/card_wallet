@@ -11,6 +11,7 @@ import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/sections/add_card_navigator.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/iban_picker_sheet.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 
 /// 2x2 action grid sitting between the action row and the filter chips.
 /// Replaces the older 3-up rail. Each tile has a coloured icon plate, a
@@ -112,7 +113,7 @@ class QuickActionsGrid extends StatelessWidget {
     if (!context.mounted) return;
     final text =
         '${target.bankName}\nIBAN: ${target.iban}\n${target.cardHolder}';
-    await Share.share(text, sharePositionOrigin: shareOriginFromContext(context));
+    await AppLockService.guard(() => Share.share(text, sharePositionOrigin: shareOriginFromContext(context)));
   }
 
   void _onMyCards() {

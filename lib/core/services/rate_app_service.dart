@@ -7,6 +7,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 
 /// Schedules and triggers the native in-app review prompt and routes manual
 /// "Rate App" taps to the right store for the current platform.
@@ -128,7 +129,7 @@ class RateAppService {
   /// button in settings — bypasses the OS quota that limits requestReview.
   Future<void> openStoreListing() async {
     try {
-      await _review.openStoreListing(appStoreId: _appStoreId);
+      await AppLockService.guard(() => _review.openStoreListing(appStoreId: _appStoreId));
       return;
     } catch (e) {
       debugPrint('RateAppService.openStoreListing fallback: $e');
@@ -139,6 +140,6 @@ class RateAppService {
         : Uri.parse(
             'https://play.google.com/store/apps/details?id=$_androidPackageName',
           );
-    await launchUrl(fallback, mode: LaunchMode.externalApplication);
+    await AppLockService.guard(() => launchUrl(fallback, mode: LaunchMode.externalApplication));
   }
 }

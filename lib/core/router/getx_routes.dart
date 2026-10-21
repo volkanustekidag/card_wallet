@@ -33,6 +33,10 @@ class AppRoutes {
   static const String premium = '/premium';
   static const String pinAction = '/pinAction';
 
+  /// Warm re-lock screen pushed by AppLockService (not a GetPage; pushed as
+  /// a raw route so it can be removed precisely after unlock).
+  static const String unlock = '/unlock';
+
   // Lighter than the default cupertino slide. The Material/Cupertino
   // slide-from-right path runs an opacity + scale + transform on the
   // entire incoming subtree; on a sliver-heavy home page that's tens of

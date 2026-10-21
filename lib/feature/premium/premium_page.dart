@@ -14,6 +14,7 @@ import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 
 /// Paywall: tight hero, three side-by-side plan tiles (yearly default with
 /// BEST VALUE badge + per-month equivalent, monthly, weekly), a compact
@@ -1577,7 +1578,7 @@ class _LegalLink extends StatelessWidget {
 
   Future<void> _launch(BuildContext context, String urlString) async {
     final uri = Uri.parse(urlString);
-    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+    if (!await AppLockService.guard(() => launchUrl(uri, mode: LaunchMode.externalApplication))) {
       if (context.mounted) context.showErrorSnackBar('couldNotLaunchUrl');
     }
   }

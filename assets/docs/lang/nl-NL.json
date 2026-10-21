@@ -472,5 +472,13 @@
     "widgetSetupAndroidStep3": "Sleep \"Card Wallet\" naar je beginscherm",
     "widgetSetupWatchHint": "Werkt ook op je Apple Watch.",
     "widgetSetupGotIt": "Begrepen",
-    "widgetSetupLater": "Later"
+    "widgetSetupLater": "Later",
+    "autoLock": "Automatisch vergrendelen",
+    "autoLockSubtitle": "Vraag opnieuw om je pincode nadat de app op de achtergrond was.",
+    "autoLockImmediately": "Onmiddellijk",
+    "autoLockAfterSeconds": "Na {} seconden",
+    "autoLockAfterOneMinute": "Na 1 minuut",
+    "autoLockAfterMinutes": "Na {} minuten",
+    "durationMinutesShort": "{} min",
+    "durationSecondsShort": "{} s"
 }

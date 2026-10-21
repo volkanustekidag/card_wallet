@@ -10,11 +10,13 @@ import 'package:wallet_app/core/constants/legal_urls.dart';
 import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/controllers/theme_controller.dart';
+import 'package:wallet_app/core/data/local_services/auth_services/biometric_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/data/services/backup_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/services/rate_app_service.dart';
@@ -22,6 +24,7 @@ import 'package:wallet_app/core/widgets/premium_status_widget.dart';
 import 'package:wallet_app/feature/auth/pin_action_page.dart';
 import 'package:wallet_app/core/widgets/premium_upgrade_widget.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_animations.dart';
+import 'package:wallet_app/feature/settings/bottom_sheet/auto_lock_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/lang_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/theme_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_card.dart';
@@ -203,6 +206,19 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
               authController,
               !authController.hasPassword.value,
             ),
+          );
+        }),
+        Obx(() {
+          if (!authController.hasPassword.value) {
+            return const SizedBox.shrink();
+          }
+          final lock = Get.find<AppLockService>();
+          return SettingsCard(
+            iconData: Icons.timer_outlined,
+            title: 'autoLock'.tr(),
+            subtitle: AutoLockTime.label(lock.autoLockSeconds.value),
+            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            onTap: () => showAutoLockBottomSheet(context),
           );
         }),
         Obx(() {
@@ -429,19 +445,19 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
           iconData: Icons.privacy_tip,
           title: 'PP'.tr(),
           trailing: const Icon(Icons.open_in_new, size: 16),
-          onTap: () => launchUrl(
+          onTap: () => AppLockService.guard(() => launchUrl(
             Uri.parse(LegalUrls.privacyPolicy),
             mode: LaunchMode.externalApplication,
-          ),
+          )),
         ),
         SettingsCard(
           iconData: Icons.description_outlined,
           title: 'termsOfUse'.tr(),
           trailing: const Icon(Icons.open_in_new, size: 16),
-          onTap: () => launchUrl(
+          onTap: () => AppLockService.guard(() => launchUrl(
             Uri.parse(LegalUrls.termsOfUse),
             mode: LaunchMode.externalApplication,
-          ),
+          )),
         ),
         SettingsCard(
           iconData: Icons.rate_review,
@@ -457,10 +473,10 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
     final uri = Platform.isIOS
         ? Uri.parse('https://apps.apple.com/account/subscriptions')
         : Uri.parse('https://play.google.com/store/account/subscriptions');
-    final launched = await launchUrl(
+    final launched = await AppLockService.guard(() => launchUrl(
       uri,
       mode: LaunchMode.externalApplication,
-    );
+    ));
     if (!launched && mounted) {
       // ignore: use_build_context_synchronously
       context.showErrorSnackBar('couldNotLaunchUrl');

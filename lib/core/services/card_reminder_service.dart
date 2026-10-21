@@ -12,6 +12,7 @@ import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/utils/card_reminder_rules.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 
 class CardReminderService {
   CardReminderService._internal();
@@ -163,7 +164,7 @@ class CardReminderService {
   /// Opens the system app-settings screen so the user can flip the
   /// notification toggle. Returns true if the platform call succeeded.
   Future<bool> openNotificationSettings() async {
-    return openAppSettings();
+    return AppLockService.guard(() => openAppSettings());
   }
 
   Future<bool> _notificationsAllowed({
@@ -254,7 +255,7 @@ class CardReminderService {
       ),
     );
     if (shouldOpen == true) {
-      await openAppSettings();
+      await AppLockService.guard(() => openAppSettings());
     }
   }
 

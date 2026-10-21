@@ -472,5 +472,13 @@
     "widgetSetupAndroidStep3": "Arraste \"Card Wallet\" para a tela inicial",
     "widgetSetupWatchHint": "Também funciona no seu Apple Watch.",
     "widgetSetupGotIt": "Entendi",
-    "widgetSetupLater": "Mais tarde"
+    "widgetSetupLater": "Mais tarde",
+    "autoLock": "Bloqueio automático",
+    "autoLockSubtitle": "Pedir o PIN novamente depois que o app ficar em segundo plano.",
+    "autoLockImmediately": "Imediatamente",
+    "autoLockAfterSeconds": "Após {} segundos",
+    "autoLockAfterOneMinute": "Após 1 minuto",
+    "autoLockAfterMinutes": "Após {} minutos",
+    "durationMinutesShort": "{} min",
+    "durationSecondsShort": "{} s"
 }

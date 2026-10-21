@@ -472,5 +472,13 @@
     "widgetSetupAndroidStep3": "Ziehe \"Card Wallet\" auf deinen Startbildschirm",
     "widgetSetupWatchHint": "Funktioniert auch auf deiner Apple Watch.",
     "widgetSetupGotIt": "Verstanden",
-    "widgetSetupLater": "Später"
+    "widgetSetupLater": "Später",
+    "autoLock": "Automatische Sperre",
+    "autoLockSubtitle": "PIN erneut abfragen, nachdem die App im Hintergrund war.",
+    "autoLockImmediately": "Sofort",
+    "autoLockAfterSeconds": "Nach {} Sekunden",
+    "autoLockAfterOneMinute": "Nach 1 Minute",
+    "autoLockAfterMinutes": "Nach {} Minuten",
+    "durationMinutesShort": "{} Min.",
+    "durationSecondsShort": "{} Sek."
 }

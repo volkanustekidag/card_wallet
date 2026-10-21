@@ -15,6 +15,7 @@ import '../../domain/models/credit_card_model/credit_card.dart';
 import '../../domain/models/iban_card_model/iban_card.dart';
 import '../../domain/models/loyalty_card_model/loyalty_card.dart';
 import '../../services/card_reminder_service.dart';
+import 'package:wallet_app/core/services/app_lock_service.dart';
 
 /// Errors surfaced by [BackupService]. The UI layer maps these to user-facing
 /// localized strings.
@@ -224,13 +225,13 @@ class BackupService {
       final fileName =
           'card_wallet_backup_${DateTime.now().millisecondsSinceEpoch}.json';
 
-      return await FilePicker.platform.saveFile(
+      return await AppLockService.guard(() => FilePicker.platform.saveFile(
         dialogTitle: dialogTitle,
         fileName: fileName,
         type: FileType.custom,
         allowedExtensions: const ['json'],
         bytes: bytes,
-      );
+      ));
     } on BackupError {
       rethrow;
     } catch (e) {
@@ -247,10 +248,10 @@ class BackupService {
     required Future<String?> Function() passwordProvider,
   }) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final result = await AppLockService.guard(() => FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
-      );
+      ));
 
       if (result == null || result.files.single.path == null) {
         throw BackupError(BackupErrorKind.io, 'No file selected');

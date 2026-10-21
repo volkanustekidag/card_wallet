@@ -5,7 +5,12 @@ import 'package:wallet_app/core/components/auth_component.dart';
 import 'package:wallet_app/feature/auth/widgets/forgot_pin_sheet.dart';
 
 class AuthenticationPage extends StatefulWidget {
-  const AuthenticationPage({Key? key}) : super(key: key);
+  /// True when shown by [AppLockService] as the warm re-lock screen: success
+  /// pops back to the previous screen and the system back gesture is blocked.
+  final bool unlockMode;
+
+  const AuthenticationPage({Key? key, this.unlockMode = false})
+      : super(key: key);
 
   @override
   State<AuthenticationPage> createState() => _AuthenticationPageState();
@@ -22,6 +27,14 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   void initState() {
     super.initState();
     _authController = Get.find<AuthController>();
+    if (widget.unlockMode) {
+      // The controller is a long-lived singleton: after the cold-launch
+      // login, authenticationSuccess stays true and isLoading may still be
+      // set. Clear both or the PIN field opens disabled.
+      _authController.resetAuthenticationState();
+      _authController.isLoading.value = false;
+    }
+    _authController.unlockMode = widget.unlockMode;
 
     // Biometric init runs async in the controller. Try once after the first
     // frame in case it already resolved, and again whenever the eligibility
@@ -71,6 +84,13 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
 
   @override
   Widget build(BuildContext context) {
+    return PopScope(
+      canPop: !widget.unlockMode,
+      child: _buildBody(context),
+    );
+  }
+
+  Widget _buildBody(BuildContext context) {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
