@@ -26,23 +26,28 @@ class ChangePinController extends GetxController {
     }
   }
 
+  /// Goes through [AuthController.verifyPin] so the change-PIN screen shares
+  /// the lock screen's rate limiting (3/5/7/10 failures → lockout). Checking
+  /// the hash directly here would give an attacker unlimited guesses.
   Future<void> verifyCurrentPin(String pin) async {
+    final auth = Get.find<AuthController>();
+    final lockedBefore = auth.isPinLocked;
+    isLoading.value = true;
     try {
-      _setBusy(true);
-      await _authenticationService.openBox();
-      final result = await _authenticationService.authenticate(pin);
-
-      if (result == true) {
+      final ok = await auth.verifyPin(pin);
+      if (ok) {
         currentPinVerified.value = true;
         verificationFailed.value = false;
-      } else {
-        verificationFailed.value = true;
+        return;
+      }
+      verificationFailed.value = true;
+      // verifyPin already explained an active lockout; only add the
+      // "wrong PIN" hint for a plain miss.
+      if (!lockedBefore && !auth.isPinLocked) {
         Get.context?.showErrorSnackBar('currentPinIncorrect'.tr());
       }
-    } catch (e) {
-      Get.context?.showErrorSnackBar('verificationError'.tr());
     } finally {
-      _setBusy(false);
+      isLoading.value = false;
     }
   }
 
