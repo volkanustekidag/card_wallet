@@ -7,6 +7,7 @@ import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
+import 'package:wallet_app/core/router/getx_routes.dart';
 import 'package:wallet_app/core/services/widget_data_service.dart';
 import 'package:wallet_app/core/utils/loyalty_brand_resolver.dart';
 import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
@@ -21,7 +22,17 @@ import 'package:wallet_app/feature/loyalty_card/widgets/shareable_loyalty_card.d
 
 class LoyaltyCardDetailPage extends StatefulWidget {
   final LoyaltyCard card;
-  const LoyaltyCardDetailPage({Key? key, required this.card}) : super(key: key);
+
+  /// Opened from the home/lock-screen widget while the app is PIN-locked.
+  /// Only the barcode and the card name are shown; edit, delete, copy,
+  /// share, wallet export and notes stay behind the PIN.
+  final bool readOnly;
+
+  const LoyaltyCardDetailPage({
+    Key? key,
+    required this.card,
+    this.readOnly = false,
+  }) : super(key: key);
 
   @override
   State<LoyaltyCardDetailPage> createState() => _LoyaltyCardDetailPageState();
@@ -29,6 +40,7 @@ class LoyaltyCardDetailPage extends StatefulWidget {
 
 class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
   LoyaltyCard get card => widget.card;
+  bool get readOnly => widget.readOnly;
 
   @override
   void initState() {
@@ -54,16 +66,21 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_rounded, color: Colors.white),
-            onPressed: () => _onEdit(),
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline_rounded, color: Colors.white),
-            onPressed: () => _onDelete(context),
-          ),
-        ],
+        actions: readOnly
+            ? const []
+            : [
+                IconButton(
+                  icon: const Icon(Icons.edit_rounded, color: Colors.white),
+                  onPressed: () => _onEdit(),
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.delete_outline_rounded,
+                    color: Colors.white,
+                  ),
+                  onPressed: () => _onDelete(context),
+                ),
+              ],
       ),
       body: Stack(
         children: [
@@ -268,6 +285,13 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
                     ),
                   ),
                   const SizedBox(height: 14),
+                  if (readOnly)
+                    _GlassButton(
+                      icon: Icons.lock_open_rounded,
+                      label: 'openApp'.tr(),
+                      onTap: _onOpenApp,
+                    )
+                  else ...[
                   Row(
                     children: [
                       Expanded(
@@ -320,6 +344,7 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
                       ),
                     ),
                   ],
+                  ],
                 ],
               ),
             ),
@@ -357,6 +382,13 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
       ),
       filename: 'loyalty-${card.id}.png',
     );
+  }
+
+  /// The PIN screen (cold launch) or the re-lock screen (warm) sits right
+  /// below this page, so popping is the way into the app.
+  Future<void> _onOpenApp() async {
+    final popped = await Navigator.of(context).maybePop();
+    if (!popped) Get.offAllNamed(AppRoutes.auth);
   }
 
   void _onEdit() {

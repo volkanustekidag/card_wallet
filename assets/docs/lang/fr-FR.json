@@ -480,5 +480,6 @@
     "autoLockAfterOneMinute": "Après 1 minute",
     "autoLockAfterMinutes": "Après {} minutes",
     "durationMinutesShort": "{} min",
-    "durationSecondsShort": "{} s"
+    "durationSecondsShort": "{} s",
+    "openApp": "Ouvrir l'app"
 }

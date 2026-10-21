@@ -480,5 +480,6 @@
     "autoLockAfterOneMinute": "1 dakika sonra",
     "autoLockAfterMinutes": "{} dakika sonra",
     "durationMinutesShort": "{} dk",
-    "durationSecondsShort": "{} sn"
+    "durationSecondsShort": "{} sn",
+    "openApp": "Uygulamayı aç"
 }
