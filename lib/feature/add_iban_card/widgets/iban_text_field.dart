@@ -1,4 +1,3 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
@@ -16,13 +15,11 @@ class IbanTextField extends StatelessWidget {
     Key? key,
     required TextEditingController ibanController,
     required this.focusNode,
-    required this.cameras,
   })  : _ibanController = ibanController,
         super(key: key);
 
   final TextEditingController _ibanController;
   final FocusNode focusNode;
-  final List<CameraDescription> cameras;
 
   @override
   Widget build(BuildContext context) {

@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:camera/camera.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/widgets/add_iban_card_widget.dart';
 import 'package:wallet_app/core/widgets/primary_form_button.dart';
@@ -24,12 +23,10 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
   late final AddIbanCardController _controller =
       Get.find<AddIbanCardController>();
   late final ScrollController _scrollController;
-  List<CameraDescription> cameras = [];
 
   @override
   void initState() {
     super.initState();
-    _initCameras();
     _ibanController = TextEditingController();
     _ibanFocusNode = FocusNode();
     _scrollController = ScrollController();
@@ -84,21 +81,6 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
     _expandPreview();
   }
 
-  void _initCameras() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    try {
-      final availableCams = await availableCameras();
-      if (mounted) {
-        setState(() {
-          cameras = availableCams;
-        });
-      }
-      debugPrint('✅ Loaded ${cameras.length} cameras');
-    } catch (e) {
-      debugPrint('❌ Camera initialization error: $e');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
@@ -141,7 +123,6 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
                 child: IbanTextFieldForms(
                   ibanController: _ibanController,
                   focusNode: _ibanFocusNode,
-                  cameras: cameras,
                 ),
               ),
             ),
