@@ -8,6 +8,7 @@ import 'package:in_app_review/in_app_review.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
+import 'package:wallet_app/core/utils/session_prompt_gate.dart';
 
 /// Schedules and triggers the native in-app review prompt and routes manual
 /// "Rate App" taps to the right store for the current platform.
@@ -87,28 +88,32 @@ class RateAppService {
   /// prompts and the OS-level quota — Apple silently rate-limits to ~3
   /// shows per 365 days regardless of what we do, so spamming this would
   /// just burn the user's remaining quota with no benefit.
-  Future<void> requestAfterMilestone({required String milestone}) async {
-    await _attemptReview(source: 'milestone', milestone: milestone);
+  /// Returns true when the review prompt was requested.
+  Future<bool> requestAfterMilestone({required String milestone}) {
+    return _attemptReview(source: 'milestone', milestone: milestone);
   }
 
-  Future<void> _attemptReview({
+  Future<bool> _attemptReview({
     required String source,
     String? milestone,
   }) async {
     final box = _box;
-    if (box == null) return;
+    if (box == null) return false;
+    // Another prompt (PIN nudge, widget tutorial) already ran this session.
+    if (SessionPromptGate.isUsed) return false;
 
     final now = DateTime.now();
     final lastPromptMs = box.get(_kLastPromptAt) as int?;
     if (lastPromptMs != null) {
       final lastPrompt = DateTime.fromMillisecondsSinceEpoch(lastPromptMs);
       if (now.difference(lastPrompt).inDays < _minDaysBetweenPrompts) {
-        return;
+        return false;
       }
     }
 
     try {
-      if (!await _review.isAvailable()) return;
+      if (!await _review.isAvailable()) return false;
+      SessionPromptGate.markUsed();
       // Write the timestamp *before* the prompt so a crash between
       // requestReview() and the next launch still counts as "we tried" —
       // better to under-prompt than to spam on retry.
@@ -120,8 +125,10 @@ class RateAppService {
         ),
       );
       await _review.requestReview();
+      return true;
     } catch (e, st) {
       debugPrint('RateAppService._attemptReview failed: $e\n$st');
+      return false;
     }
   }
 

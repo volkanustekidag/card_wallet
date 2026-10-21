@@ -13,9 +13,7 @@ import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.da
 import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
-import 'package:wallet_app/core/services/rate_app_service.dart';
-import 'package:wallet_app/core/utils/pin_setup_prompt.dart';
-import 'package:wallet_app/core/utils/widget_setup_prompt.dart';
+import 'package:wallet_app/core/utils/session_prompt_gate.dart';
 import 'package:wallet_app/feature/loyalty_card/controller/loyalty_card_controller.dart';
 
 class AddLoyaltyCardController extends GetxController {
@@ -187,18 +185,11 @@ class AddLoyaltyCardController extends GetxController {
           final loyalty = await _service.getAllLoyaltyCards();
           final total = cc.length + iban.length + loyalty.length;
           unawaited(AnalyticsService.instance.setCardCountTotal(total));
-          if (total >= 3) {
-            // Success-moment trigger: 3-card milestone is a strong happiness
-            // signal, so skip the session-count/install-age gates that the
-            // splash-time check uses. Still respects the 60-day window.
-            unawaited(
-              RateAppService.instance.requestAfterMilestone(
-                milestone: 'third_card_added',
-              ),
-            );
-          }
-          await maybePromptPinSetup(totalCardCountAfterAdd: total);
-          await maybePromptWidgetSetup(loyaltyCountAfterAdd: loyalty.length);
+          // One prompt per session: PIN > widget tutorial > rating.
+          await PostAddPrompts().run(
+            totalCards: total,
+            loyaltyCount: loyalty.length,
+          );
         } catch (_) {
           // Best-effort prompt; never break the save.
         }

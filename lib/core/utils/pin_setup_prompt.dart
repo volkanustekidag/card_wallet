@@ -21,14 +21,16 @@ const String _kPinPromptDismissedKey = 'pin_prompt_dismissed';
 /// On accept → opens [PinActionPage] in `create` mode. On dismiss → flips
 /// the "dismissed" flag so we never ask again. Reachable any time later
 /// from Settings → Uygulamayı Kilitle.
-Future<void> maybePromptPinSetup({
+///
+/// Returns true when the dialog was shown.
+Future<bool> maybePromptPinSetup({
   required int totalCardCountAfterAdd,
 }) async {
-  if (totalCardCountAfterAdd != 1) return;
+  if (totalCardCountAfterAdd != 1) return false;
 
-  if (!Get.isRegistered<AuthController>()) return;
+  if (!Get.isRegistered<AuthController>()) return false;
   final auth = Get.find<AuthController>();
-  if (auth.hasPassword.value) return;
+  if (auth.hasPassword.value) return false;
 
   const storage = SecureStorageProvider.instance;
   String? dismissed;
@@ -55,7 +57,7 @@ Future<void> maybePromptPinSetup({
   }
 
   final context = Get.context;
-  if (context == null) return;
+  if (context == null) return false;
 
   final accepted = await Get.dialog<bool>(
     AlertDialog(
@@ -126,4 +128,5 @@ Future<void> maybePromptPinSetup({
       // first-card. Not a security issue, just a minor UX wobble.
     }
   }
+  return true;
 }
