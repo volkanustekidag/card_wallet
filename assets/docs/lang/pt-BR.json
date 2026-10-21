@@ -507,5 +507,7 @@
     "shareFullWarning": "Inclui número, titular e validade — o suficiente para pagar online. Compartilhe só com quem você confia.",
     "ibanCardUpdatedSuccessfully": "Cartão IBAN atualizado",
     "failedToSaveIbanCard": "Não foi possível salvar o cartão IBAN. Tente novamente.",
-    "failedToScanQR": "Não foi possível ler o QR code."
+    "failedToScanQR": "Não foi possível ler o QR code.",
+    "barcodeBrightnessTitle": "Tela clara para códigos de barras",
+    "barcodeBrightnessSubtitle": "Brilho máximo e tela ligada enquanto um código é exibido"
 }

@@ -507,5 +507,7 @@
     "shareFullWarning": "Bevat nummer, houder en vervaldatum: genoeg om online te betalen. Deel alleen met mensen die je vertrouwt.",
     "ibanCardUpdatedSuccessfully": "IBAN-kaart bijgewerkt",
     "failedToSaveIbanCard": "IBAN-kaart kon niet worden opgeslagen. Probeer het opnieuw.",
-    "failedToScanQR": "QR-code kon niet worden gelezen."
+    "failedToScanQR": "QR-code kon niet worden gelezen.",
+    "barcodeBrightnessTitle": "Fel scherm bij barcodes",
+    "barcodeBrightnessSubtitle": "Maximale helderheid en scherm blijft aan zolang een barcode zichtbaar is"
 }

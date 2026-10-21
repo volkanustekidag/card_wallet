@@ -507,5 +507,7 @@
     "shareFullWarning": "Includes number, holder and expiry date — enough to pay online. Share only with people you trust.",
     "ibanCardUpdatedSuccessfully": "IBAN card updated",
     "failedToSaveIbanCard": "Could not save IBAN card. Please try again.",
-    "failedToScanQR": "Could not read the QR code."
+    "failedToScanQR": "Could not read the QR code.",
+    "barcodeBrightnessTitle": "Bright barcode screen",
+    "barcodeBrightnessSubtitle": "Max brightness and screen stays on while a barcode is shown"
 }

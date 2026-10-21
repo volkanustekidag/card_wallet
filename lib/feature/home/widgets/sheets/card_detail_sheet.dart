@@ -39,6 +39,7 @@ import 'package:wallet_app/feature/loyalty_card/widgets/shareable_loyalty_card.d
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/utils/card_number_layout.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/card_share_choice_sheet.dart';
+import 'package:wallet_app/core/services/barcode_display_boost.dart';
 
 /// Open the unified card detail sheet. Slides up as a draggable modal
 /// bottom sheet so the home stays visible behind it (Apple Wallet feel).
@@ -1038,6 +1039,18 @@ class _LoyaltyDetailBody extends StatefulWidget {
 }
 
 class _LoyaltyDetailBodyState extends State<_LoyaltyDetailBody> {
+  @override
+  void initState() {
+    super.initState();
+    BarcodeDisplayBoost.instance.acquire();
+  }
+
+  @override
+  void dispose() {
+    BarcodeDisplayBoost.instance.release();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final gradients = LinearGradients().linearGradientList;

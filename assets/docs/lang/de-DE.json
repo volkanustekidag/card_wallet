@@ -507,5 +507,7 @@
     "shareFullWarning": "Enthält Nummer, Inhaber und Ablaufdatum – genug für Online-Zahlungen. Nur mit Personen teilen, denen du vertraust.",
     "ibanCardUpdatedSuccessfully": "IBAN-Karte aktualisiert",
     "failedToSaveIbanCard": "IBAN-Karte konnte nicht gespeichert werden. Bitte versuche es erneut.",
-    "failedToScanQR": "QR-Code konnte nicht gelesen werden."
+    "failedToScanQR": "QR-Code konnte nicht gelesen werden.",
+    "barcodeBrightnessTitle": "Helle Barcode-Anzeige",
+    "barcodeBrightnessSubtitle": "Maximale Helligkeit, Bildschirm bleibt an, solange ein Barcode angezeigt wird"
 }

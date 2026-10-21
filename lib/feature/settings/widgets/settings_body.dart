@@ -14,6 +14,7 @@ import 'package:wallet_app/core/data/local_services/auth_services/biometric_serv
 import 'package:wallet_app/core/data/services/backup_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
+import 'package:wallet_app/core/services/barcode_display_boost.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
 import 'package:wallet_app/core/services/wallet_data_wiper.dart';
@@ -166,6 +167,19 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
             );
           },
         ),
+        Obx(() {
+          final boost = BarcodeDisplayBoost.instance;
+          return SettingsCard(
+            iconData: Icons.brightness_high_rounded,
+            title: 'barcodeBrightnessTitle'.tr(),
+            subtitle: 'barcodeBrightnessSubtitle'.tr(),
+            trailing: Switch(
+              value: boost.enabled.value,
+              onChanged: boost.setEnabled,
+            ),
+            onTap: () => boost.setEnabled(!boost.enabled.value),
+          );
+        }),
         SettingsCard(
           iconData: Icons.language,
           title: _getCurrentLanguageName(context),

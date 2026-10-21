@@ -507,5 +507,7 @@
     "shareFullWarning": "Incluye número, titular y caducidad: suficiente para pagar online. Compártelo solo con personas de confianza.",
     "ibanCardUpdatedSuccessfully": "Tarjeta IBAN actualizada",
     "failedToSaveIbanCard": "No se pudo guardar la tarjeta IBAN. Inténtalo de nuevo.",
-    "failedToScanQR": "No se pudo leer el código QR."
+    "failedToScanQR": "No se pudo leer el código QR.",
+    "barcodeBrightnessTitle": "Pantalla brillante para códigos",
+    "barcodeBrightnessSubtitle": "Brillo máximo y pantalla encendida mientras se muestra un código"
 }

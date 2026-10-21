@@ -19,6 +19,7 @@ import 'package:wallet_app/feature/loyalty_card/utils/loyalty_wallet_action.dart
 import 'package:wallet_app/feature/loyalty_card/widgets/barcode_renderer.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/loyalty_card_widget.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/shareable_loyalty_card.dart';
+import 'package:wallet_app/core/services/barcode_display_boost.dart';
 
 class LoyaltyCardDetailPage extends StatefulWidget {
   final LoyaltyCard card;
@@ -49,6 +50,13 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
     // the cashier sees the code. Fire-and-forget; widget refresh failures
     // shouldn't ever block the page from rendering.
     WidgetDataService.instance.setLastUsedLoyaltyCard(card);
+    BarcodeDisplayBoost.instance.acquire();
+  }
+
+  @override
+  void dispose() {
+    BarcodeDisplayBoost.instance.release();
+    super.dispose();
   }
 
   @override
@@ -275,15 +283,19 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    'increaseBrightnessHint'.tr(),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 12,
-                      color: Colors.white,
-                    ),
-                  ),
+                  // Brightness is raised automatically unless the user
+                  // turned that off in Settings; only then show the tip.
+                  Obx(() => BarcodeDisplayBoost.instance.enabled.value
+                      ? const SizedBox.shrink()
+                      : Text(
+                          'increaseBrightnessHint'.tr(),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 12,
+                            color: Colors.white,
+                          ),
+                        )),
                   const SizedBox(height: 14),
                   if (readOnly)
                     _GlassButton(

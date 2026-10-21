@@ -507,5 +507,7 @@
     "shareFullWarning": "Zawiera numer, posiadacza i datę ważności — wystarczy do płatności online. Udostępniaj tylko zaufanym osobom.",
     "ibanCardUpdatedSuccessfully": "Karta IBAN zaktualizowana",
     "failedToSaveIbanCard": "Nie udało się zapisać karty IBAN. Spróbuj ponownie.",
-    "failedToScanQR": "Nie udało się odczytać kodu QR."
+    "failedToScanQR": "Nie udało się odczytać kodu QR.",
+    "barcodeBrightnessTitle": "Jasny ekran kodu kreskowego",
+    "barcodeBrightnessSubtitle": "Maksymalna jasność i włączony ekran podczas wyświetlania kodu"
 }

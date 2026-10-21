@@ -507,5 +507,7 @@
     "shareFullWarning": "Numara, kart sahibi ve son kullanma tarihi dahil — online ödeme için yeterli. Sadece güvendiğin kişilerle paylaş.",
     "ibanCardUpdatedSuccessfully": "IBAN kartı güncellendi",
     "failedToSaveIbanCard": "IBAN kartı kaydedilemedi. Lütfen tekrar dene.",
-    "failedToScanQR": "QR kod okunamadı."
+    "failedToScanQR": "QR kod okunamadı.",
+    "barcodeBrightnessTitle": "Barkodda tam parlaklık",
+    "barcodeBrightnessSubtitle": "Barkod açıkken parlaklık en yüksek olur ve ekran kapanmaz"
 }
