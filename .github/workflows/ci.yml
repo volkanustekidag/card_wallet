@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.41.5
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # keys.dart is gitignored (it names the encrypted boxes/keys of real
+      # installs). The example is enough to analyze and test.
+      - name: Use example keys
+        run: cp lib/core/constants/keys.example.dart lib/core/constants/keys.dart
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
