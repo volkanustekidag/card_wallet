@@ -1165,7 +1165,7 @@ class _PlanTileState extends State<_PlanTile>
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          _planTitle().toUpperCase(),
+                          context.upper(_planTitle()),
                           maxLines: 1,
                           style: TextStyle(
                             fontFamily: 'Poppins',

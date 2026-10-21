@@ -6,6 +6,7 @@ import 'package:wallet_app/core/widgets/bank_logo.dart';
 import 'package:wallet_app/core/widgets/card_network_badge.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:wallet_app/core/utils/locale_upper.dart';
 
 class CreditCardFront extends StatelessWidget {
   final CreditCard creditCard;
@@ -120,7 +121,7 @@ class CreditCardFront extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              _buildMetaRow(cardHolder, expiration),
+              _buildMetaRow(context, cardHolder, expiration),
             ],
           ),
         ),
@@ -130,6 +131,7 @@ class CreditCardFront extends StatelessWidget {
   }
 
   Widget _buildMetaRow(
+    BuildContext context,
     String cardHolder,
     String expiration,
   ) {
@@ -156,7 +158,7 @@ class CreditCardFront extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("hName".tr().toUpperCase(), style: labelStyle),
+              Text(context.upper("hName".tr()), style: labelStyle),
               const SizedBox(height: 2),
               Text(
                 cardHolder,
@@ -172,7 +174,7 @@ class CreditCardFront extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("valid".tr().toUpperCase(), style: labelStyle),
+            Text(context.upper("valid".tr()), style: labelStyle),
             const SizedBox(height: 2),
             Text(expiration, style: valueStyle),
           ],

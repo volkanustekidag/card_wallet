@@ -4,6 +4,7 @@ import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/feature/home/widgets/sections/premium_marks.dart';
+import 'package:wallet_app/core/utils/locale_upper.dart';
 
 /// Premium "active" badge for the settings screen. Mirrors the visual
 /// language of `PremiumUpgradeWidget` — surface container background,
@@ -48,7 +49,7 @@ class PremiumStatusWidget extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'premium'.tr().toUpperCase(),
+                      context.upper('premium'.tr()),
                       style: const TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 10,

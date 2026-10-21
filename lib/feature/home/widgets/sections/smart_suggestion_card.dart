@@ -6,6 +6,7 @@ import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 import 'package:wallet_app/feature/home/widgets/sections/premium_marks.dart';
+import 'package:wallet_app/core/utils/locale_upper.dart';
 
 /// Currently a single nudge: suggest enabling biometric lock once the
 /// user has at least 3 cards (so they're invested) and hardware is
@@ -33,7 +34,7 @@ class SmartSuggestionCard extends StatelessWidget {
       if (totalCards >= 3 && biometricAvailable && !biometricEnabled) {
         return _SuggestionTile(
           mark: ShieldOutlineMark(size: 18, color: colorScheme.primary),
-          eyebrow: 'security'.tr().toUpperCase(),
+          eyebrow: context.upper('security'.tr()),
           eyebrowColor: colorScheme.primary,
           accent: colorScheme.primary,
           title: 'suggestBiometricTitle'.tr(),

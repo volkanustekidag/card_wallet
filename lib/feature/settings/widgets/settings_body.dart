@@ -27,6 +27,7 @@ import 'package:wallet_app/feature/settings/bottom_sheet/auto_lock_bottom_sheet.
 import 'package:wallet_app/feature/settings/bottom_sheet/lang_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/theme_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_card.dart';
+import 'package:wallet_app/core/utils/locale_upper.dart';
 
 class SettingsBody extends StatefulWidget {
   const SettingsBody({Key? key}) : super(key: key);
@@ -724,7 +725,7 @@ class _Section extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 6, bottom: 8, top: 4),
             child: Text(
-              title.toUpperCase(),
+              context.upper(title),
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 11,

@@ -6,6 +6,7 @@ import 'package:wallet_app/core/widgets/bank_logo.dart';
 import 'package:wallet_app/core/widgets/card_network_badge.dart';
 import 'package:wallet_app/core/widgets/credit_card_front.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
+import 'package:wallet_app/core/utils/locale_upper.dart';
 
 /// Live preview shown while the user fills the credit-card form. Wraps
 /// the shared [CreditCardFront] for the full layout and adds a compact
@@ -185,7 +186,7 @@ class _CompactLayout extends StatelessWidget {
             CardNetworkBadge(network: network, height: 16)
           else
             Text(
-              'creditCardLabel'.tr().toUpperCase(),
+              context.upper('creditCardLabel'.tr()),
               style: TextStyle(
                 fontFamily: 'Poppins',
                 fontSize: 9,

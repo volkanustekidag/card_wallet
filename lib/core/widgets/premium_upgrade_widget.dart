@@ -4,6 +4,7 @@ import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/feature/home/widgets/sections/premium_marks.dart';
+import 'package:wallet_app/core/utils/locale_upper.dart';
 
 /// Premium upsell tile shown in settings (and any other "remind the free
 /// user" surface). Same minimal design language as the home strip and
@@ -56,7 +57,7 @@ class PremiumUpgradeWidget extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'premium'.tr().toUpperCase(),
+                          context.upper('premium'.tr()),
                           style: const TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 10,
@@ -103,7 +104,7 @@ class PremiumUpgradeWidget extends StatelessWidget {
                       ],
                     ),
                     child: Text(
-                      'getPremium'.tr().toUpperCase(),
+                      context.upper('getPremium'.tr()),
                       style: const TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w800,

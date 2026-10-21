@@ -12,6 +12,7 @@ import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/barcode_renderer.dart';
+import 'package:wallet_app/core/utils/locale_upper.dart';
 
 /// Uniform card-shaped preview used inside the featured carousel. Each kind
 /// renders a distinct chrome (chip + number for CC, IBAN block for IBAN,
@@ -121,7 +122,7 @@ class _CreditTile extends StatelessWidget {
                   ),
                 const Spacer(),
                 Text(
-                  'creditCardLabel'.tr().toUpperCase(),
+                  context.upper('creditCardLabel'.tr()),
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 9,
@@ -158,7 +159,7 @@ class _CreditTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'valid'.tr().toUpperCase(),
+                        context.upper('valid'.tr()),
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 8,
@@ -293,7 +294,7 @@ class _LoyaltyTile extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'loyaltyCardLabel'.tr().toUpperCase(),
+                  context.upper('loyaltyCardLabel'.tr()),
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 9,
