@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/widgets/bank_logo.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
+import 'package:wallet_app/core/utils/locale_upper.dart';
 
 /// The visual face used by every IBAN card in the app — the home featured
 /// carousel, the IBAN list, and any future surface that needs to present an
@@ -68,7 +69,7 @@ class IbanCardFace extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'ibanCardLabel'.tr().toUpperCase(),
+                    context.upper('ibanCardLabel'.tr()),
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 9,
