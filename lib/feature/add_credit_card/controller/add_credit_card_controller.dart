@@ -18,6 +18,7 @@ import 'package:wallet_app/core/utils/card_number_layout.dart';
 import 'package:wallet_app/core/utils/validators.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 
 class AddCreditCardController extends GetxController {
   final CreditCardService _creditCardService = CreditCardService();
@@ -250,10 +251,9 @@ class AddCreditCardController extends GetxController {
           // Best-effort prompt; failure here must never break the save.
         }
       }
-    } catch (e) {
-      debugPrint('Error saving card: $e');
-      Get.context?.showErrorSnackBar(
-          "failedToSaveCreditCard".tr(args: [e.toString()]));
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'saveCreditCard');
+      Get.context?.showErrorSnackBar("failedToSaveCreditCard".tr());
     } finally {
       isLoading.value = false;
     }

@@ -10,6 +10,7 @@ import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/utils/secure_storage_provider.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 
 class AuthController extends GetxController {
   final AuthenticationService _authenticationService = AuthenticationService();
@@ -367,9 +368,9 @@ class AuthController extends GetxController {
       }
     } on BiometricException catch (e) {
       Get.context?.showErrorSnackBar(e.message);
-    } catch (e) {
-      Get.context
-          ?.showErrorSnackBar('biometricSettingChangeError'.tr() + ': $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'toggleBiometric');
+      Get.context?.showErrorSnackBar('biometricSettingChangeError'.tr());
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/utils/secure_storage_provider.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 
 class BiometricService {
   static final BiometricService _instance = BiometricService._internal();
@@ -59,8 +60,9 @@ class BiometricService {
     try {
       await _storage.write(
           key: _biometricEnabledKey, value: enabled.toString());
-    } catch (e) {
-      throw Exception('${'biometricSettingsSaveError'.tr()}: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'setBiometricEnabled');
+      throw Exception('biometricSettingsSaveError'.tr());
     }
   }
 
@@ -96,10 +98,14 @@ class BiometricService {
 
 
       return didAuthenticate;
-    } on PlatformException catch (e) {
-      throw BiometricException(_handlePlatformException(e));
-    } catch (e) {
-      throw BiometricException('${'biometricAuthError'.tr()}: $e');
+    } on PlatformException catch (e, st) {
+      throw BiometricException(_handlePlatformException(e, st));
+    } on BiometricException {
+      // Already user-facing (not supported / not enabled); don't re-wrap.
+      rethrow;
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'biometricAuth');
+      throw BiometricException('biometricAuthError'.tr());
     }
   }
 
@@ -123,10 +129,14 @@ class BiometricService {
         ),
       );
       return didAuthenticate;
-    } on PlatformException catch (e) {
-      throw BiometricException(_handlePlatformException(e));
-    } catch (e) {
-      throw BiometricException('${'biometricAuthError'.tr()}: $e');
+    } on PlatformException catch (e, st) {
+      throw BiometricException(_handlePlatformException(e, st));
+    } on BiometricException {
+      // Already user-facing (not supported / not enabled); don't re-wrap.
+      rethrow;
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'biometricAuth');
+      throw BiometricException('biometricAuthError'.tr());
     }
   }
 
@@ -134,8 +144,9 @@ class BiometricService {
   Future<void> setAutoLockSeconds(int seconds) async {
     try {
       await _storage.write(key: _autoLockSecondsKey, value: '$seconds');
-    } catch (e) {
-      throw Exception('${'autoLockTimeSaveError'.tr()}: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'setAutoLockSeconds');
+      throw Exception('autoLockTimeSaveError'.tr());
     }
   }
 
@@ -179,7 +190,7 @@ class BiometricService {
   }
 
   /// Handle platform exception and return user-friendly message
-  String _handlePlatformException(PlatformException e) {
+  String _handlePlatformException(PlatformException e, StackTrace stack) {
     switch (e.code) {
       case 'NotAvailable':
         return 'biometricNotAvailable'.tr();
@@ -200,7 +211,10 @@ class BiometricService {
       case 'NotSupported':
         return 'biometricOperationNotSupported'.tr();
       default:
-        return '${'biometricUnknownError'.tr()}: ${e.message}';
+        // Platform messages are raw, untranslated and may be technical;
+        // keep them in Crashlytics, show the user a translated sentence.
+        ErrorReporter.report(e, stack, reason: 'biometric:${e.code}');
+        return 'biometricUnknownError'.tr();
     }
   }
 
