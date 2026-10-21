@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
@@ -14,6 +13,7 @@ import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/utils/card_reminder_rules.dart';
 import 'package:wallet_app/core/utils/card_sorting.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 
 class HomeController extends GetxController {
   final CreditCardService _creditCardService = CreditCardService();
@@ -80,8 +80,8 @@ class HomeController extends GetxController {
       _ibanSub = ibanStream.listen((_) => _scheduleRefresh());
       final loyaltyStream = await _loyaltyCardService.watch();
       _loyaltySub = loyaltyStream.listen((_) => _scheduleRefresh());
-    } catch (e) {
-      debugPrint('HomeController: watcher setup failed: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'HomeController.watchers');
     }
   }
 
@@ -150,8 +150,8 @@ class HomeController extends GetxController {
           loyaltyCount: loyaltyCardList.length,
         );
       }
-    } catch (e) {
-      debugPrint('Error loading home content: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'HomeController.load');
     } finally {
       isLoading.value = false;
       isInitialLoading.value = false;

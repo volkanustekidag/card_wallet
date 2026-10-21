@@ -68,9 +68,12 @@ void main() async {
         FirebaseCrashlytics.instance.recordFlutterFatalError(details);
       }
     };
+    // Uncaught async errors are handled by the platform dispatcher and the
+    // app keeps running, so they are non-fatal. Only FlutterError.onError
+    // (framework build/layout/paint failures) is reported as fatal.
     PlatformDispatcher.instance.onError = (error, stack) {
       if (!kDebugMode) {
-        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
       }
       return true;
     };
@@ -91,7 +94,14 @@ void main() async {
     // — otherwise a service would cache pre-migration records as the
     // "current" state. No-op on every launch after the first one that
     // actually has a migration to run.
-    await HiveMigrationRunner.runIfNeeded();
+    // A failed migration is reported (non-fatal) inside the runner and
+    // retried next launch. It must not stop runApp: an uncaught throw here
+    // leaves the user on a blank native splash forever.
+    try {
+      await HiveMigrationRunner.runIfNeeded();
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'HiveMigrationRunner');
+    }
 
     // Critical-path: auth box must be open before the lock screen renders, and
     // the theme must be resolved before MaterialApp builds (otherwise the lock
@@ -155,7 +165,7 @@ void main() async {
     );
   }, (error, stack) {
     if (!kDebugMode) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
     }
   });
 }

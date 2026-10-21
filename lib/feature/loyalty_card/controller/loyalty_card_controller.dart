@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 
 class LoyaltyCardController extends GetxController {
   final LoyaltyCardService _service = LoyaltyCardService();
@@ -52,8 +52,8 @@ class LoyaltyCardController extends GetxController {
       loyaltyCards.value = await _service.getAllLoyaltyCards();
       _syncPremiumCount();
       // Widget + Watch follow the box via WalletSurfacesSync.
-    } catch (e) {
-      debugPrint('Error loading loyalty cards: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'loadLoyaltyCards');
     } finally {
       isLoading.value = false;
     }
@@ -64,8 +64,8 @@ class LoyaltyCardController extends GetxController {
       await _service.removeLoyaltyCard(card);
       loyaltyCards.removeWhere((c) => c.id == card.id);
       _syncPremiumCount();
-    } catch (e) {
-      debugPrint('Error removing loyalty card: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'removeLoyaltyCard');
     }
   }
 

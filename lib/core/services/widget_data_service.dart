@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 
 /// Bridges Flutter ↔ native (iOS Widget Extension / Android Glance widget).
 ///
@@ -77,8 +77,8 @@ class WidgetDataService {
       ]);
 
       await _refresh();
-    } catch (e) {
-      debugPrint('WidgetDataService.setLastUsedLoyaltyCard error: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'WidgetDataService.set');
     }
   }
 
@@ -99,8 +99,8 @@ class WidgetDataService {
         HomeWidget.saveWidgetData<String>(_keyUsedAt, ''),
       ]);
       await _refresh();
-    } catch (e) {
-      debugPrint('WidgetDataService.clearLastUsedLoyaltyCard error: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'WidgetDataService.clear');
     }
   }
 

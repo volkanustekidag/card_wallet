@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 
 /// Bridges loyalty cards from Dart → native iOS → Apple Watch.
 ///
@@ -84,11 +85,11 @@ class WatchSyncService {
       // Watch sync is iOS-only; on Android (or unsupported platform)
       // the channel isn't registered. Silent skip.
       return false;
-    } on PlatformException catch (e) {
-      debugPrint('WatchSyncService.pushAllCards error: $e');
+    } on PlatformException catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'WatchSyncService.push');
       return false;
-    } catch (e) {
-      debugPrint('WatchSyncService.pushAllCards unexpected: $e');
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'WatchSyncService.push');
       return false;
     }
   }
