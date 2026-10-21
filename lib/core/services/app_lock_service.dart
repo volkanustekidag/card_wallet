@@ -18,9 +18,10 @@ import 'package:wallet_app/feature/auth/authentication_page.dart';
 ///   StoreKit sheet only produce `inactive`, so they never trigger a lock.
 /// - Flows that leave the app on purpose (camera, file picker, share sheet,
 ///   wallet, purchase, settings, browser) run inside [suppressWhile]. A
-///   background that starts while suppressed gets at least
-///   [suppressedGrace] before it locks, so returning from the picker doesn't
-///   lock, but leaving the phone in another app for a long time still does.
+///   background that starts while suppressed waits at least
+///   [suppressedGrace] (60 s) before it locks, so a quick round-trip to the
+///   picker doesn't lock, but staying in the browser / store / share target
+///   for longer than a minute does — even with "Immediately".
 /// - Locks only when a PIN exists and the session was unlocked. If the
 ///   session was never unlocked, the user is already on the PIN screen or
 ///   on the read-only widget barcode page.
@@ -47,9 +48,11 @@ class AppLockService extends GetxService with WidgetsBindingObserver {
     return service == null ? action() : service.suppressWhile(action);
   }
 
-  /// Extra time a suppressed background (picker, share sheet, store…) gets
-  /// before the lock fires, on top of the user's auto-lock setting.
-  static const Duration suppressedGrace = Duration(minutes: 5);
+  /// Minimum time a suppressed background (picker, share sheet, store…)
+  /// gets before the lock fires. The effective delay is the larger of this
+  /// and the user's auto-lock setting. Kept short: with "Immediately", every
+  /// extra second here is time the wallet sits unlocked in another app.
+  static const Duration suppressedGrace = Duration(seconds: 60);
 
   /// Some plugins (launchUrl, openAppSettings) complete their future before
   /// the OS actually pauses the app. Keep suppression alive for a short tail.

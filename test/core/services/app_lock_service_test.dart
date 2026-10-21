@@ -99,10 +99,31 @@ void main() {
       () async {
     await service.suppressWhile(() async {
       background();
-      clock.advance(const Duration(minutes: 2));
+      clock.advance(const Duration(seconds: 45));
       resume();
     });
     expect(presentCount, 0);
+  });
+
+  test('grace period is 60 seconds', () {
+    expect(AppLockService.suppressedGrace, const Duration(seconds: 60));
+  });
+
+  test('"Immediately" + suppressed background locks after 60 s', () async {
+    service = build(autoLockSeconds: 0)..markUnlocked();
+    await service.suppressWhile(() async {
+      background();
+      clock.advance(const Duration(seconds: 59));
+      resume();
+    });
+    expect(presentCount, 0);
+
+    await service.suppressWhile(() async {
+      background();
+      clock.advance(const Duration(seconds: 60));
+      resume();
+    });
+    expect(presentCount, 1);
   });
 
   test('suppression tail covers plugins that return before the pause',
@@ -110,7 +131,7 @@ void main() {
     await service.suppressWhile(() async {});
     clock.advance(const Duration(milliseconds: 500));
     background();
-    clock.advance(const Duration(minutes: 1));
+    clock.advance(const Duration(seconds: 45));
     resume();
     expect(presentCount, 0);
   });
