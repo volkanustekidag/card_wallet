@@ -14,6 +14,8 @@ void main() {
       colorId: 1,
       createdAt: created,
       tags: [kFavoriteTag, 'groceries'],
+      useCount: 12,
+      lastUsedAt: DateTime(2026, 10, 1),
     );
     final draft = LoyaltyCard(
       id: 'card-1',
@@ -35,5 +37,8 @@ void main() {
     expect(saved.barcodeFormat, 'CODE_128');
     expect(saved.colorId, 3);
     expect(saved.notes, 'note');
+    // Editing must not reset the usage ordering.
+    expect(saved.useCount, 12);
+    expect(saved.lastUsedAt, DateTime(2026, 10, 1));
   });
 }

@@ -4,6 +4,8 @@ import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
 import 'package:wallet_app/core/data/storage/encrypted_box_opener.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
+import 'package:wallet_app/core/utils/loyalty_usage.dart';
 
 class LoyaltyCardService {
   LoyaltyCardService._internal();
@@ -78,6 +80,31 @@ class LoyaltyCardService {
       throw Exception('Loyalty card not found for update');
     }
     await box.putAt(index, updated);
+  }
+
+  /// Counts one barcode display of the card with [id] (see
+  /// [markLoyaltyUsed]) on the stored instance, so callers holding a detached
+  /// copy (widget deep link) still update the box. Unknown ids are ignored.
+  Future<void> recordUse(String id, {DateTime? now}) async {
+    final box = await _ensureBoxReady();
+    LoyaltyCard? stored;
+    for (final c in box.values) {
+      if (c.id == id) {
+        stored = c;
+        break;
+      }
+    }
+    if (stored == null) return;
+    markLoyaltyUsed(stored, now ?? DateTime.now());
+    await stored.save();
+  }
+
+  /// [recordUse] for the barcode_shown call sites: never throws, never
+  /// blocks the barcode from rendering.
+  void recordUseInBackground(String id) {
+    unawaited(recordUse(id).catchError((Object e, StackTrace st) {
+      ErrorReporter.report(e, st, reason: 'LoyaltyCardService.recordUse');
+    }));
   }
 
   Future<void> deleteAllData() async {

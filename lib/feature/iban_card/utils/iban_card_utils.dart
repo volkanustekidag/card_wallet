@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 import 'package:wallet_app/core/utils/share_origin.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/feature/iban_card/utils/iban_share_flow.dart';
 
 /// QR Code Display Utilities
 class IbanCardUtils {
@@ -20,6 +22,8 @@ class IbanCardUtils {
     String? currency,
     String? reference,
     String? format,
+    IbanCard? card,
+    String? shareQrData,
     bool showDetails = true,
   }) {
     showDialog(
@@ -33,6 +37,8 @@ class IbanCardUtils {
           currency: currency,
           reference: reference,
           format: format,
+          card: card,
+          shareQrData: shareQrData,
           showDetails: showDetails,
         );
       },
@@ -48,6 +54,8 @@ class IbanCardUtils {
     String? currency,
     String? reference,
     String? format,
+    IbanCard? card,
+    String? shareQrData,
     bool showDetails = true,
     bool isDraggable = true,
   }) {
@@ -64,6 +72,8 @@ class IbanCardUtils {
           currency: currency,
           reference: reference,
           format: format,
+          card: card,
+          shareQrData: shareQrData,
           showDetails: showDetails,
         );
       },
@@ -79,6 +89,8 @@ class IbanCardUtils {
     String? currency,
     String? reference,
     String? format,
+    IbanCard? card,
+    String? shareQrData,
   }) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -89,6 +101,8 @@ class IbanCardUtils {
           currency: currency,
           reference: reference,
           format: format,
+          card: card,
+          shareQrData: shareQrData,
         ),
       ),
     );
@@ -105,6 +119,11 @@ class QRDialog extends StatelessWidget {
   final String? format;
   final bool showDetails;
 
+  /// When set, Share offers text / image of this IBAN (see [shareIban]);
+  /// [shareQrData] is the QR to put on a premium image.
+  final IbanCard? card;
+  final String? shareQrData;
+
   const QRDialog({
     Key? key,
     required this.qrData,
@@ -114,6 +133,8 @@ class QRDialog extends StatelessWidget {
     this.reference,
     this.format,
     this.showDetails = true,
+    this.card,
+    this.shareQrData,
   }) : super(key: key);
 
   @override
@@ -221,6 +242,8 @@ class QRDialog extends StatelessWidget {
                       currency: currency,
                       reference: reference,
                       format: format,
+                      card: card,
+                      shareQrData: shareQrData,
                     );
                   },
                 ),
@@ -335,6 +358,11 @@ class QRDialog extends StatelessWidget {
   }
 
   void _shareQR(BuildContext context) {
+    final ibanCard = card;
+    if (ibanCard != null) {
+      shareIban(context, ibanCard, qrData: shareQrData);
+      return;
+    }
     AnalyticsService.instance
         .logCardShared(cardType: AnalyticsCardType.iban, masked: false);
     AppLockService.guard(() => Share.share(
@@ -355,6 +383,11 @@ class QRBottomSheet extends StatelessWidget {
   final String? format;
   final bool showDetails;
 
+  /// When set, Share offers text / image of this IBAN (see [shareIban]);
+  /// [shareQrData] is the QR to put on a premium image.
+  final IbanCard? card;
+  final String? shareQrData;
+
   const QRBottomSheet({
     Key? key,
     required this.qrData,
@@ -364,6 +397,8 @@ class QRBottomSheet extends StatelessWidget {
     this.reference,
     this.format,
     this.showDetails = true,
+    this.card,
+    this.shareQrData,
   }) : super(key: key);
 
   @override
@@ -572,6 +607,11 @@ class QRBottomSheet extends StatelessWidget {
   }
 
   void _shareQR(BuildContext context) {
+    final ibanCard = card;
+    if (ibanCard != null) {
+      shareIban(context, ibanCard, qrData: shareQrData);
+      return;
+    }
     AnalyticsService.instance
         .logCardShared(cardType: AnalyticsCardType.iban, masked: false);
     AppLockService.guard(() => Share.share(
@@ -590,6 +630,8 @@ class QRFullScreenPage extends StatelessWidget {
   final String? currency;
   final String? reference;
   final String? format;
+  final IbanCard? card;
+  final String? shareQrData;
 
   const QRFullScreenPage({
     Key? key,
@@ -599,6 +641,8 @@ class QRFullScreenPage extends StatelessWidget {
     this.currency,
     this.reference,
     this.format,
+    this.card,
+    this.shareQrData,
   }) : super(key: key);
 
   @override
@@ -668,6 +712,11 @@ class QRFullScreenPage extends StatelessWidget {
   }
 
   void _shareQR(BuildContext context) {
+    final ibanCard = card;
+    if (ibanCard != null) {
+      shareIban(context, ibanCard, qrData: shareQrData);
+      return;
+    }
     AnalyticsService.instance
         .logCardShared(cardType: AnalyticsCardType.iban, masked: false);
     AppLockService.guard(() => Share.share(

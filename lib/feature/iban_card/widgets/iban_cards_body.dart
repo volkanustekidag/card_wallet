@@ -101,6 +101,7 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
     final filtered = work.toList();
 
     switch (_sortOption) {
+      case CardSortOption.mostUsed: // loyalty-only, not offered here
       case CardSortOption.newest:
         filtered.sort((a, b) => compareNewestFirst(
               aCreatedAt: a.createdAt,
@@ -609,6 +610,8 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
                         reference: reference,
                         format: qrResult.metadata?.standard,
                         showDetails: true,
+                        card: ibanCard,
+                        shareQrData: qrResult.data,
                       );
                     },
                   ),
@@ -631,6 +634,8 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
                         reference: reference,
                         format: qrResult.metadata?.standard,
                         showDetails: true,
+                        card: ibanCard,
+                        shareQrData: qrResult.data,
                       );
                     },
                   ),
@@ -657,6 +662,8 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
                     currency: qrResult.metadata?.currency,
                     reference: reference,
                     format: qrResult.metadata?.standard,
+                    card: ibanCard,
+                    shareQrData: qrResult.data,
                   );
                 },
               ),

@@ -7,6 +7,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
+import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
@@ -32,6 +33,7 @@ import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/feature/iban_card/utils/iban_card_utils.dart';
+import 'package:wallet_app/feature/iban_card/utils/iban_share_flow.dart';
 import 'package:wallet_app/feature/loyalty_card/controller/loyalty_card_controller.dart';
 import 'package:wallet_app/feature/loyalty_card/utils/loyalty_wallet_action.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/barcode_renderer.dart';
@@ -989,16 +991,8 @@ class _IbanDetailBodyState extends State<_IbanDetailBody> {
     return buffer.toString();
   }
 
-  Future<void> _share(BuildContext context) async {
-    final c = widget.card;
-    AnalyticsService.instance
-        .logCardShared(cardType: AnalyticsCardType.iban, masked: false);
-    final text = '${c.bankName}\nIBAN: ${c.iban}\n${c.cardHolder}';
-    await AppLockService.guard(() => Share.share(
-      text,
-      sharePositionOrigin: shareOriginFromContext(context),
-    ));
-  }
+  Future<void> _share(BuildContext context) =>
+      shareIban(context, widget.card);
 
   void _qrFullscreen(BuildContext context) {
     Navigator.of(context).pop();
@@ -1006,6 +1000,7 @@ class _IbanDetailBodyState extends State<_IbanDetailBody> {
       context,
       qrData: widget.card.iban,
       beneficiaryName: widget.card.cardHolder,
+      card: widget.card,
     );
   }
 
@@ -1061,6 +1056,7 @@ class _LoyaltyDetailBodyState extends State<_LoyaltyDetailBody> {
     super.initState();
     BarcodeDisplayBoost.instance.acquire();
     AnalyticsService.instance.logBarcodeShown('detail_sheet');
+    LoyaltyCardService().recordUseInBackground(widget.card.id);
   }
 
   @override

@@ -363,6 +363,7 @@ class _BodyState extends State<Body> {
     final filtered = work.toList();
 
     switch (_sortOption) {
+      case CardSortOption.mostUsed: // loyalty-only, not offered here
       case CardSortOption.newest:
         filtered.sort((a, b) => compareNewestFirst(
               aCreatedAt: a.createdAt,

@@ -20,6 +20,7 @@ import 'package:wallet_app/feature/loyalty_card/widgets/barcode_renderer.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/loyalty_card_widget.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/shareable_loyalty_card.dart';
 import 'package:wallet_app/core/services/barcode_display_boost.dart';
+import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
 
 class LoyaltyCardDetailPage extends StatefulWidget {
@@ -54,6 +55,7 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
     BarcodeDisplayBoost.instance.acquire();
     AnalyticsService.instance
         .logBarcodeShown(readOnly ? 'widget' : 'detail_page');
+    LoyaltyCardService().recordUseInBackground(card.id);
   }
 
   @override

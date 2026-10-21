@@ -28,6 +28,7 @@ import 'package:wallet_app/feature/settings/bottom_sheet/auto_lock_bottom_sheet.
 import 'package:wallet_app/feature/settings/bottom_sheet/lang_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/theme_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/backup_restore_flow.dart';
+import 'package:wallet_app/feature/settings/biometric_toggle_flow.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_card.dart';
 import 'package:wallet_app/core/utils/locale_upper.dart';
 import 'package:wallet_app/core/utils/premium_gate.dart';
@@ -239,27 +240,23 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
           );
         }),
         Obx(() {
-          final premiumController = Get.find<PremiumController>();
           if (!authController.isBiometricAvailable.value) {
             return const SizedBox.shrink();
           }
-          final isPremium = premiumController.isPremium;
-          // Same Switch / arrow chrome regardless of premium state. Tapping
-          // when not premium routes to the paywall; tapping without a PIN
-          // routes through PIN creation first (biometric is a shortcut to
-          // skip PIN entry, so it has no meaning without one).
+          // Free for everyone: basic security never sits behind the paywall.
+          // Tapping without a PIN routes through PIN creation first
+          // (biometric is a shortcut to skip PIN entry, so it has no meaning
+          // without one).
           return SettingsCard(
             iconData: Icons.fingerprint,
             title: authController.getBiometricDisplayName(),
-            premiumLocked: !isPremium,
             trailing: Switch(
-              value: isPremium && authController.isBiometricEnabled.value,
+              value: authController.isBiometricEnabled.value,
               onChanged: (value) =>
-                  _handleBiometricToggle(authController, isPremium, value),
+                  handleBiometricToggle(authController, value),
             ),
-            onTap: () => _handleBiometricToggle(
+            onTap: () => handleBiometricToggle(
               authController,
-              isPremium,
               !authController.isBiometricEnabled.value,
             ),
           );
@@ -341,29 +338,6 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
         }
       }
     }
-  }
-
-  Future<void> _handleBiometricToggle(
-    AuthController authController,
-    bool isPremium,
-    bool desiredValue,
-  ) async {
-    HapticFeedback.lightImpact();
-    if (!isPremium) {
-      openPremiumGate('biometric');
-      return;
-    }
-    if (desiredValue && !authController.hasPassword.value) {
-      // Biometric is a shortcut for the PIN; force the user to set a PIN
-      // before enabling biometric so we always have a fallback.
-      Get.context?.showInfoSnackBar('setupPinForBiometric');
-      final created = await Get.to<bool>(
-        () => const PinActionPage(),
-        arguments: PinAction.create,
-      );
-      if (created != true) return;
-    }
-    await authController.toggleBiometric(desiredValue);
   }
 
   Widget _buildNotificationsSection(BuildContext context) {

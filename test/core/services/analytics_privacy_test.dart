@@ -5,7 +5,8 @@ import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 
 const _allowedParams = {
   'source', 'type', 'method', 'provider', 'error_key', 'card_type', 'masked',
-  'kind', 'trigger', 'feature', 'value',
+  'kind', 'trigger', 'feature', 'value', 'format', 'with_qr',
+  'results_count', 'selected_type',
 };
 
 void main() {
@@ -36,7 +37,8 @@ void main() {
     await a.logCardShared(cardType: 'credit', masked: true);
     await a.logReminderEnabled('payment');
     await a.logPaywallDismissed(trigger: 'feature_gate', feature: 'walletExport');
-    await a.logPremiumGateTapped('biometric');
+    await a.logPremiumGateTapped('qrCreate');
+    await a.logSearchUsed(resultsCount: 3, selectedType: 'loyalty');
     await a.setCardCounts(credit: 2, iban: 1, loyalty: 5);
     await a.setHasPin(true);
 
@@ -45,6 +47,7 @@ void main() {
       'wallet_export_attempt', 'wallet_export_success', 'wallet_export_failed',
       'backup_created', 'backup_restored', 'card_copied', 'card_shared',
       'reminder_enabled', 'paywall_dismissed', 'premium_gate_tapped',
+      'search_used',
       'user_property:credit_card_count', 'user_property:iban_card_count',
       'user_property:loyalty_card_count', 'user_property:has_pin',
     ]));
@@ -57,6 +60,24 @@ void main() {
       }
     }
     expect(events['card_shared'], {'card_type': 'credit', 'masked': 'true'});
+  });
+
+  test('IBAN share logs format and with_qr, nothing else', () async {
+    await AnalyticsService.instance.logCardShared(
+      cardType: AnalyticsCardType.iban,
+      masked: false,
+      format: AnalyticsShareFormat.image,
+      withQr: true,
+    );
+    expect(events['card_shared'], {
+      'card_type': 'iban',
+      'masked': 'false',
+      'format': 'image',
+      'with_qr': 'true',
+    });
+    for (final key in events['card_shared']!.keys) {
+      expect(_allowedParams, contains(key));
+    }
   });
 
   test('copying a card logs the type, never the value', () async {

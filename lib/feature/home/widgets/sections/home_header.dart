@@ -8,9 +8,11 @@ import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/sections/add_card_navigator.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
+import 'package:wallet_app/feature/search/wallet_search_page.dart';
 
-/// Top-of-page header. Calm "Wallet" title on the left; on the right an add
-/// button that opens a kind picker, and a settings cog. The cog is the only
+/// Top-of-page header. Calm "Wallet" title on the left; on the right a
+/// search button (all card kinds), an add button that opens a kind picker,
+/// and a settings cog. The cog is the only
 /// settings entry point now that the bottom nav is gone, so removing it
 /// would orphan PIN/theme/language/premium/backup screens.
 ///
@@ -46,6 +48,8 @@ class HomeHeader extends StatelessWidget {
               scrollOffset: scrollOffset,
             ),
           ),
+          const _SearchButton(),
+          const SizedBox(width: kSpaceSm),
           _AddButton(),
           const SizedBox(width: kSpaceSm),
           _SettingsButton(controller: controller),
@@ -92,6 +96,47 @@ class _CollapsingTitle extends StatelessWidget {
           fontWeight: FontWeight.w600,
           color: color,
           height: 1.1,
+        ),
+      ),
+    );
+  }
+}
+
+/// Opens the wallet-wide search (all three card kinds).
+class _SearchButton extends StatelessWidget {
+  const _SearchButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: 'globalSearchTooltip'.tr(),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          key: const ValueKey('homeSearchButton'),
+          borderRadius: BorderRadius.circular(20),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            openWalletSearch();
+          },
+          child: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHighest,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: colorScheme.onSurface.withValues(alpha: 0.06),
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.search_rounded,
+              size: 21,
+              color: colorScheme.onSurface.withValues(alpha: 0.8),
+            ),
+          ),
         ),
       ),
     );

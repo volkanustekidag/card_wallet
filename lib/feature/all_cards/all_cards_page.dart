@@ -142,6 +142,7 @@ class _AllCardsPageState extends State<AllCardsPage> {
 
   int _comparator(WalletItem a, WalletItem b) {
     switch (_sortOption) {
+      case CardSortOption.mostUsed: // loyalty-only, not offered here
       case CardSortOption.newest:
         return compareNewestFirst(
           aCreatedAt: a.createdAt,
