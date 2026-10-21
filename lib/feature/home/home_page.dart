@@ -7,12 +7,14 @@ import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
+import 'package:wallet_app/core/utils/data_reset_notice.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
 import 'package:wallet_app/feature/auth/pin_action_page.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/body.dart';
 import 'package:wallet_app/feature/home/widgets/sections/add_card_navigator.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/credit_card_reminder_sheet.dart';
+import 'package:wallet_app/feature/home/widgets/sheets/data_reset_notice_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -41,8 +43,26 @@ class _HomePageState extends State<HomePage> {
         _openReminderPayload(payload);
       }
       _maybeShowRecoveryPinResetPrompt();
-      unawaited(_maybeOpenInitialAddSheet());
+      unawaited(_showStartupPrompts());
     });
+  }
+
+  /// The data-reset notice wins over the onboarding add-card sheet: someone
+  /// who just learned their cards didn't come along may want to restore a
+  /// backup instead of adding cards by hand.
+  Future<void> _showStartupPrompts() async {
+    if (await _maybeShowDataResetNotice()) return;
+    await _maybeOpenInitialAddSheet();
+  }
+
+  /// Card boxes open in the background, so wait for the first load — a
+  /// replaced box sets the flag while opening.
+  Future<bool> _maybeShowDataResetNotice() async {
+    await _homeController.ensureLoaded();
+    if (!mounted) return false;
+    if (!await DataResetNotice().consumePending() || !mounted) return false;
+    await showDataResetNoticeDialog(context);
+    return true;
   }
 
   Future<void> _maybeOpenInitialAddSheet() async {
