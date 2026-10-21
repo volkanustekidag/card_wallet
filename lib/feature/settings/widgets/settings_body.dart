@@ -27,6 +27,7 @@ import 'package:wallet_app/feature/home/widgets/sections/home_animations.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/auto_lock_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/lang_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/theme_bottom_sheet.dart';
+import 'package:wallet_app/feature/settings/backup_restore_flow.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_card.dart';
 import 'package:wallet_app/core/utils/locale_upper.dart';
 import 'package:wallet_app/core/utils/premium_gate.dart';
@@ -420,7 +421,7 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
             premiumLocked: !isPremium,
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: isPremium
-                ? () => _restoreBackup(context)
+                ? () => restoreFromBackupFlow(context)
                 : () => openPremiumGate('backupRestore'),
           );
         }),
@@ -498,7 +499,7 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
   }
 
   Future<void> _createBackup(BuildContext context) async {
-    final password = await _promptPassword(
+    final password = await promptBackupPassword(
       context,
       title: 'backupPasswordTitle'.tr(),
       description: 'backupPasswordDescription'.tr(),
@@ -518,175 +519,12 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
       context.showSuccessSnackBar('backupSuccess'.tr());
     } on BackupError catch (e) {
       if (!mounted) return;
-      context.showErrorSnackBar(_localizeBackupError(e));
+      context.showErrorSnackBar(localizeBackupError(e));
     } catch (e, st) {
       ErrorReporter.report(e, st, reason: 'createBackup');
       if (!mounted) return;
       context.showErrorSnackBar('backupError');
     }
-  }
-
-  Future<void> _restoreBackup(BuildContext context) async {
-    final confirmed = await Get.dialog<bool>(
-          AlertDialog(
-            title: Text('restoreTitle'.tr()),
-            content: Text('restoreContent'.tr()),
-            actions: [
-              TextButton(
-                onPressed: () => Get.back(result: false),
-                child: Text('cancel'.tr()),
-              ),
-              ElevatedButton(
-                onPressed: () => Get.back(result: true),
-                child: Text('confirm'.tr()),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-    if (!confirmed) return;
-
-    try {
-      final backupService = BackupService();
-      final restored = await backupService.restoreFromFile(
-        passwordProvider: () async => _promptPassword(
-          Get.context ?? context,
-          title: 'restorePasswordTitle'.tr(),
-          description: 'restorePasswordDescription'.tr(),
-          confirmRequired: false,
-        ),
-        confirmLegacyPlaintext: _confirmLegacyPlaintextRestore,
-      );
-      if (!restored) return;
-      AnalyticsService.instance.logBackupRestored();
-      if (!mounted) return;
-      context.showSuccessSnackBar('restoreSuccess');
-    } on BackupError catch (e) {
-      if (!mounted) return;
-      context.showErrorSnackBar(_localizeBackupError(e));
-    } catch (e, st) {
-      ErrorReporter.report(e, st, reason: 'restoreBackup');
-      if (!mounted) return;
-      context.showErrorSnackBar('restoreError');
-    }
-  }
-
-  /// v1.0 backups are plain JSON: anyone holding the file can read the card
-  /// numbers. Make the user acknowledge that before restoring one.
-  Future<bool> _confirmLegacyPlaintextRestore() async {
-    final result = await Get.dialog<bool>(
-      AlertDialog(
-        title: Text('legacyBackupWarningTitle'.tr()),
-        content: Text('legacyBackupWarningBody'.tr()),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: Text('cancel'.tr()),
-          ),
-          ElevatedButton(
-            onPressed: () => Get.back(result: true),
-            child: Text('legacyBackupWarningConfirm'.tr()),
-          ),
-        ],
-      ),
-    );
-    return result ?? false;
-  }
-
-  String _localizeBackupError(BackupError e) {
-    switch (e.kind) {
-      case BackupErrorKind.passwordRequired:
-        return 'backupPasswordRequired'.tr();
-      case BackupErrorKind.wrongPassword:
-        return 'backupWrongPassword'.tr();
-      case BackupErrorKind.invalidFormat:
-        return 'backupInvalidFormat'.tr();
-      case BackupErrorKind.io:
-        return 'backupIoError'.tr();
-    }
-  }
-
-  Future<String?> _promptPassword(
-    BuildContext context, {
-    required String title,
-    required String description,
-    required bool confirmRequired,
-  }) async {
-    final passwordController = TextEditingController();
-    final confirmController = TextEditingController();
-    String? errorText;
-
-    final result = await showDialog<String?>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return StatefulBuilder(builder: (ctx, setLocal) {
-          return AlertDialog(
-            title: Text(title),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(description, style: const TextStyle(fontSize: 13)),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'backupPasswordLabel'.tr(),
-                    ),
-                  ),
-                  if (confirmRequired) ...[
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: confirmController,
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        labelText: 'backupPasswordConfirmLabel'.tr(),
-                      ),
-                    ),
-                  ],
-                  if (errorText != null) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      errorText!,
-                      style: TextStyle(
-                        color: Theme.of(ctx).colorScheme.error,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(dialogContext, null),
-                child: Text('cancel'.tr()),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  final pw = passwordController.text;
-                  if (pw.length < 6) {
-                    setLocal(() => errorText = 'backupPasswordTooShort'.tr());
-                    return;
-                  }
-                  if (confirmRequired && pw != confirmController.text) {
-                    setLocal(() => errorText = 'backupPasswordMismatch'.tr());
-                    return;
-                  }
-                  Navigator.pop(dialogContext, pw);
-                },
-                child: Text('confirm'.tr()),
-              ),
-            ],
-          );
-        });
-      },
-    );
-
-    return result;
   }
 
   Future<void> showDialogDeleteData(BuildContext context) async {

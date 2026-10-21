@@ -1,18 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
+import 'package:wallet_app/core/data/storage/encrypted_box_opener.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
-import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 
 class LoyaltyCardService {
   LoyaltyCardService._internal();
   static final LoyaltyCardService _instance = LoyaltyCardService._internal();
   factory LoyaltyCardService() => _instance;
 
-  final FlutterSecureStorage _secureStorage = SecureStorageProvider.instance;
+  final EncryptedBoxOpener _opener = EncryptedBoxOpener();
   Box<LoyaltyCard>? _box;
   Future<void>? _openingFuture;
 
@@ -26,6 +24,9 @@ class LoyaltyCardService {
 
     final completer = Completer<void>();
     _openingFuture = completer.future;
+    // The first caller gets the error via rethrow; without a listener the
+    // completer's copy would also surface as an unhandled zone error.
+    completer.future.ignore();
 
     try {
       if (!Hive.isAdapterRegistered(4)) {
@@ -96,28 +97,9 @@ class LoyaltyCardService {
   }
 
   Future<void> _openEncryptedBox() async {
-    List<int> encryptionKey;
-    final boxExists = await Hive.boxExists(LOYALTY_CARD_BOX_NAME);
-
-    if (!boxExists) {
-      final secureKey = Hive.generateSecureKey();
-      encryptionKey = secureKey;
-      await _secureStorage.write(
-        key: LOYALTY_CARD_SECURE_STORAGE_KEY,
-        value: json.encode(secureKey),
-      );
-    } else {
-      final storedKey =
-          await _secureStorage.read(key: LOYALTY_CARD_SECURE_STORAGE_KEY);
-      if (storedKey == null) {
-        throw Exception('Missing encryption key for loyalty card storage');
-      }
-      encryptionKey = (json.decode(storedKey) as List<dynamic>).cast<int>();
-    }
-
-    _box = await Hive.openBox<LoyaltyCard>(
-      LOYALTY_CARD_BOX_NAME,
-      encryptionCipher: HiveAesCipher(encryptionKey),
+    _box = await _opener.open<LoyaltyCard>(
+      boxName: LOYALTY_CARD_BOX_NAME,
+      keyName: LOYALTY_CARD_SECURE_STORAGE_KEY,
     );
   }
 }

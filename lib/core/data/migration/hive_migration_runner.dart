@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:wallet_app/core/data/storage/encrypted_box_opener.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
@@ -33,12 +34,12 @@ import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 /// 2. Bump [_currentSchemaVersion] by one.
 /// 3. Add an entry to [_migrations] keyed by the new version, returning a
 ///    `Future<void>` that performs the data transform.
-/// 4. Inside the migration: open the affected box yourself with the same
-///    encryption-key flow the services use — read the AES key from
-///    [SecureStorageProvider] under the box's secure storage key, json
-///    decode it, pass to `HiveAesCipher`. Iterate records, transform,
-///    `put` back, then `close()` the box so services re-open it cleanly.
-///    Guard with `Hive.boxExists(name)` so fresh installs short-circuit.
+/// 4. Inside the migration: open the affected box with [openEncryptedBox]
+///    — the same [EncryptedBoxOpener] path the services use, so a missing
+///    key or a locked Keychain is handled identically. Iterate records,
+///    transform, `put` back, then `close()` the box so services re-open it
+///    cleanly. Guard with `Hive.boxExists(name)` so fresh installs
+///    short-circuit.
 /// 5. For renames: read the old field via a temporary adapter / fallback,
 ///    write the new field, leave the old field's index unused going
 ///    forward (or null it out for clarity). Don't try to "remove" a Hive
@@ -174,18 +175,22 @@ class HiveMigrationRunner {
     }
   }
 
+  /// Opens an encrypted box for a migration step. See [EncryptedBoxOpener]
+  /// for the missing-key / locked-Keychain behaviour.
+  static Future<Box<T>> openEncryptedBox<T>({
+    required String boxName,
+    required String keyName,
+  }) =>
+      EncryptedBoxOpener().open<T>(boxName: boxName, keyName: keyName);
+
   static Future<int?> _readStoredVersion() async {
-    try {
-      final raw =
-          await SecureStorageProvider.instance.read(key: _versionKey);
-      if (raw == null) return null;
-      return int.tryParse(raw);
-    } catch (_) {
-      // Keychain unavailable. Pretend we have no version — the runner's
-      // first-boot branch will try to write one. If the write also fails
-      // we silently no-op and try again next launch.
-      return null;
-    }
+    // A read *error* (Keychain locked) is not "no version": treating it as
+    // first boot would stamp the current version and skip pending
+    // migrations for good. Let it throw; main() reports it and the runner
+    // retries next launch.
+    final raw = await SecureStorageProvider.instance.read(key: _versionKey);
+    if (raw == null) return null;
+    return int.tryParse(raw);
   }
 
   static Future<void> _writeStoredVersion(int version) async {

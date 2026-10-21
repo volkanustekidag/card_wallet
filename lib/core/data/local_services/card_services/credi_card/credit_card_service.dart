@@ -1,19 +1,17 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
+import 'package:wallet_app/core/data/storage/encrypted_box_opener.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
-import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 
 class CreditCardService {
   CreditCardService._internal();
   static final CreditCardService _instance = CreditCardService._internal();
   factory CreditCardService() => _instance;
 
-  final FlutterSecureStorage _secureStorage = SecureStorageProvider.instance;
+  final EncryptedBoxOpener _opener = EncryptedBoxOpener();
   Box<CreditCard>? _creditCards;
   Future<void>? _openingFuture;
 
@@ -27,6 +25,9 @@ class CreditCardService {
 
     final completer = Completer<void>();
     _openingFuture = completer.future;
+    // The first caller gets the error via rethrow; without a listener the
+    // completer's copy would also surface as an unhandled zone error.
+    completer.future.ignore();
 
     try {
       if (!Hive.isAdapterRegistered(3)) {
@@ -111,28 +112,9 @@ class CreditCardService {
   }
 
   Future<void> _openEncryptedBox() async {
-    List<int> encryptionKey;
-    final boxExists = await Hive.boxExists(C_CARD_BOX_NAME);
-
-    if (!boxExists) {
-      final secureKey = Hive.generateSecureKey();
-      encryptionKey = secureKey;
-      await _secureStorage.write(
-        key: C_CARD_SECURE_STORAGE_KEY,
-        value: json.encode(secureKey),
-      );
-    } else {
-      final storedKey =
-          await _secureStorage.read(key: C_CARD_SECURE_STORAGE_KEY);
-      if (storedKey == null) {
-        throw Exception('Missing encryption key for credit card storage');
-      }
-      encryptionKey = (json.decode(storedKey) as List<dynamic>).cast<int>();
-    }
-
-    _creditCards = await Hive.openBox(
-      C_CARD_BOX_NAME,
-      encryptionCipher: HiveAesCipher(encryptionKey),
+    _creditCards = await _opener.open<CreditCard>(
+      boxName: C_CARD_BOX_NAME,
+      keyName: C_CARD_SECURE_STORAGE_KEY,
     );
   }
 }

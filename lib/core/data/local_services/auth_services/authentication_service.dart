@@ -1,12 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
+import 'package:wallet_app/core/data/storage/encrypted_box_opener.dart';
 import 'package:wallet_app/core/domain/models/verification_model/verification.dart';
 import 'package:wallet_app/core/utils/pin_hasher.dart';
-import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 
 class AuthenticationService {
   AuthenticationService._internal();
@@ -14,7 +12,7 @@ class AuthenticationService {
       AuthenticationService._internal();
   factory AuthenticationService() => _instance;
 
-  final FlutterSecureStorage _secureStorage = SecureStorageProvider.instance;
+  final EncryptedBoxOpener _opener = EncryptedBoxOpener();
   Box<Verification>? _user;
   Future<void>? _openingFuture;
 
@@ -28,6 +26,9 @@ class AuthenticationService {
 
     final completer = Completer<void>();
     _openingFuture = completer.future;
+    // The first caller gets the error via rethrow; without a listener the
+    // completer's copy would also surface as an unhandled zone error.
+    completer.future.ignore();
 
     try {
       if (!Hive.isAdapterRegistered(1)) {
@@ -146,28 +147,9 @@ class AuthenticationService {
   }
 
   Future<void> _openEncryptedBox() async {
-    List<int> encryptionKey;
-    final boxExists = await Hive.boxExists(LOGIN_BOX_NAME);
-
-    if (!boxExists) {
-      final secureKey = Hive.generateSecureKey();
-      encryptionKey = secureKey;
-      await _secureStorage.write(
-        key: LOGIN_SECURE_STORAGE_KEY,
-        value: json.encode(secureKey),
-      );
-    } else {
-      final storedKey =
-          await _secureStorage.read(key: LOGIN_SECURE_STORAGE_KEY);
-      if (storedKey == null) {
-        throw Exception('Missing encryption key for authentication storage');
-      }
-      encryptionKey = (json.decode(storedKey) as List<dynamic>).cast<int>();
-    }
-
-    _user = await Hive.openBox(
-      LOGIN_BOX_NAME,
-      encryptionCipher: HiveAesCipher(encryptionKey),
+    _user = await _opener.open<Verification>(
+      boxName: LOGIN_BOX_NAME,
+      keyName: LOGIN_SECURE_STORAGE_KEY,
     );
   }
 }

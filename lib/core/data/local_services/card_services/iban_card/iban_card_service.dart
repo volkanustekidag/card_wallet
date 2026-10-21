@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
+import 'package:wallet_app/core/data/storage/encrypted_box_opener.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
-import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
 
 class IbanCardService {
@@ -13,7 +11,7 @@ class IbanCardService {
   static final IbanCardService _instance = IbanCardService._internal();
   factory IbanCardService() => _instance;
 
-  final FlutterSecureStorage _secureStorage = SecureStorageProvider.instance;
+  final EncryptedBoxOpener _opener = EncryptedBoxOpener();
   Box<IbanCard>? _ibanCard;
   Future<void>? _openingFuture;
 
@@ -27,6 +25,9 @@ class IbanCardService {
 
     final completer = Completer<void>();
     _openingFuture = completer.future;
+    // The first caller gets the error via rethrow; without a listener the
+    // completer's copy would also surface as an unhandled zone error.
+    completer.future.ignore();
 
     try {
       if (!Hive.isAdapterRegistered(2)) {
@@ -120,28 +121,9 @@ class IbanCardService {
   }
 
   Future<void> _openEncryptedBox() async {
-    List<int> encryptionKey;
-    final boxExists = await Hive.boxExists(I_CARD_BOX_NAME);
-
-    if (!boxExists) {
-      final secureKey = Hive.generateSecureKey();
-      encryptionKey = secureKey;
-      await _secureStorage.write(
-        key: I_CARD_SECURE_STORAGE_KEY,
-        value: json.encode(secureKey),
-      );
-    } else {
-      final storedKey =
-          await _secureStorage.read(key: I_CARD_SECURE_STORAGE_KEY);
-      if (storedKey == null) {
-        throw Exception('Missing encryption key for IBAN card storage');
-      }
-      encryptionKey = (json.decode(storedKey) as List<dynamic>).cast<int>();
-    }
-
-    _ibanCard = await Hive.openBox(
-      I_CARD_BOX_NAME,
-      encryptionCipher: HiveAesCipher(encryptionKey),
+    _ibanCard = await _opener.open<IbanCard>(
+      boxName: I_CARD_BOX_NAME,
+      keyName: I_CARD_SECURE_STORAGE_KEY,
     );
   }
 }

@@ -21,12 +21,14 @@ import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
+import 'package:wallet_app/core/services/hive_backup_exclusion.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/services/rate_app_service.dart';
 import 'package:wallet_app/core/services/wallet_surfaces_sync.dart';
 import 'package:wallet_app/core/services/widget_deep_link_handler.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
+import 'package:wallet_app/feature/boot/boot_gate.dart';
 import 'package:wallet_app/firebase_options.dart';
 
 void main() async {
@@ -37,113 +39,24 @@ void main() async {
     WidgetsFlutterBinding.ensureInitialized();
     await EasyLocalization.ensureInitialized();
 
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-
-    // App Check protects the wallet export backend from abuse: every
-    // request the app sends carries a short-lived, device-attested
-    // token (Apple App Attest on iOS, Play Integrity on Android). The
-    // backend verifies the token with Firebase Admin SDK and rejects
-    // anything that doesn't carry one — so even if someone extracts
-    // the API key from the binary they can't talk to the server.
-    //
-    // Debug builds can't satisfy hardware attestation (simulator has
-    // no Secure Enclave, emulators no Play Services), so they fall
-    // back to the debug provider. Whitelist the token printed to the
-    // console once in Firebase Console → App Check → Apps → menu →
-    // "Manage debug tokens".
-    await FirebaseAppCheck.instance.activate(
-      androidProvider:
-          kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
-      appleProvider:
-          kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
-    );
-
-    // Route framework + platform errors into Crashlytics. Debug builds keep
-    // logging to console only so we don't pollute the dashboard.
-    FlutterError.onError = (details) {
-      FlutterError.presentError(details);
-      if (!kDebugMode) {
-        FirebaseCrashlytics.instance.recordFlutterFatalError(details);
-      }
-    };
-    // Uncaught async errors are handled by the platform dispatcher and the
-    // app keeps running, so they are non-fatal. Only FlutterError.onError
-    // (framework build/layout/paint failures) is reported as fatal.
-    PlatformDispatcher.instance.onError = (error, stack) {
-      if (!kDebugMode) {
-        FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
-      }
-      return true;
-    };
-    await FirebaseCrashlytics.instance
-        .setCrashlyticsCollectionEnabled(!kDebugMode);
-    await AnalyticsService.instance.setEnabled(!kDebugMode);
-    unawaited(AnalyticsService.instance.logAppOpen());
-    // Device locale is "good enough" — EasyLocalization may not have applied
-    // the saved override yet, but BigQuery only needs the rough cohort split.
-    final platformLocale = PlatformDispatcher.instance.locale;
-    unawaited(
-      AnalyticsService.instance.setLocale(platformLocale.toLanguageTag()),
-    );
-
-    await Hive.initFlutter();
-
-    // Run any pending schema migrations *before* services open their boxes
-    // — otherwise a service would cache pre-migration records as the
-    // "current" state. No-op on every launch after the first one that
-    // actually has a migration to run.
-    // A failed migration is reported (non-fatal) inside the runner and
-    // retried next launch. It must not stop runApp: an uncaught throw here
-    // leaves the user on a blank native splash forever.
+    // Crash reporting and analytics are not worth a dead app: if Firebase
+    // fails to come up, start without it.
     try {
-      await HiveMigrationRunner.runIfNeeded();
+      await _initFirebase();
     } catch (e, st) {
-      ErrorReporter.report(e, st, reason: 'HiveMigrationRunner');
+      ErrorReporter.report(e, st, reason: 'initFirebase');
     }
-
-    // Critical-path: auth box must be open before the lock screen renders, and
-    // the theme must be resolved before MaterialApp builds (otherwise the lock
-    // screen flashes the system theme and then swaps once the box loads).
-    final themeBootstrap = await ThemeController.bootstrap();
-    await AuthenticationService().init();
-
-    // Non-critical services boot in the background. Card services only matter
-    // once the user reaches a card screen, and PremiumService self-recovers if
-    // accessed before init completes.
-    _creditCardsReady = _bootstrapCreditCardsAndReminders();
-    unawaited(IbanCardService().init());
-    // Once the loyalty box is open, keep the widget, quick tile and Apple
-    // Watch in step with it — on launch and on every later change.
-    unawaited(LoyaltyCardService()
-        .init()
-        .then((_) => WalletSurfacesSync.instance.start()));
-    unawaited(PremiumService.initialize());
-    unawaited(RateAppService.instance.init());
-    // Widget deep-link handler must capture the cold-launch URI *before*
-    // the splash page makes its routing decision. We await this one so
-    // the splash can see the pending URI synchronously.
-    await WidgetDeepLinkHandler.instance.init();
-
-    Get.put(
-      ThemeController(
-        initialMode: themeBootstrap.mode,
-        box: themeBootstrap.box,
-      ),
-      permanent: true,
-    );
-    // Warm re-lock after the app has been in the background. Must be
-    // registered before runApp so it observes the very first pause.
-    Get.put(AppLockService(), permanent: true);
 
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
 
-    runApp(
-      EasyLocalization(
+    // runApp is called whatever _boot throws; a failed critical init shows
+    // BootErrorPage (retry + support) instead of freezing on the splash.
+    await bootAndRunApp(
+      boot: _boot,
+      wrap: (root) => EasyLocalization(
         supportedLocales: const [
           Locale("en", "US"),
           Locale("tr", "TR"),
@@ -160,14 +73,151 @@ void main() async {
         fallbackLocale: const Locale("en", "US"),
         saveLocale: true,
         path: "assets/docs/lang",
-        child: const AppWrapper(),
+        child: root,
       ),
+      app: const AppWrapper(),
     );
   }, (error, stack) {
     if (!kDebugMode) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
     }
   });
+}
+
+Future<void> _initFirebase() async {
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // App Check protects the wallet export backend from abuse: every
+  // request the app sends carries a short-lived, device-attested
+  // token (Apple App Attest on iOS, Play Integrity on Android). The
+  // backend verifies the token with Firebase Admin SDK and rejects
+  // anything that doesn't carry one — so even if someone extracts
+  // the API key from the binary they can't talk to the server.
+  //
+  // Debug builds can't satisfy hardware attestation (simulator has
+  // no Secure Enclave, emulators no Play Services), so they fall
+  // back to the debug provider. Whitelist the token printed to the
+  // console once in Firebase Console → App Check → Apps → menu →
+  // "Manage debug tokens".
+  await FirebaseAppCheck.instance.activate(
+    androidProvider:
+        kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
+    appleProvider:
+        kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
+  );
+
+  // Route framework + platform errors into Crashlytics. Debug builds keep
+  // logging to console only so we don't pollute the dashboard.
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    if (!kDebugMode) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+    }
+  };
+  // Uncaught async errors are handled by the platform dispatcher and the
+  // app keeps running, so they are non-fatal. Only FlutterError.onError
+  // (framework build/layout/paint failures) is reported as fatal.
+  PlatformDispatcher.instance.onError = (error, stack) {
+    if (!kDebugMode) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
+    }
+    return true;
+  };
+  await FirebaseCrashlytics.instance
+      .setCrashlyticsCollectionEnabled(!kDebugMode);
+  await AnalyticsService.instance.setEnabled(!kDebugMode);
+  unawaited(AnalyticsService.instance.logAppOpen());
+  // Device locale is "good enough" — EasyLocalization may not have applied
+  // the saved override yet, but BigQuery only needs the rough cohort split.
+  final platformLocale = PlatformDispatcher.instance.locale;
+  unawaited(
+    AnalyticsService.instance.setLocale(platformLocale.toLanguageTag()),
+  );
+}
+
+/// Everything that must happen before the app UI is built. Safe to call
+/// again: BootGate re-runs it from BootErrorPage's "try again".
+///
+/// Only the auth box is fatal. Without it we can't tell whether a PIN is
+/// set, and letting the user through would skip the lock screen.
+Future<void> _boot() async {
+  await Hive.initFlutter();
+  unawaited(HiveBackupExclusion.apply());
+
+  // Run any pending schema migrations *before* services open their boxes
+  // — otherwise a service would cache pre-migration records as the
+  // "current" state. No-op on every launch after the first one that
+  // actually has a migration to run.
+  // A failed migration is reported (non-fatal) inside the runner and
+  // retried next launch.
+  try {
+    await HiveMigrationRunner.runIfNeeded();
+  } catch (e, st) {
+    ErrorReporter.report(e, st, reason: 'HiveMigrationRunner');
+  }
+
+  // The theme must be resolved before MaterialApp builds (otherwise the lock
+  // screen flashes the system theme and then swaps once the box loads). A
+  // broken theme box falls back to the system theme.
+  if (!Get.isRegistered<ThemeController>()) {
+    try {
+      final themeBootstrap = await ThemeController.bootstrap();
+      Get.put(
+        ThemeController(
+          initialMode: themeBootstrap.mode,
+          box: themeBootstrap.box,
+        ),
+        permanent: true,
+      );
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'ThemeController.bootstrap');
+      Get.put(ThemeController(), permanent: true);
+    }
+  }
+
+  // Critical-path: auth box must be open before the lock screen renders.
+  await AuthenticationService().init();
+
+  _startBackgroundServices();
+
+  // Widget deep-link handler must capture the cold-launch URI *before*
+  // the splash page makes its routing decision. We await this one so
+  // the splash can see the pending URI synchronously.
+  await WidgetDeepLinkHandler.instance.init();
+
+  // Warm re-lock after the app has been in the background. Must be
+  // registered before runApp so it observes the very first pause.
+  if (!Get.isRegistered<AppLockService>()) {
+    Get.put(AppLockService(), permanent: true);
+  }
+}
+
+bool _backgroundServicesStarted = false;
+
+/// Non-critical services boot in the background. Card services only matter
+/// once the user reaches a card screen, and PremiumService self-recovers if
+/// accessed before init completes.
+void _startBackgroundServices() {
+  if (_backgroundServicesStarted) return;
+  _backgroundServicesStarted = true;
+  _creditCardsReady = _bootstrapCreditCardsAndReminders();
+  unawaited(IbanCardService().init().catchError(
+        (Object e, StackTrace st) =>
+            ErrorReporter.report(e, st, reason: 'IbanCardService.init'),
+      ));
+  // Once the loyalty box is open, keep the widget, quick tile and Apple
+  // Watch in step with it — on launch and on every later change.
+  unawaited(LoyaltyCardService()
+      .init()
+      .then((_) => WalletSurfacesSync.instance.start())
+      .catchError(
+        (Object e, StackTrace st) =>
+            ErrorReporter.report(e, st, reason: 'LoyaltyCardService.init'),
+      ));
+  unawaited(PremiumService.initialize());
+  unawaited(RateAppService.instance.init());
 }
 
 /// Credit card box + notification plugin. Reminders themselves are

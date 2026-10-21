@@ -22,6 +22,12 @@ import WatchConnectivity
   private let clipboardChannelName = "app.cardwallet/sensitive_clipboard"
   private var clipboardChannel: FlutterMethodChannel?
 
+  /// Dart `HiveBackupExclusion` keeps the Hive files out of iCloud /
+  /// iTunes backups: their Keychain keys never leave the device, so a
+  /// restored copy on a new phone could not be decrypted anyway.
+  private let backupExclusionChannelName = "app.cardwallet/backup_exclusion"
+  private var backupExclusionChannel: FlutterMethodChannel?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -35,6 +41,55 @@ import WatchConnectivity
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     registerWatchSyncChannel(with: engineBridge.pluginRegistry)
     registerClipboardChannel(with: engineBridge.pluginRegistry)
+    registerBackupExclusionChannel(with: engineBridge.pluginRegistry)
+  }
+
+  // MARK: - Backup exclusion
+
+  private func registerBackupExclusionChannel(with registry: FlutterPluginRegistry) {
+    guard let messenger = registry.registrar(forPlugin: "BackupExclusionChannel")?.messenger() else {
+      return
+    }
+    let channel = FlutterMethodChannel(name: backupExclusionChannelName, binaryMessenger: messenger)
+    channel.setMethodCallHandler { call, result in
+      guard call.method == "excludeFromBackup" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      guard let args = call.arguments as? [String: Any],
+            let path = args["path"] as? String else {
+        result(FlutterError(code: "invalid_args", message: "path is required", details: nil))
+        return
+      }
+      do {
+        // The directory flag covers files created later (new boxes, Hive
+        // compaction rewrites); the per-file flag is belt and braces.
+        let directory = URL(fileURLWithPath: path, isDirectory: true)
+        try Self.excludeFromBackup(directory)
+        let files = try FileManager.default.contentsOfDirectory(
+          at: directory,
+          includingPropertiesForKeys: nil
+        )
+        for file in files where ["hive", "lock"].contains(file.pathExtension) {
+          try Self.excludeFromBackup(file)
+        }
+        result(true)
+      } catch {
+        result(FlutterError(
+          code: "exclude_failed",
+          message: error.localizedDescription,
+          details: nil
+        ))
+      }
+    }
+    backupExclusionChannel = channel
+  }
+
+  private static func excludeFromBackup(_ url: URL) throws {
+    var mutableURL = url
+    var values = URLResourceValues()
+    values.isExcludedFromBackup = true
+    try mutableURL.setResourceValues(values)
   }
 
   // MARK: - Sensitive clipboard
