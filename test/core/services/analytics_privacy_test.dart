@@ -5,7 +5,7 @@ import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 
 const _allowedParams = {
   'source', 'type', 'method', 'provider', 'error_key', 'card_type', 'masked',
-  'kind', 'trigger', 'feature', 'value',
+  'kind', 'trigger', 'feature', 'value', 'format', 'with_qr',
 };
 
 void main() {
@@ -57,6 +57,24 @@ void main() {
       }
     }
     expect(events['card_shared'], {'card_type': 'credit', 'masked': 'true'});
+  });
+
+  test('IBAN share logs format and with_qr, nothing else', () async {
+    await AnalyticsService.instance.logCardShared(
+      cardType: AnalyticsCardType.iban,
+      masked: false,
+      format: AnalyticsShareFormat.image,
+      withQr: true,
+    );
+    expect(events['card_shared'], {
+      'card_type': 'iban',
+      'masked': 'false',
+      'format': 'image',
+      'with_qr': 'true',
+    });
+    for (final key in events['card_shared']!.keys) {
+      expect(_allowedParams, contains(key));
+    }
   });
 
   test('copying a card logs the type, never the value', () async {

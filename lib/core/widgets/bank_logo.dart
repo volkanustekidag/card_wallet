@@ -67,26 +67,42 @@ class BankLogo extends StatelessWidget {
   ///   3. Bank-code match from [iban] — IBAN flow.
   ///   4. Brand lookup from [loyaltyBrand] — loyalty card flow.
   ///   5. Bank-name lookup — last-resort, used when no number is available.
-  String? get _domain {
-    if (domain != null && domain!.isNotEmpty) return domain;
-    if (cardNumber != null && cardNumber!.isNotEmpty) {
-      final detected = CardBankDetector.detect(cardNumber!);
+  String? get _domain => domainFor(
+        domain: domain,
+        cardNumber: cardNumber,
+        iban: iban,
+        loyaltyBrand: loyaltyBrand,
+        bankName: bankName,
+      );
+
+  /// The logo domain [BankLogo] would show for these inputs, or null. Public
+  /// so share-image builders can precache the same logo before capture.
+  static String? domainFor({
+    String? domain,
+    String? cardNumber,
+    String? iban,
+    String? loyaltyBrand,
+    String? bankName,
+  }) {
+    if (domain != null && domain.isNotEmpty) return domain;
+    if (cardNumber != null && cardNumber.isNotEmpty) {
+      final detected = CardBankDetector.detect(cardNumber);
       final fromBin = CardBankDetector.bankDomainFor(detected);
       if (fromBin != null) return fromBin;
     }
-    if (iban != null && iban!.isNotEmpty) {
-      final detected = CardBankDetector.detectFromIban(iban!);
+    if (iban != null && iban.isNotEmpty) {
+      final detected = CardBankDetector.detectFromIban(iban);
       final fromIban = CardBankDetector.bankDomainFor(detected);
       if (fromIban != null) return fromIban;
     }
-    if (loyaltyBrand != null && loyaltyBrand!.isNotEmpty) {
+    if (loyaltyBrand != null && loyaltyBrand.isNotEmpty) {
       final fromBrand = LoyaltyBrandResolver.domainFor(loyaltyBrand);
       if (fromBrand != null) return fromBrand;
     }
     return CardBankDetector.bankDomainFor(bankName);
   }
 
-  String _logoUrl(String d) {
+  static String logoUrlFor(String d) {
     return 'https://t3.gstatic.com/faviconV2'
         '?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL'
         '&url=http://$d&size=128';
@@ -99,7 +115,7 @@ class BankLogo extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final url = _logoUrl(d);
+    final url = logoUrlFor(d);
 
     final hidden = const SizedBox.shrink();
     final reserved = SizedBox(

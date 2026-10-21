@@ -2,17 +2,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:share_plus/share_plus.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
-import 'package:wallet_app/core/utils/share_origin.dart';
 import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/sections/add_card_navigator.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/iban_picker_sheet.dart';
-import 'package:wallet_app/core/services/app_lock_service.dart';
-import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/feature/iban_card/utils/iban_share_flow.dart';
 
 /// 2x2 action grid sitting between the action row and the filter chips.
 /// Replaces the older 3-up rail. Each tile has a coloured icon plate, a
@@ -112,11 +109,7 @@ class QuickActionsGrid extends StatelessWidget {
     }
     if (target == null) return;
     if (!context.mounted) return;
-    AnalyticsService.instance
-        .logCardShared(cardType: AnalyticsCardType.iban, masked: false);
-    final text =
-        '${target.bankName}\nIBAN: ${target.iban}\n${target.cardHolder}';
-    await AppLockService.guard(() => Share.share(text, sharePositionOrigin: shareOriginFromContext(context)));
+    await shareIban(context, target);
   }
 
   void _onMyCards() {

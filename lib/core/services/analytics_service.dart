@@ -93,6 +93,14 @@ class AnalyticsScanMethod {
   static const String qrGallery = 'qr_gallery';
 }
 
+/// Values for the `format` param of card_shared.
+class AnalyticsShareFormat {
+  AnalyticsShareFormat._();
+
+  static const String text = 'text';
+  static const String image = 'image';
+}
+
 /// Thin wrapper around FirebaseAnalytics so the rest of the app never imports
 /// the SDK directly. Failures are swallowed in release — analytics must never
 /// take down a screen.
@@ -302,13 +310,19 @@ class AnalyticsService {
   Future<void> logCardCopied(String cardType) =>
       logEvent(AnalyticsEvents.cardCopied, params: {'card_type': cardType});
 
+  /// [format] ([AnalyticsShareFormat]) and [withQr] are set by the IBAN
+  /// text/image share; other callers leave them out.
   Future<void> logCardShared({
     required String cardType,
     required bool masked,
+    String? format,
+    bool? withQr,
   }) =>
       logEvent(AnalyticsEvents.cardShared, params: {
         'card_type': cardType,
         'masked': masked ? 'true' : 'false',
+        if (format != null) 'format': format,
+        if (withQr != null) 'with_qr': withQr ? 'true' : 'false',
       });
 
   /// [kind]: `expiry` or `payment`.

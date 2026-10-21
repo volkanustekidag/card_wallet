@@ -32,6 +32,7 @@ import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/feature/iban_card/utils/iban_card_utils.dart';
+import 'package:wallet_app/feature/iban_card/utils/iban_share_flow.dart';
 import 'package:wallet_app/feature/loyalty_card/controller/loyalty_card_controller.dart';
 import 'package:wallet_app/feature/loyalty_card/utils/loyalty_wallet_action.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/barcode_renderer.dart';
@@ -989,16 +990,8 @@ class _IbanDetailBodyState extends State<_IbanDetailBody> {
     return buffer.toString();
   }
 
-  Future<void> _share(BuildContext context) async {
-    final c = widget.card;
-    AnalyticsService.instance
-        .logCardShared(cardType: AnalyticsCardType.iban, masked: false);
-    final text = '${c.bankName}\nIBAN: ${c.iban}\n${c.cardHolder}';
-    await AppLockService.guard(() => Share.share(
-      text,
-      sharePositionOrigin: shareOriginFromContext(context),
-    ));
-  }
+  Future<void> _share(BuildContext context) =>
+      shareIban(context, widget.card);
 
   void _qrFullscreen(BuildContext context) {
     Navigator.of(context).pop();
@@ -1006,6 +999,7 @@ class _IbanDetailBodyState extends State<_IbanDetailBody> {
       context,
       qrData: widget.card.iban,
       beneficiaryName: widget.card.cardHolder,
+      card: widget.card,
     );
   }
 

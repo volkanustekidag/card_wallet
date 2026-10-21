@@ -609,6 +609,8 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
                         reference: reference,
                         format: qrResult.metadata?.standard,
                         showDetails: true,
+                        card: ibanCard,
+                        shareQrData: qrResult.data,
                       );
                     },
                   ),
@@ -631,6 +633,8 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
                         reference: reference,
                         format: qrResult.metadata?.standard,
                         showDetails: true,
+                        card: ibanCard,
+                        shareQrData: qrResult.data,
                       );
                     },
                   ),
@@ -657,6 +661,8 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
                     currency: qrResult.metadata?.currency,
                     reference: reference,
                     format: qrResult.metadata?.standard,
+                    card: ibanCard,
+                    shareQrData: qrResult.data,
                   );
                 },
               ),
