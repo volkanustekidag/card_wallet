@@ -178,6 +178,7 @@
     "cvcNotStored": "CVC wordt niet opgeslagen",
     "cardHolderPlaceholder": "VOORNAAM ACHTERNAAM",
     "failedToLoadIbanCards": "IBAN-kaarten laden mislukt",
+    "cardsLoadError": "Kaarten konden niet worden geladen, probeer het opnieuw.",
     "ibanCardDeletedSuccessfully": "IBAN-kaart succesvol verwijderd",
     "failedToDeleteIbanCard": "IBAN-kaart verwijderen mislukt",
     "ibanCardAddedSuccessfully": "IBAN-kaart succesvol toegevoegd",

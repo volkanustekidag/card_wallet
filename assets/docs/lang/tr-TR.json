@@ -178,6 +178,7 @@
     "cvcNotStored": "CVC saklanmaz",
     "cardHolderPlaceholder": "AD SOYAD",
     "failedToLoadIbanCards": "IBAN kartları yüklenemedi",
+    "cardsLoadError": "Kartlar yüklenemedi, tekrar dene.",
     "ibanCardDeletedSuccessfully": "IBAN kartı başarıyla silindi",
     "failedToDeleteIbanCard": "IBAN kartı silinemedi",
     "ibanCardAddedSuccessfully": "IBAN kartı başarıyla eklendi",

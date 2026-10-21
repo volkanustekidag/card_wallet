@@ -31,6 +31,11 @@ class HomeController extends GetxController {
   /// full-screen spinner — later refreshes keep the current content, scroll
   /// position and filters on screen.
   final isInitialLoading = true.obs;
+
+  /// The last load failed (typically a card box that couldn't be opened).
+  /// With no cards on screen the page shows a retry state instead of an
+  /// empty wallet, which would read as "my cards are gone".
+  final loadError = false.obs;
   final Completer<void> _firstLoad = Completer<void>();
   final latestCreditCard = Rxn<CreditCard>();
   final latestIbanCard = Rxn<IbanCard>();
@@ -59,6 +64,13 @@ class HomeController extends GetxController {
     loadHomeContent().then((_) => _attachWatchers());
   }
 
+  /// Retry from the "cards could not be loaded" state (button, app resume).
+  /// Watchers are attached here too: a failed first load leaves them off.
+  Future<void> retryLoad() async {
+    await loadHomeContent();
+    if (!loadError.value) await _attachWatchers();
+  }
+
   @override
   void onClose() {
     _ccSub?.cancel();
@@ -72,14 +84,15 @@ class HomeController extends GetxController {
   /// reflects any add / delete / update from anywhere — list pages,
   /// add/edit screens, the action sheet — without manual refreshes.
   /// A 100 ms debounce coalesces bursts (e.g. "delete N cards" loops).
+  /// Idempotent, so a retry only attaches what is still missing.
   Future<void> _attachWatchers() async {
     try {
-      final ccStream = await _creditCardService.watch();
-      _ccSub = ccStream.listen((_) => _scheduleRefresh());
-      final ibanStream = await _ibanCardService.watch();
-      _ibanSub = ibanStream.listen((_) => _scheduleRefresh());
-      final loyaltyStream = await _loyaltyCardService.watch();
-      _loyaltySub = loyaltyStream.listen((_) => _scheduleRefresh());
+      _ccSub ??= (await _creditCardService.watch())
+          .listen((_) => _scheduleRefresh());
+      _ibanSub ??=
+          (await _ibanCardService.watch()).listen((_) => _scheduleRefresh());
+      _loyaltySub ??= (await _loyaltyCardService.watch())
+          .listen((_) => _scheduleRefresh());
     } catch (e, st) {
       ErrorReporter.report(e, st, reason: 'HomeController.watchers');
     }
@@ -157,8 +170,10 @@ class HomeController extends GetxController {
           loyaltyCount: loyaltyCardList.length,
         );
       }
+      loadError.value = false;
     } catch (e, st) {
       ErrorReporter.report(e, st, reason: 'HomeController.load');
+      loadError.value = true;
     } finally {
       isLoading.value = false;
       isInitialLoading.value = false;
@@ -170,7 +185,7 @@ class HomeController extends GetxController {
   Future<void> ensureLoaded() => _firstLoad.future;
 
   void refreshData() {
-    loadHomeContent();
+    retryLoad();
   }
 
   CreditCard? _findLatestCreditCard(List<CreditCard> cards) {

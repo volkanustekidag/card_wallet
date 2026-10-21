@@ -24,6 +24,9 @@ class LoyaltyCardService {
 
     final completer = Completer<void>();
     _openingFuture = completer.future;
+    // The first caller gets the error via rethrow; without a listener the
+    // completer's copy would also surface as an unhandled zone error.
+    completer.future.ignore();
 
     try {
       if (!Hive.isAdapterRegistered(4)) {

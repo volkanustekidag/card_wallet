@@ -178,6 +178,7 @@
     "cvcNotStored": "CVC nie jest przechowywane",
     "cardHolderPlaceholder": "IMIĘ NAZWISKO",
     "failedToLoadIbanCards": "Nie udało się załadować kart IBAN",
+    "cardsLoadError": "Nie udało się załadować kart, spróbuj ponownie.",
     "ibanCardDeletedSuccessfully": "Karta IBAN pomyślnie usunięta",
     "failedToDeleteIbanCard": "Nie udało się usunąć karty IBAN",
     "ibanCardAddedSuccessfully": "Karta IBAN pomyślnie dodana",

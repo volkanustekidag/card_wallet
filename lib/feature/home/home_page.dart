@@ -177,8 +177,62 @@ class _HomePageState extends State<HomePage> {
               _homeController.walletItems.isEmpty) {
             return const LoadingWidget();
           }
+          // Never show a failed load as an empty wallet.
+          if (_homeController.loadError.value &&
+              _homeController.walletItems.isEmpty) {
+            return _CardsLoadError(
+              retrying: _homeController.isLoading.value,
+              onRetry: _homeController.retryLoad,
+            );
+          }
           return HomeBody(controller: _homeController);
         }),
+      ),
+    );
+  }
+}
+
+class _CardsLoadError extends StatelessWidget {
+  final bool retrying;
+  final VoidCallback onRetry;
+
+  const _CardsLoadError({required this.retrying, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SafeArea(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.cloud_off_outlined,
+                size: 48,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'cardsLoadError'.tr(),
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleMedium,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                key: const Key('cardsLoadRetry'),
+                onPressed: retrying ? null : onRetry,
+                child: retrying
+                    ? const SizedBox.square(
+                        dimension: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text('tryAgain'.tr()),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
