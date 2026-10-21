@@ -103,6 +103,26 @@ class AddLoyaltyCardController extends GetxController {
     currentCard.refresh();
   }
 
+  /// The saved card for an edit: identity and creation date from
+  /// [original], everything the form can change from [draft] — including
+  /// tags, which carry the favourite flag.
+  @visibleForTesting
+  static LoyaltyCard mergeEdit(LoyaltyCard original, LoyaltyCard draft) {
+    return LoyaltyCard(
+      id: original.id,
+      name: draft.name,
+      brand: draft.brand,
+      barcode: draft.barcode,
+      barcodeFormat: draft.barcodeFormat,
+      colorId: draft.colorId,
+      notes: draft.notes,
+      createdAt: original.createdAt ?? DateTime.now(),
+      logoAsset: draft.logoAsset,
+      tags: draft.tags,
+      website: draft.website,
+    );
+  }
+
   Future<void> saveCard() async {
     try {
       isLoading.value = true;
@@ -125,18 +145,7 @@ class AddLoyaltyCardController extends GetxController {
       }
 
       if (wasEditMode && _originalCard != null) {
-        final updated = LoyaltyCard(
-          id: _originalCard!.id,
-          name: currentCard.value.name,
-          brand: currentCard.value.brand,
-          barcode: currentCard.value.barcode,
-          barcodeFormat: currentCard.value.barcodeFormat,
-          colorId: currentCard.value.colorId,
-          notes: currentCard.value.notes,
-          createdAt: _originalCard!.createdAt ?? DateTime.now(),
-          logoAsset: currentCard.value.logoAsset,
-          website: currentCard.value.website,
-        );
+        final updated = mergeEdit(_originalCard!, currentCard.value);
         await _service.updateLoyaltyCard(_originalCard!, updated);
         HapticFeedback.mediumImpact();
         Get.back();
@@ -152,6 +161,7 @@ class AddLoyaltyCardController extends GetxController {
           notes: currentCard.value.notes,
           createdAt: DateTime.now(),
           logoAsset: currentCard.value.logoAsset,
+          tags: currentCard.value.tags,
           website: currentCard.value.website,
         );
         await _service.addLoyaltyCard(newCard);
