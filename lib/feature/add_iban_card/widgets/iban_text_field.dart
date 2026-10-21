@@ -9,6 +9,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/utils/scan_photo_cleanup.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 class IbanTextField extends StatelessWidget {
   const IbanTextField({
@@ -97,6 +98,10 @@ class IbanTextField extends StatelessWidget {
       final allowed = await CameraPermissionService.ensureGranted();
       if (!allowed) return;
 
+      AnalyticsService.instance.logScanStarted(
+        type: AnalyticsCardType.iban,
+        method: AnalyticsScanMethod.camera,
+      );
       picked = await AppLockService.guard(() => ImagePicker().pickImage(
         source: ImageSource.camera,
         imageQuality: 95,
@@ -110,6 +115,10 @@ class IbanTextField extends StatelessWidget {
         );
         final iban = _extractIban(recognized.text);
         if (iban == null) {
+          AnalyticsService.instance.logScanFailed(
+            type: AnalyticsCardType.iban,
+            method: AnalyticsScanMethod.camera,
+          );
           final ctx = Get.context;
           if (ctx != null) {
             ScaffoldMessenger.of(ctx).showSnackBar(
@@ -121,6 +130,10 @@ class IbanTextField extends StatelessWidget {
           }
           return;
         }
+        AnalyticsService.instance.logScanSucceeded(
+          type: AnalyticsCardType.iban,
+          method: AnalyticsScanMethod.camera,
+        );
         controller.updateCardField("iban", iban);
         _ibanController.text = iban;
       } finally {

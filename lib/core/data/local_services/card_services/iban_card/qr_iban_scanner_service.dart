@@ -7,6 +7,7 @@ import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/camera_permission_service.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/utils/scan_photo_cleanup.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 class QRIbanScannerService {
   final ImagePicker _picker = ImagePicker();
@@ -20,6 +21,7 @@ class QRIbanScannerService {
         return null;
       }
 
+      _logStarted(AnalyticsScanMethod.qrCamera);
       // Kameradan QR kod tara
       photo = await AppLockService.guard(() => _picker.pickImage(
         source: ImageSource.camera,
@@ -35,13 +37,18 @@ class QRIbanScannerService {
           await _barcodeScanner.processImage(inputImage);
 
       if (barcodes.isEmpty) {
+        _logFailed(AnalyticsScanMethod.qrCamera);
         Get.context?.showInfoSnackBar('noQRCodeFound'.tr());
         return null;
       }
 
       // İlk QR kodu parse et
-      return _parseQRContent(barcodes.first.rawValue ?? '');
+      return _reportResult(
+        _parseQRContent(barcodes.first.rawValue ?? ''),
+        AnalyticsScanMethod.qrCamera,
+      );
     } catch (e) {
+      _logFailed(AnalyticsScanMethod.qrCamera);
       debugPrint('QR scan error: $e');
       Get.context?.showErrorSnackBar('qrScanError'.tr());
       return null;
@@ -54,6 +61,7 @@ class QRIbanScannerService {
   Future<Map<String, String>?> scanQRFromGallery() async {
     XFile? photo;
     try {
+      _logStarted(AnalyticsScanMethod.qrGallery);
       photo = await AppLockService.guard(() => _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 100,
@@ -66,18 +74,40 @@ class QRIbanScannerService {
           await _barcodeScanner.processImage(inputImage);
 
       if (barcodes.isEmpty) {
+        _logFailed(AnalyticsScanMethod.qrGallery);
         Get.context?.showInfoSnackBar('noQRCodeFound'.tr());
         return null;
       }
 
-      return _parseQRContent(barcodes.first.rawValue ?? '');
+      return _reportResult(
+        _parseQRContent(barcodes.first.rawValue ?? ''),
+        AnalyticsScanMethod.qrGallery,
+      );
     } catch (e) {
+      _logFailed(AnalyticsScanMethod.qrGallery);
       debugPrint('Gallery QR scan error: $e');
       Get.context?.showErrorSnackBar('failedToScanQRFromGallery'.tr());
       return null;
     } finally {
       await deleteScanPhoto(photo, fromCamera: false);
     }
+  }
+
+  void _logStarted(String method) => AnalyticsService.instance
+      .logScanStarted(type: AnalyticsCardType.iban, method: method);
+
+  void _logFailed(String method) => AnalyticsService.instance
+      .logScanFailed(type: AnalyticsCardType.iban, method: method);
+
+  /// Success = the QR yielded an IBAN.
+  Map<String, String> _reportResult(Map<String, String> info, String method) {
+    if (info['iban']?.isNotEmpty == true) {
+      AnalyticsService.instance
+          .logScanSucceeded(type: AnalyticsCardType.iban, method: method);
+    } else {
+      _logFailed(method);
+    }
+    return info;
   }
 
   // QR kod içeriğini parse et - Geliştirilmiş versiyon

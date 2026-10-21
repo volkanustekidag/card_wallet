@@ -36,6 +36,28 @@ class AnalyticsEvents {
   // and Play both rate-limit silently) but the attempt is the trigger
   // signal we have.
   static const String ratePromptShown = 'rate_prompt_shown';
+
+  // Barcode / scanning
+  static const String barcodeShown = 'barcode_shown';
+  static const String scanStarted = 'scan_started';
+  static const String scanSucceeded = 'scan_succeeded';
+  static const String scanFailed = 'scan_failed';
+
+  // Wallet export (Apple / Google Wallet)
+  static const String walletExportAttempt = 'wallet_export_attempt';
+  static const String walletExportSuccess = 'wallet_export_success';
+  static const String walletExportFailed = 'wallet_export_failed';
+
+  // Data
+  static const String backupCreated = 'backup_created';
+  static const String backupRestored = 'backup_restored';
+  static const String cardCopied = 'card_copied';
+  static const String cardShared = 'card_shared';
+  static const String reminderEnabled = 'reminder_enabled';
+
+  // Premium gates
+  static const String paywallDismissed = 'paywall_dismissed';
+  static const String premiumGateTapped = 'premium_gate_tapped';
 }
 
 class AnalyticsUserProps {
@@ -45,6 +67,10 @@ class AnalyticsUserProps {
   static const String cardCountTotal = 'card_count_total';
   static const String daysSinceInstall = 'days_since_install';
   static const String locale = 'app_locale';
+  static const String creditCardCount = 'credit_card_count';
+  static const String ibanCardCount = 'iban_card_count';
+  static const String loyaltyCardCount = 'loyalty_card_count';
+  static const String hasPin = 'has_pin';
 }
 
 /// Card type tag used across `card_added` and `card_limit_hit` so funnel
@@ -57,14 +83,32 @@ class AnalyticsCardType {
   static const String loyalty = 'loyalty';
 }
 
+/// Values for the `method` param of the scan_* events.
+class AnalyticsScanMethod {
+  AnalyticsScanMethod._();
+
+  static const String camera = 'camera';
+  static const String gallery = 'gallery';
+  static const String qrCamera = 'qr_camera';
+  static const String qrGallery = 'qr_gallery';
+}
+
 /// Thin wrapper around FirebaseAnalytics so the rest of the app never imports
 /// the SDK directly. Failures are swallowed in release — analytics must never
 /// take down a screen.
+///
+/// Privacy rule: parameters describe *what happened* (type, method, source,
+/// provider, error key) — never card numbers, IBANs, barcodes or names.
 class AnalyticsService {
   AnalyticsService._();
   static final AnalyticsService instance = AnalyticsService._();
 
-  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+  // Resolved lazily so code paths that log can run in tests without Firebase.
+  FirebaseAnalytics get _analytics => FirebaseAnalytics.instance;
+
+  /// When set, events go here instead of Firebase (tests).
+  @visibleForTesting
+  static void Function(String name, Map<String, Object>? params)? debugSink;
 
   FirebaseAnalyticsObserver get observer =>
       FirebaseAnalyticsObserver(analytics: _analytics);
@@ -78,6 +122,8 @@ class AnalyticsService {
   }
 
   Future<void> logEvent(String name, {Map<String, Object>? params}) async {
+    final sink = debugSink;
+    if (sink != null) return sink(name, params);
     try {
       await _analytics.logEvent(name: name, parameters: params);
     } catch (e, s) {
@@ -94,6 +140,8 @@ class AnalyticsService {
   }
 
   Future<void> setUserProperty(String name, String? value) async {
+    final sink = debugSink;
+    if (sink != null) return sink('user_property:$name', {'value': '$value'});
     try {
       await _analytics.setUserProperty(name: name, value: value);
     } catch (e, s) {
@@ -208,6 +256,87 @@ class AnalyticsService {
 
   Future<void> logWidgetSetupDeferred() =>
       logEvent(AnalyticsEvents.widgetSetupDeferred);
+
+  /// [source]: `detail_page`, `detail_sheet` or `widget` (opened from the
+  /// home/lock-screen widget while locked).
+  Future<void> logBarcodeShown(String source) =>
+      logEvent(AnalyticsEvents.barcodeShown, params: {'source': source});
+
+  Future<void> logScanStarted({required String type, required String method}) =>
+      logEvent(AnalyticsEvents.scanStarted,
+          params: {'type': type, 'method': method});
+
+  Future<void> logScanSucceeded({
+    required String type,
+    required String method,
+  }) =>
+      logEvent(AnalyticsEvents.scanSucceeded,
+          params: {'type': type, 'method': method});
+
+  Future<void> logScanFailed({required String type, required String method}) =>
+      logEvent(AnalyticsEvents.scanFailed,
+          params: {'type': type, 'method': method});
+
+  /// [provider]: `apple` or `google`.
+  Future<void> logWalletExportAttempt(String provider) => logEvent(
+      AnalyticsEvents.walletExportAttempt,
+      params: {'provider': provider});
+
+  Future<void> logWalletExportSuccess(String provider) => logEvent(
+      AnalyticsEvents.walletExportSuccess,
+      params: {'provider': provider});
+
+  /// [errorKey] is the translation key shown to the user (or `canceled` /
+  /// `unknown`), never an exception message.
+  Future<void> logWalletExportFailed({
+    required String provider,
+    required String errorKey,
+  }) =>
+      logEvent(AnalyticsEvents.walletExportFailed,
+          params: {'provider': provider, 'error_key': errorKey});
+
+  Future<void> logBackupCreated() => logEvent(AnalyticsEvents.backupCreated);
+
+  Future<void> logBackupRestored() => logEvent(AnalyticsEvents.backupRestored);
+
+  Future<void> logCardCopied(String cardType) =>
+      logEvent(AnalyticsEvents.cardCopied, params: {'card_type': cardType});
+
+  Future<void> logCardShared({
+    required String cardType,
+    required bool masked,
+  }) =>
+      logEvent(AnalyticsEvents.cardShared, params: {
+        'card_type': cardType,
+        'masked': masked ? 'true' : 'false',
+      });
+
+  /// [kind]: `expiry` or `payment`.
+  Future<void> logReminderEnabled(String kind) =>
+      logEvent(AnalyticsEvents.reminderEnabled, params: {'kind': kind});
+
+  Future<void> logPaywallDismissed({String? trigger, String? feature}) =>
+      logEvent(AnalyticsEvents.paywallDismissed, params: {
+        'trigger': trigger ?? 'unknown',
+        if (feature != null) 'feature': feature,
+      });
+
+  Future<void> logPremiumGateTapped(String feature) => logEvent(
+      AnalyticsEvents.premiumGateTapped,
+      params: {'feature': feature});
+
+  Future<void> setCardCounts({
+    required int credit,
+    required int iban,
+    required int loyalty,
+  }) async {
+    await setUserProperty(AnalyticsUserProps.creditCardCount, '$credit');
+    await setUserProperty(AnalyticsUserProps.ibanCardCount, '$iban');
+    await setUserProperty(AnalyticsUserProps.loyaltyCardCount, '$loyalty');
+  }
+
+  Future<void> setHasPin(bool hasPin) =>
+      setUserProperty(AnalyticsUserProps.hasPin, hasPin ? 'true' : 'false');
 
   Future<void> setIsPremium(bool isPremium) => setUserProperty(
       AnalyticsUserProps.isPremium, isPremium ? 'true' : 'false');

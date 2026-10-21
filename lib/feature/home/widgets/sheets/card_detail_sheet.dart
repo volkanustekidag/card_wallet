@@ -40,6 +40,7 @@ import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/utils/card_number_layout.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/card_share_choice_sheet.dart';
 import 'package:wallet_app/core/services/barcode_display_boost.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 /// Open the unified card detail sheet. Slides up as a draggable modal
 /// bottom sheet so the home stays visible behind it (Apple Wallet feel).
@@ -284,6 +285,7 @@ class _FieldRow extends StatelessWidget {
   final String label;
   final String value;
   final String copyValue;
+  final String cardType;
   final bool isFirst;
   final bool isLast;
   final Widget? trailing;
@@ -292,6 +294,7 @@ class _FieldRow extends StatelessWidget {
     required this.label,
     required this.value,
     required this.copyValue,
+    required this.cardType,
     this.isFirst = false,
     this.isLast = false,
     this.trailing,
@@ -303,7 +306,7 @@ class _FieldRow extends StatelessWidget {
     return InkWell(
       onTap: () {
         HapticFeedback.lightImpact();
-        SensitiveClipboard.copy(copyValue);
+        SensitiveClipboard.copy(copyValue, cardType: cardType);
         Get.context?.showSuccessSnackBar('detailFieldCopied');
       },
       borderRadius: BorderRadius.vertical(
@@ -642,6 +645,7 @@ class _CreditDetailBodyState extends State<_CreditDetailBody> {
                 _FieldGroup(
                   rows: [
                     _FieldRow(
+                      cardType: AnalyticsCardType.credit,
                       label: 'fieldNumber'.tr(),
                       value: _numberRevealed
                           ? _formatGroupedNumber(number)
@@ -656,6 +660,7 @@ class _CreditDetailBodyState extends State<_CreditDetailBody> {
                       ),
                     ),
                     _FieldRow(
+                      cardType: AnalyticsCardType.credit,
                       label: 'fieldHolder'.tr(),
                       value: widget.card.cardHolder.isNotEmpty
                           ? widget.card.cardHolder
@@ -663,6 +668,7 @@ class _CreditDetailBodyState extends State<_CreditDetailBody> {
                       copyValue: widget.card.cardHolder,
                     ),
                     _FieldRow(
+                      cardType: AnalyticsCardType.credit,
                       label: 'fieldExpiry'.tr(),
                       value: widget.card.expirationDate.isNotEmpty
                           ? widget.card.expirationDate
@@ -670,6 +676,7 @@ class _CreditDetailBodyState extends State<_CreditDetailBody> {
                       copyValue: widget.card.expirationDate,
                     ),
                     _FieldRow(
+                      cardType: AnalyticsCardType.credit,
                       label: 'fieldBank'.tr(),
                       value: widget.card.bankName.isNotEmpty
                           ? widget.card.bankName
@@ -733,6 +740,10 @@ class _CreditDetailBodyState extends State<_CreditDetailBody> {
         digits.length >= 4 ? digits.substring(digits.length - 4) : digits;
     final choice = await showCardShareChoiceSheet(context, last4: last4);
     if (choice == null || !context.mounted) return;
+    AnalyticsService.instance.logCardShared(
+      cardType: AnalyticsCardType.credit,
+      masked: choice == CardShareChoice.masked,
+    );
 
     final text = choice == CardShareChoice.masked
         ? [c.bankName, '•••• $last4', c.cardHolder]
@@ -842,6 +853,7 @@ class _IbanDetailBodyState extends State<_IbanDetailBody> {
                 _FieldGroup(
                   rows: [
                     _FieldRow(
+                      cardType: AnalyticsCardType.iban,
                       label: 'fieldHolder'.tr(),
                       value: widget.card.cardHolder.isNotEmpty
                           ? widget.card.cardHolder
@@ -850,11 +862,13 @@ class _IbanDetailBodyState extends State<_IbanDetailBody> {
                       isFirst: true,
                     ),
                     _FieldRow(
+                      cardType: AnalyticsCardType.iban,
                       label: 'fieldIban'.tr(),
                       value: iban,
                       copyValue: widget.card.iban.replaceAll(' ', ''),
                     ),
                     _FieldRow(
+                      cardType: AnalyticsCardType.iban,
                       label: 'fieldSwift'.tr(),
                       value: widget.card.swiftCode.isNotEmpty
                           ? widget.card.swiftCode
@@ -862,6 +876,7 @@ class _IbanDetailBodyState extends State<_IbanDetailBody> {
                       copyValue: widget.card.swiftCode,
                     ),
                     _FieldRow(
+                      cardType: AnalyticsCardType.iban,
                       label: 'fieldBank'.tr(),
                       value: widget.card.bankName.isNotEmpty
                           ? widget.card.bankName
@@ -976,6 +991,8 @@ class _IbanDetailBodyState extends State<_IbanDetailBody> {
 
   Future<void> _share(BuildContext context) async {
     final c = widget.card;
+    AnalyticsService.instance
+        .logCardShared(cardType: AnalyticsCardType.iban, masked: false);
     final text = '${c.bankName}\nIBAN: ${c.iban}\n${c.cardHolder}';
     await AppLockService.guard(() => Share.share(
       text,
@@ -1043,6 +1060,7 @@ class _LoyaltyDetailBodyState extends State<_LoyaltyDetailBody> {
   void initState() {
     super.initState();
     BarcodeDisplayBoost.instance.acquire();
+    AnalyticsService.instance.logBarcodeShown('detail_sheet');
   }
 
   @override
@@ -1301,7 +1319,10 @@ class _LoyaltyDetailBodyState extends State<_LoyaltyDetailBody> {
 
   void _copyBarcode() {
     HapticFeedback.lightImpact();
-    SensitiveClipboard.copy(widget.card.barcode);
+    SensitiveClipboard.copy(
+      widget.card.barcode,
+      cardType: AnalyticsCardType.loyalty,
+    );
     Get.context?.showSuccessSnackBar('detailFieldCopied');
   }
 

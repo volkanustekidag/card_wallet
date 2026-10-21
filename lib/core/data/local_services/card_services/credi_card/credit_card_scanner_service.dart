@@ -9,6 +9,7 @@ import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/utils/scan_photo_cleanup.dart';
 import 'package:wallet_app/core/utils/card_number_layout.dart';
 import 'package:wallet_app/core/utils/validators.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 class CreditCardScannerService {
   final ImagePicker _picker = ImagePicker();
@@ -22,6 +23,10 @@ class CreditCardScannerService {
         return null;
       }
 
+      AnalyticsService.instance.logScanStarted(
+        type: AnalyticsCardType.credit,
+        method: AnalyticsScanMethod.camera,
+      );
       // Kameradan fotoğraf çek
       photo = await AppLockService.guard(() => _picker.pickImage(
         source: ImageSource.camera,
@@ -37,8 +42,12 @@ class CreditCardScannerService {
           await _textRecognizer.processImage(inputImage);
 
       // Kredi kartı bilgilerini parse et
-      return _parseCreditCardInfo(recognizedText.text);
+      return _reportScan(
+        _parseCreditCardInfo(recognizedText.text),
+        AnalyticsScanMethod.camera,
+      );
     } catch (e) {
+      _logScanFailed(AnalyticsScanMethod.camera);
       Get.context?.showErrorSnackBar('failedToScanCreditCard'.tr());
       return null;
     } finally {
@@ -50,6 +59,10 @@ class CreditCardScannerService {
   Future<Map<String, String>?> scanFromGallery() async {
     XFile? photo;
     try {
+      AnalyticsService.instance.logScanStarted(
+        type: AnalyticsCardType.credit,
+        method: AnalyticsScanMethod.gallery,
+      );
       photo = await AppLockService.guard(() => _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 100,
@@ -61,8 +74,12 @@ class CreditCardScannerService {
       final RecognizedText recognizedText =
           await _textRecognizer.processImage(inputImage);
 
-      return _parseCreditCardInfo(recognizedText.text);
+      return _reportScan(
+        _parseCreditCardInfo(recognizedText.text),
+        AnalyticsScanMethod.gallery,
+      );
     } catch (e) {
+      _logScanFailed(AnalyticsScanMethod.gallery);
       return null;
     } finally {
       await deleteScanPhoto(photo, fromCamera: false);
@@ -145,6 +162,20 @@ class CreditCardScannerService {
     }
     return null;
   }
+
+  /// A scan "succeeds" when OCR found a card number.
+  Map<String, String> _reportScan(Map<String, String> info, String method) {
+    if (info['cardNumber']?.isNotEmpty == true) {
+      AnalyticsService.instance
+          .logScanSucceeded(type: AnalyticsCardType.credit, method: method);
+    } else {
+      _logScanFailed(method);
+    }
+    return info;
+  }
+
+  void _logScanFailed(String method) => AnalyticsService.instance
+      .logScanFailed(type: AnalyticsCardType.credit, method: method);
 
   // Kart sahibi ismini formatla
   String _formatCardHolderName(String name) {

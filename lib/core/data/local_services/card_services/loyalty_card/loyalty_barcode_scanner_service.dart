@@ -7,6 +7,7 @@ import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/camera_permission_service.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/utils/scan_photo_cleanup.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 class LoyaltyBarcodeScanResult {
   final String rawValue;
@@ -32,8 +33,13 @@ class LoyaltyBarcodeScannerService {
   }
 
   Future<LoyaltyBarcodeScanResult?> _pickAndDecode(ImageSource source) async {
+    final method = source == ImageSource.camera
+        ? AnalyticsScanMethod.camera
+        : AnalyticsScanMethod.gallery;
     XFile? photo;
     try {
+      AnalyticsService.instance
+          .logScanStarted(type: AnalyticsCardType.loyalty, method: method);
       photo = await AppLockService.guard(() => _picker.pickImage(
         source: source,
         imageQuality: 100,
@@ -44,6 +50,7 @@ class LoyaltyBarcodeScannerService {
       final inputImage = InputImage.fromFilePath(photo.path);
       final barcodes = await _barcodeScanner.processImage(inputImage);
       if (barcodes.isEmpty) {
+        _logFailed(method);
         Get.context?.showInfoSnackBar('loyaltyBarcodeNotFound'.tr());
         return null;
       }
@@ -51,15 +58,19 @@ class LoyaltyBarcodeScannerService {
       final Barcode first = barcodes.first;
       final raw = first.rawValue?.trim();
       if (raw == null || raw.isEmpty) {
+        _logFailed(method);
         Get.context?.showInfoSnackBar('loyaltyBarcodeNotFound'.tr());
         return null;
       }
 
+      AnalyticsService.instance
+          .logScanSucceeded(type: AnalyticsCardType.loyalty, method: method);
       return LoyaltyBarcodeScanResult(
         rawValue: raw,
         format: _mapFormat(first.format),
       );
     } catch (e) {
+      _logFailed(method);
       debugPrint('Loyalty scan error: $e');
       Get.context?.showErrorSnackBar('loyaltyBarcodeScanError'.tr());
       return null;
@@ -67,6 +78,9 @@ class LoyaltyBarcodeScannerService {
       await deleteScanPhoto(photo, fromCamera: source == ImageSource.camera);
     }
   }
+
+  void _logFailed(String method) => AnalyticsService.instance
+      .logScanFailed(type: AnalyticsCardType.loyalty, method: method);
 
   /// Maps ML Kit's [BarcodeFormat] to the string codes used by
   /// `loyalty_barcode_formats.dart`. Returns null for formats not supported

@@ -79,6 +79,10 @@ class AuthController extends GetxController {
     final hasExisting = _authenticationService.hasPasswordSync();
     hasPassword.value = hasExisting;
     isRegistering.value = !hasExisting;
+    unawaited(AnalyticsService.instance.setHasPin(hasExisting));
+    ever<bool>(hasPassword, (has) {
+      unawaited(AnalyticsService.instance.setHasPin(has));
+    });
 
     // Background-only work. None of these block the lock screen render: the
     // PIN field is interactive immediately, biometric button just appears

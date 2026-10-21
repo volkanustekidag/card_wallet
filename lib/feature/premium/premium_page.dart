@@ -41,6 +41,11 @@ class _PremiumPageState extends State<PremiumPage>
   /// flips to the picker when they tap "Change plan".
   bool _changingPlan = false;
 
+  // For paywall_dismissed: how the user got here and whether they bought.
+  String? _trigger;
+  String? _featureArg;
+  bool _purchased = false;
+
   // Each feature pairs a translation key with the icon that visually
   // represents it; `ad-free` was dropped because the app has no ads.
   static const List<_Feature> _features = [
@@ -111,9 +116,11 @@ class _PremiumPageState extends State<PremiumPage>
         cardTypeArg = args['card_type'] as String;
       }
     }
+    _trigger = triggerArg ?? (featureArg == null ? 'direct' : 'feature_gate');
+    _featureArg = featureArg;
     unawaited(
       AnalyticsService.instance.logPaywallViewed(
-        trigger: triggerArg ?? (featureArg == null ? 'direct' : 'feature_gate'),
+        trigger: _trigger,
         feature: featureArg,
         cardType: cardTypeArg,
       ),
@@ -135,6 +142,10 @@ class _PremiumPageState extends State<PremiumPage>
 
   @override
   void dispose() {
+    if (!_purchased && !_premiumController.isPremium) {
+      AnalyticsService.instance
+          .logPaywallDismissed(trigger: _trigger, feature: _featureArg);
+    }
     _diamondController.dispose();
     _ctaPulseController.dispose();
     _productWorker?.dispose();
@@ -324,6 +335,7 @@ class _PremiumPageState extends State<PremiumPage>
     if (!mounted) return;
     switch (result) {
       case PremiumPurchaseResult.success:
+        _purchased = true;
         unawaited(
           AnalyticsService.instance.logPurchaseSuccess(
             productId: product.id,

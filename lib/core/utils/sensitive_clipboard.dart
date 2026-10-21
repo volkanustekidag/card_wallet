@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 /// Copies sensitive values (card numbers, IBANs, barcodes) to the clipboard
 /// and auto-clears them after [_clearAfter] unless the user copies something
@@ -29,8 +30,11 @@ class SensitiveClipboard {
       MethodChannel('app.cardwallet/sensitive_clipboard');
   static int _epoch = 0;
 
-  static Future<void> copy(String value) async {
+  /// [cardType] (`credit` / `iban` / `loyalty`) is only used for the
+  /// `card_copied` analytics event; the copied value never leaves the device.
+  static Future<void> copy(String value, {String? cardType}) async {
     final myEpoch = ++_epoch;
+    if (cardType != null) AnalyticsService.instance.logCardCopied(cardType);
     if (!await _copyNative(value)) {
       await Clipboard.setData(ClipboardData(text: value));
     }

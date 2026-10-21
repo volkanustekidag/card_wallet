@@ -115,12 +115,14 @@ class AddCreditCardController extends GetxController {
         break;
       case "expiryReminderEnabled":
         card.expiryReminderEnabled = value as bool;
+        if (value) AnalyticsService.instance.logReminderEnabled('expiry');
         break;
       case "expiryReminderDaysBefore":
         card.expiryReminderDaysBefore = value as int;
         break;
       case "paymentReminderEnabled":
         card.paymentReminderEnabled = value as bool;
+        if (value) AnalyticsService.instance.logReminderEnabled('payment');
         break;
       case "paymentDueDay":
         card.paymentDueDay = value as int?;

@@ -20,6 +20,7 @@ import 'package:wallet_app/feature/loyalty_card/widgets/barcode_renderer.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/loyalty_card_widget.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/shareable_loyalty_card.dart';
 import 'package:wallet_app/core/services/barcode_display_boost.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 class LoyaltyCardDetailPage extends StatefulWidget {
   final LoyaltyCard card;
@@ -51,6 +52,8 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
     // shouldn't ever block the page from rendering.
     WidgetDataService.instance.setLastUsedLoyaltyCard(card);
     BarcodeDisplayBoost.instance.acquire();
+    AnalyticsService.instance
+        .logBarcodeShown(readOnly ? 'widget' : 'detail_page');
   }
 
   @override
@@ -311,7 +314,10 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
                           icon: Icons.copy_rounded,
                           label: 'copyBarcodeAction'.tr(),
                           onTap: () {
-                            SensitiveClipboard.copy(card.barcode);
+                            SensitiveClipboard.copy(
+                              card.barcode,
+                              cardType: AnalyticsCardType.loyalty,
+                            );
                             HapticFeedback.lightImpact();
                             Get.context?.showSuccessSnackBar('copyInfo');
                           },
@@ -379,6 +385,8 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
 
   Future<void> _onShare(BuildContext context) async {
     HapticFeedback.lightImpact();
+    AnalyticsService.instance
+        .logCardShared(cardType: AnalyticsCardType.loyalty, masked: false);
     final brandLogo =
         await ShareableLoyaltyCard.precacheBrandLogo(context, card);
     if (!context.mounted) return;

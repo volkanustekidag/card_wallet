@@ -29,6 +29,8 @@ import 'package:wallet_app/feature/settings/bottom_sheet/lang_bottom_sheet.dart'
 import 'package:wallet_app/feature/settings/bottom_sheet/theme_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_card.dart';
 import 'package:wallet_app/core/utils/locale_upper.dart';
+import 'package:wallet_app/core/utils/premium_gate.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 class SettingsBody extends StatefulWidget {
   const SettingsBody({Key? key}) : super(key: key);
@@ -347,7 +349,7 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
   ) async {
     HapticFeedback.lightImpact();
     if (!isPremium) {
-      Get.toNamed('/premium', arguments: {'feature': 'biometric'});
+      openPremiumGate('biometric');
       return;
     }
     if (desiredValue && !authController.hasPassword.value) {
@@ -406,8 +408,7 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: isPremium
                 ? () => _createBackup(context)
-                : () => Get.toNamed('/premium',
-                    arguments: {'feature': 'backupRestore'}),
+                : () => openPremiumGate('backupRestore'),
           );
         }),
         Obx(() {
@@ -420,8 +421,7 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),
             onTap: isPremium
                 ? () => _restoreBackup(context)
-                : () => Get.toNamed('/premium',
-                    arguments: {'feature': 'backupRestore'}),
+                : () => openPremiumGate('backupRestore'),
           );
         }),
         SettingsCard(
@@ -514,6 +514,7 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
       );
       if (!mounted) return;
       if (filePath == null) return; // User cancelled the save dialog.
+      AnalyticsService.instance.logBackupCreated();
       context.showSuccessSnackBar('backupSuccess'.tr());
     } on BackupError catch (e) {
       if (!mounted) return;
@@ -556,7 +557,9 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
         ),
         confirmLegacyPlaintext: _confirmLegacyPlaintextRestore,
       );
-      if (!restored || !mounted) return;
+      if (!restored) return;
+      AnalyticsService.instance.logBackupRestored();
+      if (!mounted) return;
       context.showSuccessSnackBar('restoreSuccess');
     } on BackupError catch (e) {
       if (!mounted) return;

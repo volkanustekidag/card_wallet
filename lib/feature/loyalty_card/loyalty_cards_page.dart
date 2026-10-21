@@ -19,6 +19,7 @@ import 'package:wallet_app/feature/add_loyalty_card/add_loyalty_card_page.dart';
 import 'package:wallet_app/feature/loyalty_card/controller/loyalty_card_controller.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_card_detail_page.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/loyalty_card_widget.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 class LoyaltyCardsPage extends StatefulWidget {
   const LoyaltyCardsPage({Key? key}) : super(key: key);
@@ -276,7 +277,10 @@ class _LoyaltyCardsPageState extends State<LoyaltyCardsPage> {
                     icon: Icons.copy_rounded,
                     label: 'copyBarcodeAction'.tr(),
                     onTap: () {
-                      SensitiveClipboard.copy(card.barcode);
+                      SensitiveClipboard.copy(
+                        card.barcode,
+                        cardType: AnalyticsCardType.loyalty,
+                      );
                       HapticFeedback.lightImpact();
                       Navigator.pop(sheetContext);
                       context.showSuccessSnackBar('copyInfo');

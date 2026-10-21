@@ -122,6 +122,13 @@ class HomeController extends GetxController {
           creditCardList.length + ibanCardList.length + loyaltyCardList.length,
         ),
       );
+      unawaited(
+        AnalyticsService.instance.setCardCounts(
+          credit: creditCardList.length,
+          iban: ibanCardList.length,
+          loyalty: loyaltyCardList.length,
+        ),
+      );
 
       // Single sort here — every consumer reads walletItems instead of
       // calling mergeAndSort() in their build path.

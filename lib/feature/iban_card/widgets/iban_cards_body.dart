@@ -18,6 +18,8 @@ import 'package:wallet_app/feature/iban_card/utils/iban_card_utils.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_qr_generator.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
+import 'package:wallet_app/core/utils/premium_gate.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 class IbanCardsBody extends StatefulWidget {
   final IbanCardController controller;
@@ -160,7 +162,7 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
   }
 
   void _copyIBAN(BuildContext context, IbanCard ibanCard) {
-    SensitiveClipboard.copy(ibanCard.iban);
+    SensitiveClipboard.copy(ibanCard.iban, cardType: AnalyticsCardType.iban);
     HapticFeedback.lightImpact();
     _showAutoHideSnackBar(context, 'ibanCopied'.tr());
   }
@@ -188,7 +190,7 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
           false;
 
       if (shouldUpgrade) {
-        Get.toNamed('/premium');
+        openPremiumGate('qrCreate');
       }
       return;
     }
@@ -266,7 +268,9 @@ class _IbanCardsBodyState extends State<IbanCardsBody> {
                   onTap: () {
                     Navigator.pop(context);
                     SensitiveClipboard.copy(
-                        "${ibanCard.cardHolder}\n${ibanCard.iban}\n${ibanCard.swiftCode}\n${ibanCard.bankName}");
+                      "${ibanCard.cardHolder}\n${ibanCard.iban}\n${ibanCard.swiftCode}\n${ibanCard.bankName}",
+                      cardType: AnalyticsCardType.iban,
+                    );
                     _showAutoHideSnackBar(context, 'copyInfo'.tr());
                   },
                 ),

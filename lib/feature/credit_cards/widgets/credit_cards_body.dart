@@ -17,6 +17,7 @@ import 'package:wallet_app/core/widgets/tag_filter_chips.dart';
 import 'package:wallet_app/feature/add_credit_card/add_credit_card_page.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 
 class Body extends StatefulWidget {
   final CreditCardController controller;
@@ -445,7 +446,10 @@ class _BodyState extends State<Body> {
                   icon: Icons.copy_rounded,
                   label: 'copyCardNumberAction'.tr(),
                   onTap: () {
-                    SensitiveClipboard.copy(creditCard.creditCardNumber);
+                    SensitiveClipboard.copy(
+                      creditCard.creditCardNumber,
+                      cardType: AnalyticsCardType.credit,
+                    );
                     HapticFeedback.lightImpact();
                     Navigator.of(sheetContext).pop();
                     context.showSuccessSnackBar('copyInfo');
