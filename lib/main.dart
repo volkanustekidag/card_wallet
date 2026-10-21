@@ -21,6 +21,7 @@ import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
+import 'package:wallet_app/core/services/hive_backup_exclusion.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/services/rate_app_service.dart';
 import 'package:wallet_app/core/services/wallet_surfaces_sync.dart';
@@ -143,6 +144,7 @@ Future<void> _initFirebase() async {
 /// set, and letting the user through would skip the lock screen.
 Future<void> _boot() async {
   await Hive.initFlutter();
+  unawaited(HiveBackupExclusion.apply());
 
   // Run any pending schema migrations *before* services open their boxes
   // — otherwise a service would cache pre-migration records as the
