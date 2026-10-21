@@ -105,7 +105,17 @@ class AddIbanCardController extends GetxController {
     currentCard.refresh(); // Trigger UI update
   }
 
+  /// Holder name and an IBAN of plausible length are required; everything
+  /// else (bank, SWIFT, notes) is optional. The shortest IBANs (Norway) have
+  /// 15 characters.
+  static bool hasRequiredFields(IbanCard card) =>
+      card.cardHolder.trim().isNotEmpty &&
+      card.iban.replaceAll(RegExp(r'\s'), '').length >= 15;
+
+  bool get canSave => hasRequiredFields(currentCard.value);
+
   Future<void> saveCard() async {
+    if (!canSave) return;
     try {
       isLoading.value = true;
       final wasEditMode = isEditMode.value;

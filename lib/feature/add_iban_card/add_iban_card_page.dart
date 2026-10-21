@@ -151,12 +151,16 @@ class _AddIbanCardPageState extends State<AddIbanCardPage> {
       bottomNavigationBar: StickyBottomBar(
         child: Obx(() {
           final isBusy = _controller.isLoading.value;
+          // Reading currentCard.value makes the button react to typing.
+          final canSave = AddIbanCardController.hasRequiredFields(
+            _controller.currentCard.value,
+          );
           return PrimaryFormButton(
             label: _controller.isEditMode.value
                 ? 'updateAction'.tr()
                 : 'addAction'.tr(),
             isBusy: isBusy,
-            onPressed: isBusy ? null : _controller.saveCard,
+            onPressed: isBusy || !canSave ? null : _controller.saveCard,
           );
         }),
       ),
