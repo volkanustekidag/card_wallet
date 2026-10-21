@@ -499,5 +499,10 @@
     "deleteAllDataError": "Certaines données n'ont pas pu être supprimées. Veuillez réessayer.",
     "legacyBackupWarningTitle": "Sauvegarde non chiffrée",
     "legacyBackupWarningBody": "Cette sauvegarde provient d'une ancienne version et n'est pas chiffrée : toute personne disposant du fichier peut lire vos cartes. Après la restauration, supprimez l'ancien fichier et créez une nouvelle sauvegarde chiffrée.",
-    "legacyBackupWarningConfirm": "Restaurer quand même"
+    "legacyBackupWarningConfirm": "Restaurer quand même",
+    "shareCardTitle": "Partager la carte",
+    "shareMaskedOption": "Numéro masqué",
+    "shareMaskedSubtitle": "Banque, titulaire et 4 derniers chiffres (•••• {})",
+    "shareFullOption": "Numéro de carte complet",
+    "shareFullWarning": "Inclut le numéro, le titulaire et la date d'expiration : assez pour payer en ligne. À ne partager qu'avec des personnes de confiance."
 }

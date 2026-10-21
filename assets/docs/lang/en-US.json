@@ -499,5 +499,10 @@
     "deleteAllDataError": "Some data could not be deleted. Please try again.",
     "legacyBackupWarningTitle": "Unencrypted backup",
     "legacyBackupWarningBody": "This backup was made by an older version and is not encrypted: anyone with the file can read your card details. After restoring, delete the old file and create a new encrypted backup.",
-    "legacyBackupWarningConfirm": "Restore anyway"
+    "legacyBackupWarningConfirm": "Restore anyway",
+    "shareCardTitle": "Share card",
+    "shareMaskedOption": "Masked number",
+    "shareMaskedSubtitle": "Bank, holder and last 4 digits (•••• {})",
+    "shareFullOption": "Full card number",
+    "shareFullWarning": "Includes number, holder and expiry date — enough to pay online. Share only with people you trust."
 }

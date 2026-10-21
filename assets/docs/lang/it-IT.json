@@ -499,5 +499,10 @@
     "deleteAllDataError": "Alcuni dati non sono stati eliminati. Riprova.",
     "legacyBackupWarningTitle": "Backup non crittografato",
     "legacyBackupWarningBody": "Questo backup è stato creato da una versione precedente e non è crittografato: chiunque abbia il file può leggere le tue carte. Dopo il ripristino elimina il vecchio file e crea un nuovo backup crittografato.",
-    "legacyBackupWarningConfirm": "Ripristina comunque"
+    "legacyBackupWarningConfirm": "Ripristina comunque",
+    "shareCardTitle": "Condividi carta",
+    "shareMaskedOption": "Numero mascherato",
+    "shareMaskedSubtitle": "Banca, titolare e ultime 4 cifre (•••• {})",
+    "shareFullOption": "Numero di carta completo",
+    "shareFullWarning": "Include numero, titolare e scadenza: abbastanza per pagare online. Condividi solo con persone di fiducia."
 }

@@ -499,5 +499,10 @@
     "deleteAllDataError": "Einige Daten konnten nicht gelöscht werden. Bitte versuche es erneut.",
     "legacyBackupWarningTitle": "Unverschlüsseltes Backup",
     "legacyBackupWarningBody": "Dieses Backup stammt von einer älteren Version und ist nicht verschlüsselt: Jeder mit der Datei kann deine Kartendaten lesen. Lösche die alte Datei nach der Wiederherstellung und erstelle ein neues, verschlüsseltes Backup.",
-    "legacyBackupWarningConfirm": "Trotzdem wiederherstellen"
+    "legacyBackupWarningConfirm": "Trotzdem wiederherstellen",
+    "shareCardTitle": "Karte teilen",
+    "shareMaskedOption": "Maskierte Nummer",
+    "shareMaskedSubtitle": "Bank, Inhaber und letzte 4 Ziffern (•••• {})",
+    "shareFullOption": "Vollständige Kartennummer",
+    "shareFullWarning": "Enthält Nummer, Inhaber und Ablaufdatum – genug für Online-Zahlungen. Nur mit Personen teilen, denen du vertraust."
 }

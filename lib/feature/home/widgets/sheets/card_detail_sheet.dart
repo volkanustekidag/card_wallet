@@ -37,6 +37,8 @@ import 'package:wallet_app/feature/loyalty_card/utils/loyalty_wallet_action.dart
 import 'package:wallet_app/feature/loyalty_card/widgets/barcode_renderer.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/shareable_loyalty_card.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
+import 'package:wallet_app/core/utils/card_number_layout.dart';
+import 'package:wallet_app/feature/home/widgets/sheets/card_share_choice_sheet.dart';
 
 /// Open the unified card detail sheet. Slides up as a draggable modal
 /// bottom sheet so the home stays visible behind it (Apple Wallet feel).
@@ -715,24 +717,28 @@ class _CreditDetailBodyState extends State<_CreditDetailBody> {
   String _maskNumber(String raw) {
     final clean = raw.replaceAll(' ', '');
     if (clean.length < 4) return raw;
-    final tail = clean.substring(clean.length - 4);
-    return '•••• •••• •••• $tail';
+    return CardNumberLayout.mask(clean);
   }
 
-  String _formatGroupedNumber(String raw) {
-    final clean = raw.replaceAll(' ', '');
-    final buffer = StringBuffer();
-    for (var i = 0; i < clean.length; i++) {
-      if (i > 0 && i % 4 == 0) buffer.write(' ');
-      buffer.write(clean[i]);
-    }
-    return buffer.toString();
-  }
+  String _formatGroupedNumber(String raw) => CardNumberLayout.format(raw);
 
+  /// Sharing a full PAN + name + expiry is enough to use the card online,
+  /// so ask first: masked (last 4 only) is the default, full number comes
+  /// with a warning.
   Future<void> _share(BuildContext context) async {
     final c = widget.card;
-    final text =
-        '${c.bankName} • ${c.creditCardNumber} • ${c.cardHolder} • ${c.expirationDate}';
+    final digits = CardNumberLayout.digitsOf(c.creditCardNumber);
+    final last4 =
+        digits.length >= 4 ? digits.substring(digits.length - 4) : digits;
+    final choice = await showCardShareChoiceSheet(context, last4: last4);
+    if (choice == null || !context.mounted) return;
+
+    final text = choice == CardShareChoice.masked
+        ? [c.bankName, '•••• $last4', c.cardHolder]
+            .where((part) => part.trim().isNotEmpty)
+            .join(' • ')
+        : '${c.bankName} • ${_formatGroupedNumber(c.creditCardNumber)} • '
+            '${c.cardHolder} • ${c.expirationDate}';
     await AppLockService.guard(() => Share.share(
       text,
       sharePositionOrigin: shareOriginFromContext(context),

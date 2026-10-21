@@ -499,5 +499,10 @@
     "deleteAllDataError": "Bazı veriler silinemedi. Lütfen tekrar dene.",
     "legacyBackupWarningTitle": "Şifrelenmemiş yedek",
     "legacyBackupWarningBody": "Bu yedek eski bir sürümle alınmış ve şifreli değil: dosyaya sahip olan herkes kart bilgilerini okuyabilir. Geri yükledikten sonra eski dosyayı sil ve yeni, şifreli bir yedek oluştur.",
-    "legacyBackupWarningConfirm": "Yine de geri yükle"
+    "legacyBackupWarningConfirm": "Yine de geri yükle",
+    "shareCardTitle": "Kartı paylaş",
+    "shareMaskedOption": "Maskeli numara",
+    "shareMaskedSubtitle": "Banka, kart sahibi ve son 4 hane (•••• {})",
+    "shareFullOption": "Tam kart numarası",
+    "shareFullWarning": "Numara, kart sahibi ve son kullanma tarihi dahil — online ödeme için yeterli. Sadece güvendiğin kişilerle paylaş."
 }

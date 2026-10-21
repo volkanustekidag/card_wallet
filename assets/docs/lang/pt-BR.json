@@ -499,5 +499,10 @@
     "deleteAllDataError": "Alguns dados não puderam ser excluídos. Tente novamente.",
     "legacyBackupWarningTitle": "Backup sem criptografia",
     "legacyBackupWarningBody": "Este backup foi feito por uma versão antiga e não é criptografado: qualquer pessoa com o arquivo pode ler seus cartões. Depois de restaurar, apague o arquivo antigo e crie um novo backup criptografado.",
-    "legacyBackupWarningConfirm": "Restaurar mesmo assim"
+    "legacyBackupWarningConfirm": "Restaurar mesmo assim",
+    "shareCardTitle": "Compartilhar cartão",
+    "shareMaskedOption": "Número mascarado",
+    "shareMaskedSubtitle": "Banco, titular e últimos 4 dígitos (•••• {})",
+    "shareFullOption": "Número completo do cartão",
+    "shareFullWarning": "Inclui número, titular e validade — o suficiente para pagar online. Compartilhe só com quem você confia."
 }

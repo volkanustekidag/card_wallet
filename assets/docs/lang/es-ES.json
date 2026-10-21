@@ -499,5 +499,10 @@
     "deleteAllDataError": "No se pudieron eliminar algunos datos. Inténtalo de nuevo.",
     "legacyBackupWarningTitle": "Copia de seguridad sin cifrar",
     "legacyBackupWarningBody": "Esta copia se hizo con una versión antigua y no está cifrada: cualquiera con el archivo puede leer tus tarjetas. Después de restaurarla, borra el archivo antiguo y crea una copia nueva cifrada.",
-    "legacyBackupWarningConfirm": "Restaurar de todos modos"
+    "legacyBackupWarningConfirm": "Restaurar de todos modos",
+    "shareCardTitle": "Compartir tarjeta",
+    "shareMaskedOption": "Número oculto",
+    "shareMaskedSubtitle": "Banco, titular y últimos 4 dígitos (•••• {})",
+    "shareFullOption": "Número de tarjeta completo",
+    "shareFullWarning": "Incluye número, titular y caducidad: suficiente para pagar online. Compártelo solo con personas de confianza."
 }

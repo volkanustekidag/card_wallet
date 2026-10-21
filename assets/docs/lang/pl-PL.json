@@ -499,5 +499,10 @@
     "deleteAllDataError": "Nie udało się usunąć części danych. Spróbuj ponownie.",
     "legacyBackupWarningTitle": "Niezaszyfrowana kopia zapasowa",
     "legacyBackupWarningBody": "Ta kopia została utworzona w starszej wersji i nie jest zaszyfrowana: każdy, kto ma plik, może odczytać dane kart. Po przywróceniu usuń stary plik i utwórz nową, zaszyfrowaną kopię.",
-    "legacyBackupWarningConfirm": "Przywróć mimo to"
+    "legacyBackupWarningConfirm": "Przywróć mimo to",
+    "shareCardTitle": "Udostępnij kartę",
+    "shareMaskedOption": "Zamaskowany numer",
+    "shareMaskedSubtitle": "Bank, posiadacz i 4 ostatnie cyfry (•••• {})",
+    "shareFullOption": "Pełny numer karty",
+    "shareFullWarning": "Zawiera numer, posiadacza i datę ważności — wystarczy do płatności online. Udostępniaj tylko zaufanym osobom."
 }
