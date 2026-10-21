@@ -23,7 +23,15 @@ class HomeController extends GetxController {
   var creditCards = <CreditCard>[].obs;
   var ibanCards = <IbanCard>[].obs;
   var loyaltyCards = <LoyaltyCard>[].obs;
+  /// True while any load is running. Background refreshes (resume, box
+  /// watchers) flip it too, so the UI must not swap to a spinner on it.
   var isLoading = false.obs;
+
+  /// True until the first load finishes. The only state that may show the
+  /// full-screen spinner — later refreshes keep the current content, scroll
+  /// position and filters on screen.
+  final isInitialLoading = true.obs;
+  final Completer<void> _firstLoad = Completer<void>();
   final latestCreditCard = Rxn<CreditCard>();
   final latestIbanCard = Rxn<IbanCard>();
   final latestLoyaltyCard = Rxn<LoyaltyCard>();
@@ -146,8 +154,13 @@ class HomeController extends GetxController {
       debugPrint('Error loading home content: $e');
     } finally {
       isLoading.value = false;
+      isInitialLoading.value = false;
+      if (!_firstLoad.isCompleted) _firstLoad.complete();
     }
   }
+
+  /// Resolves once the first load has finished (immediately afterwards).
+  Future<void> ensureLoaded() => _firstLoad.future;
 
   void refreshData() {
     loadHomeContent();
