@@ -22,7 +22,7 @@ import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/services/rate_app_service.dart';
-import 'package:wallet_app/core/services/widget_data_service.dart';
+import 'package:wallet_app/core/services/wallet_surfaces_sync.dart';
 import 'package:wallet_app/core/services/widget_deep_link_handler.dart';
 import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
@@ -103,18 +103,11 @@ void main() async {
     // accessed before init completes.
     unawaited(_bootstrapCreditCardsAndReminders());
     unawaited(IbanCardService().init());
-    unawaited(LoyaltyCardService().init().then((_) async {
-      // Don't wait for the user to wander into the loyalty cards page —
-      // the home/lock-screen widget should populate the moment the app
-      // has any cards on disk. Reads the encrypted Hive box once,
-      // pushes the newest card to the widget container.
-      try {
-        final cards = await LoyaltyCardService().getAllLoyaltyCards();
-        await WidgetDataService.instance.reconcile(cards);
-      } catch (e) {
-        debugPrint('loyalty widget reconcile error: $e');
-      }
-    }));
+    // Once the loyalty box is open, keep the widget, quick tile and Apple
+    // Watch in step with it — on launch and on every later change.
+    unawaited(LoyaltyCardService()
+        .init()
+        .then((_) => WalletSurfacesSync.instance.start()));
     unawaited(PremiumService.initialize());
     unawaited(RateAppService.instance.init());
     // Widget deep-link handler must capture the cold-launch URI *before*
