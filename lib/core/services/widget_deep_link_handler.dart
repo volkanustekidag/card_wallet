@@ -93,12 +93,20 @@ class WidgetDeepLinkHandler {
     return _routeForUri(synthetic, fromColdLaunch: true);
   }
 
-  Future<bool> _routeForUri(Uri uri, {required bool fromColdLaunch}) async {
-    if (uri.scheme != _scheme) return false;
-    if (uri.host != _loyaltyHost) return false;
+  /// Loyalty card id from a widget / quick tile URI
+  /// (`cardwallet://loyalty?id=<id>[&homeWidget=1]`), or null when the URI
+  /// isn't one of ours or carries no id.
+  static String? loyaltyCardIdFromUri(Uri uri) {
+    if (uri.scheme != _scheme) return null;
+    if (uri.host != _loyaltyHost) return null;
+    final id = uri.queryParameters[_idParam]?.trim();
+    if (id == null || id.isEmpty) return null;
+    return id;
+  }
 
-    final id = uri.queryParameters[_idParam];
-    if (id == null || id.isEmpty) return false;
+  Future<bool> _routeForUri(Uri uri, {required bool fromColdLaunch}) async {
+    final id = loyaltyCardIdFromUri(uri);
+    if (id == null) return false;
 
     try {
       final service = LoyaltyCardService();
