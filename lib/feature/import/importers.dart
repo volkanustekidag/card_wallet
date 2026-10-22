@@ -12,12 +12,16 @@ class ImportedCard {
   final int? color;
   final String? note;
 
+  /// Past uses from the source app, oldest first (Stocard keeps them).
+  final List<DateTime> usedAt;
+
   const ImportedCard({
     required this.name,
     required this.barcode,
     required this.format,
     this.color,
     this.note,
+    this.usedAt = const [],
   });
 
   bool get barcodeValid =>
@@ -42,21 +46,16 @@ class ImportUnsupported implements Exception {
   const ImportUnsupported();
 }
 
-/// Reads exports of Catima, Stocard (Klarna data export), FidMe, Apple
+/// Reads exports of Catima, Stocard (GDPR data export), FidMe, Apple
 /// Wallet passes and plain CSV files. Pure Dart; never touches the network.
 abstract final class Importers {
   static ImportResult parse(String filename, Uint8List bytes,
       {String? password}) {
     final lower = filename.toLowerCase();
-    final isZip = bytes.length > 4 &&
-        bytes[0] == 0x50 &&
-        bytes[1] == 0x4B; // "PK"
+    final isZip =
+        bytes.length > 4 && bytes[0] == 0x50 && bytes[1] == 0x4B; // "PK"
     if (isZip) return _parseZip(lower, bytes, password);
     final text = _decodeText(bytes);
-    if (lower.endsWith('.json')) {
-      final cards = stocardFromJson({filename: text});
-      if (cards.isNotEmpty) return ImportResult(ImportSource.stocard, cards);
-    }
     final catima = catimaFromCsv(text);
     if (catima != null) return ImportResult(ImportSource.catima, catima);
     final generic = genericCsv(text);
@@ -72,7 +71,10 @@ abstract final class Importers {
   static ImportResult _parseZip(String name, Uint8List bytes, String? pw) {
     Archive archive;
     try {
-      archive = ZipDecoder().decodeBytes(bytes, password: pw, verify: true);
+      // A copy: archive decrypts ZipCrypto entries in place, so a failed
+      // attempt would garble the bytes the password retry needs.
+      archive = ZipDecoder()
+          .decodeBytes(Uint8List.fromList(bytes), password: pw, verify: true);
     } catch (_) {
       throw const ImportNeedsPassword();
     }
@@ -101,7 +103,7 @@ abstract final class Importers {
       final catima = catimaFromCsv(e.value);
       if (catima != null) return ImportResult(ImportSource.catima, catima);
     }
-    final stocard = stocardFromJson(files);
+    final stocard = stocardFromFiles(files);
     if (stocard.isNotEmpty) return ImportResult(ImportSource.stocard, stocard);
     for (final e in files.entries) {
       if (!e.key.toLowerCase().endsWith('.csv')) continue;
@@ -112,7 +114,6 @@ abstract final class Importers {
             g);
       }
     }
-    if (name.endsWith('.pkpass')) throw const ImportUnsupported();
     throw const ImportUnsupported();
   }
 
@@ -142,8 +143,10 @@ abstract final class Importers {
           out.add(ImportedCard(
             name: col('store').isEmpty ? number : col('store'),
             barcode: barcodeId.isNotEmpty ? barcodeId : number,
-            format: mapFormat(col('barcodetype'), barcodeId.isNotEmpty ? barcodeId : number),
-            color: colorRaw == null ? null : (colorRaw & 0xFFFFFFFF) | 0xFF000000,
+            format: mapFormat(
+                col('barcodetype'), barcodeId.isNotEmpty ? barcodeId : number),
+            color:
+                colorRaw == null ? null : (colorRaw & 0xFFFFFFFF) | 0xFF000000,
             note: col('note').isEmpty ? null : col('note'),
           ));
         }
@@ -156,52 +159,102 @@ abstract final class Importers {
 
   // --------------------------------------------------------------- Stocard
 
-  /// Stocard / Klarna data export: one JSON per card with `input_id`
-  /// (the number) and a provider reference; provider JSONs carry names.
-  static List<ImportedCard> stocardFromJson(Map<String, String> files) {
-    final providers = <String, String>{};
-    final cards = <Map<String, dynamic>>[];
-    void visit(dynamic node, String path) {
-      if (node is List) {
-        for (final n in node) {
-          visit(n, path);
-        }
-      } else if (node is Map<String, dynamic>) {
-        if (node.containsKey('input_id')) {
-          cards.add(node);
-        } else if (node['name'] is String &&
-            (path.contains('provider') || node.containsKey('logo_url'))) {
-          final id = (node['id'] ?? path.split('/').last.split('.').first)
-              .toString();
-          providers[id] = node['name'] as String;
-        }
-        for (final v in node.values) {
-          if (v is Map || v is List) visit(v, path);
-        }
+  static final _stocardCard = RegExp(r'/loyalty-cards/([^/]+)/(.+)$');
+  static final _stocardCustomProvider =
+      RegExp(r'/loyalty-card-custom-providers/([^/]+)/content\.json$');
+  static final _stocardUsage = RegExp(r'^usages/[^/]+/content\.json$');
+
+  /// Stocard GDPR data export (a zip, usually password-protected; the
+  /// password came with the download link). One folder per card:
+  ///
+  ///     extracts/<user>/users/<user>/
+  ///       loyalty-cards/<card>/content.json
+  ///         {input_id, input_barcode_format?, input_provider_name?, label?,
+  ///          input_provider_reference: {identifier}}
+  ///       loyalty-cards/<card>/notes/default/content.json     {content}
+  ///       loyalty-cards/<card>/usage-statistics/content.json  {usages: [{time: {value}}]}
+  ///       loyalty-cards/<card>/usages/<id>/content.json       {time: {value}}
+  ///       loyalty-card-custom-providers/<id>/content.json     {name}
+  ///
+  /// [files] maps zip paths to their text. Older exports leave out
+  /// `input_provider_name` for Stocard's own providers; those cards fall
+  /// back to their label, then the number.
+  static List<ImportedCard> stocardFromFiles(Map<String, String> files) {
+    final customProviders = <String, String>{};
+    final content = <String, Map<String, dynamic>>{};
+    final notes = <String, String>{};
+    final used = <String, Set<DateTime>>{};
+
+    Map<String, dynamic>? read(String text) {
+      try {
+        final j = jsonDecode(text);
+        return j is Map<String, dynamic> ? j : null;
+      } catch (_) {
+        return null;
       }
     }
 
-    for (final e in files.entries) {
-      if (!e.key.toLowerCase().endsWith('.json')) continue;
-      try {
-        visit(jsonDecode(e.value), e.key.toLowerCase());
-      } catch (_) {}
+    DateTime? time(dynamic usage) {
+      final value = usage is Map ? usage['time'] : null;
+      final raw = value is Map ? value['value'] : null;
+      return raw is String ? DateTime.tryParse(raw) : null;
     }
-    final out = <ImportedCard>[];
-    for (final c in cards) {
-      final number = '${c['input_id']}'.trim();
-      if (number.isEmpty) continue;
-      String? name = (c['custom_name'] ?? c['label'] ?? c['name']) as String?;
-      final ref = c['input_provider_reference'];
-      final refId = ref is Map ? '${ref['identifier'] ?? ''}' : '${ref ?? ''}';
-      if (name == null && refId.isNotEmpty) {
-        name = providers[refId.split('/').last] ?? providers[refId];
+
+    for (final e in files.entries) {
+      final path = '/${e.key}';
+      final provider = _stocardCustomProvider.firstMatch(path);
+      if (provider != null) {
+        final name = read(e.value)?['name'];
+        if (name is String && name.trim().isNotEmpty) {
+          customProviders[provider[1]!] = name.trim();
+        }
+        continue;
       }
-      name ??= (c['input_provider_name'] as String?);
+      final m = _stocardCard.firstMatch(path);
+      if (m == null) continue;
+      final id = m[1]!, rest = m[2]!;
+      final j = read(e.value);
+      if (j == null) continue;
+      if (rest == 'content.json') {
+        content[id] = j;
+      } else if (rest == 'notes/default/content.json') {
+        final note = j['content'];
+        if (note is String && note.trim().isNotEmpty) notes[id] = note.trim();
+      } else if (rest == 'usage-statistics/content.json') {
+        final usages = j['usages'];
+        if (usages is List) {
+          used.putIfAbsent(id, () => {}).addAll(usages.map(time).nonNulls);
+        }
+      } else if (_stocardUsage.hasMatch(rest)) {
+        final t = time(j);
+        if (t != null) used.putIfAbsent(id, () => {}).add(t);
+      }
+    }
+
+    final out = <ImportedCard>[];
+    for (final id in content.keys.toList()..sort()) {
+      final c = content[id]!;
+      final number = '${c['input_id'] ?? ''}'.trim();
+      if (number.isEmpty) continue;
+      final ref = c['input_provider_reference'];
+      final providerId =
+          ref is Map ? '${ref['identifier'] ?? ''}'.split('/').last : '';
+      final label = (c['label'] as String?)?.trim() ?? '';
+      final name = [
+        (c['input_provider_name'] as String?)?.trim(),
+        customProviders[providerId],
+        label,
+      ].firstWhere((s) => s != null && s.isNotEmpty, orElse: () => number)!;
+      var note = notes[id];
+      if (label.isNotEmpty && label != name && label != note) {
+        note = note == null ? label : '$note\n$label';
+      }
       out.add(ImportedCard(
-        name: (name == null || name.isEmpty) ? number : name,
+        name: name,
         barcode: number,
         format: mapFormat('${c['input_barcode_format'] ?? ''}', number),
+        note: note,
+        usedAt: (used[id]?.toList() ?? [])..sort(),
       ));
     }
     return out;
@@ -251,12 +304,33 @@ abstract final class Importers {
   // ------------------------------------------------------------ generic CSV
 
   static const _nameCols = [
-    'store', 'name', 'card name', 'retailer', 'program name', 'merchant',
-    'brand', 'shop', 'enseigne', 'nom', 'magasin', 'title', 'label',
+    'store',
+    'name',
+    'card name',
+    'retailer',
+    'program name',
+    'merchant',
+    'brand',
+    'shop',
+    'enseigne',
+    'nom',
+    'magasin',
+    'title',
+    'label',
   ];
   static const _numberCols = [
-    'cardid', 'card number', 'card_number', 'number', 'barcode', 'code',
-    'reference', 'numéro', 'numero', 'card no', 'card id', 'member number',
+    'cardid',
+    'card number',
+    'card_number',
+    'number',
+    'barcode',
+    'code',
+    'reference',
+    'numéro',
+    'numero',
+    'card no',
+    'card id',
+    'member number',
   ];
   static const _formatCols = ['barcodetype', 'barcode type', 'format', 'type'];
   static const _noteCols = ['note', 'notes', 'card note', 'comment'];
@@ -286,8 +360,7 @@ abstract final class Importers {
         out.add(ImportedCard(
           name: name.isEmpty ? number : name,
           barcode: number,
-          format: mapFormat(
-              fi >= 0 && fi < row.length ? row[fi] : '', number),
+          format: mapFormat(fi >= 0 && fi < row.length ? row[fi] : '', number),
           note: oi >= 0 && oi < row.length && row[oi].trim().isNotEmpty
               ? row[oi].trim()
               : null,
@@ -307,12 +380,25 @@ abstract final class Importers {
   static String mapFormat(String raw, String value) {
     final k = raw.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
     const map = {
-      'CODE128': 'CODE_128', 'CODE39': 'CODE_39', 'CODE93': 'CODE_93',
-      'EAN13': 'EAN_13', 'EAN8': 'EAN_8', 'UPCA': 'UPC_A', 'UPCE': 'UPC_E',
-      'QR': 'QR_CODE', 'QRCODE': 'QR_CODE', 'ITF': 'ITF', 'ITF14': 'ITF',
-      'PDF417': 'PDF417', 'AZTEC': 'AZTEC', 'DATAMATRIX': 'DATA_MATRIX',
-      'CODABAR': 'CODABAR', 'PKBARCODEFORMATQR': 'QR_CODE',
-      'PKBARCODEFORMATPDF417': 'PDF417', 'PKBARCODEFORMATAZTEC': 'AZTEC',
+      'CODE128': 'CODE_128',
+      'CODE39': 'CODE_39',
+      'CODE93': 'CODE_93',
+      'EAN13': 'EAN_13',
+      'EAN8': 'EAN_8',
+      'UPCA': 'UPC_A',
+      'UPCE': 'UPC_E',
+      'QR': 'QR_CODE',
+      'QRCODE': 'QR_CODE',
+      'ITF': 'ITF',
+      'ITF14': 'ITF',
+      'PDF417': 'PDF417',
+      'AZTEC': 'AZTEC',
+      'DATAMATRIX': 'DATA_MATRIX',
+      'CODABAR': 'CODABAR',
+      'GS1128': 'CODE_128',
+      'PKBARCODEFORMATQR': 'QR_CODE',
+      'PKBARCODEFORMATPDF417': 'PDF417',
+      'PKBARCODEFORMATAZTEC': 'AZTEC',
       'PKBARCODEFORMATCODE128': 'CODE_128',
     };
     final mapped = map[k];
@@ -326,9 +412,9 @@ abstract final class Importers {
 
   /// Minimal RFC 4180 CSV reader; also handles `;` and tab separators.
   static List<List<String>> parseCsv(String text) {
-    final firstLine = text.split('\n').firstWhere(
-        (l) => l.trim().length > 1,
-        orElse: () => '');
+    final firstLine = text
+        .split('\n')
+        .firstWhere((l) => l.trim().length > 1, orElse: () => '');
     final sep = [';', '\t', ','].reduce((a, b) =>
         firstLine.split(a).length >= firstLine.split(b).length ? a : b);
     final rows = <List<String>>[];

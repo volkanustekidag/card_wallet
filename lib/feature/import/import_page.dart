@@ -48,8 +48,8 @@ class _ImportPageState extends State<ImportPage> {
     }
     FilePickerResult? picked;
     try {
-      picked = await AppLockService.guard(() => FilePicker.platform
-          .pickFiles(type: FileType.any, withData: true));
+      picked = await AppLockService.guard(() =>
+          FilePicker.platform.pickFiles(type: FileType.any, withData: true));
     } catch (_) {
       picked = null;
     }
@@ -167,7 +167,8 @@ class _ImportPageState extends State<ImportPage> {
         }
       }
       if (allowed < chosen.length && mounted) {
-        final unlocked = await showCardLimitDialog(context, CardLimitType.loyalty);
+        final unlocked =
+            await showCardLimitDialog(context, CardLimitType.loyalty);
         if (unlocked) allowed = chosen.length;
       }
       const uuid = Uuid();
@@ -186,11 +187,23 @@ class _ImportPageState extends State<ImportPage> {
           createdAt: now.subtract(Duration(seconds: i)),
           website: brand?.domain,
           brandColor: card.color ?? brand?.color,
+          // Stocard's usage history seeds "Up Next" from day one.
+          useCount: card.usedAt.isEmpty ? null : card.usedAt.length,
+          lastUsedAt: card.usedAt.isEmpty ? null : card.usedAt.last,
+          usageLog: card.usedAt.isEmpty
+              ? null
+              : [
+                  for (final t in card.usedAt.reversed
+                      .take(kUsageLogCap)
+                      .toList()
+                      .reversed)
+                    t.millisecondsSinceEpoch
+                ],
         ));
         count++;
       }
-      AnalyticsService.instance.logCardsImported(
-          source: r.source.name, count: allowed);
+      AnalyticsService.instance
+          .logCardsImported(source: r.source.name, count: allowed);
       if (Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().refreshData();
       }
@@ -255,8 +268,11 @@ class _ImportPageState extends State<ImportPage> {
                     ),
                     CwGroup(
                       children: [
-                        _source(CwIcons.wallet, const Color(0xFF1F3A93),
-                            'cwSrcStocard', 'cwSrcStocardSub',
+                        _source(
+                            CwIcons.wallet,
+                            const Color(0xFF1F3A93),
+                            'cwSrcStocard',
+                            'cwSrcStocardSub',
                             () => _pick(stocardGuide: true)),
                         _source(CwIcons.stack, const Color(0xFF0E7C66),
                             'cwSrcCatima', 'cwSrcCatimaSub', _pick),
@@ -364,8 +380,8 @@ class _FoundRow extends StatelessWidget {
                 Text(card.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: CwType.callout.copyWith(
-                        color: c.ink, fontWeight: FontWeight.w600)),
+                    style: CwType.callout
+                        .copyWith(color: c.ink, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 2),
                 card.barcodeValid
                     ? Text(card.barcode,
