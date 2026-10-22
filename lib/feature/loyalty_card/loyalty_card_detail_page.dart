@@ -255,6 +255,7 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
                             BarcodeRenderer(
                               data: card.barcode,
                               format: card.barcodeFormat,
+                              onChangeFormat: _onEdit,
                             ),
                             const SizedBox(height: 18),
                             SelectableText(

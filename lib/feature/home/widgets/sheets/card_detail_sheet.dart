@@ -1208,6 +1208,7 @@ class _LoyaltyDetailBodyState extends State<_LoyaltyDetailBody> {
                         format: widget.card.barcodeFormat,
                         qrSize: 220,
                         barcodeHeight: 130,
+                        onChangeFormat: () => _edit(context),
                       ),
                       const SizedBox(height: 14),
                       InkWell(

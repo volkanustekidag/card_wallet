@@ -13,6 +13,7 @@ import 'package:wallet_app/core/widgets/primary_form_button.dart';
 import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
 import 'package:wallet_app/feature/add_loyalty_card/controller/add_loyalty_card_controller.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_formats.dart';
+import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_validator.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_brand_presets.dart';
 import 'package:wallet_app/core/utils/premium_gate.dart';
 
@@ -673,31 +674,11 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
   }
 
   String? _barcodeError(String value, String format) {
-    final trimmed = value.trim();
-    if (trimmed.isEmpty) return null;
-    final expected = _expectedBarcodeLength(format);
-    if (expected != null && trimmed.length != expected) {
-      return 'loyaltyBarcodeLengthError'.tr(
-        namedArgs: {'count': expected.toString()},
-      );
-    }
-    if (format == 'ITF' && trimmed.length.isOdd) {
-      return 'loyaltyBarcodeEvenLengthError'.tr();
-    }
-    return null;
-  }
-
-  int? _expectedBarcodeLength(String format) {
-    switch (format) {
-      case 'EAN_13':
-        return 13;
-      case 'EAN_8':
-        return 8;
-      case 'UPC_A':
-        return 12;
-      default:
-        return null;
-    }
+    if (value.trim().isEmpty) return null;
+    return describeBarcodeIssue(
+      LoyaltyBarcodeValidator.validate(value, format),
+      format,
+    );
   }
 
   Widget _buildColorPicker() {
