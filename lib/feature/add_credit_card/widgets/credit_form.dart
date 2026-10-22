@@ -106,6 +106,8 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
 
     try {
       final scannedInfo = await _scannerService.scanCreditCard();
+      // The user can leave the page while the scanner is open.
+      if (!mounted) return;
 
       if (scannedInfo != null) {
         // Taranan bilgileri form'a yansıt
@@ -129,11 +131,14 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
         context.showSuccessSnackBar('creditCardScannedSuccessfully');
       }
     } catch (e) {
-      context.showErrorSnackBar('failedToScanCreditCard');
+      if (mounted) context.showErrorSnackBar('failedToScanCreditCard');
     } finally {
-      setState(() {
-        _isScanning = false;
-      });
+      // setState after dispose is a null-check crash in release builds.
+      if (mounted) {
+        setState(() {
+          _isScanning = false;
+        });
+      }
     }
   }
 
@@ -145,6 +150,8 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
 
     try {
       final scannedInfo = await _scannerService.scanFromGallery();
+      // The user can leave the page while the scanner is open.
+      if (!mounted) return;
 
       if (scannedInfo != null) {
         // Taranan bilgileri form'a yansıt
@@ -168,11 +175,14 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
         context.showSuccessSnackBar('creditCardScannedSuccessfully');
       }
     } catch (e) {
-      context.showErrorSnackBar('failedToScanCreditCard');
+      if (mounted) context.showErrorSnackBar('failedToScanCreditCard');
     } finally {
-      setState(() {
-        _isScanning = false;
-      });
+      // setState after dispose is a null-check crash in release builds.
+      if (mounted) {
+        setState(() {
+          _isScanning = false;
+        });
+      }
     }
   }
 

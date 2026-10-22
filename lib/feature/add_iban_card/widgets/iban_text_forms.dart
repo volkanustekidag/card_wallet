@@ -87,6 +87,8 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
 
     try {
       final scannedInfo = await _qrScannerService.scanQRForIban();
+      // The user can leave the page while the scanner is open.
+      if (!mounted) return;
 
       if (scannedInfo != null) {
         // Taranan bilgileri form'a yansıt
@@ -113,11 +115,14 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
         context.showSuccessSnackBar('qrScanSuccess');
       }
     } catch (e) {
-      context.showErrorSnackBar('failedToScanQR');
+      if (mounted) context.showErrorSnackBar('failedToScanQR');
     } finally {
-      setState(() {
-        _isScanning = false;
-      });
+      // setState after dispose is a null-check crash in release builds.
+      if (mounted) {
+        setState(() {
+          _isScanning = false;
+        });
+      }
     }
   }
 
@@ -129,6 +134,8 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
 
     try {
       final scannedInfo = await _qrScannerService.scanQRFromGallery();
+      // The user can leave the page while the scanner is open.
+      if (!mounted) return;
 
       if (scannedInfo != null) {
         // Taranan bilgileri form'a yansıt
@@ -155,11 +162,14 @@ class _IbanTextFieldFormsState extends State<IbanTextFieldForms> {
         context.showSuccessSnackBar('qrScanSuccess');
       }
     } catch (e) {
-      context.showErrorSnackBar('failedToScanQR');
+      if (mounted) context.showErrorSnackBar('failedToScanQR');
     } finally {
-      setState(() {
-        _isScanning = false;
-      });
+      // setState after dispose is a null-check crash in release builds.
+      if (mounted) {
+        setState(() {
+          _isScanning = false;
+        });
+      }
     }
   }
 
