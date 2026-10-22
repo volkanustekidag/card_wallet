@@ -139,17 +139,28 @@ class CwRow extends StatelessWidget {
     this.onTap,
   });
 
+  /// A row whose trailing widget is a [CwSwitch] toggles it when tapped
+  /// anywhere (unless it has its own [onTap]).
+  VoidCallback? get _effectiveTap {
+    if (onTap != null) return onTap;
+    final t = trailing;
+    if (t is CwSwitch && t.onChanged != null) {
+      return () => t.onChanged!(!t.value);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = CwColors.of(context);
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap == null
+        onTap: _effectiveTap == null
             ? null
             : () {
                 HapticFeedback.selectionClick();
-                onTap!();
+                _effectiveTap!();
               },
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 52),
