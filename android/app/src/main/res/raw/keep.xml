@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  flutter_local_notifications resolves the small icon by name at runtime
+  (AndroidInitializationSettings('ic_stat_card_wallet') in
+  card_reminder_service.dart). Nothing in Java/Kotlin/XML references it, so
+  release builds with shrinkResources strip it and initialize() throws
+  PlatformException(invalid_icon). Keep every resource the plugin loads by
+  name. The app uses the default notification sound, so no raw/ sound.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_stat_card_wallet" />
