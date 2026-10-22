@@ -50,6 +50,15 @@ class WidgetDataService {
 
   bool _initialized = false;
 
+  /// Completed after the app's first frame (translations loaded, the view
+  /// attached). Publishing renders barcodes off-screen and localizes
+  /// labels, so it must not run during boot, before runApp.
+  final Completer<void> _uiReady = Completer<void>();
+
+  void markUiReady() {
+    if (!_uiReady.isCompleted) _uiReady.complete();
+  }
+
   Future<void> _ensureInit() async {
     if (_initialized) return;
     await HomeWidget.setAppGroupId(_iOSAppGroupId);
@@ -136,6 +145,7 @@ class WidgetDataService {
       return;
     }
     try {
+      await _uiReady.future;
       await _ensureInit();
       final now = DateTime.now();
       final hour0 = DateTime(now.year, now.month, now.day, now.hour);

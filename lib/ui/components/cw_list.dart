@@ -62,7 +62,10 @@ class CwGroup extends StatelessWidget {
         boxShadow: CwElevation.e1(context),
       ),
       clipBehavior: Clip.antiAlias,
+      // min: inside a bottom sheet the group must size to its rows, not
+      // stretch to the sheet's full height.
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           for (var i = 0; i < visible.length; i++) ...[
             if (i > 0)
