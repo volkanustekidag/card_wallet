@@ -1,5 +1,7 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 
 /// Single source of truth for event names + user property keys. Keeping them
 /// here (rather than as inline string literals at call sites) prevents
@@ -122,8 +124,10 @@ class AnalyticsService {
   @visibleForTesting
   static void Function(String name, Map<String, Object>? params)? debugSink;
 
-  FirebaseAnalyticsObserver get observer =>
-      FirebaseAnalyticsObserver(analytics: _analytics);
+  /// Screen tracking for the navigator. Safe to build before Firebase is
+  /// up (the app starts without waiting for it): routes seen until then
+  /// just aren't logged.
+  NavigatorObserver get observer => _LateAnalyticsObserver();
 
   Future<void> setEnabled(bool enabled) async {
     try {
@@ -394,5 +398,35 @@ class AnalyticsService {
     if (kDebugMode) {
       debugPrint('AnalyticsService error: $e\n$s');
     }
+  }
+}
+
+/// Forwards to [FirebaseAnalyticsObserver] once Firebase is initialised.
+class _LateAnalyticsObserver extends RouteObserver<ModalRoute<dynamic>> {
+  FirebaseAnalyticsObserver? _inner;
+
+  FirebaseAnalyticsObserver? get _ready {
+    if (_inner != null) return _inner;
+    if (Firebase.apps.isEmpty) return null;
+    return _inner =
+        FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance);
+  }
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    _ready?.didPush(route, previousRoute);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+    _ready?.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPop(route, previousRoute);
+    _ready?.didPop(route, previousRoute);
   }
 }
