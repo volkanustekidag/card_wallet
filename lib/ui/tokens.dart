@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
 /// CardWallet v2 design tokens.
@@ -132,4 +133,24 @@ class CwElevation {
   static const List<BoxShadow> e2 = [
     BoxShadow(color: Color(0x290E0F12), blurRadius: 28, offset: Offset(0, 12)),
   ];
+}
+
+/// Status/navigation bar icons that read on the page background.
+SystemUiOverlayStyle cwOverlayStyle(BuildContext context) =>
+    Theme.of(context).brightness == Brightness.dark
+        ? SystemUiOverlayStyle.light
+            .copyWith(systemNavigationBarColor: CwColors.dark.bg)
+        : SystemUiOverlayStyle.dark
+            .copyWith(systemNavigationBarColor: CwColors.light.bg);
+
+/// Wraps a page so the system bars match its background.
+class CwPageStyle extends StatelessWidget {
+  final Widget child;
+  const CwPageStyle({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: cwOverlayStyle(context),
+        child: child,
+      );
 }

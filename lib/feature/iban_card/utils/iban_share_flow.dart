@@ -50,9 +50,8 @@ Future<void> shareIban(
         origin: shareOriginFromContext(context),
       );
     case IbanShareChoice.image:
-      final qr = isPremium
-          ? (qrData ?? ShareableIbanCard.paymentQrData(card))
-          : null;
+      final qr =
+          isPremium ? (qrData ?? ShareableIbanCard.paymentQrData(card)) : null;
       AnalyticsService.instance.logCardShared(
         cardType: AnalyticsCardType.iban,
         masked: false,
@@ -97,7 +96,8 @@ Future<IbanShareChoice?> showIbanShareSheet(
       final c = CwColors.of(sheetContext);
       void pick(IbanShareChoice choice) =>
           Navigator.of(sheetContext).pop(choice);
-      final withQr = isPremium && card != null &&
+      final withQr = isPremium &&
+          card != null &&
           ShareableIbanCard.paymentQrData(card) != null;
       return SafeArea(
         top: false,
@@ -123,11 +123,17 @@ Future<IbanShareChoice?> showIbanShareSheet(
                       fit: BoxFit.contain,
                       child: SizedBox.fromSize(
                         size: ShareableIbanCard.sizeFor(withQr: withQr),
-                        child: ShareableIbanCard(
-                          card: card,
-                          qrData: withQr
-                              ? ShareableIbanCard.paymentQrData(card)
-                              : null,
+                        // Logo comes from the image cache when it's there.
+                        child: FutureBuilder<ImageProvider?>(
+                          future: ShareableIbanCard.precacheBankLogo(
+                              sheetContext, card),
+                          builder: (_, snap) => ShareableIbanCard(
+                            card: card,
+                            bankLogoImage: snap.data,
+                            qrData: withQr
+                                ? ShareableIbanCard.paymentQrData(card)
+                                : null,
+                          ),
                         ),
                       ),
                     ),
@@ -135,28 +141,20 @@ Future<IbanShareChoice?> showIbanShareSheet(
                 ),
               ],
               const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: CwButton(
-                      'cwShareAsImage'.tr(),
-                      key: const ValueKey('ibanShareImage'),
-                      icon: CwIcons.photos,
-                      height: 50,
-                      onPressed: () => pick(IbanShareChoice.image),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: CwButton.secondary(
-                      'cwShareAsText'.tr(),
-                      key: const ValueKey('ibanShareText'),
-                      icon: CwIcons.document,
-                      height: 50,
-                      onPressed: () => pick(IbanShareChoice.text),
-                    ),
-                  ),
-                ],
+              CwButton(
+                'cwShareAsImage'.tr(),
+                key: const ValueKey('ibanShareImage'),
+                icon: CwIcons.photos,
+                height: 50,
+                onPressed: () => pick(IbanShareChoice.image),
+              ),
+              const SizedBox(height: 8),
+              CwButton.secondary(
+                'cwShareAsText'.tr(),
+                key: const ValueKey('ibanShareText'),
+                icon: CwIcons.document,
+                height: 50,
+                onPressed: () => pick(IbanShareChoice.text),
               ),
               if (!isPremium) ...[
                 const SizedBox(height: 10),

@@ -168,27 +168,29 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) => _handlePopInvoked(didPop),
-      child: Scaffold(
-        backgroundColor: CwColors.of(context).bg,
-        body: Obx(() {
-          if (_homeController.isInitialLoading.value &&
-              _homeController.walletItems.isEmpty) {
-            // Boxes open in a few ms; a blank frame beats a spinner flash.
-            return const SizedBox.expand();
-          }
-          // Never show a failed load as an empty wallet.
-          if (_homeController.loadError.value &&
-              _homeController.walletItems.isEmpty) {
-            return _CardsLoadError(
-              retrying: _homeController.isLoading.value,
-              onRetry: _homeController.retryLoad,
-            );
-          }
-          return WalletHome(controller: _homeController);
-        }),
+    return CwPageStyle(
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) => _handlePopInvoked(didPop),
+        child: Scaffold(
+          backgroundColor: CwColors.of(context).bg,
+          body: Obx(() {
+            if (_homeController.isInitialLoading.value &&
+                _homeController.walletItems.isEmpty) {
+              // Boxes open in a few ms; a blank frame beats a spinner flash.
+              return const SizedBox.expand();
+            }
+            // Never show a failed load as an empty wallet.
+            if (_homeController.loadError.value &&
+                _homeController.walletItems.isEmpty) {
+              return _CardsLoadError(
+                retrying: _homeController.isLoading.value,
+                onRetry: _homeController.retryLoad,
+              );
+            }
+            return WalletHome(controller: _homeController);
+          }),
+        ),
       ),
     );
   }

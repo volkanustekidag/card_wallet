@@ -89,56 +89,61 @@ class _WalletSearchPageState extends State<WalletSearchPage> {
     final c = CwColors.of(context);
     final controller = Get.find<HomeController>();
 
-    return Scaffold(
-      backgroundColor: c.bg,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 8, 4),
-              child: Row(
-                children: [
-                  Expanded(child: _SearchField(controller: _query, onChanged: () => setState(() {}))),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).maybePop(),
-                    child: Text(
-                      'cwCancel'.tr(),
-                      style: CwType.callout.copyWith(
-                        color: c.accent,
-                        fontWeight: FontWeight.w600,
+    return CwPageStyle(
+      child: Scaffold(
+        backgroundColor: c.bg,
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 8, 4),
+                child: Row(
+                  children: [
+                    Expanded(
+                        child: _SearchField(
+                            controller: _query,
+                            onChanged: () => setState(() {}))),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).maybePop(),
+                      child: Text(
+                        'cwCancel'.tr(),
+                        style: CwType.callout.copyWith(
+                          color: c.accent,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: Obx(() {
-                // Read the Rx first: Obx needs a subscription even while
-                // idle, and results follow edits made from a detail page.
-                final items = controller.walletItems.toList();
-                final query = _query.text;
-                if (query.trim().isEmpty) {
-                  final suggested = _suggestions(items);
-                  if (suggested.isEmpty) return const SizedBox.shrink();
-                  return _list(context, 'cwSuggested'.tr(), suggested, '');
-                }
-                final results = searchWallet(items, query);
-                _lastResultsCount = results.length;
-                if (results.isEmpty) {
-                  return Align(
-                    alignment: const Alignment(0, -0.4),
-                    child: CwEmptyState(
-                      icon: CwIcons.search,
-                      title: 'cwNoResults'.tr(),
-                      message: 'cwNoResultsHint'.tr(),
-                    ),
-                  );
-                }
-                return _list(context, 'cwResults'.tr(), results, query);
-              }),
-            ),
-          ],
+              Expanded(
+                child: Obx(() {
+                  // Read the Rx first: Obx needs a subscription even while
+                  // idle, and results follow edits made from a detail page.
+                  final items = controller.walletItems.toList();
+                  final query = _query.text;
+                  if (query.trim().isEmpty) {
+                    final suggested = _suggestions(items);
+                    if (suggested.isEmpty) return const SizedBox.shrink();
+                    return _list(context, 'cwSuggested'.tr(), suggested, '');
+                  }
+                  final results = searchWallet(items, query);
+                  _lastResultsCount = results.length;
+                  if (results.isEmpty) {
+                    return Align(
+                      alignment: const Alignment(0, -0.4),
+                      child: CwEmptyState(
+                        icon: CwIcons.search,
+                        title: 'cwNoResults'.tr(),
+                        message: 'cwNoResultsHint'.tr(),
+                      ),
+                    );
+                  }
+                  return _list(context, 'cwResults'.tr(), results, query);
+                }),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -326,9 +331,7 @@ class _ResultRow extends StatelessWidget {
         final card = item.card as LoyaltyCard;
         if (item.isFavorite) return '$type · ${'cwFavourite'.tr()}';
         final uses = card.useCount ?? 0;
-        return uses > 0
-            ? '$type · ${'cwUsedTimes'.plural(uses)}'
-            : type;
+        return uses > 0 ? '$type · ${'cwUsedTimes'.plural(uses)}' : type;
     }
   }
 }

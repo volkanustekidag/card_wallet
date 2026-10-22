@@ -730,48 +730,51 @@ class _LandscapeBarcodeState extends State<_LandscapeBarcode> {
           behavior: HitTestBehavior.opaque,
           onTap: _close,
           child: SafeArea(
-            child: RotatedBox(
-              quarterTurns: widget.quarterTurns,
-              child: LayoutBuilder(builder: (context, box) {
-                return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        card.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: CwType.headline
-                            .copyWith(color: const Color(0xFF111215)),
-                      ),
-                      const SizedBox(height: 14),
-                      BarcodeRenderer(
-                        data: card.barcode,
-                        format: card.barcodeFormat,
-                        qrSize: (box.maxHeight * 0.62).clamp(120, 420),
-                        barcodeHeight: box.maxHeight * 0.5,
-                      ),
-                      const SizedBox(height: 14),
-                      Text(
-                        formatBarcodeText(card.barcode),
-                        style: CwType.mono(
-                          size: isQr ? 16 : 22,
-                          color: const Color(0xFF111215),
-                          letterSpacing: 3,
+            // Tight constraints so the rotated layout fills the screen.
+            child: SizedBox.expand(
+              child: RotatedBox(
+                quarterTurns: widget.quarterTurns,
+                child: LayoutBuilder(builder: (context, box) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 28, vertical: 16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          card.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: CwType.headline
+                              .copyWith(color: const Color(0xFF111215)),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'cwTapToClose'.tr(),
-                        style: CwType.caption
-                            .copyWith(color: const Color(0xFF7C7F88)),
-                      ),
-                    ],
-                  ),
-                );
-              }),
+                        const SizedBox(height: 14),
+                        BarcodeRenderer(
+                          data: card.barcode,
+                          format: card.barcodeFormat,
+                          qrSize: (box.maxHeight * 0.62).clamp(120, 420),
+                          barcodeHeight: box.maxHeight * 0.5,
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          formatBarcodeText(card.barcode),
+                          style: CwType.mono(
+                            size: isQr ? 16 : 22,
+                            color: const Color(0xFF111215),
+                            letterSpacing: 3,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'cwTapToClose'.tr(),
+                          style: CwType.caption
+                              .copyWith(color: const Color(0xFF7C7F88)),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ),
             ),
           ),
         ),

@@ -244,7 +244,13 @@ class WalletCardFace extends StatelessWidget {
               item: item,
               trailing: network == CardNetwork.unknown
                   ? null
-                  : CardNetworkBadge(network: network, height: 22),
+                  : network == CardNetwork.visa
+                      // Visa's one-colour mark reads on any material.
+                      ? ColorFiltered(
+                          colorFilter: ColorFilter.mode(fg, BlendMode.srcIn),
+                          child: CardNetworkBadge(network: network, height: 20),
+                        )
+                      : CardNetworkBadge(network: network, height: 22),
             ),
             const Spacer(),
             Container(

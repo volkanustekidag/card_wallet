@@ -41,105 +41,107 @@ class _IbanPageState extends State<IbanPage> {
     final item = WalletItem.iban(card);
     final notes = card.notes?.trim() ?? '';
     final swift = card.swiftCode.trim().toUpperCase();
-    return Scaffold(
-      backgroundColor: c.bg,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            DetailTopBar(title: titleForItem(item), onMore: _openMore),
-            Expanded(
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(
-                  CwSpace.gutter,
-                  8,
-                  CwSpace.gutter,
-                  24 + MediaQuery.paddingOf(context).bottom,
-                ),
-                children: [
-                  Hero(
-                    tag: item.heroTag,
-                    child: WalletCardFace(item: item, interactive: true),
+    return CwPageStyle(
+      child: Scaffold(
+        backgroundColor: c.bg,
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              DetailTopBar(title: titleForItem(item), onMore: _openMore),
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.fromLTRB(
+                    CwSpace.gutter,
+                    8,
+                    CwSpace.gutter,
+                    24 + MediaQuery.paddingOf(context).bottom,
                   ),
-                  const SizedBox(height: 14),
-                  CwGroup(
-                    margin: EdgeInsets.zero,
-                    children: [
-                      _FieldRow(
-                        label: 'IBAN',
-                        value: formatIban(card.iban),
-                        copy: card.iban.replaceAll(' ', '').toUpperCase(),
-                        mono: true,
-                      ),
-                      if (swift.isNotEmpty)
+                  children: [
+                    Hero(
+                      tag: item.heroTag,
+                      child: WalletCardFace(item: item, interactive: true),
+                    ),
+                    const SizedBox(height: 14),
+                    CwGroup(
+                      margin: EdgeInsets.zero,
+                      children: [
                         _FieldRow(
-                          label: 'BIC / SWIFT',
-                          value: swift,
-                          copy: swift,
+                          label: 'IBAN',
+                          value: formatIban(card.iban),
+                          copy: card.iban.replaceAll(' ', '').toUpperCase(),
                           mono: true,
                         ),
-                      if (card.cardHolder.trim().isNotEmpty)
-                        _FieldRow(
-                          label: 'cwAccountHolder'.tr(),
-                          value: card.cardHolder.trim(),
-                          copy: card.cardHolder.trim(),
-                        ),
-                      if (card.bankName.trim().isNotEmpty)
-                        _FieldRow(
-                          label: 'cwBank'.tr(),
-                          value: card.bankName.trim(),
-                          copy: card.bankName.trim(),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CwButton(
-                          'cwShareIban'.tr(),
-                          icon: CwIcons.share,
-                          height: 50,
-                          onPressed: () => shareIban(context, card),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      CwCircleButton(
-                        CwIcons.qr,
-                        size: 50,
-                        semanticLabel: 'qrCode'.tr(),
-                        onPressed: () => IbanCardUtils.showQRFullScreen(
-                          context,
-                          qrData: card.iban,
-                          beneficiaryName: card.cardHolder,
-                          card: card,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (notes.isNotEmpty) ...[
-                    CwSectionHeader(
-                      'cwNotes'.tr(),
-                      padding: const EdgeInsets.fromLTRB(4, 22, 4, 8),
+                        if (swift.isNotEmpty)
+                          _FieldRow(
+                            label: 'BIC / SWIFT',
+                            value: swift,
+                            copy: swift,
+                            mono: true,
+                          ),
+                        if (card.cardHolder.trim().isNotEmpty)
+                          _FieldRow(
+                            label: 'cwAccountHolder'.tr(),
+                            value: card.cardHolder.trim(),
+                            copy: card.cardHolder.trim(),
+                          ),
+                        if (card.bankName.trim().isNotEmpty)
+                          _FieldRow(
+                            label: 'cwBank'.tr(),
+                            value: card.bankName.trim(),
+                            copy: card.bankName.trim(),
+                          ),
+                      ],
                     ),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: c.surface,
-                        borderRadius: BorderRadius.circular(CwRadius.m),
-                      ),
-                      child: SelectableText(
-                        notes,
-                        style: CwType.body.copyWith(color: c.ink),
-                      ),
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CwButton(
+                            'cwShareIban'.tr(),
+                            icon: CwIcons.share,
+                            height: 50,
+                            onPressed: () => shareIban(context, card),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        CwCircleButton(
+                          CwIcons.qr,
+                          size: 50,
+                          semanticLabel: 'qrCode'.tr(),
+                          onPressed: () => IbanCardUtils.showQRFullScreen(
+                            context,
+                            qrData: card.iban,
+                            beneficiaryName: card.cardHolder,
+                            card: card,
+                          ),
+                        ),
+                      ],
                     ),
+                    if (notes.isNotEmpty) ...[
+                      CwSectionHeader(
+                        'cwNotes'.tr(),
+                        padding: const EdgeInsets.fromLTRB(4, 22, 4, 8),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: c.surface,
+                          borderRadius: BorderRadius.circular(CwRadius.m),
+                        ),
+                        child: SelectableText(
+                          notes,
+                          style: CwType.body.copyWith(color: c.ink),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 22),
+                    CwTrustLine('cwEncryptedLocal'.tr()),
                   ],
-                  const SizedBox(height: 22),
-                  CwTrustLine('cwEncryptedLocal'.tr()),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -231,8 +233,7 @@ class _FieldRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label,
-                      style: CwType.footnote.copyWith(color: c.mute)),
+                  Text(label, style: CwType.footnote.copyWith(color: c.mute)),
                   const SizedBox(height: 2),
                   Text(
                     value,
