@@ -1,0 +1,187 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/services/ui_prefs.dart';
+import 'package:wallet_app/core/utils/card_reminder_rules.dart';
+import 'package:wallet_app/core/utils/tag_index.dart';
+import 'package:wallet_app/feature/home/controller/home_controller.dart';
+import 'package:wallet_app/feature/home/wallet_home.dart';
+import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
+
+import '../../helpers/harness.dart';
+
+void main() {
+  final h = Harness();
+  setUpAll(loadRealFonts);
+  setUp(() async {
+    await h.setUp();
+    UiPrefs.instance.upNext.value = true;
+  });
+  tearDown(h.tearDown);
+
+  /// Uses at [hour] on each of the last [days] days.
+  List<int> habit(int hour, {int days = 6}) {
+    final now = DateTime.now();
+    return [
+      for (var d = days; d >= 1; d--)
+        DateTime(now.year, now.month, now.day - d, hour, now.minute)
+            .millisecondsSinceEpoch,
+    ];
+  }
+
+  group('stackOrder', () {
+    final items = mergeAndSort(
+      credits: [
+        credit('c1'),
+        credit('c2', tags: [kFavoriteTag])
+      ],
+      ibans: [
+        iban(1),
+        iban(2, tags: [kFavoriteTag])
+      ],
+      loyalties: [loyalty('l1', 'Cafe'), loyalty('l2', 'Market')],
+    );
+
+    test('loyalty, then IBAN, then bank cards; favourites lead each kind', () {
+      final order = stackOrder(items, HomeFilter.all);
+      expect(order.map((i) => i.kind), [
+        WalletItemKind.loyalty,
+        WalletItemKind.loyalty,
+        WalletItemKind.iban,
+        WalletItemKind.iban,
+        WalletItemKind.credit,
+        WalletItemKind.credit,
+      ]);
+      expect(order[2].isFavorite, isTrue);
+      expect(order[4].isFavorite, isTrue);
+    });
+
+    test('a filter keeps only its kind', () {
+      final order = stackOrder(items, HomeFilter.credit);
+      expect(order, hasLength(2));
+      expect(order.every((i) => i.kind == WalletItemKind.credit), isTrue);
+    });
+
+    test('the habit card leads the loyalty group', () {
+      final order = stackOrder(
+        mergeAndSort(credits: [], ibans: [], loyalties: [
+          loyalty('a', 'Never used'),
+          loyalty('b', 'Every day now',
+              useCount: 6, usageLog: habit(DateTime.now().hour)),
+        ]),
+        HomeFilter.all,
+      );
+      expect((order.first.card as dynamic).id, 'b');
+    });
+  });
+
+  Future<FakeHome> pumpHome(WidgetTester tester, FakeHome home) async {
+    await phoneSurface(tester);
+    Get.put<HomeController>(home);
+    await pumpApp(tester, Scaffold(body: WalletHome(controller: home)));
+    return home;
+  }
+
+  testWidgets('empty wallet: quick start instead of a stack', (tester) async {
+    await pumpHome(tester, FakeHome());
+    expect(find.text('cwEmptyTitle'.tr()), findsOneWidget);
+    expect(find.text('cwQsLoyalty'.tr()), findsOneWidget);
+    expect(find.text('cwQsImport'.tr()), findsOneWidget);
+    expect(find.byKey(const ValueKey('homeUpNext')), findsNothing);
+  });
+
+  testWidgets('Up Next shows the card used at this hour', (tester) async {
+    await pumpHome(
+      tester,
+      FakeHome(loyalties: [
+        loyalty('a', 'Bakery'),
+        loyalty('b', 'Gym', useCount: 6, usageLog: habit(DateTime.now().hour)),
+      ]),
+    );
+    final banner = find.byKey(const ValueKey('homeUpNext'));
+    expect(banner, findsOneWidget);
+    expect(find.descendant(of: banner, matching: find.text('Gym')),
+        findsOneWidget);
+    expect(
+        find.descendant(of: banner, matching: find.text('cwUpNextHabit'.tr())),
+        findsOneWidget);
+  });
+
+  testWidgets('Up Next off in settings: no banner', (tester) async {
+    UiPrefs.instance.upNext.value = false;
+    await pumpHome(tester, FakeHome(loyalties: [loyalty('a', 'Bakery')]));
+    expect(find.byKey(const ValueKey('homeUpNext')), findsNothing);
+  });
+
+  testWidgets('segments filter the stack; Up Next only for loyalty',
+      (tester) async {
+    await pumpHome(
+      tester,
+      FakeHome(
+        loyalties: [loyalty('a', 'Bakery')],
+        credits: [credit('c', bank: 'Chase')],
+        ibans: [iban(1, bank: 'Deutsche Bank')],
+      ),
+    );
+    expect(find.byKey(const ValueKey('homeUpNext')), findsOneWidget);
+
+    await tester.tap(find.text('cwSegCards'.tr()));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('homeUpNext')), findsNothing);
+    expect(find.text('Bakery'), findsNothing);
+    expect(find.text('Deutsche Bank'), findsNothing);
+
+    await tester.tap(find.text('cwSegBank'.tr()));
+    await tester.pumpAndSettle();
+    expect(find.text('Deutsche Bank'), findsWidgets);
+    expect(find.text('Chase'), findsNothing);
+  });
+
+  testWidgets('empty segment offers to add that kind', (tester) async {
+    await pumpHome(tester, FakeHome(loyalties: [loyalty('a', 'Bakery')]));
+    await tester.tap(find.text('cwSegBank'.tr()));
+    await tester.pumpAndSettle();
+    expect(find.text('cwSegEmpty'.tr()), findsOneWidget);
+    expect(find.text('cwAddCard'.tr()), findsWidgets);
+  });
+
+  testWidgets('a payment due soon shows on the count line and as a badge',
+      (tester) async {
+    final card = credit('c', bank: 'Chase', dueDay: 1, paymentReminder: true);
+    final home = FakeHome(credits: [card, credit('d', bank: 'Amex')]);
+    home.upcomingPaymentNotices.assignAll([
+      UpcomingCardDate(
+        card: card,
+        targetDate: DateTime.now().add(const Duration(days: 2)),
+        daysUntil: 2,
+      ),
+    ]);
+    await pumpHome(tester, home);
+    expect(
+        find.text('cwNoticePayment'.tr(namedArgs: {
+          'card': 'Chase',
+          'when': 'cwWhenInDays'.plural(2),
+        })),
+        findsOneWidget);
+    expect(find.text('cwDueBadge'.tr(args: ['2'])), findsOneWidget);
+  });
+
+  testWidgets('no overflow with a long wallet in dark mode', (tester) async {
+    await phoneSurface(tester);
+    final home = FakeHome(
+      loyalties: [
+        for (var i = 0; i < 8; i++)
+          loyalty('l$i', 'A very long loyalty programme name number $i'),
+      ],
+      credits: [credit('c', bank: 'A bank with an unusually long name')],
+      ibans: [iban(1)],
+    );
+    Get.put<HomeController>(home);
+    await pumpApp(tester, Scaffold(body: WalletHome(controller: home)),
+        mode: ThemeMode.dark);
+    await tester.drag(find.byType(CustomScrollView), const Offset(0, -1500));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+}

@@ -129,6 +129,7 @@ class CardLogoChip extends StatelessWidget {
     final px = (size * MediaQuery.devicePixelRatioOf(context)).round();
     return CachedNetworkImage(
       imageUrl: BankLogo.logoUrlFor(d),
+      cacheManager: BankLogo.cacheManager,
       width: size,
       height: size,
       memCacheWidth: px,

@@ -134,6 +134,7 @@ class _BrandLogo extends StatelessWidget {
     final px = (32 * MediaQuery.devicePixelRatioOf(context)).round();
     return CachedNetworkImage(
       imageUrl: BankLogo.logoUrlFor(entry.domain),
+      cacheManager: BankLogo.cacheManager,
       memCacheWidth: px,
       width: 32,
       height: 32,

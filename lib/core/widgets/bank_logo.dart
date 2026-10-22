@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:wallet_app/core/utils/loyalty_brand_resolver.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
 
@@ -102,6 +103,10 @@ class BankLogo extends StatelessWidget {
     return CardBankDetector.bankDomainFor(bankName);
   }
 
+  /// Cache every logo goes through (null: the package default). Tests
+  /// swap in one that never touches the network or its database.
+  static BaseCacheManager? cacheManager;
+
   static String logoUrlFor(String d) {
     return 'https://t3.gstatic.com/faviconV2'
         '?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL'
@@ -125,6 +130,7 @@ class BankLogo extends StatelessWidget {
 
     return CachedNetworkImage(
       imageUrl: url,
+      cacheManager: cacheManager,
       width: chrome ? size + 6 : size,
       height: chrome ? size + 6 : size,
       fit: BoxFit.contain,
@@ -132,7 +138,8 @@ class BankLogo extends StatelessWidget {
       errorWidget: (_, errUrl, error) => hidden,
       memCacheWidth: ((chrome ? size + 6 : size) * 3).round(),
       imageBuilder: (context, image) {
-        final inner = Image(image: image, width: size, height: size, fit: BoxFit.contain);
+        final inner =
+            Image(image: image, width: size, height: size, fit: BoxFit.contain);
         if (!chrome) return inner;
         return Container(
           width: size + 6,
