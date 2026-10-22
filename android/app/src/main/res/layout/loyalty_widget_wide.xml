@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Wide "Up Next" widget: the compact block on the left, the next three
+     cards on the right, each opening its own barcode. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/loyalty_widget_root"
+    android:background="@drawable/loyalty_widget_preview_bg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/loyalty_widget_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:contentDescription="@null"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:id="@+id/loyalty_widget_main"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/loyalty_widget_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/loyalty_up_next"
+                android:textAllCaps="true"
+                android:textColor="#B3FFFFFF"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.08" />
+
+            <TextView
+                android:id="@+id/loyalty_widget_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <ImageView
+                android:id="@+id/loyalty_widget_barcode"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginTop="6dp"
+                android:scaleType="fitCenter"
+                android:background="@drawable/loyalty_widget_barcode_panel"
+                android:padding="6dp"
+                android:contentDescription="@string/loyalty_widget_barcode_cd" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="120dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:orientation="vertical">
+
+            <TextView android:id="@+id/loyalty_widget_row1" style="@style/LoyaltyWidgetRow" />
+            <TextView android:id="@+id/loyalty_widget_row2" style="@style/LoyaltyWidgetRow" />
+            <TextView android:id="@+id/loyalty_widget_row3" style="@style/LoyaltyWidgetRow" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

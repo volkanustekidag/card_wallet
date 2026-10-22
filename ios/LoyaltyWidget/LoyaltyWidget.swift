@@ -1,18 +1,12 @@
 import WidgetKit
 import SwiftUI
 
-/// Shortcut widget that puts the user's most recently opened loyalty
-/// card one tap away. Tapping deep-links into the app at
-/// `cardwallet://loyalty?id=<card-id>`, which bypasses the PIN gate and
-/// jumps straight to the full-screen barcode page.
-///
-/// Supported families:
-///   - `.accessoryRectangular` / `.accessoryCircular` / `.accessoryInline`
-///     (iOS 16+ Lock Screen). Text-only — lock-screen surfaces are too
-///     small / too monochrome for a scannable barcode.
-///   - `.systemSmall` / `.systemMedium` (Home Screen). Renders a small
-///     scannable barcode preview for the formats CoreImage supports;
-///     other formats fall back to the raw number.
+/// "Up Next" loyalty widget. Shows the card the user most likely needs at
+/// this hour (learned on-device from their own use, published by the app
+/// as an hourly timeline) with a scannable barcode; the medium size adds
+/// the next three cards, each one tap away. Tapping deep-links to
+/// `cardwallet://loyalty?id=…`, which opens the barcode page even while
+/// the app is PIN-locked (read-only).
 struct LoyaltyWidget: Widget {
     let kind: String = "LoyaltyWidget"
 
@@ -20,43 +14,27 @@ struct LoyaltyWidget: Widget {
         StaticConfiguration(kind: kind, provider: LoyaltyProvider()) { entry in
             if #available(iOS 17.0, *) {
                 LoyaltyWidgetView(entry: entry)
-                    .containerBackground(for: .widget) {
-                        BackgroundGradient(
-                            primaryHex: entry.primaryHex,
-                            secondaryHex: entry.secondaryHex
-                        )
-                    }
+                    .containerBackground(for: .widget) { WidgetBackground(card: entry.upNext) }
             } else {
                 LoyaltyWidgetView(entry: entry)
-                    .background(
-                        BackgroundGradient(
-                            primaryHex: entry.primaryHex,
-                            secondaryHex: entry.secondaryHex
-                        )
-                    )
+                    .background(WidgetBackground(card: entry.upNext))
             }
         }
-        .configurationDisplayName("Loyalty Card")
-        .description("Quickly show your most recent loyalty card barcode.")
+        .configurationDisplayName(Text("Card Wallet"))
+        .description(Text("The card you need now, ready to scan."))
         .supportedFamilies(supportedFamilies)
     }
 
     private var supportedFamilies: [WidgetFamily] {
         if #available(iOS 16.0, *) {
-            return [
-                .systemSmall,
-                .systemMedium,
-                .accessoryRectangular,
-                .accessoryCircular,
-                .accessoryInline,
-            ]
-        } else {
-            return [.systemSmall, .systemMedium]
+            return [.systemSmall, .systemMedium, .accessoryRectangular,
+                    .accessoryCircular, .accessoryInline]
         }
+        return [.systemSmall, .systemMedium]
     }
 }
 
-// MARK: - Root view
+// MARK: - Root
 
 private struct LoyaltyWidgetView: View {
     @Environment(\.widgetFamily) var family
@@ -65,116 +43,184 @@ private struct LoyaltyWidgetView: View {
     var body: some View {
         Group {
             switch family {
-            case .accessoryRectangular:
-                AccessoryRectangularView(entry: entry)
-            case .accessoryCircular:
-                AccessoryCircularView(entry: entry)
-            case .accessoryInline:
-                AccessoryInlineView(entry: entry)
-            case .systemMedium:
-                SystemMediumView(entry: entry)
-            default:
-                SystemSmallView(entry: entry)
+            case .accessoryRectangular: AccessoryRectangularView(entry: entry)
+            case .accessoryCircular: AccessoryCircularView(entry: entry)
+            case .accessoryInline: AccessoryInlineView(entry: entry)
+            case .systemMedium: MediumView(entry: entry)
+            default: SmallView(entry: entry)
             }
         }
-        .widgetURL(deepLinkURL)
-    }
-
-    private var deepLinkURL: URL? {
-        // `homeWidget=1` is required by the home_widget plugin's URL
-        // filter (`isWidgetUrl` in SwiftHomeWidgetPlugin) — without it
-        // the plugin drops the URL and `initiallyLaunchedFromHomeWidget`
-        // returns nil on cold launch, so the splash page can't route to
-        // the barcode page.
-        if entry.hasCard {
-            return URL(string: "cardwallet://loyalty?homeWidget=1&id=\(entry.id)")
-        }
-        return URL(string: "cardwallet://loyalty?homeWidget=1")
+        .widgetURL(entry.upNext?.deepLink ?? URL(string: "cardwallet://loyalty?homeWidget=1"))
     }
 }
 
-// MARK: - Home Screen families
+// MARK: - Home screen
 
-private struct SystemSmallView: View {
+private struct SmallView: View {
     let entry: LoyaltyEntry
 
     var body: some View {
-        if entry.hasCard {
-            VStack(spacing: 6) {
-                Text(entry.displayName)
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(.white)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                BarcodePreview(entry: entry, fillAvailable: true)
-                Text(entry.barcode)
-                    .font(.system(size: 8, weight: .medium, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.85))
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-            }
-            .padding(10)
+        if let card = entry.upNext {
+            UpNextBlock(card: card)
+                .padding(12)
         } else {
-            EmptyStateView(compact: true)
+            EmptyStateView()
         }
     }
 }
 
-private struct SystemMediumView: View {
+private struct MediumView: View {
     let entry: LoyaltyEntry
 
     var body: some View {
-        if entry.hasCard {
-            VStack(spacing: 6) {
-                HStack {
-                    Text(entry.displayName)
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                    Spacer(minLength: 6)
-                    if entry.hasDistinctBrand {
-                        Text(entry.brand)
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(.white.opacity(0.7))
-                            .lineLimit(1)
-                            .truncationMode(.tail)
+        if let card = entry.upNext {
+            HStack(spacing: 10) {
+                UpNextBlock(card: card)
+                    .frame(maxWidth: .infinity)
+                if !entry.others.isEmpty {
+                    VStack(spacing: 6) {
+                        ForEach(entry.others.prefix(3)) { other in
+                            Link(destination: other.deepLink ?? URL(string: "cardwallet://loyalty?homeWidget=1")!) {
+                                CardRow(card: other, fg: Color(hex: card.fgHex) ?? .white)
+                            }
+                        }
+                        Spacer(minLength: 0)
                     }
+                    .frame(width: 118)
                 }
-                BarcodePreview(entry: entry, fillAvailable: true)
-                Text(entry.barcode)
-                    .font(.system(size: 10, weight: .medium, design: .monospaced))
-                    .foregroundColor(.white.opacity(0.9))
-                    .lineLimit(1)
-                    .truncationMode(.middle)
             }
-            .padding(10)
+            .padding(12)
         } else {
-            EmptyStateView(compact: false)
+            EmptyStateView()
         }
     }
 }
 
-// MARK: - Lock Screen families (iOS 16+)
+/// "UP NEXT" + name + the barcode on a white panel.
+private struct UpNextBlock: View {
+    let card: WidgetCard
+
+    var body: some View {
+        let fg = Color(hex: card.fgHex) ?? .white
+        VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 1) {
+                Text("Up Next")
+                    .font(.system(size: 9, weight: .bold))
+                    .textCase(.uppercase)
+                    .foregroundColor(fg.opacity(0.7))
+                Text(verbatim: card.name)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundColor(fg)
+                    .lineLimit(1)
+            }
+            BarcodePanel(card: card)
+        }
+    }
+}
+
+private struct BarcodePanel: View {
+    let card: WidgetCard
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 10)
+            .fill(Color.white)
+            .overlay(content.padding(6))
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    @ViewBuilder private var content: some View {
+        if let path = card.imagePath, let image = UIImage(contentsOfFile: path) {
+            Image(uiImage: image)
+                .interpolation(.none)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+        } else if BarcodeRenderer.supportsInlineRendering(format: card.format),
+                  let image = BarcodeRenderer.image(for: card.barcode, format: card.format) {
+            Image(uiImage: image)
+                .interpolation(.none)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+        } else {
+            Text(verbatim: card.barcode)
+                .font(.system(size: 12, weight: .semibold, design: .monospaced))
+                .foregroundColor(.black)
+                .minimumScaleFactor(0.5)
+                .lineLimit(2)
+        }
+    }
+}
+
+private struct CardRow: View {
+    let card: WidgetCard
+    let fg: Color
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Circle()
+                .fill(Color(hex: card.bgHex) ?? .gray)
+                .overlay(Circle().stroke(Color.white.opacity(0.5), lineWidth: 1))
+                .frame(width: 12, height: 12)
+            Text(verbatim: card.name)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(fg)
+                .lineLimit(1)
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 7)
+        .background(RoundedRectangle(cornerRadius: 9).fill(Color.black.opacity(0.18)))
+    }
+}
+
+private struct EmptyStateView: View {
+    var body: some View {
+        VStack(spacing: 6) {
+            Image(systemName: "plus.circle")
+                .font(.system(size: 26, weight: .medium))
+                .foregroundColor(.white.opacity(0.9))
+            Text("Add a loyalty card")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(12)
+    }
+}
+
+private struct WidgetBackground: View {
+    let card: WidgetCard?
+
+    var body: some View {
+        LinearGradient(
+            colors: [
+                Color(hex: card?.bgHex ?? "#22252C") ?? Color(white: 0.15),
+                Color(hex: card?.bg2Hex ?? "#0B0C0F") ?? Color(white: 0.05),
+            ],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
+}
+
+// MARK: - Lock screen (iOS 16+)
 
 @available(iOS 16.0, *)
 private struct AccessoryRectangularView: View {
     let entry: LoyaltyEntry
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 4) {
                 Image(systemName: "barcode")
-                // Ternaries of literals type-check as `String` and skip the
-                // string catalog, so build the localized Text explicitly.
-                (entry.hasCard ? Text(verbatim: entry.displayName) : Text("Loyalty"))
-                    .font(.headline)
-                    .lineLimit(1)
+                Text("Up Next").font(.caption2).textCase(.uppercase)
             }
-            Text(entry.hasCard ? LocalizedStringKey("Tap to show barcode") : LocalizedStringKey("Add a loyalty card"))
-                .font(.caption2)
-                .lineLimit(1)
-                .opacity(0.8)
+            .opacity(0.8)
+            if let card = entry.upNext {
+                Text(verbatim: card.name).font(.headline).lineLimit(1)
+            } else {
+                Text("Add a loyalty card").font(.headline).lineLimit(1)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -187,7 +233,7 @@ private struct AccessoryCircularView: View {
     var body: some View {
         ZStack {
             AccessoryWidgetBackground()
-            Image(systemName: entry.hasCard ? "barcode.viewfinder" : "plus")
+            Image(systemName: entry.upNext == nil ? "plus" : "barcode.viewfinder")
                 .font(.system(size: 22, weight: .semibold))
         }
     }
@@ -198,120 +244,26 @@ private struct AccessoryInlineView: View {
     let entry: LoyaltyEntry
 
     var body: some View {
-        if entry.hasCard {
-            Label(entry.displayName, systemImage: "barcode")
+        if let card = entry.upNext {
+            Label(card.name, systemImage: "barcode")
         } else {
             Label("Add loyalty card", systemImage: "plus")
         }
     }
 }
 
-// MARK: - Shared components
+// MARK: - Colour
 
-private struct BarcodePreview: View {
-    let entry: LoyaltyEntry
-    /// When true, the barcode panel stretches to fill its container.
-    /// This is the right mode for the home-screen widgets where the
-    /// barcode IS the widget — the cashier should be able to scan
-    /// straight from the home screen without launching the app.
-    var fillAvailable: Bool = false
-    var explicitHeight: CGFloat? = nil
-
-    var body: some View {
-        Group {
-            if BarcodeRenderer.supportsInlineRendering(format: entry.format),
-               let image = BarcodeRenderer.image(for: entry.barcode, format: entry.format) {
-                Image(uiImage: image)
-                    .interpolation(.none)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .padding(4)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(Color.white)
-                    )
-            } else {
-                // Unsupported format (EAN/UPC) — CoreImage on iOS doesn't
-                // ship generators for these. Show the raw number large +
-                // a glyph so the user can read the code; tapping opens the
-                // app where Flutter's barcode_widget can render every
-                // format properly.
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.white)
-                    .overlay(
-                        VStack(spacing: 4) {
-                            Image(systemName: "barcode")
-                                .foregroundColor(.black.opacity(0.7))
-                                .font(.system(size: 22))
-                            Text("Tap to scan")
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundColor(.black.opacity(0.55))
-                        }
-                    )
-            }
-        }
-        .frame(
-            maxWidth: fillAvailable ? .infinity : nil,
-            maxHeight: explicitHeight ?? (fillAvailable ? .infinity : nil)
-        )
-    }
-}
-
-private struct EmptyStateView: View {
-    let compact: Bool
-
-    var body: some View {
-        VStack(spacing: 6) {
-            Image(systemName: "plus.circle.fill")
-                .font(.system(size: compact ? 24 : 30, weight: .semibold))
-                .foregroundColor(.white.opacity(0.9))
-            Text("Add a loyalty card")
-                .font(.system(size: compact ? 11 : 13, weight: .semibold))
-                .foregroundColor(.white)
-                .multilineTextAlignment(.center)
-            if !compact {
-                Text("Tap to open the app")
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundColor(.white.opacity(0.7))
-            }
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(12)
-    }
-}
-
-private struct BackgroundGradient: View {
-    let primaryHex: String
-    let secondaryHex: String
-
-    var body: some View {
-        LinearGradient(
-            colors: [
-                Color(hex: primaryHex) ?? Color(white: 0.15),
-                Color(hex: secondaryHex) ?? Color(white: 0.05),
-            ],
-            startPoint: .topLeading,
-            endPoint: .bottomTrailing
-        )
-    }
-}
-
-// MARK: - Color helper
-
-private extension Color {
-    /// Parse a `#RRGGBB` string (the format the Flutter side writes via
-    /// WidgetDataService._toHex). Returns nil for malformed input — the
-    /// callsite falls back to a neutral grey.
+extension Color {
+    /// `#RRGGBB` as written by WidgetDataService._toHex.
     init?(hex: String) {
         var trimmed = hex.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.hasPrefix("#") { trimmed.removeFirst() }
-        guard trimmed.count == 6, let value = UInt32(trimmed, radix: 16) else {
-            return nil
-        }
-        let r = Double((value >> 16) & 0xFF) / 255.0
-        let g = Double((value >> 8) & 0xFF) / 255.0
-        let b = Double(value & 0xFF) / 255.0
-        self.init(red: r, green: g, blue: b)
+        guard trimmed.count == 6, let value = UInt32(trimmed, radix: 16) else { return nil }
+        self.init(
+            red: Double((value >> 16) & 0xFF) / 255.0,
+            green: Double((value >> 8) & 0xFF) / 255.0,
+            blue: Double(value & 0xFF) / 255.0
+        )
     }
 }
