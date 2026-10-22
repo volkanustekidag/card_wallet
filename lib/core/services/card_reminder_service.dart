@@ -13,6 +13,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/utils/card_reminder_rules.dart';
+import 'package:wallet_app/core/utils/locale_format.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
 
@@ -37,7 +38,7 @@ class CardReminderService {
   /// Locale the notification texts are rendered in (e.g. `tr_TR`). Titles
   /// and bodies are baked into the scheduled notification, so they must be
   /// produced after translations load and again when the language changes.
-  String? _localeTag;
+  Locale? _locale;
 
   Stream<CardReminderPayload> get reminderPayloads => _payloadController.stream;
 
@@ -108,7 +109,7 @@ class CardReminderService {
   /// Re-renders and reschedules every reminder in [locale]. Call after the
   /// first frame (translations loaded) and after the user switches language.
   Future<void> rescheduleAll({required Locale locale}) async {
-    _localeTag = locale.toString();
+    _locale = locale;
     await guarded('rescheduleReminders', () async {
       final service = CreditCardService();
       await service.openBox();
@@ -117,15 +118,8 @@ class CardReminderService {
     });
   }
 
-  String _formatDate(DateTime date) {
-    try {
-      return DateFormat.yMMMd(_localeTag).format(date);
-    } catch (_) {
-      // Date symbols for the locale not loaded yet: fall back to the
-      // default locale rather than dropping the reminder.
-      return DateFormat.yMMMd().format(date);
-    }
-  }
+  String _formatDate(DateTime date) =>
+      LocaleFormat.yearMonthDay(_locale).format(date);
 
   Future<void> scheduleAllCreditCardReminders(
     List<CreditCard> cards, {

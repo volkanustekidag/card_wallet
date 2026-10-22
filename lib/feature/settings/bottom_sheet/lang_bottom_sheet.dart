@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:wallet_app/core/constants/app_locales.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:get/get.dart' hide Trans;
 
@@ -25,17 +26,7 @@ class LanguageBottomSheetBody extends StatefulWidget {
 class _LanguageBottomSheetBodyState extends State<LanguageBottomSheetBody> {
   int _selectedIndex = 0;
 
-  static const List<Locale> _supportedLocales = [
-    Locale("en", "US"),
-    Locale("tr", "TR"),
-    Locale("de", "DE"),
-    Locale("fr", "FR"),
-    Locale("es", "ES"),
-    Locale("pt", "BR"),
-    Locale("it", "IT"),
-    Locale("nl", "NL"),
-    Locale("pl", "PL"),
-  ];
+  static const List<Locale> _supportedLocales = kAppLocales;
 
   static const List<String> _displayNames = [
     "English",

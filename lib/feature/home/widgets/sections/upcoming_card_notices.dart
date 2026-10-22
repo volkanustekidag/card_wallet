@@ -10,6 +10,7 @@ import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/credit_card_reminder_sheet.dart';
+import 'package:wallet_app/core/utils/locale_format.dart';
 
 enum _NoticeKind { payment, expiry }
 
@@ -105,7 +106,8 @@ class UpcomingCardNotices extends StatelessWidget {
                 notices: payments,
                 subtitleBuilder: (notice) => 'paymentDueDateShort'.tr(
                   namedArgs: {
-                    'date': DateFormat.MMMd().format(notice.targetDate),
+                    'date': LocaleFormat.monthDay(context.locale)
+                        .format(notice.targetDate),
                   },
                 ),
               ),
@@ -119,7 +121,8 @@ class UpcomingCardNotices extends StatelessWidget {
                 notices: expiries,
                 subtitleBuilder: (notice) => 'expiryDateShort'.tr(
                   namedArgs: {
-                    'date': DateFormat.MMMd().format(notice.targetDate),
+                    'date': LocaleFormat.monthDay(context.locale)
+                        .format(notice.targetDate),
                   },
                 ),
               ),

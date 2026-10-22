@@ -12,6 +12,7 @@ import 'package:wallet_app/core/widgets/lifted_surface.dart';
 import 'package:wallet_app/feature/add_credit_card/add_credit_card_page.dart';
 import 'package:wallet_app/feature/home/widgets/sections/home_constants.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/core/utils/locale_format.dart';
 
 Future<void> showCreditCardReminderSheet(
   BuildContext context, {
@@ -270,7 +271,7 @@ class _ReminderHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  _dateText(),
+                  _dateText(context.locale),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -290,13 +291,15 @@ class _ReminderHeader extends StatelessWidget {
     );
   }
 
-  String _dateText() {
+  String _dateText(Locale locale) {
     if (targetDate == null) return 'reminderDateUnknown'.tr();
     final key = kind == CardReminderKind.payment
         ? 'paymentDueDateShort'
         : 'expiryDateShort';
     return key.tr(
-      namedArgs: {'date': DateFormat.yMMMd().format(targetDate!)},
+      namedArgs: {
+        'date': LocaleFormat.yearMonthDay(locale).format(targetDate!),
+      },
     );
   }
 }
