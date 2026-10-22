@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:barcode_widget/barcode_widget.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/widgets.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
@@ -168,6 +169,9 @@ class WidgetDataService {
       await Future.wait([
         HomeWidget.saveWidgetData<String>(_keyCards, jsonEncode(payload)),
         HomeWidget.saveWidgetData<String>(_keyTimeline, jsonEncode(timeline)),
+        // Widgets follow the in-app language, not the system one.
+        HomeWidget.saveWidgetData<String>(_keyLabelUpNext, 'cwUpNext'.tr()),
+        HomeWidget.saveWidgetData<String>(_keyLabelAdd, 'cwQsLoyalty'.tr()),
       ]);
       await _writeLegacy(sortLoyaltyForNow(cards, now).first);
       await _refresh();
@@ -177,6 +181,8 @@ class WidgetDataService {
   }
 
   static const String _keyCards = 'cw_cards';
+  static const String _keyLabelUpNext = 'cw_label_upnext';
+  static const String _keyLabelAdd = 'cw_label_add';
   static const String _keyTimeline = 'cw_timeline';
 
   /// Path of a PNG of [card]'s barcode in the shared container, rendered

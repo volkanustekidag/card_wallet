@@ -24,6 +24,9 @@ struct WidgetCard: Identifiable, Hashable {
 struct LoyaltyEntry: TimelineEntry {
     let date: Date
     let cards: [WidgetCard]
+    /// "Up Next" in the app's language (the user may run the app in a
+    /// language other than the system one). Nil → string catalog.
+    var upNextLabel: String? = nil
 
     var upNext: WidgetCard? { cards.first }
     var others: [WidgetCard] { Array(cards.dropFirst()) }

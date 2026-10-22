@@ -61,7 +61,7 @@ private struct SmallView: View {
 
     var body: some View {
         if let card = entry.upNext {
-            UpNextBlock(card: card)
+            UpNextBlock(card: card, label: entry.upNextLabel)
                 .padding(12)
         } else {
             EmptyStateView()
@@ -75,7 +75,7 @@ private struct MediumView: View {
     var body: some View {
         if let card = entry.upNext {
             HStack(spacing: 10) {
-                UpNextBlock(card: card)
+                UpNextBlock(card: card, label: entry.upNextLabel)
                     .frame(maxWidth: .infinity)
                 if !entry.others.isEmpty {
                     VStack(spacing: 6) {
@@ -99,12 +99,13 @@ private struct MediumView: View {
 /// "UP NEXT" + name + the barcode on a white panel.
 private struct UpNextBlock: View {
     let card: WidgetCard
+    var label: String? = nil
 
     var body: some View {
         let fg = Color(hex: card.fgHex) ?? .white
         VStack(alignment: .leading, spacing: 6) {
             VStack(alignment: .leading, spacing: 1) {
-                Text("Up Next")
+                (label.map { Text(verbatim: $0) } ?? Text("Up Next"))
                     .font(.system(size: 9, weight: .bold))
                     .textCase(.uppercase)
                     .foregroundColor(fg.opacity(0.7))
@@ -213,7 +214,8 @@ private struct AccessoryRectangularView: View {
         VStack(alignment: .leading, spacing: 1) {
             HStack(spacing: 4) {
                 Image(systemName: "barcode")
-                Text("Up Next").font(.caption2).textCase(.uppercase)
+                (entry.upNextLabel.map { Text(verbatim: $0) } ?? Text("Up Next"))
+                    .font(.caption2).textCase(.uppercase)
             }
             .opacity(0.8)
             if let card = entry.upNext {

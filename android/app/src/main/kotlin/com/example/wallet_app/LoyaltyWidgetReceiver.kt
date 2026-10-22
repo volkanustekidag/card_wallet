@@ -165,8 +165,17 @@ class LoyaltyWidgetReceiver : AppWidgetProvider() {
             ),
         )
 
+        // Labels published by the app in its own language (falls back to
+        // the system-language resources on older data).
+        prefs.getString("cw_label_upnext", null)?.takeIf { it.isNotEmpty() }?.let {
+            views.setTextViewText(R.id.loyalty_widget_label, it)
+        }
         if (top == null) {
-            views.setTextViewText(R.id.loyalty_widget_title, context.getString(R.string.loyalty_add_card))
+            views.setTextViewText(
+                R.id.loyalty_widget_title,
+                prefs.getString("cw_label_add", null)?.takeIf { it.isNotEmpty() }
+                    ?: context.getString(R.string.loyalty_add_card),
+            )
             views.setImageViewBitmap(R.id.loyalty_widget_barcode, placeholderBitmap())
             views.setOnClickPendingIntent(
                 R.id.loyalty_widget_root,

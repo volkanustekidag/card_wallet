@@ -24,7 +24,7 @@ struct LoyaltyProvider: TimelineProvider {
         // Start with the slot that covers "now".
         let now = Date()
         let upcoming = entries.filter { $0.date > now }
-        let first = current(of: entries).map { LoyaltyEntry(date: now, cards: $0.cards) }
+        let first = current(of: entries).map { LoyaltyEntry(date: now, cards: $0.cards, upNextLabel: $0.upNextLabel) }
         let all = (first.map { [$0] } ?? []) + upcoming
         completion(Timeline(entries: all.isEmpty ? [.empty] : all, policy: .atEnd))
     }
@@ -62,7 +62,10 @@ struct LoyaltyProvider: TimelineProvider {
                 guard let t = slot["t"] as? Double ?? (slot["t"] as? Int).map(Double.init),
                       let ids = slot["ids"] as? [String] else { return nil }
                 let cards = ids.compactMap { cardsById[$0] }
-                return cards.isEmpty ? nil : LoyaltyEntry(date: Date(timeIntervalSince1970: t), cards: cards)
+                let label = defaults.string(forKey: "cw_label_upnext")
+                return cards.isEmpty ? nil : LoyaltyEntry(
+                    date: Date(timeIntervalSince1970: t), cards: cards,
+                    upNextLabel: (label?.isEmpty ?? true) ? nil : label)
             }
             if !entries.isEmpty { return entries }
         }
