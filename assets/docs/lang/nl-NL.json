@@ -774,5 +774,13 @@
     "cwLanguage": "Taal",
     "cwAppearance": "Weergave",
     "cwLockApp": "Vergrendelen met pincode",
-    "cwVersion": "Versie {}"
+    "cwVersion": "Versie {}",
+    "cwOfflineTitle": "Je bent offline",
+    "cwOfflineBody": "Toevoegen aan de wallet van je telefoon heeft even verbinding nodig. Je kaart werkt hier gewoon – toon de barcode wanneer je wilt.",
+    "cwShowBarcode": "Barcode tonen",
+    "cwNewPhoneTitle": "Nieuwe telefoon, zelfde portemonnee",
+    "cwNewPhoneBody": "Voor je veiligheid zijn kaarten versleuteld voor de telefoon waarop ze zijn toegevoegd – ze gaan niet mee met telefoonback-ups. Heb je een back-up gemaakt, dan kun je nu alles herstellen.",
+    "cwStartFresh": "Opnieuw beginnen",
+    "cwLocked": "Card Wallet is vergrendeld",
+    "cwForgot": "Vergeten?"
 }

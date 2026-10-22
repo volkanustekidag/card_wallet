@@ -774,5 +774,13 @@
     "cwLanguage": "Idioma",
     "cwAppearance": "Apariencia",
     "cwLockApp": "Bloquear con PIN",
-    "cwVersion": "Versión {}"
+    "cwVersion": "Versión {}",
+    "cwOfflineTitle": "Estás sin conexión",
+    "cwOfflineBody": "Añadir a la cartera del teléfono requiere conexión un momento. Tu tarjeta sigue funcionando aquí: muestra el código cuando quieras.",
+    "cwShowBarcode": "Mostrar código",
+    "cwNewPhoneTitle": "Teléfono nuevo, misma cartera",
+    "cwNewPhoneBody": "Por tu seguridad, las tarjetas se cifran para el teléfono donde se añadieron, así que no viajan con las copias del teléfono. Si hiciste una copia, puedes restaurarlo todo ahora.",
+    "cwStartFresh": "Empezar de cero",
+    "cwLocked": "Card Wallet está bloqueado",
+    "cwForgot": "¿Olvidado?"
 }

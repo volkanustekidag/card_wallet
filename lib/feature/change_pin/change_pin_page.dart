@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wallet_app/ui/tokens.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:wallet_app/core/components/auth_component.dart';
@@ -40,7 +41,7 @@ class _ChangePinPageState extends State<ChangePinPage> {
     final controller = Get.find<ChangePinController>();
 
     return Scaffold(
-      backgroundColor: context.theme.scaffoldBackgroundColor,
+      backgroundColor: CwColors.night.bg,
       extendBodyBehindAppBar: true,
       appBar: const ChangePinAppBar(),
       body: Obx(() {

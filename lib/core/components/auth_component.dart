@@ -1,18 +1,34 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:wallet_app/core/controllers/auth_controller.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
+import 'package:wallet_app/ui/typography.dart';
 
+/// PIN entry used by the lock screen, PIN creation/verification and PIN
+/// change: night stage, four dots and an in-app keypad (no system keyboard
+/// popping up under a Face ID prompt). Wrong PINs shake the dots.
 class AuthViews extends StatefulWidget {
+  /// Translation key for the title (`enterPin`, `createPin`, `confirmPin`…).
   final String text;
   final void Function(String)? onCompleted;
   final TextEditingController textEditingController;
+
+  /// Kept for API compatibility; the keypad is always on screen.
   final bool autoFocus;
+
+  /// Shows the biometric key (lock screen only).
+  final VoidCallback? onBiometric;
+
+  /// Shows "Forgot?" while no digit is typed.
+  final VoidCallback? onForgot;
+
+  /// The app lock screen: "Card Wallet is locked" headline.
+  final bool lockScreen;
 
   const AuthViews({
     Key? key,
@@ -20,6 +36,9 @@ class AuthViews extends StatefulWidget {
     required this.textEditingController,
     required this.onCompleted,
     this.autoFocus = true,
+    this.onBiometric,
+    this.onForgot,
+    this.lockScreen = false,
   }) : super(key: key);
 
   @override
@@ -28,262 +47,303 @@ class AuthViews extends StatefulWidget {
 
 class _AuthViewsState extends State<AuthViews>
     with SingleTickerProviderStateMixin {
-  final StreamController<ErrorAnimationType> _errorAnimationController =
-      StreamController<ErrorAnimationType>.broadcast();
+  static const _length = 4;
   Worker? _failureWorker;
-  late final AnimationController _pulseController;
+  late final AnimationController _shake = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 420),
+  );
+
+  String get _pin => widget.textEditingController.text;
 
   @override
   void initState() {
     super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2400),
-    )..repeat(reverse: true);
-
-    final authController =
+    widget.textEditingController.addListener(_onText);
+    final auth =
         Get.isRegistered<AuthController>() ? Get.find<AuthController>() : null;
-    if (authController != null) {
-      _failureWorker =
-          ever<bool>(authController.authenticationFailed, (failed) {
+    if (auth != null) {
+      _failureWorker = ever<bool>(auth.authenticationFailed, (failed) {
         if (!failed || !mounted) return;
-        _errorAnimationController.add(ErrorAnimationType.shake);
         HapticFeedback.heavyImpact();
+        _shake.forward(from: 0);
         widget.textEditingController.clear();
       });
     }
   }
 
+  void _onText() {
+    if (mounted) setState(() {});
+  }
+
   @override
   void dispose() {
+    widget.textEditingController.removeListener(_onText);
     _failureWorker?.dispose();
-    _errorAnimationController.close();
-    _pulseController.dispose();
+    _shake.dispose();
     super.dispose();
   }
 
-  IconData _iconFor(String key) {
-    switch (key) {
-      case 'confirmPin':
-        return Icons.verified_user_rounded;
-      case 'createPin':
-      case 'addNPIN':
-        return Icons.lock_outline_rounded;
-      case 'enterPin':
-      default:
-        return Icons.lock_rounded;
-    }
+  void _tap(String d, bool enabled) {
+    if (!enabled || _pin.length >= _length) return;
+    HapticFeedback.selectionClick();
+    final next = _pin + d;
+    widget.textEditingController.text = next;
+    if (next.length == _length) widget.onCompleted?.call(next);
+  }
+
+  void _back() {
+    if (_pin.isEmpty) return;
+    HapticFeedback.selectionClick();
+    widget.textEditingController.text = _pin.substring(0, _pin.length - 1);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final color = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final accent = color.primary;
-
-    return Stack(
-      children: [
-        Positioned.fill(
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                center: const Alignment(0, -0.7),
-                radius: 1.1,
-                colors: [
-                  accent.withValues(alpha: isDark ? 0.32 : 0.20),
-                  accent.withValues(alpha: isDark ? 0.10 : 0.06),
-                  Colors.transparent,
-                ],
-                stops: const [0, 0.55, 1],
-              ),
-            ),
-          ),
-        ),
-        SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 28,
-              vertical: 24,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _GlowIcon(
-                  icon: _iconFor(widget.text),
-                  accent: accent,
-                  pulse: _pulseController,
-                ),
-                const SizedBox(height: 28),
-                Text(
-                  widget.text.tr(),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    height: 1.2,
-                    letterSpacing: -0.3,
+    const night = CwColors.night;
+    final isLock = widget.lockScreen;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: ColoredBox(
+        color: night.bg,
+        child: Stack(
+          children: [
+            const Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: Alignment(0, -0.55),
+                    radius: 0.9,
+                    colors: [Color(0xFF1E1E5A), Color(0x000B0C0F)],
                   ),
                 ),
-                const SizedBox(height: 32),
-                GetX<AuthController>(
-                  builder: (authController) {
-                    final locked = authController.isPinLocked;
-                    final hasError = authController.authenticationFailed.value;
-                    final busy = authController.isLoading.value;
-                    final fieldsEnabled = !locked && !busy;
-
-                    final activeColor = hasError ? color.error : accent;
-                    final inactiveColor = hasError
-                        ? color.error.withValues(alpha: 0.7)
-                        : color.outline.withValues(alpha: 0.45);
-                    final selectedColor =
-                        hasError ? color.error : color.secondary;
-
-                    return Column(
-                      children: [
-                        PinCodeTextField(
-                          backgroundColor: Colors.transparent,
-                          appContext: context,
-                          length: 4,
-                          controller: widget.textEditingController,
-                          autoDisposeControllers: false,
-                          obscureText: true,
-                          obscuringCharacter: '●',
-                          animationType: AnimationType.fade,
-                          cursorColor: activeColor,
-                          keyboardType: TextInputType.number,
-                          autoFocus: widget.autoFocus && fieldsEnabled,
-                          enabled: fieldsEnabled,
-                          cursorHeight: 18,
-                          errorAnimationController: _errorAnimationController,
-                          textStyle: TextStyle(
-                            fontSize: 20,
-                            color: hasError ? color.error : color.onSurface,
-                            fontWeight: FontWeight.w700,
-                          ),
-                          pinTheme: PinTheme(
-                            shape: PinCodeFieldShape.box,
-                            borderRadius: BorderRadius.circular(14),
-                            fieldHeight: 56,
-                            fieldWidth: 56,
-                            activeColor: activeColor,
-                            inactiveColor: inactiveColor,
-                            selectedColor: selectedColor,
-                            activeFillColor: accent.withValues(alpha: 0.06),
-                            inactiveFillColor: Colors.transparent,
-                            selectedFillColor: accent.withValues(alpha: 0.10),
-                            borderWidth: 1.4,
-                          ),
-                          enableActiveFill: true,
-                          onChanged: (_) {},
-                          onCompleted:
-                              fieldsEnabled ? widget.onCompleted : null,
-                        ),
-                        const SizedBox(height: 18),
-                        SizedBox(
-                          height: 24,
-                          child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 200),
-                            child: busy
-                                ? SizedBox(
-                                    key: const ValueKey('pin-loader'),
-                                    width: 22,
-                                    height: 22,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.4,
-                                      valueColor:
-                                          AlwaysStoppedAnimation<Color>(accent),
-                                    ),
-                                  )
-                                : locked
-                                    ? Text(
-                                        key: const ValueKey('pin-locked'),
-                                        'pinLockedMessage'.tr(args: [
-                                          AuthController.formatLockRemaining(
-                                              authController.pinLockRemaining),
-                                        ]),
-                                        textAlign: TextAlign.center,
-                                        style: const TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500,
-                                        ).copyWith(color: color.error),
-                                      )
-                                    : const SizedBox.shrink(
-                                        key: ValueKey('pin-idle'),
-                                      ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
+              ),
             ),
-          ),
+            SafeArea(
+              child: GetX<AuthController>(
+                builder: (auth) {
+                  final locked = auth.isPinLocked;
+                  final busy = auth.isLoading.value;
+                  final error = auth.authenticationFailed.value;
+                  final enabled = !locked && !busy;
+                  return Column(
+                    children: [
+                      const Spacer(flex: 3),
+                      Container(
+                        width: 64,
+                        height: 64,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.07),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        alignment: Alignment.center,
+                        child: CwIcon(
+                          isLock ? CwIcons.lock : CwIcons.shield,
+                          size: 28,
+                          color: night.ink,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: Text(
+                          isLock ? 'cwLocked'.tr() : widget.text.tr(),
+                          textAlign: TextAlign.center,
+                          style: CwType.title.copyWith(color: night.ink),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      SizedBox(
+                        height: 36,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32),
+                          child: Text(
+                            locked
+                                ? 'pinLockedMessage'.tr(args: [
+                                    AuthController.formatLockRemaining(
+                                        auth.pinLockRemaining),
+                                  ])
+                                : isLock
+                                    ? 'enterPin'.tr()
+                                    : '',
+                            textAlign: TextAlign.center,
+                            style: CwType.footnote.copyWith(
+                                color: locked ? night.danger : night.mute),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      AnimatedBuilder(
+                        animation: _shake,
+                        builder: (_, child) => Transform.translate(
+                          offset: Offset(
+                              math.sin(_shake.value * math.pi * 6) *
+                                  10 *
+                                  (1 - _shake.value),
+                              0),
+                          child: child,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (var i = 0; i < _length; i++)
+                              AnimatedContainer(
+                                duration: CwMotion.fast,
+                                margin:
+                                    const EdgeInsets.symmetric(horizontal: 9),
+                                width: 14,
+                                height: 14,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: i < _pin.length
+                                      ? (error ? night.danger : night.ink)
+                                      : Colors.transparent,
+                                  border: Border.all(
+                                    color: error
+                                        ? night.danger
+                                        : night.ink.withValues(alpha: 0.6),
+                                    width: 1.6,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 40,
+                        child: busy
+                            ? const Center(
+                                child: SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                      strokeWidth: 2, color: Colors.white),
+                                ),
+                              )
+                            : null,
+                      ),
+                      const Spacer(flex: 2),
+                      _Keypad(
+                        enabled: enabled,
+                        onDigit: (d) => _tap(d, enabled),
+                        onBack: _back,
+                        showBack: _pin.isNotEmpty,
+                        onBiometric: widget.onBiometric,
+                        onForgot: widget.onForgot,
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
 
-/// Lock icon inside a soft radial-glow disc with a slow pulsing ring —
-/// matches the onboarding feature-icon treatment so the lock screen reads
-/// as part of the same visual family.
-class _GlowIcon extends StatelessWidget {
-  final IconData icon;
-  final Color accent;
-  final AnimationController pulse;
-  const _GlowIcon({
-    required this.icon,
-    required this.accent,
-    required this.pulse,
+class _Keypad extends StatelessWidget {
+  final bool enabled;
+  final ValueChanged<String> onDigit;
+  final VoidCallback onBack;
+  final bool showBack;
+  final VoidCallback? onBiometric;
+  final VoidCallback? onForgot;
+
+  const _Keypad({
+    required this.enabled,
+    required this.onDigit,
+    required this.onBack,
+    required this.showBack,
+    this.onBiometric,
+    this.onForgot,
   });
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: pulse,
-      builder: (_, __) {
-        final t = pulse.value;
-        final ringScale = 1.0 + 0.10 * math.sin(t * math.pi);
-        final ringAlpha = 0.16 + 0.10 * (1 - (t - 0.5).abs() * 2);
-        return SizedBox(
-          width: 108,
-          height: 108,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Transform.scale(
-                scale: ringScale,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: accent.withValues(alpha: ringAlpha),
-                      width: 1.4,
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                width: 84,
-                height: 84,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      accent.withValues(alpha: 0.22),
-                      accent.withValues(alpha: 0.06),
-                    ],
-                  ),
-                ),
-                child: Icon(icon, size: 40, color: accent),
-              ),
-            ],
-          ),
+    const night = CwColors.night;
+    Widget key(String d) => _Key(
+          onTap: enabled ? () => onDigit(d) : null,
+          child: Text(d,
+              style: CwType.display.copyWith(
+                  color: night.ink, fontSize: 30, fontWeight: FontWeight.w400)),
         );
-      },
+    Widget row(List<Widget> keys) => Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: keys,
+        );
+    final left = onBiometric != null
+        ? _Key(
+            plain: true,
+            semantic: 'biometricAuthReason'.tr(),
+            onTap: enabled ? onBiometric : null,
+            child: const CwIcon(CwIcons.faceId, size: 30, color: Colors.white),
+          )
+        : const SizedBox(width: _Key.size, height: _Key.size);
+    final right = showBack
+        ? _Key(
+            plain: true,
+            semantic: MaterialLocalizations.of(context).deleteButtonTooltip,
+            onTap: onBack,
+            child: const CwIcon(CwIcons.backspace, size: 26, color: Colors.white),
+          )
+        : onForgot != null
+            ? _Key(
+                plain: true,
+                onTap: onForgot,
+                child: Text('cwForgot'.tr(),
+                    style: CwType.callout.copyWith(color: night.ink2)),
+              )
+            : const SizedBox(width: _Key.size, height: _Key.size);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 36),
+      child: Column(
+        children: [
+          row([key('1'), key('2'), key('3')]),
+          const SizedBox(height: 14),
+          row([key('4'), key('5'), key('6')]),
+          const SizedBox(height: 14),
+          row([key('7'), key('8'), key('9')]),
+          const SizedBox(height: 14),
+          row([left, key('0'), right]),
+        ],
+      ),
     );
   }
+}
+
+class _Key extends StatelessWidget {
+  static const double size = 76;
+  final Widget child;
+  final VoidCallback? onTap;
+  final bool plain;
+  final String? semantic;
+
+  const _Key({
+    required this.child,
+    required this.onTap,
+    this.plain = false,
+    this.semantic,
+  });
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+        button: true,
+        label: semantic,
+        child: Material(
+          color: plain ? Colors.transparent : Colors.white.withValues(alpha: 0.07),
+          shape: const CircleBorder(),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onTap,
+            child: SizedBox(
+              width: size,
+              height: size,
+              child: Center(child: child),
+            ),
+          ),
+        ),
+      );
 }

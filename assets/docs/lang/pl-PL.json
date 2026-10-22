@@ -788,5 +788,13 @@
     "cwLanguage": "Język",
     "cwAppearance": "Wygląd",
     "cwLockApp": "Blokada PIN-em",
-    "cwVersion": "Wersja {}"
+    "cwVersion": "Wersja {}",
+    "cwOfflineTitle": "Jesteś offline",
+    "cwOfflineBody": "Dodanie do portfela telefonu wymaga chwilowo połączenia. Karta nadal działa tutaj – pokaż kod w każdej chwili.",
+    "cwShowBarcode": "Pokaż kod",
+    "cwNewPhoneTitle": "Nowy telefon, ten sam portfel",
+    "cwNewPhoneBody": "Dla bezpieczeństwa karty są szyfrowane dla telefonu, na którym je dodano – nie przenoszą się z kopią telefonu. Jeśli masz kopię, możesz teraz wszystko przywrócić.",
+    "cwStartFresh": "Zacznij od nowa",
+    "cwLocked": "Card Wallet jest zablokowany",
+    "cwForgot": "Nie pamiętasz?"
 }

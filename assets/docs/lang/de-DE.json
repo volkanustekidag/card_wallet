@@ -774,5 +774,13 @@
     "cwLanguage": "Sprache",
     "cwAppearance": "Darstellung",
     "cwLockApp": "Mit PIN sperren",
-    "cwVersion": "Version {}"
+    "cwVersion": "Version {}",
+    "cwOfflineTitle": "Du bist offline",
+    "cwOfflineBody": "Zum Hinzufügen zur Wallet des Telefons braucht es kurz eine Verbindung. Deine Karte funktioniert hier trotzdem – zeig den Barcode jederzeit.",
+    "cwShowBarcode": "Barcode zeigen",
+    "cwNewPhoneTitle": "Neues Telefon, gleiche Wallet",
+    "cwNewPhoneBody": "Zu deiner Sicherheit sind Karten an das Telefon gebunden, auf dem sie hinzugefügt wurden – sie wandern nicht mit Telefon-Backups. Wenn du ein Backup hast, kannst du jetzt alles wiederherstellen.",
+    "cwStartFresh": "Neu beginnen",
+    "cwLocked": "Card Wallet ist gesperrt",
+    "cwForgot": "Vergessen?"
 }

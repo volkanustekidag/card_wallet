@@ -774,5 +774,13 @@
     "cwLanguage": "Dil",
     "cwAppearance": "Görünüm",
     "cwLockApp": "PIN ile kilitle",
-    "cwVersion": "Sürüm {}"
+    "cwVersion": "Sürüm {}",
+    "cwOfflineTitle": "Çevrimdışısın",
+    "cwOfflineBody": "Telefonunun cüzdanına eklemek kısa süreliğine bağlantı ister. Kartın burada çalışmaya devam eder — barkodu istediğin an göster.",
+    "cwShowBarcode": "Barkodu göster",
+    "cwNewPhoneTitle": "Yeni telefon, aynı cüzdan",
+    "cwNewPhoneBody": "Güvenliğin için kartlar eklendikleri telefona özel şifrelenir — bu yüzden telefon yedekleriyle taşınmaz. Yedek aldıysan şimdi her şeyi geri yükleyebilirsin.",
+    "cwStartFresh": "Sıfırdan başla",
+    "cwLocked": "Card Wallet kilitli",
+    "cwForgot": "Unuttum"
 }

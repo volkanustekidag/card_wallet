@@ -2,83 +2,52 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/controllers/auth_controller.dart';
+import 'package:wallet_app/ui/components/cw_button.dart';
+import 'package:wallet_app/ui/components/cw_misc.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
+import 'package:wallet_app/ui/typography.dart';
 
 /// Offers biometric unlock after the user has fat-fingered the PIN past the
-/// first lockout threshold. Tapping "continue" runs the recovery flow on
+/// first lockout threshold. "Continue" runs the recovery flow on
 /// [AuthController] which, on success, navigates to /home and queues a PIN
 /// reset prompt there.
 Future<void> showForgotPinSheet(BuildContext context) async {
-  final authController = Get.find<AuthController>();
-  await showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
-    builder: (_) => _ForgotPinSheet(controller: authController),
+  final controller = Get.find<AuthController>();
+  final name = controller.getBiometricDisplayName();
+  final go = await showCwSheet<bool>(
+    context,
+    builder: (sheet) {
+      final c = CwColors.of(sheet);
+      return SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(22, 6, 22, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              CwIcon(CwIcons.fingerprint, size: 40, color: c.accent),
+              const SizedBox(height: 14),
+              Text('forgotPinTitle'.tr(),
+                  textAlign: TextAlign.center,
+                  style: CwType.title.copyWith(color: c.ink, fontSize: 20)),
+              const SizedBox(height: 8),
+              Text('forgotPinMessage'.tr(args: [name]),
+                  textAlign: TextAlign.center,
+                  style: CwType.callout.copyWith(color: c.ink2, height: 1.4)),
+              const SizedBox(height: 22),
+              CwButton('useBiometric'.tr(args: [name]),
+                  icon: CwIcons.fingerprint,
+                  onPressed: () => Navigator.pop(sheet, true)),
+              const SizedBox(height: 6),
+              CwButton.ghost('cancel'.tr(),
+                  onPressed: () => Navigator.pop(sheet, false)),
+            ],
+          ),
+        ),
+      );
+    },
   );
-}
-
-class _ForgotPinSheet extends StatelessWidget {
-  const _ForgotPinSheet({required this.controller});
-
-  final AuthController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final biometricName = controller.getBiometricDisplayName();
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          24,
-          8,
-          24,
-          24 + MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Icon(
-              Icons.fingerprint,
-              size: 48,
-              color: colorScheme.primary,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'forgotPinTitle'.tr(),
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'forgotPinMessage'.tr(args: [biometricName]),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              icon: const Icon(Icons.fingerprint),
-              label: Text('useBiometric'.tr(args: [biometricName])),
-              onPressed: () async {
-                Navigator.of(context).pop();
-                await controller.recoverWithBiometric();
-              },
-            ),
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('cancel'.tr()),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  if (go == true) await controller.recoverWithBiometric();
 }

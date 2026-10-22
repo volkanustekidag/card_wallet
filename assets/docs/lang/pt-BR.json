@@ -774,5 +774,13 @@
     "cwLanguage": "Idioma",
     "cwAppearance": "Aparência",
     "cwLockApp": "Bloquear com PIN",
-    "cwVersion": "Versão {}"
+    "cwVersion": "Versão {}",
+    "cwOfflineTitle": "Você está offline",
+    "cwOfflineBody": "Adicionar à carteira do celular precisa de conexão por um instante. Seu cartão continua funcionando aqui — mostre o código quando quiser.",
+    "cwShowBarcode": "Mostrar código",
+    "cwNewPhoneTitle": "Celular novo, mesma carteira",
+    "cwNewPhoneBody": "Para sua segurança, os cartões são criptografados para o celular onde foram adicionados — por isso não vão junto com backups do celular. Se você fez um backup, restaure tudo agora.",
+    "cwStartFresh": "Começar do zero",
+    "cwLocked": "Card Wallet está bloqueado",
+    "cwForgot": "Esqueceu?"
 }

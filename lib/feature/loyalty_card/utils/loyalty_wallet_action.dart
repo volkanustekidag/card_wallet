@@ -5,10 +5,16 @@ import 'package:apple_passkit/apple_passkit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
+import 'package:wallet_app/ui/card/wallet_card_faces.dart';
+import 'package:wallet_app/ui/components/cw_button.dart';
+import 'package:wallet_app/ui/components/cw_misc.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
+import 'package:wallet_app/ui/typography.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
@@ -157,7 +163,17 @@ Future<void> addLoyaltyCardToWallet(
       loadingShown = false;
     }
     fail(e.messageKey);
-    if (context.mounted) context.showErrorSnackBar(e.messageKey);
+    if (!context.mounted) return;
+    if (e.messageKey == 'walletExportNetworkError' ||
+        e.messageKey == 'walletExportTimeout') {
+      // Offline: the card itself works without a connection.
+      final retry = await showOfflineWalletSheet(context);
+      if (retry && context.mounted) {
+        await addLoyaltyCardToWallet(context, card);
+      }
+      return;
+    }
+    context.showErrorSnackBar(e.messageKey);
   } catch (e, st) {
     if (loadingShown && Get.isDialogOpen == true) {
       Get.back();
@@ -269,10 +285,8 @@ class _WalletPassColors {
 }
 
 _WalletPassColors _walletPassColors(LoyaltyCard card) {
-  final gradients = LinearGradients().linearGradientList;
-  final gradient = gradients[card.colorId.clamp(0, gradients.length - 1)];
-  final colors = gradient.colors;
-  final blended = _blendColors(colors);
+  // Same colours the card has in the app (brand colour or material).
+  final blended = materialForItem(WalletItem.loyalty(card)).base;
   final useDarkText = blended.computeLuminance() > 0.55;
   return _WalletPassColors(
     background: _rgbString(blended),
@@ -281,22 +295,48 @@ _WalletPassColors _walletPassColors(LoyaltyCard card) {
   );
 }
 
-Color _blendColors(List<Color> colors) {
-  if (colors.isEmpty) return const Color(0xFF1C1F26);
-  if (colors.length == 1) return colors.first;
-  var r = 0, g = 0, b = 0;
-  for (final c in colors) {
-    r += (c.r * 255).round();
-    g += (c.g * 255).round();
-    b += (c.b * 255).round();
-  }
-  final n = colors.length;
-  return Color.fromARGB(255, r ~/ n, g ~/ n, b ~/ n);
-}
-
 String _rgbString(Color c) {
   final r = (c.r * 255).round();
   final g = (c.g * 255).round();
   final b = (c.b * 255).round();
   return 'rgb($r,$g,$b)';
+}
+
+/// "You're offline" — adding to Apple/Google Wallet needs the network for a
+/// moment; the barcode works here regardless. True = try again.
+Future<bool> showOfflineWalletSheet(BuildContext context) async {
+  final retry = await showCwSheet<bool>(
+    context,
+    builder: (sheet) {
+      final c = CwColors.of(sheet);
+      return SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 6, 20, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              CwIcon(CwIcons.offline, size: 34, color: c.ink),
+              const SizedBox(height: 12),
+              Text('cwOfflineTitle'.tr(),
+                  textAlign: TextAlign.center,
+                  style: CwType.title.copyWith(color: c.ink, fontSize: 20)),
+              const SizedBox(height: 6),
+              Text('cwOfflineBody'.tr(),
+                  textAlign: TextAlign.center,
+                  style: CwType.callout.copyWith(color: c.ink2, height: 1.4)),
+              const SizedBox(height: 20),
+              CwButton('cwShowBarcode'.tr(),
+                  onPressed: () => Navigator.pop(sheet, false)),
+              const SizedBox(height: 6),
+              CwButton.ghost('tryAgain'.tr(),
+                  onPressed: () => Navigator.pop(sheet, true)),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+  return retry == true;
 }

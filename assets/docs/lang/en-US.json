@@ -774,5 +774,13 @@
     "cwLanguage": "Language",
     "cwAppearance": "Appearance",
     "cwLockApp": "Lock with PIN",
-    "cwVersion": "Version {}"
+    "cwVersion": "Version {}",
+    "cwOfflineTitle": "You're offline",
+    "cwOfflineBody": "Adding to your phone's wallet needs a connection for a moment. Your card still works here — show the barcode anytime.",
+    "cwShowBarcode": "Show barcode",
+    "cwNewPhoneTitle": "New phone, same wallet",
+    "cwNewPhoneBody": "For your security, cards are encrypted to the phone they were added on — so they don't move with phone backups. If you made a backup, you can restore everything now.",
+    "cwStartFresh": "Start fresh",
+    "cwLocked": "Card Wallet is locked",
+    "cwForgot": "Forgot?"
 }

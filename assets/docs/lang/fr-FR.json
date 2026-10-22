@@ -774,5 +774,13 @@
     "cwLanguage": "Langue",
     "cwAppearance": "Apparence",
     "cwLockApp": "Verrouiller avec un code",
-    "cwVersion": "Version {}"
+    "cwVersion": "Version {}",
+    "cwOfflineTitle": "Vous êtes hors ligne",
+    "cwOfflineBody": "L'ajout au portefeuille du téléphone demande une connexion un instant. Votre carte fonctionne ici — affichez le code quand vous voulez.",
+    "cwShowBarcode": "Afficher le code",
+    "cwNewPhoneTitle": "Nouveau téléphone, même portefeuille",
+    "cwNewPhoneBody": "Pour votre sécurité, les cartes sont chiffrées pour le téléphone où elles ont été ajoutées — elles ne suivent pas les sauvegardes du téléphone. Si vous avez fait une sauvegarde, restaurez tout maintenant.",
+    "cwStartFresh": "Repartir de zéro",
+    "cwLocked": "Card Wallet est verrouillé",
+    "cwForgot": "Oublié ?"
 }

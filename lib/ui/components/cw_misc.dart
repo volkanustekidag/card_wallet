@@ -348,3 +348,100 @@ class CwEmptyState extends StatelessWidget {
     );
   }
 }
+
+/// One option of [showCwChoiceSheet].
+class CwChoice<T> {
+  final T value;
+  final String label;
+  final CwIcons? icon;
+  const CwChoice(this.value, this.label, {this.icon});
+}
+
+/// Title + optional subtitle + a grouped list with a check on the current
+/// value. Returns the picked value (null when dismissed).
+Future<T?> showCwChoiceSheet<T>(
+  BuildContext context, {
+  required String title,
+  String? subtitle,
+  required List<CwChoice<T>> options,
+  required T selected,
+}) {
+  return showCwSheet<T>(
+    context,
+    builder: (sheet) {
+      final c = CwColors.of(sheet);
+      return SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(22, 2, 22, 4),
+                child: Text(title,
+                    style: CwType.title.copyWith(color: c.ink, fontSize: 20)),
+              ),
+              if (subtitle != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(22, 0, 22, 4),
+                  child: Text(subtitle,
+                      style: CwType.footnote.copyWith(color: c.mute)),
+                ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: c.bg,
+                    borderRadius: BorderRadius.circular(CwRadius.l),
+                  ),
+                  child: Column(
+                    children: [
+                      for (var i = 0; i < options.length; i++) ...[
+                        if (i > 0)
+                          Divider(
+                              height: 1,
+                              thickness: 1,
+                              indent: 16,
+                              color: c.line),
+                        InkWell(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            Navigator.pop(sheet, options[i].value);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 14),
+                            child: Row(
+                              children: [
+                                if (options[i].icon != null) ...[
+                                  CwIcon(options[i].icon!,
+                                      size: CwIconSize.m, color: c.ink2),
+                                  const SizedBox(width: 12),
+                                ],
+                                Expanded(
+                                  child: Text(options[i].label,
+                                      style: CwType.body
+                                          .copyWith(color: c.ink)),
+                                ),
+                                if (options[i].value == selected)
+                                  CwIcon(CwIcons.check,
+                                      size: CwIconSize.m, color: c.accent),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
