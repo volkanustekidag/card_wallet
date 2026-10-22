@@ -139,10 +139,12 @@ class AddCreditCardController extends GetxController {
     currentCard.refresh();
   }
 
-  Future<void> saveCard() async {
+  /// Saves and pops the form. True when a card was written.
+  Future<bool> saveCard() async {
+    var saved = false;
     // A second tap can land before Obx rebuilds the disabled button; without
     // this guard both calls run and two cards with different ids are added.
-    if (isLoading.value) return;
+    if (isLoading.value) return false;
     try {
       isLoading.value = true;
       final wasEditMode = isEditMode.value;
@@ -152,7 +154,7 @@ class AddCreditCardController extends GetxController {
       if (warnings.isNotEmpty) {
         final shouldProceed = await _confirmSaveDespiteWarnings(warnings);
         if (shouldProceed != true) {
-          return;
+          return false;
         }
       }
 
@@ -168,13 +170,13 @@ class AddCreditCardController extends GetxController {
           final dialogContext = Get.context;
           if (dialogContext == null) {
             Get.toNamed('/premium');
-            return;
+            return false;
           }
 
           final unlocked =
               await showCardLimitDialog(dialogContext, CardLimitType.credit);
           if (!unlocked) {
-            return;
+            return false;
           }
         }
       }
@@ -201,6 +203,7 @@ class AddCreditCardController extends GetxController {
         );
 
         await _creditCardService.updateCreditCard(_originalCard!, updatedCard);
+        saved = true;
         HapticFeedback.mediumImpact();
         Get.back();
         Get.context?.showSuccessSnackBar("creditCardUpdatedSuccessfully".tr());
@@ -226,6 +229,7 @@ class AddCreditCardController extends GetxController {
         );
 
         await _creditCardService.addToCreditCard(newCard);
+        saved = true;
         unawaited(
           AnalyticsService.instance.logCardAdded(AnalyticsCardType.credit),
         );
@@ -260,6 +264,7 @@ class AddCreditCardController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+    return saved;
   }
 
   void resetCard() {

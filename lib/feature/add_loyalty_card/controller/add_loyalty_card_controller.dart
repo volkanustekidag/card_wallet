@@ -68,6 +68,7 @@ class AddLoyaltyCardController extends GetxController {
       logoAsset: card.logoAsset,
       tags: card.tags == null ? null : List<String>.from(card.tags!),
       website: card.website,
+      brandColor: card.brandColor,
     );
     isEditMode.value = true;
     currentCard.refresh();
@@ -96,6 +97,12 @@ class AddLoyaltyCardController extends GetxController {
         break;
       case 'logoAsset':
         c.logoAsset = value as String?;
+        break;
+      case 'tags':
+        c.tags = value as List<String>?;
+        break;
+      case 'brandColor':
+        c.brandColor = value as int?;
         break;
       case 'website':
         c.website = value as String?;
@@ -178,13 +185,15 @@ class AddLoyaltyCardController extends GetxController {
     return true;
   }
 
-  Future<void> saveCard() async {
+  /// Saves and pops the form. True when a card was written.
+  Future<bool> saveCard() async {
+    var saved = false;
     // Ignore a second tap that lands before the button rebuilds disabled.
-    if (isLoading.value) return;
+    if (isLoading.value) return false;
     try {
       isLoading.value = true;
       final wasEditMode = isEditMode.value;
-      if (!await _resolveInvalidBarcode()) return;
+      if (!await _resolveInvalidBarcode()) return false;
       await _service.openBox();
 
       if (!wasEditMode) {
@@ -194,17 +203,18 @@ class AddLoyaltyCardController extends GetxController {
           final ctx = Get.context;
           if (ctx == null) {
             Get.toNamed('/premium');
-            return;
+            return false;
           }
           final unlocked =
               await showCardLimitDialog(ctx, CardLimitType.loyalty);
-          if (!unlocked) return;
+          if (!unlocked) return false;
         }
       }
 
       if (wasEditMode && _originalCard != null) {
         final updated = mergeEdit(_originalCard!, currentCard.value);
         await _service.updateLoyaltyCard(_originalCard!, updated);
+        saved = true;
         HapticFeedback.mediumImpact();
         Get.back();
         Get.context?.showSuccessSnackBar('loyaltyCardUpdated');
@@ -221,8 +231,10 @@ class AddLoyaltyCardController extends GetxController {
           logoAsset: currentCard.value.logoAsset,
           tags: currentCard.value.tags,
           website: currentCard.value.website,
+          brandColor: currentCard.value.brandColor,
         );
         await _service.addLoyaltyCard(newCard);
+        saved = true;
         unawaited(
           AnalyticsService.instance.logCardAdded(AnalyticsCardType.loyalty),
         );
@@ -260,5 +272,6 @@ class AddLoyaltyCardController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+    return saved;
   }
 }

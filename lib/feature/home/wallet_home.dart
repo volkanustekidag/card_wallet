@@ -13,6 +13,8 @@ import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/sections/add_card_navigator.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/credit_card_reminder_sheet.dart';
+import 'package:wallet_app/feature/scanner/add_flows.dart';
+import 'package:wallet_app/feature/scanner/scan_analyzer.dart';
 import 'package:wallet_app/feature/search/wallet_search_page.dart';
 import 'package:wallet_app/ui/card/card_face.dart';
 import 'package:wallet_app/ui/card/card_material.dart';
@@ -127,7 +129,7 @@ class _WalletHomeState extends State<WalletHome> {
           Positioned(
             right: 20,
             bottom: 20 + bottomInset,
-            child: _AddFab(onTap: () => showAddCardTypeSheet(context)),
+            child: _AddFab(onTap: () => openScanner()),
           ),
         ],
       ),
@@ -729,7 +731,7 @@ class _EmptyWallet extends StatelessWidget {
                 height: 196,
                 child: GestureDetector(
                   key: const ValueKey('homeEmptyAdd'),
-                  onTap: () => showAddCardTypeSheet(context),
+                  onTap: () => openScanner(),
                   child: CardFace(
                     material: CardMaterial.of(11),
                     interactive: true,
@@ -770,24 +772,28 @@ class _EmptyWallet extends StatelessWidget {
               title: 'cwQsLoyalty'.tr(),
               subtitle: 'cwQsLoyaltySub'.tr(),
               chevron: true,
-              onTap: () =>
-                  goToAddCard(context: context, type: CardLimitType.loyalty),
+              onTap: () => openScanner(mode: ScanMode.barcode),
             ),
             CwRow(
               leading: CwIconTile(CwIcons.card, color: c.ink),
               title: 'cwQsCard'.tr(),
               subtitle: 'cwQsCardSub'.tr(),
               chevron: true,
-              onTap: () =>
-                  goToAddCard(context: context, type: CardLimitType.credit),
+              onTap: () => openScanner(mode: ScanMode.card),
             ),
             CwRow(
               leading: CwIconTile(CwIcons.bank, color: c.accent),
               title: 'cwQsIban'.tr(),
               subtitle: 'cwQsIbanSub'.tr(),
               chevron: true,
-              onTap: () =>
-                  goToAddCard(context: context, type: CardLimitType.iban),
+              onTap: () => openScanner(mode: ScanMode.iban),
+            ),
+            CwRow(
+              leading: CwIconTile(CwIcons.import, color: c.warn),
+              title: 'cwQsImport'.tr(),
+              subtitle: 'cwQsImportSub'.tr(),
+              chevron: true,
+              onTap: () => openImport(context),
             ),
           ],
         ),

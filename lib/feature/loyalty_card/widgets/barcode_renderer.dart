@@ -1,6 +1,7 @@
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_formats.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_validator.dart';
 
@@ -49,8 +50,10 @@ class BarcodeRenderer extends StatelessWidget {
       return _unrenderable(context);
     }
 
+    final square = isSquareBarcodeFormat(format);
     return SizedBox(
-      height: barcodeHeight,
+      height: square ? qrSize : barcodeHeight,
+      width: square ? qrSize : null,
       child: BarcodeWidget(
         data: value,
         barcode: barcode,
@@ -67,7 +70,7 @@ class BarcodeRenderer extends StatelessWidget {
   Widget _unrenderable(BuildContext context) {
     const ink = Color(0xFF5A5F6B);
     return SizedBox(
-      height: format == 'QR_CODE' ? qrSize : barcodeHeight,
+      height: isSquareBarcodeFormat(format) ? qrSize : barcodeHeight,
       child: ColoredBox(
         color: Colors.white,
         // Center fills a bounded parent and shrinks to the message in an

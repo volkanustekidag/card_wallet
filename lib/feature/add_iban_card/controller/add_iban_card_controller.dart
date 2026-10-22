@@ -113,10 +113,12 @@ class AddIbanCardController extends GetxController {
 
   bool get canSave => hasRequiredFields(currentCard.value);
 
-  Future<void> saveCard() async {
-    if (!canSave) return;
+  /// Saves and pops the form. True when a card was written.
+  Future<bool> saveCard() async {
+    var saved = false;
+    if (!canSave) return false;
     // Ignore a second tap that lands before the button rebuilds disabled.
-    if (isLoading.value) return;
+    if (isLoading.value) return false;
     try {
       isLoading.value = true;
       final wasEditMode = isEditMode.value;
@@ -127,7 +129,7 @@ class AddIbanCardController extends GetxController {
           ['warningInvalidIban'.tr()],
         );
         if (shouldProceed != true) {
-          return;
+          return false;
         }
       }
 
@@ -144,13 +146,13 @@ class AddIbanCardController extends GetxController {
           final dialogContext = Get.context;
           if (dialogContext == null) {
             Get.toNamed('/premium');
-            return;
+            return false;
           }
 
           final unlocked =
               await showCardLimitDialog(dialogContext, CardLimitType.iban);
           if (!unlocked) {
-            return;
+            return false;
           }
         }
       }
@@ -169,6 +171,7 @@ class AddIbanCardController extends GetxController {
         );
 
         await _ibanCardService.updateIbanCard(_originalCard!, updatedCard);
+        saved = true;
         HapticFeedback.mediumImpact();
         Get.back();
         Get.context?.showSuccessSnackBar('ibanCardUpdatedSuccessfully');
@@ -186,6 +189,7 @@ class AddIbanCardController extends GetxController {
         );
 
         await _ibanCardService.addIbanCard(newCard);
+        saved = true;
         unawaited(
           AnalyticsService.instance.logCardAdded(AnalyticsCardType.iban),
         );
@@ -221,6 +225,7 @@ class AddIbanCardController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+    return saved;
   }
 
   void resetCard() {

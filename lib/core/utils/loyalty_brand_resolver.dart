@@ -1,3 +1,5 @@
+import 'package:wallet_app/core/brands/brand_catalog.dart';
+
 /// Maps loyalty-program brand names to their primary public domain.
 /// Used by [BankLogo] (and friends) to fetch the brand's logo via the
 /// Google favicon service. Lookup is case-insensitive — keys are
@@ -252,8 +254,11 @@ class LoyaltyBrandResolver {
   static String? domainFor(String? brand) {
     if (brand == null || brand.isEmpty) return null;
     if (_domainCache.containsKey(brand)) return _domainCache[brand];
-    final result = _resolve(brand);
-    _domainCache[brand] = result;
+    final result = _resolve(brand) ?? BrandCatalog.instance.match(brand)?.domain;
+    // A miss before the catalogue has loaded may turn into a hit later.
+    if (result != null || BrandCatalog.instance.isLoaded) {
+      _domainCache[brand] = result;
+    }
     return result;
   }
 

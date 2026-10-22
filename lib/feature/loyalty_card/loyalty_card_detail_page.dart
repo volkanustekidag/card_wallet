@@ -21,6 +21,7 @@ import 'package:wallet_app/core/utils/widget_image_share.dart';
 import 'package:wallet_app/feature/add_loyalty_card/add_loyalty_card_page.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
 import 'package:wallet_app/feature/loyalty_card/controller/loyalty_card_controller.dart';
+import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_formats.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_validator.dart';
 import 'package:wallet_app/feature/loyalty_card/utils/loyalty_wallet_action.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/barcode_renderer.dart';
@@ -367,8 +368,6 @@ String formatBarcodeText(String raw) {
   return b.toString();
 }
 
-String barcodeFormatLabel(String format) =>
-    format == 'QR_CODE' ? 'QR' : format.replaceAll('_', ' ');
 
 class _TopBar extends StatelessWidget {
   final Color fg;
@@ -503,7 +502,7 @@ class _BarcodePanel extends StatelessWidget {
   Widget build(BuildContext context) {
     const ink = Color(0xFF111215);
     const mute = Color(0xFF7C7F88);
-    final isQr = card.barcodeFormat == 'QR_CODE';
+    final isQr = isSquareBarcodeFormat(card.barcodeFormat);
     final uses = card.useCount ?? 0;
     return GestureDetector(
       onTap: valid ? onTap : null,
@@ -721,7 +720,7 @@ class _LandscapeBarcodeState extends State<_LandscapeBarcode> {
   @override
   Widget build(BuildContext context) {
     final card = widget.card;
-    final isQr = card.barcodeFormat == 'QR_CODE';
+    final isQr = isSquareBarcodeFormat(card.barcodeFormat);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.dark,
       child: Scaffold(

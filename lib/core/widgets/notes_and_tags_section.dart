@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/utils/tag_index.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
+import 'package:wallet_app/ui/components/cw_field.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
+import 'package:wallet_app/ui/typography.dart';
 
 /// Reusable Notes + Tags input. Used by both add-credit-card and
 /// add-iban-card forms. Tags are entered by typing and tapping +/Enter,
@@ -52,28 +56,35 @@ class _NotesAndTagsSectionState extends State<NotesAndTagsSection> {
     super.dispose();
   }
 
+  /// The favourite flag lives in tags but is toggled with the star, not
+  /// shown as a tag; keep it out of the chips and carry it through.
+  bool get _favourite => widget.initialTags?.contains(kFavoriteTag) ?? false;
+
+  List<String> get _visible => _tags.where((t) => t != kFavoriteTag).toList();
+
+  void _emit() {
+    final out = [..._visible, if (_favourite) kFavoriteTag];
+    widget.onTagsChanged(out.isEmpty ? null : out);
+  }
+
   void _addTag(String raw) {
     final value = raw.trim();
-    if (value.isEmpty) return;
+    if (value.isEmpty || value == kFavoriteTag) return;
     if (_tags.any((t) => t.toLowerCase() == value.toLowerCase())) return;
     setState(() {
       _tags = [..._tags, value];
     });
     _newTagController.clear();
-    widget.onTagsChanged(_tags.isEmpty ? null : _tags);
+    _emit();
   }
 
   void _removeTag(String tag) {
     setState(() {
       _tags = _tags.where((t) => t != tag).toList();
     });
-    widget.onTagsChanged(_tags.isEmpty ? null : _tags);
+    _emit();
   }
 
-  /// Tags that exist on other cards but aren't already on this one. Filters
-  /// by the current prefix the user has typed so the list narrows as they
-  /// type. Returns empty when HomeController isn't around (e.g. unit
-  /// tests) so the autocomplete row just disappears.
   List<String> _suggestions() {
     if (!Get.isRegistered<HomeController>()) return const [];
     final home = Get.find<HomeController>();
@@ -84,7 +95,7 @@ class _NotesAndTagsSectionState extends State<NotesAndTagsSection> {
     final used = _tags.map((t) => t.toLowerCase()).toSet();
     final prefix = _typed.trim().toLowerCase();
     final filtered = pool.where((t) {
-      if (used.contains(t.toLowerCase())) return false;
+      if (t == kFavoriteTag || used.contains(t.toLowerCase())) return false;
       if (prefix.isEmpty) return true;
       return t.toLowerCase().contains(prefix);
     });
@@ -93,65 +104,47 @@ class _NotesAndTagsSectionState extends State<NotesAndTagsSection> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final c = CwColors.of(context);
     final suggestions = _suggestions();
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        TextField(
+        CwField(
           controller: _notesController,
+          label: 'notesLabel'.tr(),
           maxLines: 3,
           maxLength: 280,
           onChanged: (val) =>
               widget.onNotesChanged(val.trim().isEmpty ? null : val),
-          decoration: InputDecoration(
-            labelText: 'notesLabel'.tr(),
-            prefixIcon: const Icon(Icons.notes_rounded, size: 20),
-            border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          ),
         ),
-        const SizedBox(height: 12),
-        Text(
-          'tagsLabel'.tr(),
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            for (final tag in _tags)
-              Chip(
-                label: Text(tag),
-                deleteIcon: const Icon(Icons.close, size: 16),
-                onDeleted: () => _removeTag(tag),
-                backgroundColor: colorScheme.primary.withValues(alpha: 0.08),
-                side: BorderSide(
-                  color: colorScheme.primary.withValues(alpha: 0.3),
+        const SizedBox(height: 10),
+        if (_visible.isNotEmpty) ...[
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (final tag in _visible)
+                _TagChip(
+                  label: '#$tag',
+                  selected: true,
+                  onTap: () => _removeTag(tag),
+                  trailing: CwIcon(CwIcons.close, size: 12, color: c.bg),
                 ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        TextField(
+            ],
+          ),
+          const SizedBox(height: 8),
+        ],
+        CwField(
           controller: _newTagController,
-          onSubmitted: _addTag,
+          label: 'tagsLabel'.tr(),
+          hint: 'tagsHint'.tr(),
+          icon: CwIcons.hash,
           textInputAction: TextInputAction.done,
-          decoration: InputDecoration(
-            hintText: 'tagsHint'.tr(),
-            isDense: true,
-            prefixIcon: const Icon(Icons.tag, size: 18),
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.add_rounded),
-              onPressed: () => _addTag(_newTagController.text),
-            ),
-            border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          onSubmitted: _addTag,
+          trailing: IconButton(
+            tooltip: 'tagsLabel'.tr(),
+            icon: CwIcon(CwIcons.plus, size: 18, color: c.accent),
+            onPressed: () => _addTag(_newTagController.text),
           ),
         ),
         if (suggestions.isNotEmpty) ...[
@@ -161,23 +154,50 @@ class _NotesAndTagsSectionState extends State<NotesAndTagsSection> {
             runSpacing: 6,
             children: [
               for (final s in suggestions)
-                ActionChip(
-                  label: Text('+ $s'),
-                  onPressed: () => _addTag(s),
-                  backgroundColor: colorScheme.surfaceContainerHighest,
-                  side: BorderSide(
-                    color: colorScheme.onSurface.withValues(alpha: 0.08),
-                  ),
-                  labelStyle: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface.withValues(alpha: 0.78),
-                  ),
-                ),
+                _TagChip(label: '+ $s', onTap: () => _addTag(s)),
             ],
           ),
         ],
       ],
+    );
+  }
+}
+
+class _TagChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final Widget? trailing;
+
+  const _TagChip({
+    required this.label,
+    required this.onTap,
+    this.selected = false,
+    this.trailing,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? c.ink : c.surface2,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(label,
+                style: CwType.footnote.copyWith(
+                    color: selected ? c.bg : c.ink,
+                    fontWeight: FontWeight.w600)),
+            if (trailing != null) ...[const SizedBox(width: 6), trailing!],
+          ],
+        ),
+      ),
     );
   }
 }

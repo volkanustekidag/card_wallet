@@ -16,7 +16,18 @@ const List<LoyaltyBarcodeFormat> kLoyaltyBarcodeFormats = [
   LoyaltyBarcodeFormat('UPC_E', 'UPC-E'),
   LoyaltyBarcodeFormat('QR_CODE', 'QR Code'),
   LoyaltyBarcodeFormat('ITF', 'ITF'),
+  LoyaltyBarcodeFormat('CODE_93', 'Code 93'),
+  LoyaltyBarcodeFormat('CODABAR', 'Codabar'),
+  LoyaltyBarcodeFormat('PDF417', 'PDF417'),
+  LoyaltyBarcodeFormat('AZTEC', 'Aztec'),
+  LoyaltyBarcodeFormat('DATA_MATRIX', 'Data Matrix'),
 ];
+
+/// 2D formats drawn as a square (QR, Aztec, Data Matrix).
+const Set<String> kSquareBarcodeFormats = {'QR_CODE', 'AZTEC', 'DATA_MATRIX'};
+
+bool isSquareBarcodeFormat(String format) =>
+    kSquareBarcodeFormats.contains(format);
 
 /// Formats that only accept numeric digits. EAN/UPC/ITF are positional
 /// digit codes; CODE_128/CODE_39/QR_CODE accept arbitrary characters.

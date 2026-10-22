@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-/// IBAN scanning (camera OCR, QR camera, QR from gallery) is free. Source
-/// guard so a future premium check on a scan path fails CI instead of
-/// quietly reappearing on the paywall.
+/// Scanning (live camera, photos: cards, barcodes, IBANs incl. SEPA QR)
+/// is free. Source guard so a future premium check on a scan path fails CI
+/// instead of quietly reappearing on the paywall.
 const _scanPaths = [
-  'lib/feature/add_iban_card/widgets/iban_text_field.dart',
-  'lib/feature/add_iban_card/widgets/iban_text_forms.dart',
-  'lib/core/data/local_services/card_services/iban_card/qr_iban_scanner_service.dart',
+  'lib/feature/scanner/live_scanner_page.dart',
+  'lib/feature/scanner/scan_analyzer.dart',
+  'lib/feature/add_iban_card/add_iban_card_page.dart',
 ];
 
 final _premiumCheck =

@@ -67,7 +67,7 @@ class LoyaltyBarcodeScannerService {
           .logScanSucceeded(type: AnalyticsCardType.loyalty, method: method);
       return LoyaltyBarcodeScanResult(
         rawValue: raw,
-        format: _mapFormat(first.format),
+        format: mapFormat(first.format),
       );
     } catch (e) {
       _logFailed(method);
@@ -83,10 +83,9 @@ class LoyaltyBarcodeScannerService {
       .logScanFailed(type: AnalyticsCardType.loyalty, method: method);
 
   /// Maps ML Kit's [BarcodeFormat] to the string codes used by
-  /// `loyalty_barcode_formats.dart`. Returns null for formats not supported
-  /// by the loyalty form (e.g. PDF417, Aztec, Data Matrix) so the caller can
-  /// keep the user-selected default instead of overwriting it.
-  String? _mapFormat(BarcodeFormat fmt) {
+  /// `loyalty_barcode_formats.dart`. Returns null for formats the loyalty
+  /// form can't redraw so the caller keeps the user-selected default.
+  static String? mapFormat(BarcodeFormat fmt) {
     switch (fmt) {
       case BarcodeFormat.code128:
         return 'CODE_128';
@@ -104,6 +103,16 @@ class LoyaltyBarcodeScannerService {
         return 'QR_CODE';
       case BarcodeFormat.itf:
         return 'ITF';
+      case BarcodeFormat.code93:
+        return 'CODE_93';
+      case BarcodeFormat.codabar:
+        return 'CODABAR';
+      case BarcodeFormat.pdf417:
+        return 'PDF417';
+      case BarcodeFormat.aztec:
+        return 'AZTEC';
+      case BarcodeFormat.dataMatrix:
+        return 'DATA_MATRIX';
       default:
         return null;
     }

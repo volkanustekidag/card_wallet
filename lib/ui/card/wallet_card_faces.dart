@@ -9,6 +9,7 @@ import 'package:wallet_app/core/widgets/bank_logo.dart';
 import 'package:wallet_app/core/widgets/card_network_badge.dart';
 import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
+import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_formats.dart';
 import 'package:wallet_app/ui/card/card_face.dart';
 import 'package:wallet_app/ui/card/card_material.dart';
 import 'package:wallet_app/ui/cw_icons.dart';
@@ -351,7 +352,7 @@ class WalletCardFace extends StatelessWidget {
             Row(
               children: [
                 CwIcon(
-                  c.barcodeFormat == 'QR_CODE' ? CwIcons.qr : CwIcons.barcode,
+                  isSquareBarcodeFormat(c.barcodeFormat) ? CwIcons.qr : CwIcons.barcode,
                   size: 18,
                   color: fg.withValues(alpha: 0.8),
                 ),

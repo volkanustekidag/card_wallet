@@ -133,6 +133,16 @@ abstract final class LoyaltyBarcodeValidator {
         return Barcode.upcE();
       case 'ITF':
         return Barcode.itf();
+      case 'CODE_93':
+        return Barcode.code93();
+      case 'CODABAR':
+        return Barcode.codabar();
+      case 'PDF417':
+        return Barcode.pdf417();
+      case 'AZTEC':
+        return Barcode.aztec();
+      case 'DATA_MATRIX':
+        return Barcode.dataMatrix();
       default:
         return null;
     }

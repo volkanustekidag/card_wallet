@@ -61,6 +61,7 @@ class AnalyticsEvents {
 
   // Home search
   static const String searchUsed = 'search_used';
+  static const String cardsImported = 'cards_imported';
 }
 
 class AnalyticsUserProps {
@@ -351,6 +352,17 @@ class AnalyticsService {
       logEvent(AnalyticsEvents.searchUsed, params: {
         'results_count': resultsCount,
         'selected_type': selectedType,
+      });
+
+  /// Cards brought in from another app's export ([source]: catima,
+  /// stocard, fidme, pkpass, csv).
+  Future<void> logCardsImported({
+    required String source,
+    required int count,
+  }) =>
+      logEvent(AnalyticsEvents.cardsImported, params: {
+        'source': source,
+        'count': count,
       });
 
   Future<void> setCardCounts({
