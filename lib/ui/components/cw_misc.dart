@@ -272,7 +272,8 @@ Future<T?> showCwSheet<T>(
     isScrollControlled: isScrollControlled,
     useRootNavigator: useRootNavigator,
     useSafeArea: true,
-    backgroundColor: CwColors.of(context).surface,
+    // Page colour, so grouped rows and fields (surface) stand out.
+    backgroundColor: CwColors.of(context).bg,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(CwRadius.xl)),
     ),
@@ -394,7 +395,7 @@ Future<T?> showCwChoiceSheet<T>(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: c.bg,
+                    color: c.surface,
                     borderRadius: BorderRadius.circular(CwRadius.l),
                   ),
                   child: Column(

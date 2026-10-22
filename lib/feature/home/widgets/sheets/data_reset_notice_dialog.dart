@@ -31,7 +31,7 @@ Future<void> showDataResetNoticeDialog(BuildContext context) async {
                   width: 72,
                   height: 72,
                   decoration: BoxDecoration(
-                    color: c.bg,
+                    color: c.surface,
                     borderRadius: BorderRadius.circular(22),
                     boxShadow: CwElevation.e1(sheet),
                   ),
