@@ -268,7 +268,6 @@ class _SectionHeader extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 11,
           fontWeight: FontWeight.w700,
           letterSpacing: 1.2,
@@ -325,7 +324,6 @@ class _FieldRow extends StatelessWidget {
                   Text(
                     label,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
                       color: colorScheme.onSurface.withValues(alpha: 0.55),
@@ -336,7 +334,6 @@ class _FieldRow extends StatelessWidget {
                   Text(
                     value,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: colorScheme.onSurface,
@@ -415,7 +412,6 @@ class _NotesPanel extends StatelessWidget {
       child: Text(
         notes,
         style: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 13,
           fontWeight: FontWeight.w500,
           height: 1.4,
@@ -528,7 +524,6 @@ class _WalletAddButtonState extends State<_WalletAddButton> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -628,7 +623,6 @@ class _CreditDetailBodyState extends State<_CreditDetailBody> {
             child: Text(
               'cardDetailFlipHint'.tr(),
               style: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
                 color: colorScheme.onSurface.withValues(alpha: 0.55),
@@ -926,7 +920,6 @@ class _IbanDetailBodyState extends State<_IbanDetailBody> {
                               Text(
                                 'detailQrFullscreen'.tr(),
                                 style: const TextStyle(
-                                  fontFamily: 'Poppins',
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                   color: Colors.black87,
@@ -1143,7 +1136,6 @@ class _LoyaltyDetailBodyState extends State<_LoyaltyDetailBody> {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                fontFamily: 'Poppins',
                                 fontSize: 18,
                                 fontWeight: FontWeight.w800,
                                 color: Colors.white,
@@ -1158,7 +1150,6 @@ class _LoyaltyDetailBodyState extends State<_LoyaltyDetailBody> {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  fontFamily: 'Poppins',
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                   color: Colors.white.withValues(alpha: 0.85),
@@ -1222,7 +1213,6 @@ class _LoyaltyDetailBodyState extends State<_LoyaltyDetailBody> {
                                   _formatBarcodeText(widget.card.barcode),
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
-                                    fontFamily: 'Poppins',
                                     fontSize: 15,
                                     letterSpacing: 2,
                                     fontWeight: FontWeight.w600,
@@ -1246,7 +1236,6 @@ class _LoyaltyDetailBodyState extends State<_LoyaltyDetailBody> {
                             ? 'QR CODE'
                             : widget.card.barcodeFormat.replaceAll('_', ' '),
                         style: TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 1.6,

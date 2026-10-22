@@ -38,7 +38,6 @@ class IbanTextField extends StatelessWidget {
         emphasize: true,
         errorText: _ibanError(ibanValue),
         textStyle: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 16,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.2,

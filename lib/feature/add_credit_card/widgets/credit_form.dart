@@ -275,7 +275,6 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
           iconData: Icons.credit_card_rounded,
           textInputType: TextInputType.number,
           textStyle: TextStyle(
-            fontFamily: 'Poppins',
             fontSize: 18,
             letterSpacing: 1.5,
             color: theme.colorScheme.onSurface,
@@ -383,7 +382,6 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
             Text(
               "scanCardOptional".tr(),
               style: TextStyle(
-                fontFamily: 'Poppins',
                 fontWeight: FontWeight.w600,
                 color: theme.colorScheme.primary,
               ),
@@ -538,7 +536,6 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
         title: Text(
           title,
           style: TextStyle(
-            fontFamily: 'Poppins',
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: theme.colorScheme.onSurface,
@@ -570,7 +567,6 @@ class _CreditTextFieldFormsState extends State<CreditTextFieldForms> {
                     ),
             ),
             labelStyle: TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: selectedValue == value

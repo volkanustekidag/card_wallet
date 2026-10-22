@@ -159,7 +159,6 @@ class _CompactLayout extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: hasBank
@@ -172,7 +171,6 @@ class _CompactLayout extends StatelessWidget {
           Text(
             hasNumber ? '•• $lastFour' : '•• ••••',
             style: TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: hasNumber
@@ -188,7 +186,6 @@ class _CompactLayout extends StatelessWidget {
             Text(
               context.upper('creditCardLabel'.tr()),
               style: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 9,
                 fontWeight: FontWeight.w600,
                 color: Colors.white.withValues(alpha: 0.8),

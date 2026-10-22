@@ -16,7 +16,6 @@ class CCAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(
         "CC".tr(),
         style: TextStyle(
-          fontFamily: 'Poppins',
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
         ),

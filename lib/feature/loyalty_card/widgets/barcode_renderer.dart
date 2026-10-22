@@ -92,7 +92,6 @@ class BarcodeRenderer extends StatelessWidget {
                       Text(
                         'barcodeCannotRender'.tr(),
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                           color: ink,

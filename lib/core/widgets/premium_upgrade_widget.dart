@@ -59,7 +59,6 @@ class PremiumUpgradeWidget extends StatelessWidget {
                         Text(
                           context.upper('premium'.tr()),
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 1.6,
@@ -72,7 +71,6 @@ class PremiumUpgradeWidget extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontFamily: 'Poppins',
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                             color: colorScheme.onSurface,
@@ -106,7 +104,6 @@ class PremiumUpgradeWidget extends StatelessWidget {
                     child: Text(
                       context.upper('getPremium'.tr()),
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
                         fontWeight: FontWeight.w800,
                         fontSize: 10,
                         letterSpacing: 1.2,

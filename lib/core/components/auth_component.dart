@@ -119,7 +119,6 @@ class _AuthViewsState extends State<AuthViews>
                   widget.text.tr(),
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
                     height: 1.2,
@@ -159,7 +158,6 @@ class _AuthViewsState extends State<AuthViews>
                           cursorHeight: 18,
                           errorAnimationController: _errorAnimationController,
                           textStyle: TextStyle(
-                            fontFamily: 'Poppins',
                             fontSize: 20,
                             color: hasError ? color.error : color.onSurface,
                             fontWeight: FontWeight.w700,
@@ -207,7 +205,6 @@ class _AuthViewsState extends State<AuthViews>
                                         ]),
                                         textAlign: TextAlign.center,
                                         style: const TextStyle(
-                                          fontFamily: 'Poppins',
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
                                         ).copyWith(color: color.error),

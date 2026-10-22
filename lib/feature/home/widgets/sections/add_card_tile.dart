@@ -72,7 +72,6 @@ class AddCardTile extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: colorScheme.onSurface,
@@ -82,7 +81,6 @@ class AddCardTile extends StatelessWidget {
                   Text(
                     'tapToAdd'.tr(),
                     style: TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
                       color: colorScheme.onSurface.withValues(alpha: 0.55),

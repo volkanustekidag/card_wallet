@@ -188,7 +188,6 @@ class _ViewAllRow extends StatelessWidget {
               Text(
                 'viewAll'.tr(),
                 style: TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 13 + 1 * prominence,
                   fontWeight: FontWeight.w600,
                   color: colorScheme.primary,
@@ -538,7 +537,6 @@ class _TitleBlock extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontFamily: 'Poppins',
             fontSize: 13 + 1 * prominence,
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface,
@@ -550,7 +548,6 @@ class _TitleBlock extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            fontFamily: 'Poppins',
             fontSize: 11 + 1 * prominence,
             fontWeight: FontWeight.w500,
             color: colorScheme.onSurface.withValues(alpha: 0.55),
@@ -602,7 +599,6 @@ class _EmptyHint extends StatelessWidget {
             message,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 12,
               fontWeight: FontWeight.w500,
               color: colorScheme.onSurface.withValues(alpha: 0.55),

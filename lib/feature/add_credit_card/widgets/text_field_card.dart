@@ -148,7 +148,6 @@ class _TextFieldCardState extends State<TextFieldCard> {
                 isMultiline ? TextAlignVertical.top : TextAlignVertical.center,
             style: widget.textStyle ??
                 TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: widget.emphasize ? 16 : 15,
                   fontWeight: FontWeight.w500,
                   color: theme.colorScheme.onSurface,
@@ -160,27 +159,23 @@ class _TextFieldCardState extends State<TextFieldCard> {
               counterText: widget.maxLength != null ? "" : null,
               labelText: widget.label,
               labelStyle: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: labelColor,
               ),
               floatingLabelStyle: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
                 color: labelColor,
               ),
               hintText: widget.hintText,
               hintStyle: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
               ),
               helperText: widget.helperText,
               helperStyle: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
                 color: theme.colorScheme.onSurfaceVariant,
@@ -218,7 +213,6 @@ class _TextFieldCardState extends State<TextFieldCard> {
                   child: Text(
                     widget.errorText!,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
                       color: errorColor,

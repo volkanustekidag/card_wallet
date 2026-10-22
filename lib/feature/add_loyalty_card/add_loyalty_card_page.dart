@@ -93,7 +93,6 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
               ? 'editLoyaltyCardTitle'.tr()
               : 'addLoyaltyCardTitle'.tr(),
           style: TextStyle(
-            fontFamily: 'Poppins',
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface,
           ),
@@ -324,7 +323,6 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                   child: Text(
                     'loyaltyScanBarcode'.tr(),
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
@@ -437,7 +435,6 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
@@ -449,7 +446,6 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                           color: Colors.white.withValues(alpha: 0.85),
@@ -472,7 +468,6 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                     ? 'loyaltyCardBarcodePlaceholder'.tr()
                     : card.barcode,
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: Colors.white,
@@ -529,7 +524,6 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                   Text(
                     preset.name,
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -580,7 +574,6 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                       Text(
                         'loyaltyCardFormatLabel'.tr(),
                         style: TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                           color: theme.colorScheme.onSurfaceVariant
@@ -591,7 +584,6 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                       Text(
                         format.label,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
                           color: theme.colorScheme.onSurface,
@@ -633,7 +625,6 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
               child: Text(
                 'loyaltyCardFormatLabel'.tr(),
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -649,7 +640,6 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                         title: Text(
                           f.label,
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                           ),
@@ -695,7 +685,6 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
             child: Text(
               'colorLabel'.tr(),
               style: const TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),

@@ -18,7 +18,6 @@ class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(
         "settings".tr(),
         style: TextStyle(
-          fontFamily: 'Poppins',
           color: colorScheme.onSurface,
           fontWeight: FontWeight.w600,
           fontSize: 18,

@@ -57,7 +57,6 @@ class _AllCardsPageState extends State<AllCardsPage> {
         title: Text(
           'allCardsTitle'.tr(),
           style: TextStyle(
-            fontFamily: 'Poppins',
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface,
           ),

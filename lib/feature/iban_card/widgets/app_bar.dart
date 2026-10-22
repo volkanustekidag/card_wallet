@@ -16,7 +16,6 @@ class IbanCardsAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(
         "IC".tr(),
         style: TextStyle(
-          fontFamily: 'Poppins',
           fontWeight: FontWeight.w600,
           color: colorScheme.onSurface,
         ),

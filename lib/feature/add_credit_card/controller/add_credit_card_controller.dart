@@ -325,7 +325,6 @@ class AddCreditCardController extends GetxController {
             Text(
               'validationWarningSubtitle'.tr(),
               style: const TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 14,
               ),
             ),
@@ -336,7 +335,6 @@ class AddCreditCardController extends GetxController {
                 child: Text(
                   '• $w',
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 13,
                   ),
                 ),

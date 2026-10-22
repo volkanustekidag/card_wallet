@@ -263,7 +263,6 @@ class _ReminderHeader extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
                     color: colorScheme.onSurface,
@@ -275,7 +274,6 @@ class _ReminderHeader extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: colorScheme.onSurface.withValues(alpha: 0.62),
@@ -331,7 +329,6 @@ class _DaysPill extends StatelessWidget {
       child: Text(
         text,
         style: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 11,
           fontWeight: FontWeight.w800,
           color: accent,
@@ -409,7 +406,6 @@ class _InfoRow extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: colorScheme.onSurface.withValues(alpha: 0.55),
@@ -424,7 +420,6 @@ class _InfoRow extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.right,
             style: TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 13,
               fontWeight: FontWeight.w700,
               color: colorScheme.onSurface,
@@ -473,7 +468,6 @@ class _SheetAction extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: colorScheme.onSurface.withValues(alpha: 0.82),

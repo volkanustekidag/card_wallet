@@ -100,7 +100,6 @@ class _SuggestionTile extends StatelessWidget {
                       Text(
                         eyebrow,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 1.6,
@@ -113,7 +112,6 @@ class _SuggestionTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: colorScheme.onSurface,
@@ -126,7 +124,6 @@ class _SuggestionTile extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
                           color: colorScheme.onSurface.withValues(alpha: 0.6),

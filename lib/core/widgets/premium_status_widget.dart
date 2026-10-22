@@ -51,7 +51,6 @@ class PremiumStatusWidget extends StatelessWidget {
                     Text(
                       context.upper('premium'.tr()),
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.6,
@@ -64,7 +63,6 @@ class PremiumStatusWidget extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: colorScheme.onSurface,

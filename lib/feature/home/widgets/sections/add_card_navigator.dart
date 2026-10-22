@@ -159,7 +159,6 @@ class _SheetTile extends StatelessWidget {
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: colorScheme.onSurface,

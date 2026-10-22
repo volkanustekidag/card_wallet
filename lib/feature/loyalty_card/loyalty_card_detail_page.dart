@@ -203,7 +203,6 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
@@ -219,7 +218,6 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontFamily: 'Poppins',
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
                             color: Colors.white.withValues(alpha: 0.85),
@@ -262,7 +260,6 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
                               _formatBarcodeText(card.barcode),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
-                                fontFamily: 'Poppins',
                                 fontSize: 18,
                                 letterSpacing: 2.5,
                                 fontWeight: FontWeight.w600,
@@ -275,7 +272,6 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
                                   ? 'QR CODE'
                                   : card.barcodeFormat.replaceAll('_', ' '),
                               style: TextStyle(
-                                fontFamily: 'Poppins',
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 1.6,
@@ -297,7 +293,6 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
                           'increaseBrightnessHint'.tr(),
                           textAlign: TextAlign.center,
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
                             fontSize: 12,
                             color: Colors.white,
                           ),
@@ -358,7 +353,6 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
                       child: Text(
                         card.notes!,
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 13,
                           color: Colors.white,
                         ),
@@ -498,7 +492,6 @@ class _GlassButtonState extends State<_GlassButton> {
                 Text(
                   widget.label,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,

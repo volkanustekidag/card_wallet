@@ -33,7 +33,7 @@ class AddCreditAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Obx(() => Text(
             controller.isEditMode.value ? "editCC".tr() : "addCC".tr(),
             style:
-                TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w500),
+                TextStyle( fontWeight: FontWeight.w500),
           )),
     );
   }

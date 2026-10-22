@@ -107,7 +107,6 @@ class ShareableIbanCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 30,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -126,7 +125,6 @@ class ShareableIbanCard extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 36,
               fontWeight: FontWeight.w800,
               color: Colors.white,
@@ -145,7 +143,6 @@ class ShareableIbanCard extends StatelessWidget {
                 IBANQRGenerator.formatIBANForDisplay(card.iban),
                 maxLines: 1,
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 34,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -163,7 +160,6 @@ class ShareableIbanCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 26,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
@@ -252,7 +248,6 @@ class _Label extends StatelessWidget {
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
-        fontFamily: 'Poppins',
         fontSize: 15,
         fontWeight: FontWeight.w600,
         letterSpacing: 2,
@@ -287,7 +282,6 @@ class _Brand extends StatelessWidget {
               ),
             ],
             style: TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 16,
               letterSpacing: 0.4,
               color: color,

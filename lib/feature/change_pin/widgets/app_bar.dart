@@ -14,8 +14,7 @@ class ChangePinAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       title: Text(
         "chanPIN".tr(),
-        style: const TextStyle(
-            fontFamily: 'Poppins', fontWeight: FontWeight.w500),
+        style: const TextStyle( fontWeight: FontWeight.w500),
       ),
     );
   }

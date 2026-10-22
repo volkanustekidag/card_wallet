@@ -124,7 +124,6 @@ class ShareableLoyaltyCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 38,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
@@ -138,7 +137,6 @@ class ShareableLoyaltyCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 22,
                           fontWeight: FontWeight.w500,
                           color: Colors.white.withValues(alpha: 0.85),
@@ -175,7 +173,6 @@ class ShareableLoyaltyCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 22,
                     fontWeight: FontWeight.w600,
                     color: Color(0xFF1A1D24),
@@ -186,7 +183,6 @@ class ShareableLoyaltyCard extends StatelessWidget {
                 Text(
                   isQr ? 'QR CODE' : card.barcodeFormat.replaceAll('_', ' '),
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.6,
@@ -203,7 +199,6 @@ class ShareableLoyaltyCard extends StatelessWidget {
               Text(
                 'LOYALTY CARD',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 2.4,
@@ -213,7 +208,6 @@ class ShareableLoyaltyCard extends StatelessWidget {
               Text(
                 'Card Wallet',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                   color: Colors.white.withValues(alpha: 0.7),

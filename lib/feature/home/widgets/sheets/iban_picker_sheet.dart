@@ -55,7 +55,6 @@ class _IbanPickerSheet extends StatelessWidget {
               child: Text(
                 'pickIbanToShare'.tr(),
                 style: TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: colorScheme.onSurface,
@@ -133,7 +132,6 @@ class _IbanRow extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: colorScheme.onSurface,
@@ -148,7 +146,6 @@ class _IbanRow extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                         color: colorScheme.onSurface.withValues(alpha: 0.6),

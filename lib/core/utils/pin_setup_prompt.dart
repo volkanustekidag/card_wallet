@@ -67,14 +67,12 @@ Future<bool> maybePromptPinSetup({
       title: Text(
         'pinPromptTitle'.tr(),
         style: const TextStyle(
-          fontFamily: 'Poppins',
           fontWeight: FontWeight.w700,
         ),
       ),
       content: Text(
         'pinPromptMessage'.tr(),
         style: const TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 14,
           height: 1.4,
         ),
@@ -85,7 +83,6 @@ Future<bool> maybePromptPinSetup({
           child: Text(
             'pinPromptLater'.tr(),
             style: const TextStyle(
-              fontFamily: 'Poppins',
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -95,7 +92,6 @@ Future<bool> maybePromptPinSetup({
           child: Text(
             'pinPromptYes'.tr(),
             style: const TextStyle(
-              fontFamily: 'Poppins',
               fontWeight: FontWeight.w600,
             ),
           ),

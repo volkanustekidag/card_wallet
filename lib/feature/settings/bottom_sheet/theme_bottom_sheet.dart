@@ -114,7 +114,6 @@ class _ThemeBottomSheetBody extends StatelessWidget {
       title: Text(
         label,
         style: const TextStyle(
-          fontFamily: 'Poppins',
           fontWeight: FontWeight.w500,
           fontSize: 14,
         ),

@@ -209,7 +209,6 @@ class _NoticePanel extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: colorScheme.onSurface,
@@ -244,7 +243,6 @@ class _NoticePanel extends StatelessWidget {
                   Text(
                     '+${notices.length - visible.length}',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: colorScheme.onSurface.withValues(alpha: 0.55),
@@ -305,7 +303,6 @@ class _SummaryPill extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: color,
@@ -442,7 +439,6 @@ class _NoticeRow extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: colorScheme.onSurface,
@@ -454,7 +450,6 @@ class _NoticeRow extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                         color: colorScheme.onSurface.withValues(alpha: 0.58),
@@ -503,7 +498,6 @@ class _MiniCardBadge extends StatelessWidget {
       child: Text(
         _lastFour(card),
         style: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 10,
           fontWeight: FontWeight.w800,
           color: colorScheme.onSurface,
@@ -565,7 +559,6 @@ class _DaysChip extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: severity.foreground,

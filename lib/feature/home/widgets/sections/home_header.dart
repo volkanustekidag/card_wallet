@@ -91,7 +91,6 @@ class _CollapsingTitle extends StatelessWidget {
       child: Text(
         value,
         style: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: fontSize,
           fontWeight: FontWeight.w600,
           color: color,
@@ -495,7 +494,6 @@ class _AddSheetTile extends StatelessWidget {
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: colorScheme.onSurface,

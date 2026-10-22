@@ -132,7 +132,6 @@ class _WidgetSetupDialog extends StatelessWidget {
                 'widgetSetupTitle'.tr(),
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
                   fontWeight: FontWeight.w700,
                   fontSize: 19,
                   height: 1.25,
@@ -143,7 +142,6 @@ class _WidgetSetupDialog extends StatelessWidget {
                 'widgetSetupSubtitle'.tr(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 13.5,
                   height: 1.4,
                   color: colorScheme.onSurface.withValues(alpha: 0.7),
@@ -177,7 +175,6 @@ class _WidgetSetupDialog extends StatelessWidget {
                         child: Text(
                           'widgetSetupWatchHint'.tr(),
                           style: TextStyle(
-                            fontFamily: 'Poppins',
                             fontSize: 12.5,
                             fontWeight: FontWeight.w600,
                             color: colorScheme.tertiary,
@@ -197,7 +194,6 @@ class _WidgetSetupDialog extends StatelessWidget {
                     child: Text(
                       'widgetSetupLater'.tr(),
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -208,7 +204,6 @@ class _WidgetSetupDialog extends StatelessWidget {
                     child: Text(
                       'widgetSetupGotIt'.tr(),
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -246,7 +241,6 @@ class _StepRow extends StatelessWidget {
           child: Text(
             '$index',
             style: TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 13,
               fontWeight: FontWeight.w700,
               color: colorScheme.primary,
@@ -260,7 +254,6 @@ class _StepRow extends StatelessWidget {
             child: Text(
               labelKey.tr(),
               style: const TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
                 height: 1.35,

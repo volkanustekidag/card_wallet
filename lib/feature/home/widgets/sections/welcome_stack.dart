@@ -87,7 +87,6 @@ class WelcomeStack extends StatelessWidget {
             'walletAwaits'.tr(),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontFamily: 'Poppins',
                   fontWeight: FontWeight.w700,
                   color: colorScheme.onSurface,
                 ),
@@ -97,7 +96,6 @@ class WelcomeStack extends StatelessWidget {
             'walletAwaitsSub'.tr(),
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontFamily: 'Poppins',
                   color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
           ),

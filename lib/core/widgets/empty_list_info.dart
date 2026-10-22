@@ -65,7 +65,6 @@ class EmptyListInfo extends StatelessWidget {
                 titleKey.tr(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: colorScheme.onSurface.withValues(alpha: 0.85),
@@ -78,7 +77,6 @@ class EmptyListInfo extends StatelessWidget {
                   subtitleKey!.tr(),
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 12,
                     fontWeight: FontWeight.w400,
                     color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -142,7 +140,6 @@ class _GradientCta extends StatelessWidget {
               Text(
                 label,
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 13.5,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,

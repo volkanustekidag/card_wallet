@@ -80,7 +80,6 @@ class PrimaryFormButton extends StatelessWidget {
             : Text(
                 label,
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),

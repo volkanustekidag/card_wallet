@@ -182,7 +182,6 @@ class _ExpandedLayout extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: hasBank
@@ -194,7 +193,6 @@ class _ExpandedLayout extends StatelessWidget {
               Text(
                 'IBAN',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 9,
                   fontWeight: FontWeight.w600,
                   color: Colors.white.withValues(alpha: 0.8),
@@ -209,7 +207,6 @@ class _ExpandedLayout extends StatelessWidget {
               Text(
                 'IBAN',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 9,
                   fontWeight: FontWeight.w600,
                   color: Colors.white.withValues(alpha: 0.7),
@@ -224,7 +221,6 @@ class _ExpandedLayout extends StatelessWidget {
                   hasIban ? formattedIban : '•••• •••• •••• •••• ••',
                   maxLines: 1,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: hasIban
@@ -247,7 +243,6 @@ class _ExpandedLayout extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: hasHolder
@@ -261,7 +256,6 @@ class _ExpandedLayout extends StatelessWidget {
                 Text(
                   ibanCard.swiftCode.toUpperCase(),
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: Colors.white.withValues(alpha: 0.85),
@@ -324,7 +318,6 @@ class _CompactLayout extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: hasBank
@@ -337,7 +330,6 @@ class _CompactLayout extends StatelessWidget {
           Text(
             hasIban ? '•• $lastFour' : '•• ••••',
             style: TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: hasIban
@@ -350,7 +342,6 @@ class _CompactLayout extends StatelessWidget {
           Text(
             'IBAN',
             style: TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 9,
               fontWeight: FontWeight.w600,
               color: Colors.white.withValues(alpha: 0.8),

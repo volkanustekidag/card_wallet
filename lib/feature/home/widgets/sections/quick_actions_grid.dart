@@ -203,7 +203,6 @@ class _ActionTileState extends State<_ActionTile>
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: colorScheme.onSurface,
@@ -215,7 +214,6 @@ class _ActionTileState extends State<_ActionTile>
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
                       color: colorScheme.onSurface.withValues(alpha: 0.55),

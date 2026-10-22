@@ -84,7 +84,6 @@ class _AutoLockBottomSheetBody extends StatelessWidget {
                       title: Text(
                         AutoLockTime.label(seconds),
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
                           fontWeight: FontWeight.w500,
                           fontSize: 14,
                         ),

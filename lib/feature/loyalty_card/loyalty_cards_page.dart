@@ -49,7 +49,6 @@ class _LoyaltyCardsPageState extends State<LoyaltyCardsPage> {
         title: Text(
           'loyaltyCardsTitle'.tr(),
           style: TextStyle(
-            fontFamily: 'Poppins',
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface,
           ),
@@ -250,7 +249,6 @@ class _LoyaltyCardsPageState extends State<LoyaltyCardsPage> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                   color: colorScheme.onSurface,
@@ -263,7 +261,6 @@ class _LoyaltyCardsPageState extends State<LoyaltyCardsPage> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: colorScheme.onSurface.withValues(alpha: 0.6),

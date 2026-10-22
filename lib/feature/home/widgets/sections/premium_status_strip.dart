@@ -96,7 +96,6 @@ class _Strip extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontFamily: 'Poppins',
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                       color: colorScheme.onSurface,
@@ -127,7 +126,6 @@ class _Strip extends StatelessWidget {
                   child: Text(
                     context.upper('getPremium'.tr()),
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
                       fontWeight: FontWeight.w800,
                       fontSize: 10,
                       letterSpacing: 1.2,

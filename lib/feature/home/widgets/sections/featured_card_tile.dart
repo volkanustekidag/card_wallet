@@ -114,7 +114,6 @@ class _CreditTile extends StatelessWidget {
                   Text(
                     card.bankName.isNotEmpty ? card.bankName : '',
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -124,7 +123,6 @@ class _CreditTile extends StatelessWidget {
                 Text(
                   context.upper('creditCardLabel'.tr()),
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 9,
                     fontWeight: FontWeight.w600,
                     color: Colors.white.withValues(alpha: 0.8),
@@ -143,7 +141,6 @@ class _CreditTile extends StatelessWidget {
               child: Text(
                 number,
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 22,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -161,7 +158,6 @@ class _CreditTile extends StatelessWidget {
                       Text(
                         context.upper('valid'.tr()),
                         style: TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 8,
                           color: Colors.white.withValues(alpha: 0.7),
                           letterSpacing: 1,
@@ -171,7 +167,6 @@ class _CreditTile extends StatelessWidget {
                       Text(
                         expiration,
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
@@ -187,7 +182,6 @@ class _CreditTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     textAlign: TextAlign.right,
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -266,7 +260,6 @@ class _LoyaltyTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
@@ -281,7 +274,6 @@ class _LoyaltyTile extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontFamily: 'Poppins',
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                             color: Colors.white.withValues(alpha: 0.85),
@@ -296,7 +288,6 @@ class _LoyaltyTile extends StatelessWidget {
                 Text(
                   context.upper('loyaltyCardLabel'.tr()),
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 9,
                     fontWeight: FontWeight.w600,
                     color: Colors.white.withValues(alpha: 0.8),
@@ -342,7 +333,6 @@ class _LoyaltyTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 11,
                         letterSpacing: 1.4,
                         fontWeight: FontWeight.w600,
@@ -353,7 +343,6 @@ class _LoyaltyTile extends StatelessWidget {
                     Text(
                       isQr ? 'QR CODE' : card.barcodeFormat.replaceAll('_', ' '),
                       style: TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 8,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1.4,

@@ -61,7 +61,6 @@ class IbanCardFace extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -71,7 +70,6 @@ class IbanCardFace extends StatelessWidget {
                   Text(
                     context.upper('ibanCardLabel'.tr()),
                     style: TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 9,
                       fontWeight: FontWeight.w600,
                       color: Colors.white.withValues(alpha: 0.8),
@@ -86,7 +84,6 @@ class IbanCardFace extends StatelessWidget {
                   Text(
                     'IBAN',
                     style: TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 9,
                       fontWeight: FontWeight.w600,
                       color: Colors.white.withValues(alpha: 0.7),
@@ -101,7 +98,6 @@ class IbanCardFace extends StatelessWidget {
                       iban,
                       maxLines: 1,
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -121,7 +117,6 @@ class IbanCardFace extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -133,7 +128,6 @@ class IbanCardFace extends StatelessWidget {
                     Text(
                       card.swiftCode.toUpperCase(),
                       style: TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                         color: Colors.white.withValues(alpha: 0.85),

@@ -29,7 +29,6 @@ class MiniCreditCard extends StatelessWidget {
                 child: Text(
                   creditCard.bankName,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
                     fontSize: 16,
@@ -48,7 +47,6 @@ class MiniCreditCard extends StatelessWidget {
                 child: Text(
                   creditCard.creditCardNumber,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
                     color: Colors.white,
                     fontWeight: FontWeight.w500,
                     fontSize: 18,
@@ -76,7 +74,6 @@ class MiniCreditCard extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            fontFamily: 'Poppins',
             color: Colors.white,
             letterSpacing: 1,
             fontWeight: FontWeight.w500,
@@ -86,7 +83,6 @@ class MiniCreditCard extends StatelessWidget {
         Text(
           value,
           style: const TextStyle(
-            fontFamily: 'Poppins',
             color: Colors.white,
             letterSpacing: 1,
             fontWeight: FontWeight.w500,

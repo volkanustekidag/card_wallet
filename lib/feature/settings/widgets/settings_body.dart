@@ -556,7 +556,6 @@ class _Section extends StatelessWidget {
             child: Text(
               context.upper(title),
               style: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.8,

@@ -51,7 +51,6 @@ class IbanCardWidget extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
           style: TextStyle(
-            fontFamily: 'Poppins',
             fontSize: 10,
             fontWeight: FontWeight.w500,
             color: Colors.white.withValues(alpha: 0.7),
@@ -63,7 +62,6 @@ class IbanCardWidget extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
           style: const TextStyle(
-            fontFamily: 'Poppins',
             fontSize: 14,
             fontWeight: FontWeight.w500,
             color: Colors.white,

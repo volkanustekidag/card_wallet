@@ -483,7 +483,6 @@ class _TopBar extends StatelessWidget {
             child: Text(
               'restorePurchases'.tr(),
               style: const TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
@@ -522,7 +521,6 @@ class _Hero extends StatelessWidget {
               'premiumHeroTitle'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 42,
                 fontWeight: FontWeight.w700,
                 color: colorScheme.onSurface,
@@ -537,7 +535,6 @@ class _Hero extends StatelessWidget {
             textAlign: TextAlign.center,
             text: TextSpan(
               style: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 height: 1.25,
@@ -548,7 +545,6 @@ class _Hero extends StatelessWidget {
                   style: TextStyle(
                     color: colorScheme.onSurface,
                     fontWeight: FontWeight.w400,
-                    fontFamily: 'Poppins',
                   ),
                 ),
                 const TextSpan(text: ' '),
@@ -556,7 +552,6 @@ class _Hero extends StatelessWidget {
                   text: 'premiumHeroSubAccent'.tr(),
                   style: const TextStyle(
                     color: _gold,
-                    fontFamily: 'Poppins',
                   ),
                 ),
               ],
@@ -568,7 +563,6 @@ class _Hero extends StatelessWidget {
             'premiumHeroTagline'.tr(),
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: colorScheme.onSurface.withValues(alpha: 0.5),
@@ -706,7 +700,6 @@ class _PlaceholderCard extends StatelessWidget {
                 Text(
                   context.upper('placeholderBankName'.tr()),
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
                     color: Colors.white,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -730,7 +723,6 @@ class _PlaceholderCard extends StatelessWidget {
               Text(
                 'IBAN',
                 style: TextStyle(
-                  fontFamily: 'Poppins',
                   color: Colors.white.withValues(alpha: 0.7),
                   fontSize: 7,
                   fontWeight: FontWeight.w700,
@@ -741,7 +733,6 @@ class _PlaceholderCard extends StatelessWidget {
             Text(
               '${_ibanCountryFor(context)}12 1234 •••• •••• 6543',
               style: const TextStyle(
-                fontFamily: 'Poppins',
                 color: Colors.white,
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -754,7 +745,6 @@ class _PlaceholderCard extends StatelessWidget {
                 Text(
                   context.upper('placeholderHolderName'.tr()),
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     color: Colors.white.withValues(alpha: 0.95),
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
@@ -765,7 +755,6 @@ class _PlaceholderCard extends StatelessWidget {
                 Text(
                   '12345334',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 9,
                     fontWeight: FontWeight.w600,
@@ -845,7 +834,6 @@ class _PremiumActiveCard extends StatelessWidget {
               'premiumActiveTitle'.tr(),
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
               ),
@@ -855,7 +843,6 @@ class _PremiumActiveCard extends StatelessWidget {
               'premiumActiveSubtitle'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 13,
                 color: colorScheme.onSurface.withValues(alpha: 0.7),
               ),
@@ -864,7 +851,6 @@ class _PremiumActiveCard extends StatelessWidget {
             Text(
               'premiumCurrentPlan'.tr(args: [planLabel]),
               style: const TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
@@ -992,7 +978,6 @@ class _PricingRow extends StatelessWidget {
     if (priceMaxWidth <= 0) return _priceTargetSize;
     double minScale = 1.0;
     const baseStyle = TextStyle(
-      fontFamily: 'Poppins',
       fontSize: _priceTargetSize,
       fontWeight: FontWeight.w700,
       letterSpacing: -0.4,
@@ -1176,7 +1161,6 @@ class _PlanTileState extends State<_PlanTile>
                           context.upper(_planTitle()),
                           maxLines: 1,
                           style: TextStyle(
-                            fontFamily: 'Poppins',
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.8,
@@ -1194,7 +1178,6 @@ class _PlanTileState extends State<_PlanTile>
                         widget.product.price,
                         maxLines: 1,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: widget.priceFontSize,
                           fontWeight: FontWeight.w700,
                           letterSpacing: -0.4,
@@ -1207,7 +1190,6 @@ class _PlanTileState extends State<_PlanTile>
                     Text(
                       _cadenceLabel(),
                       style: TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 11,
                         fontWeight: FontWeight.w500,
                         color: colorScheme.onSurface.withValues(alpha: 0.55),
@@ -1231,7 +1213,6 @@ class _PlanTileState extends State<_PlanTile>
                                     .tr(args: [widget.monthlyEquivalent!]),
                                 maxLines: 1,
                                 style: const TextStyle(
-                                  fontFamily: 'Poppins',
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                   color: _gold,
@@ -1294,7 +1275,6 @@ class _PlanTileState extends State<_PlanTile>
                       child: Text(
                         topBadgeText,
                         style: TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 9,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 0.8,
@@ -1335,7 +1315,6 @@ class _ProductsUnavailable extends StatelessWidget {
       child: Text(
         'premiumProductsUnavailable'.tr(),
         style: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 13,
           color: colorScheme.error,
           fontWeight: FontWeight.w600,
@@ -1450,7 +1429,6 @@ class _BigFeatureCardState extends State<_BigFeatureCard>
             widget.spec.titleKey.tr(),
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 16,
               fontWeight: FontWeight.w800,
               color: colorScheme.onSurface,
@@ -1465,7 +1443,6 @@ class _BigFeatureCardState extends State<_BigFeatureCard>
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 12,
               fontWeight: FontWeight.w500,
               color: colorScheme.onSurface.withValues(alpha: 0.6),
@@ -1564,7 +1541,6 @@ class _FeatureChecklist extends StatelessWidget {
                   Text(
                     f.titleKey.tr(),
                     style: TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: colorScheme.onSurface,
@@ -1659,7 +1635,6 @@ class _CtaButton extends StatelessWidget {
                       Text(
                         label,
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           color: Colors.white,
@@ -1694,7 +1669,6 @@ class _CtaSubText extends StatelessWidget {
     return Text(
       'premiumCancelAnytime'.tr(),
       style: TextStyle(
-        fontFamily: 'Poppins',
         fontSize: 11,
         fontWeight: FontWeight.w500,
         color: colorScheme.onSurface.withValues(alpha: 0.6),
@@ -1725,7 +1699,6 @@ class _LegalDisclosure extends StatelessWidget {
             .tr(),
         textAlign: TextAlign.center,
         style: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 10,
           height: 1.45,
           fontWeight: FontWeight.w400,
@@ -1788,7 +1761,6 @@ class _LegalLink extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          fontFamily: 'Poppins',
           fontSize: 11,
           fontWeight: FontWeight.w500,
           color: color,

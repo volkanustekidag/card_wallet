@@ -178,7 +178,6 @@ class _LanguageTile extends StatelessWidget {
                 child: Text(
                   code,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: selected ? scheme.primary : scheme.onSurfaceVariant,
@@ -191,7 +190,6 @@ class _LanguageTile extends StatelessWidget {
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 15,
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
                     color: scheme.onSurface,

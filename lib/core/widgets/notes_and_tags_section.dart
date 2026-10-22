@@ -115,7 +115,6 @@ class _NotesAndTagsSectionState extends State<NotesAndTagsSection> {
         Text(
           'tagsLabel'.tr(),
           style: TextStyle(
-            fontFamily: 'Poppins',
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface,
@@ -170,7 +169,6 @@ class _NotesAndTagsSectionState extends State<NotesAndTagsSection> {
                     color: colorScheme.onSurface.withValues(alpha: 0.08),
                   ),
                   labelStyle: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: colorScheme.onSurface.withValues(alpha: 0.78),

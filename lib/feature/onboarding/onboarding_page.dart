@@ -245,7 +245,6 @@ class _OnboardingPageState extends State<OnboardingPage>
                     'onboardingHeroTitle'.tr(),
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
                       height: 1.15,
@@ -304,7 +303,6 @@ class _OnboardingPageState extends State<OnboardingPage>
                       foregroundColor:
                           colorScheme.onSurface.withValues(alpha: 0.65),
                       textStyle: const TextStyle(
-                        fontFamily: 'Poppins',
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -592,7 +590,6 @@ class _MockCardContent extends StatelessWidget {
             Text(
               '•••• •••• •••• 4242',
               style: const TextStyle(
-                fontFamily: 'Poppins',
                 color: Colors.white,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -605,7 +602,6 @@ class _MockCardContent extends StatelessWidget {
                 Text(
                   'CARDHOLDER',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     color: Colors.white.withValues(alpha: 0.92),
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
@@ -629,7 +625,6 @@ class _MockCardContent extends StatelessWidget {
             Text(
               'IBAN',
               style: TextStyle(
-                fontFamily: 'Poppins',
                 color: Colors.white.withValues(alpha: 0.85),
                 fontSize: 9,
                 fontWeight: FontWeight.w700,
@@ -640,7 +635,6 @@ class _MockCardContent extends StatelessWidget {
             Text(
               'TR12 3456 •••• 6543',
               style: const TextStyle(
-                fontFamily: 'Poppins',
                 color: Colors.white,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -651,7 +645,6 @@ class _MockCardContent extends StatelessWidget {
             Text(
               'CARDHOLDER',
               style: TextStyle(
-                fontFamily: 'Poppins',
                 color: Colors.white.withValues(alpha: 0.92),
                 fontSize: 9,
                 fontWeight: FontWeight.w700,
@@ -675,7 +668,6 @@ class _MockCardContent extends StatelessWidget {
                 Text(
                   'LOYALTY',
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     color: Colors.white.withValues(alpha: 0.95),
                     fontSize: 9,
                     fontWeight: FontWeight.w700,
@@ -705,7 +697,6 @@ class _MockCardContent extends StatelessWidget {
             Text(
               '•••• 0429',
               style: const TextStyle(
-                fontFamily: 'Poppins',
                 color: Colors.white,
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -830,7 +821,6 @@ class _FeatureBlock extends StatelessWidget {
           feature.titleKey.tr(),
           textAlign: TextAlign.center,
           style: theme.textTheme.titleMedium?.copyWith(
-            fontFamily: 'Poppins',
             fontSize: 18,
             fontWeight: FontWeight.w700,
           ),
@@ -840,7 +830,6 @@ class _FeatureBlock extends StatelessWidget {
           feature.descKey.tr(),
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
-            fontFamily: 'Poppins',
             color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             height: 1.45,
           ),
@@ -948,7 +937,6 @@ class _CtaButton extends StatelessWidget {
                   Text(
                     label,
                     style: const TextStyle(
-                      fontFamily: 'Poppins',
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
@@ -1021,7 +1009,6 @@ class _TrustChip extends StatelessWidget {
         Text(
           labelKey.tr(),
           style: TextStyle(
-            fontFamily: 'Poppins',
             fontSize: 11,
             fontWeight: FontWeight.w600,
             color: color,

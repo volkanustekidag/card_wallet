@@ -132,7 +132,6 @@ class LoyaltyCardWidget extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            fontFamily: 'Poppins',
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -146,7 +145,6 @@ class LoyaltyCardWidget extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                               color: Colors.white.withValues(alpha: 0.8),
@@ -159,7 +157,6 @@ class LoyaltyCardWidget extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontFamily: 'Poppins',
                             fontSize: 13,
                             letterSpacing: 1.4,
                             color: Colors.white.withValues(alpha: 0.92),

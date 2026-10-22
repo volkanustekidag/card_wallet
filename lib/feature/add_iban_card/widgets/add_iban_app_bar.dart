@@ -33,7 +33,7 @@ class AddIbanAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Obx(() => Text(
             controller.isEditMode.value ? "editIC".tr() : "addIC".tr(),
             style:
-                TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.w400),
+                TextStyle( fontWeight: FontWeight.w400),
           )),
     );
   }

@@ -79,7 +79,6 @@ class CreditCardFront extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontFamily: 'Poppins',
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
@@ -105,7 +104,6 @@ class CreditCardFront extends StatelessWidget {
                 child: Text(
                   cardNumber,
                   style: TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                     color: Colors.white,
@@ -136,14 +134,12 @@ class CreditCardFront extends StatelessWidget {
     String expiration,
   ) {
     final labelStyle = TextStyle(
-      fontFamily: 'Poppins',
       color: Colors.white.withValues(alpha: 0.7),
       fontSize: 9,
       letterSpacing: 1,
       fontWeight: FontWeight.w500,
     );
     const valueStyle = TextStyle(
-      fontFamily: 'Poppins',
       color: Colors.white,
       fontSize: 12,
       letterSpacing: 1,

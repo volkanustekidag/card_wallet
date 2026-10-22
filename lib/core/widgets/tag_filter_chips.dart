@@ -115,7 +115,6 @@ class _TagChip extends StatelessWidget {
               Text(
                 isFavorite ? 'Favorites' : label,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   color: selected

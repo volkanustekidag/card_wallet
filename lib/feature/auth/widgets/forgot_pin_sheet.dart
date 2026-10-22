@@ -49,7 +49,6 @@ class _ForgotPinSheet extends StatelessWidget {
               'forgotPinTitle'.tr(),
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
               ),
@@ -59,7 +58,6 @@ class _ForgotPinSheet extends StatelessWidget {
               'forgotPinMessage'.tr(args: [biometricName]),
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 14,
                 color: colorScheme.onSurface.withValues(alpha: 0.7),
               ),

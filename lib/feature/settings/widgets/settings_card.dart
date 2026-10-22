@@ -119,7 +119,6 @@ class _SettingsCardState extends State<SettingsCard> {
                           Text(
                             widget.subtitle!,
                             style: TextStyle(
-                              fontFamily: 'Poppins',
                               fontSize: 12,
                               fontWeight: FontWeight.w400,
                               color: widget.subtitleColor ??

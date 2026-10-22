@@ -94,7 +94,6 @@ class SheetActionButton extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: fg,

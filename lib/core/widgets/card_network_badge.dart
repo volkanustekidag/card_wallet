@@ -70,7 +70,6 @@ class CardNetworkBadge extends StatelessWidget {
         return Text(
           'VISA',
           style: TextStyle(
-            fontFamily: 'Poppins',
             fontStyle: FontStyle.italic,
             fontWeight: FontWeight.w900,
             fontSize: height * 0.86,
@@ -117,7 +116,6 @@ class _Wordmark extends StatelessWidget {
     return Text(
       label,
       style: TextStyle(
-        fontFamily: 'Poppins',
         fontWeight: FontWeight.w800,
         fontSize: height * 0.7,
         color: Colors.white,

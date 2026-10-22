@@ -64,7 +64,6 @@ class CreditCardBack extends StatelessWidget {
                           Text(
                             'cvcNotStored'.tr(),
                             style: TextStyle(
-                              fontFamily: 'Poppins',
                               color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 10,
                               letterSpacing: 1.2,
@@ -81,7 +80,6 @@ class CreditCardBack extends StatelessWidget {
                             child: Text(
                               '•••',
                               style: TextStyle(
-                                fontFamily: 'Poppins',
                                 color: Colors.black87,
                                 fontSize: 18,
                                 letterSpacing: 1.2,

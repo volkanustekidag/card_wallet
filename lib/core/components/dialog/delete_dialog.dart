@@ -112,7 +112,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
               widget.title,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
                 color: colorScheme.onSurface,
@@ -124,7 +123,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
                 widget.content!,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
                   height: 1.4,
@@ -160,7 +158,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
                     : Text(
                         widget.confirmText,
                         style: const TextStyle(
-                          fontFamily: 'Poppins',
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
                         ),
@@ -183,7 +180,6 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
                 child: Text(
                   widget.cancelText,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),

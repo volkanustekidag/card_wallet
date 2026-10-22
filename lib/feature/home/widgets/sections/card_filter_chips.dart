@@ -220,7 +220,6 @@ class _ChipState extends State<_Chip> with SingleTickerProviderStateMixin {
             child: Text(
               widget.label,
               style: TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: widget.fontSize,
                 fontWeight: FontWeight.w600,
                 color: fg,
