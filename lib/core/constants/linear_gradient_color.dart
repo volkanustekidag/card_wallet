@@ -70,6 +70,11 @@ class LinearGradients {
         Color(0xFF56AB2F),
       ],
     ), // Spring
+    LinearGradient(
+      colors: [Color(0xFF6B6F76), Color(0xFFD7D9DD), Color(0xFF5D6168)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ), // Titanium (v2)
   ];
 }
 
