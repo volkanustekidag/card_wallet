@@ -123,6 +123,8 @@ class AddLoyaltyCardController extends GetxController {
       website: draft.website,
       lastUsedAt: original.lastUsedAt,
       useCount: original.useCount,
+      usageLog: original.usageLog,
+      brandColor: draft.brandColor,
     );
   }
 

@@ -8,13 +8,16 @@ import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/utils/data_reset_notice.dart';
-import 'package:wallet_app/core/widgets/loading_widget.dart';
 import 'package:wallet_app/feature/auth/pin_action_page.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
-import 'package:wallet_app/feature/home/widgets/body.dart';
+import 'package:wallet_app/feature/home/wallet_home.dart';
 import 'package:wallet_app/feature/home/widgets/sections/add_card_navigator.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/credit_card_reminder_sheet.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/data_reset_notice_dialog.dart';
+import 'package:wallet_app/ui/components/cw_button.dart';
+import 'package:wallet_app/ui/components/cw_misc.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -165,17 +168,16 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) => _handlePopInvoked(didPop),
       child: Scaffold(
-        backgroundColor: colorScheme.surface,
+        backgroundColor: CwColors.of(context).bg,
         body: Obx(() {
           if (_homeController.isInitialLoading.value &&
               _homeController.walletItems.isEmpty) {
-            return const LoadingWidget();
+            // Boxes open in a few ms; a blank frame beats a spinner flash.
+            return const SizedBox.expand();
           }
           // Never show a failed load as an empty wallet.
           if (_homeController.loadError.value &&
@@ -185,7 +187,7 @@ class _HomePageState extends State<HomePage> {
               onRetry: _homeController.retryLoad,
             );
           }
-          return HomeBody(controller: _homeController);
+          return WalletHome(controller: _homeController);
         }),
       ),
     );
@@ -200,37 +202,17 @@ class _CardsLoadError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return SafeArea(
       child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.cloud_off_outlined,
-                size: 48,
-                color: theme.colorScheme.primary,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'cardsLoadError'.tr(),
-                textAlign: TextAlign.center,
-                style: theme.textTheme.titleMedium,
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                key: const Key('cardsLoadRetry'),
-                onPressed: retrying ? null : onRetry,
-                child: retrying
-                    ? const SizedBox.square(
-                        dimension: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text('tryAgain'.tr()),
-              ),
-            ],
+        child: CwEmptyState(
+          icon: CwIcons.warning,
+          title: 'cardsLoadError'.tr(),
+          action: CwButton(
+            'tryAgain'.tr(),
+            key: const Key('cardsLoadRetry'),
+            expand: false,
+            loading: retrying,
+            onPressed: retrying ? null : onRetry,
           ),
         ),
       ),

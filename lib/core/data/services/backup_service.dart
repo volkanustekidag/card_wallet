@@ -504,6 +504,8 @@ class BackupService {
         'website': card.website,
         'lastUsedAt': card.lastUsedAt?.toIso8601String(),
         'useCount': card.useCount,
+        'usageLog': card.usageLog,
+        'brandColor': card.brandColor,
       };
 
   /// Inverse of [loyaltyCardToJson]. Backups from before 2.2 have no usage
@@ -523,6 +525,11 @@ class BackupService {
       website: raw['website'] as String?,
       lastUsedAt: _parseDate(raw['lastUsedAt']),
       useCount: (raw['useCount'] as num?)?.toInt(),
+      usageLog: (raw['usageLog'] as List?)
+          ?.whereType<num>()
+          .map((e) => e.toInt())
+          .toList(),
+      brandColor: (raw['brandColor'] as num?)?.toInt(),
     );
   }
 

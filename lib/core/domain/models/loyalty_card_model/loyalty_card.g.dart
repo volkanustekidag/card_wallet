@@ -30,13 +30,15 @@ class LoyaltyCardAdapter extends TypeAdapter<LoyaltyCard> {
       website: fields[10] as String?,
       lastUsedAt: fields[11] as DateTime?,
       useCount: fields[12] as int?,
+      usageLog: (fields[13] as List?)?.cast<int>(),
+      brandColor: fields[14] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, LoyaltyCard obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -62,7 +64,11 @@ class LoyaltyCardAdapter extends TypeAdapter<LoyaltyCard> {
       ..writeByte(11)
       ..write(obj.lastUsedAt)
       ..writeByte(12)
-      ..write(obj.useCount);
+      ..write(obj.useCount)
+      ..writeByte(13)
+      ..write(obj.usageLog)
+      ..writeByte(14)
+      ..write(obj.brandColor);
   }
 
   @override
