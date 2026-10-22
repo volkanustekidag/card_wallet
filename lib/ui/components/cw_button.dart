@@ -198,8 +198,8 @@ class CwCircleButton extends StatelessWidget {
             width: size,
             height: size,
             child: Center(
-              child: CwIcon(icon,
-                  size: CwIconSize.m, color: foreground ?? c.ink),
+              child:
+                  CwIcon(icon, size: CwIconSize.m, color: foreground ?? c.ink),
             ),
           ),
         ),

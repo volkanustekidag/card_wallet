@@ -11,6 +11,12 @@ import 'package:wallet_app/core/utils/premium_gate.dart';
 import 'package:wallet_app/core/utils/share_origin.dart';
 import 'package:wallet_app/core/utils/widget_image_share.dart';
 import 'package:wallet_app/feature/iban_card/widgets/shareable_iban_card.dart';
+import 'package:wallet_app/ui/components/cw_button.dart';
+import 'package:wallet_app/ui/components/cw_list.dart';
+import 'package:wallet_app/ui/components/cw_misc.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
+import 'package:wallet_app/ui/typography.dart';
 
 enum IbanShareChoice { text, image, addQrPremium }
 
@@ -27,7 +33,8 @@ Future<void> shareIban(
 }) async {
   HapticFeedback.lightImpact();
   final isPremium = _isPremium();
-  final choice = await showIbanShareSheet(context, isPremium: isPremium);
+  final choice =
+      await showIbanShareSheet(context, isPremium: isPremium, card: card);
   if (choice == null || !context.mounted) return;
 
   switch (choice) {
@@ -77,100 +84,96 @@ bool _isPremium() => Get.isRegistered<PremiumController>()
     ? Get.find<PremiumController>().isPremium
     : PremiumService.isPremium;
 
-/// "Share as text" / "Share as image" (+ "Add QR (Premium)" for free users).
+/// "Share as image" (primary, with a live preview of the image) and
+/// "Share as text", plus "Add QR (Premium)" for free users.
 Future<IbanShareChoice?> showIbanShareSheet(
   BuildContext context, {
   required bool isPremium,
+  IbanCard? card,
 }) {
-  return showModalBottomSheet<IbanShareChoice>(
-    context: context,
-    // Sized to its content and scrollable, so three rows still fit on short
-    // screens and with large text.
-    isScrollControlled: true,
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-    ),
+  return showCwSheet<IbanShareChoice>(
+    context,
     builder: (sheetContext) {
-      final colorScheme = Theme.of(sheetContext).colorScheme;
+      final c = CwColors.of(sheetContext);
       void pick(IbanShareChoice choice) =>
           Navigator.of(sheetContext).pop(choice);
+      final withQr = isPremium && card != null &&
+          ShareableIbanCard.paymentQrData(card) != null;
       return SafeArea(
+        top: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+          padding: const EdgeInsets.fromLTRB(18, 4, 18, 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    color: colorScheme.onSurface.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(2),
+              Text(
+                'cwShareBankDetails'.tr(),
+                style: CwType.title.copyWith(color: c.ink, fontSize: 20),
+              ),
+              if (card != null) ...[
+                const SizedBox(height: 14),
+                // The exact image that will be shared, scaled down.
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(CwRadius.l),
+                  child: AspectRatio(
+                    aspectRatio: ShareableIbanCard.width /
+                        ShareableIbanCard.sizeFor(withQr: withQr).height,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: SizedBox.fromSize(
+                        size: ShareableIbanCard.sizeFor(withQr: withQr),
+                        child: ShareableIbanCard(
+                          card: card,
+                          qrData: withQr
+                              ? ShareableIbanCard.paymentQrData(card)
+                              : null,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                child: Text(
-                  'shareIbanTitle'.tr(),
-                  style: Theme.of(sheetContext)
-                      .textTheme
-                      .titleMedium
-                      ?.copyWith(fontWeight: FontWeight.w600),
-                ),
-              ),
-              const SizedBox(height: 8),
-              ListTile(
-                key: const ValueKey('ibanShareText'),
-                leading: Icon(Icons.notes_rounded, color: colorScheme.primary),
-                title: Text(
-                  'shareAsText'.tr(),
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text('shareAsTextSubtitle'.tr()),
-                onTap: () => pick(IbanShareChoice.text),
-              ),
-              ListTile(
-                key: const ValueKey('ibanShareImage'),
-                leading: Icon(Icons.image_rounded, color: colorScheme.primary),
-                title: Text(
-                  'shareAsImage'.tr(),
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  isPremium
-                      ? 'shareAsImageWithQrSubtitle'.tr()
-                      : 'shareAsImageSubtitle'.tr(),
-                ),
-                onTap: () => pick(IbanShareChoice.image),
-              ),
-              if (!isPremium)
-                ListTile(
-                  key: const ValueKey('ibanShareAddQr'),
-                  leading: const Icon(
-                    Icons.qr_code_rounded,
-                    color: Color(0xFFC8A14A),
+              ],
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: CwButton(
+                      'cwShareAsImage'.tr(),
+                      key: const ValueKey('ibanShareImage'),
+                      icon: CwIcons.photos,
+                      height: 50,
+                      onPressed: () => pick(IbanShareChoice.image),
+                    ),
                   ),
-                  title: Text(
-                    'shareAddQrPremium'.tr(),
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: CwButton.secondary(
+                      'cwShareAsText'.tr(),
+                      key: const ValueKey('ibanShareText'),
+                      icon: CwIcons.document,
+                      height: 50,
+                      onPressed: () => pick(IbanShareChoice.text),
+                    ),
                   ),
-                  subtitle: Text('shareAddQrPremiumSubtitle'.tr()),
-                  trailing: const Icon(
-                    Icons.workspace_premium_rounded,
-                    color: Color(0xFFC8A14A),
-                  ),
-                  onTap: () => pick(IbanShareChoice.addQrPremium),
-                ),
-              const SizedBox(height: 4),
-              TextButton(
-                onPressed: () => Navigator.of(sheetContext).pop(),
-                child: Text('cancel'.tr()),
+                ],
               ),
+              if (!isPremium) ...[
+                const SizedBox(height: 10),
+                CwGroup(
+                  margin: EdgeInsets.zero,
+                  children: [
+                    CwRow(
+                      key: const ValueKey('ibanShareAddQr'),
+                      leading: CwIconTile(CwIcons.qr, color: c.accent),
+                      title: 'cwAddQrPremium'.tr(),
+                      trailing: CwPill.accent(sheetContext, 'cwPremium'.tr(),
+                          icon: CwIcons.gem),
+                      onTap: () => pick(IbanShareChoice.addQrPremium),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),

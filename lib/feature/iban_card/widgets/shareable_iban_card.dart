@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:wallet_app/ui/card/wallet_card_faces.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_qr_generator.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
@@ -39,11 +40,8 @@ class ShareableIbanCard extends StatelessWidget {
     this.bankLogoImage,
   }) : super(key: key);
 
-  static const _gradient = LinearGradient(
-    colors: [Color(0xFF0E9F8B), Color(0xFF134E5E)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+  // Same material as the IBAN card in the wallet.
+  static final _gradient = kIbanMaterial.gradient;
 
   /// The payment QR from [IBANQRGenerator] (TR Karekod / EPC / ISO 20022
   /// picked by country), without amount. Null when the IBAN can't be encoded.

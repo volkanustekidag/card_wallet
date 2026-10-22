@@ -26,8 +26,8 @@ void main() {
     for (final lang in _langs.skip(1)) {
       final other = _load(lang);
       for (final key in en.keys) {
-        final a = '{}'.allMatches('${en[key]}').length;
-        final b = '{}'.allMatches('${other[key]}').length;
+        final a = _placeholders(en[key]);
+        final b = _placeholders(other[key]);
         expect(b, a, reason: '$lang:$key placeholder count');
       }
     }
@@ -46,3 +46,9 @@ void main() {
     }
   });
 }
+
+/// `{}` count of a string, or of the `other` form of a plural map (forms
+/// differ per language: Polish has few/many, English has one/other).
+int _placeholders(dynamic value) => value is Map
+    ? _placeholders(value['other'])
+    : '{}'.allMatches('$value').length;

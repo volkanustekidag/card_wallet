@@ -17,6 +17,10 @@ import 'package:wallet_app/ui/typography.dart';
 /// Standard card proportions (ISO/IEC 7810 ID-1).
 const double kCardAspect = 1.586;
 
+/// Inner padding shared by stack strips and full faces so the header row
+/// sits at the same spot whether a card is tucked away or in front.
+const EdgeInsets kCardStripPadding = EdgeInsets.fromLTRB(14, 13, 16, 0);
+
 /// IBAN cards don't store a colour; they share one recognisable material.
 const CardMaterial kIbanMaterial = CardMaterial(
   [Color(0xFF2C1458), Color(0xFF6A3BC0), Color(0xFF1F0D44)],
@@ -52,10 +56,14 @@ String titleForItem(WalletItem item) {
   switch (item.kind) {
     case WalletItemKind.credit:
       final c = item.card as CreditCard;
-      return c.bankName.trim().isNotEmpty ? c.bankName.trim() : 'cwTypeCard'.tr();
+      return c.bankName.trim().isNotEmpty
+          ? c.bankName.trim()
+          : 'cwTypeCard'.tr();
     case WalletItemKind.iban:
       final c = item.card as IbanCard;
-      return c.bankName.trim().isNotEmpty ? c.bankName.trim() : 'cwTypeIban'.tr();
+      return c.bankName.trim().isNotEmpty
+          ? c.bankName.trim()
+          : 'cwTypeIban'.tr();
     case WalletItemKind.loyalty:
       final c = item.card as LoyaltyCard;
       return c.name.trim().isNotEmpty ? c.name.trim() : (c.brand ?? '');
@@ -210,7 +218,7 @@ class WalletCardFace extends StatelessWidget {
         width: w,
         height: h,
         interactive: interactive,
-        padding: EdgeInsets.fromLTRB(w * 0.055, w * 0.05, w * 0.055, w * 0.05),
+        padding: kCardStripPadding.copyWith(bottom: 16),
         child: _body(context, w),
       );
     });
@@ -228,7 +236,7 @@ class WalletCardFace extends StatelessWidget {
         final network = CardBankDetector.networkFor(c.creditCardNumber);
         final number = revealNumber
             ? CardNumberLayout.format(c.creditCardNumber)
-            : '•••• •••• •••• ${last4Of(c.creditCardNumber)}';
+            : '••••  ••••  ••••  ${last4Of(c.creditCardNumber)}';
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -255,7 +263,8 @@ class WalletCardFace extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 number,
-                style: CwType.mono(size: w * 0.055, color: fg, letterSpacing: 2),
+                style:
+                    CwType.mono(size: w * 0.052, color: fg, letterSpacing: 0.5),
               ),
             ),
             SizedBox(height: w * 0.03),
@@ -304,7 +313,8 @@ class WalletCardFace extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 formatIban(c.iban),
-                style: CwType.mono(size: w * 0.045, color: fg, letterSpacing: 1),
+                style:
+                    CwType.mono(size: w * 0.045, color: fg, letterSpacing: 1),
               ),
             ),
             SizedBox(height: w * 0.035),
@@ -345,8 +355,8 @@ class WalletCardFace extends StatelessWidget {
                     c.barcode,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: CwType.mono(
-                        size: 13, color: fg.withValues(alpha: 0.9)),
+                    style:
+                        CwType.mono(size: 13, color: fg.withValues(alpha: 0.9)),
                   ),
                 ),
               ],
@@ -365,4 +375,29 @@ String formatIban(String raw) {
     b.write(s[i]);
   }
   return b.toString();
+}
+
+/// Small card thumbnail (material + logo) used as a list leading.
+class CardThumb extends StatelessWidget {
+  final WalletItem item;
+  final double width;
+
+  const CardThumb({super.key, required this.item, this.width = 48});
+
+  @override
+  Widget build(BuildContext context) {
+    final h = width / kCardAspect;
+    return CardFace(
+      material: materialForItem(item),
+      width: width,
+      height: h,
+      radius: width * 0.13,
+      shadow: false,
+      padding: EdgeInsets.all(width * 0.09),
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: CardLogoChip(item: item, size: h * 0.48),
+      ),
+    );
+  }
 }

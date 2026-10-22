@@ -103,8 +103,7 @@ class CwIconTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(size * 0.27),
         ),
         alignment: Alignment.center,
-        child: CwIcon(icon,
-            size: size * 0.6, color: iconColor ?? Colors.white),
+        child: CwIcon(icon, size: size * 0.6, color: iconColor ?? Colors.white),
       );
 }
 
@@ -177,13 +176,13 @@ class CwRow extends StatelessWidget {
                 ),
                 if (value != null) ...[
                   const SizedBox(width: 8),
-                  Text(value!,
-                      style: CwType.callout.copyWith(color: c.mute)),
+                  Text(value!, style: CwType.callout.copyWith(color: c.mute)),
                 ],
                 if (trailing != null) ...[const SizedBox(width: 8), trailing!],
                 if (chevron) ...[
                   const SizedBox(width: 6),
-                  CwIcon(CwIcons.chevronRight, size: CwIconSize.s, color: c.mute),
+                  CwIcon(CwIcons.chevronRight,
+                      size: CwIconSize.s, color: c.mute),
                 ],
               ],
             ),

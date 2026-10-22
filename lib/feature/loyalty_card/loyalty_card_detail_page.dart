@@ -1,28 +1,42 @@
+import 'dart:async';
+import 'dart:ui' show ImageFilter;
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:sensors_plus/sensors_plus.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
-import 'package:wallet_app/core/constants/linear_gradient_color.dart';
+import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
 import 'package:wallet_app/core/router/getx_routes.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/core/services/barcode_display_boost.dart';
 import 'package:wallet_app/core/services/widget_data_service.dart';
-import 'package:wallet_app/core/utils/loyalty_brand_resolver.dart';
 import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
+import 'package:wallet_app/core/utils/tag_index.dart';
 import 'package:wallet_app/core/utils/widget_image_share.dart';
-import 'package:wallet_app/core/widgets/bank_logo.dart';
 import 'package:wallet_app/feature/add_loyalty_card/add_loyalty_card_page.dart';
+import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
 import 'package:wallet_app/feature/loyalty_card/controller/loyalty_card_controller.dart';
+import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_validator.dart';
 import 'package:wallet_app/feature/loyalty_card/utils/loyalty_wallet_action.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/barcode_renderer.dart';
-import 'package:wallet_app/feature/loyalty_card/widgets/loyalty_card_widget.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/shareable_loyalty_card.dart';
-import 'package:wallet_app/core/services/barcode_display_boost.dart';
-import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
-import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/ui/card/wallet_card_faces.dart';
+import 'package:wallet_app/ui/components/cw_list.dart';
+import 'package:wallet_app/ui/components/cw_misc.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
+import 'package:wallet_app/ui/typography.dart';
 
+/// Checkout: the loyalty card's barcode, ready for the till.
+///
+/// Brand-coloured stage, a white barcode panel (format, validity, use
+/// count), automatic max brightness, and a giant landscape barcode when the
+/// phone is turned sideways (the app itself stays portrait-locked).
 class LoyaltyCardDetailPage extends StatefulWidget {
   final LoyaltyCard card;
 
@@ -45,339 +59,249 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
   LoyaltyCard get card => widget.card;
   bool get readOnly => widget.readOnly;
 
+  StreamSubscription<AccelerometerEvent>? _accel;
+  bool _landscapeOpen = false;
+  DateTime? _sidewaysSince;
+
   @override
   void initState() {
     super.initState();
-    // Opening the detail (barcode) page IS the "use" event — that's when
-    // the cashier sees the code. Fire-and-forget; widget refresh failures
-    // shouldn't ever block the page from rendering.
+    // Opening the barcode IS the "use" event — that's when the cashier
+    // sees the code. Fire-and-forget; nothing here may block rendering.
     WidgetDataService.instance.setLastUsedLoyaltyCard(card);
     BarcodeDisplayBoost.instance.acquire();
     AnalyticsService.instance
         .logBarcodeShown(readOnly ? 'widget' : 'detail_page');
     LoyaltyCardService().recordUseInBackground(card.id);
+    try {
+      _accel = accelerometerEventStream(
+        samplingPeriod: SensorInterval.uiInterval,
+      ).listen(_onAccel, onError: (_) {}, cancelOnError: false);
+    } catch (_) {
+      // No sensor: the barcode can still be enlarged by tapping it.
+    }
   }
 
   @override
   void dispose() {
+    _accel?.cancel();
     BarcodeDisplayBoost.instance.release();
     super.dispose();
   }
 
+  void _onAccel(AccelerometerEvent e) {
+    if (_landscapeOpen || !mounted) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    final sideways = e.x.abs() > 7.0 && e.y.abs() < 4.5;
+    if (!sideways) {
+      _sidewaysSince = null;
+      return;
+    }
+    final since = _sidewaysSince ??= DateTime.now();
+    if (DateTime.now().difference(since) > const Duration(milliseconds: 250)) {
+      _sidewaysSince = null;
+      _openLandscape(turnLeft: e.x > 0);
+    }
+  }
+
+  Future<void> _openLandscape({bool turnLeft = true}) async {
+    if (_landscapeOpen) return;
+    _landscapeOpen = true;
+    HapticFeedback.mediumImpact();
+    await Navigator.of(context).push(PageRouteBuilder<void>(
+      opaque: true,
+      transitionDuration: CwMotion.base,
+      reverseTransitionDuration: CwMotion.fast,
+      pageBuilder: (_, __, ___) =>
+          _LandscapeBarcode(card: card, quarterTurns: turnLeft ? 1 : 3),
+      transitionsBuilder: (_, a, __, child) =>
+          FadeTransition(opacity: a, child: child),
+    ));
+    _landscapeOpen = false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final gradients = LinearGradients().linearGradientList;
-    final gradient = gradients[card.colorId.clamp(0, gradients.length - 1)];
-    final brand = (card.brand?.isNotEmpty ?? false) ? card.brand! : card.name;
-    final hasLogo = LoyaltyBrandResolver.domainFor(brand) != null ||
-        (card.website?.isNotEmpty ?? false);
+    final item = WalletItem.loyalty(card);
+    final m = materialForItem(item);
+    final fg = m.foreground;
+    final check =
+        LoyaltyBarcodeValidator.validate(card.barcode, card.barcodeFormat);
+    final brand =
+        (card.brand?.trim().isNotEmpty ?? false) ? card.brand!.trim() : '';
+    final hasNotes = !readOnly && (card.notes?.trim().isNotEmpty ?? false);
 
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        actions: readOnly
-            ? const []
-            : [
-                IconButton(
-                  icon: const Icon(Icons.edit_rounded, color: Colors.white),
-                  onPressed: () => _onEdit(),
-                ),
-                IconButton(
-                  icon: const Icon(
-                    Icons.delete_outline_rounded,
-                    color: Colors.white,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: fg == Colors.white
+          ? SystemUiOverlayStyle.light
+          : SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        backgroundColor: m.colors.last,
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: const Alignment(0, -1),
+                    radius: 1.35,
+                    colors: [
+                      m.colors[m.colors.length > 2 ? 2 : 0],
+                      m.base,
+                      m.colors.first
+                    ],
+                    stops: const [0, 0.45, 1],
                   ),
-                  onPressed: () => _onDelete(context),
-                ),
-              ],
-      ),
-      body: Stack(
-        children: [
-          // Gradient shell — Hero target. Animates from the list card's
-          // gradient rectangle (rounded, card-sized) up to a full-screen
-          // square. The shuttle interpolates the radius and shadow so the
-          // morph reads as a card "opening".
-          Positioned.fill(
-            child: Hero(
-              tag: loyaltyCardHeroTag(card),
-              flightShuttleBuilder: (
-                flightContext,
-                animation,
-                direction,
-                fromContext,
-                toContext,
-              ) {
-                return AnimatedBuilder(
-                  animation: animation,
-                  builder: (context, _) {
-                    final t = direction == HeroFlightDirection.push
-                        ? animation.value
-                        : 1 - animation.value;
-                    final radius = 20 * (1 - t);
-                    return Material(
-                      color: Colors.transparent,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          gradient: gradient,
-                          borderRadius: BorderRadius.circular(radius),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black
-                                  .withValues(alpha: 0.16 * (1 - t)),
-                              blurRadius: 18,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  decoration: BoxDecoration(gradient: gradient),
                 ),
               ),
             ),
-          ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+            SafeArea(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      if (hasLogo)
-                        Container(
-                          width: 88,
-                          height: 88,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.96),
-                            borderRadius: BorderRadius.circular(22),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.18),
-                                blurRadius: 22,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          padding: const EdgeInsets.all(14),
-                          child: BankLogo(
-                            loyaltyBrand: brand,
-                            domain: card.website,
-                            size: 60,
-                          ),
-                        )
-                      else
-                        Container(
-                          width: 88,
-                          height: 88,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.18),
-                            borderRadius: BorderRadius.circular(22),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.28),
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.local_offer_rounded,
-                            color: Colors.white,
-                            size: 40,
-                          ),
-                        ),
-                      const SizedBox(height: 16),
-                      Text(
-                        card.name,
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                          letterSpacing: 0.2,
-                          height: 1.15,
-                        ),
-                      ),
-                      if (brand.isNotEmpty && brand != card.name) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          brand,
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white.withValues(alpha: 0.85),
-                            letterSpacing: 0.4,
-                          ),
-                        ),
-                      ],
-                    ],
+                  _TopBar(
+                    fg: fg,
+                    readOnly: readOnly,
+                    onClose: () => Navigator.of(context).maybePop(),
+                    onMore: _openMore,
                   ),
-                  const SizedBox(height: 28),
                   Expanded(
-                    child: Center(
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 16,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.20),
-                              blurRadius: 28,
-                              offset: const Offset(0, 14),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            BarcodeRenderer(
-                              data: card.barcode,
-                              format: card.barcodeFormat,
-                              onChangeFormat: _onEdit,
-                            ),
-                            const SizedBox(height: 18),
-                            SelectableText(
-                              _formatBarcodeText(card.barcode),
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                letterSpacing: 2.5,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF1A1D24),
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              card.barcodeFormat == 'QR_CODE'
-                                  ? 'QR CODE'
-                                  : card.barcodeFormat.replaceAll('_', ' '),
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 1.6,
-                                color: const Color(0xFF1A1D24)
-                                    .withValues(alpha: 0.5),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Brightness is raised automatically unless the user
-                  // turned that off in Settings; only then show the tip.
-                  Obx(() => BarcodeDisplayBoost.instance.enabled.value
-                      ? const SizedBox.shrink()
-                      : Text(
-                          'increaseBrightnessHint'.tr(),
+                    child: ListView(
+                      padding:
+                          EdgeInsets.fromLTRB(18, 10, 18, readOnly ? 24 : 120),
+                      children: [
+                        Center(child: CardLogoChip(item: item, size: 64)),
+                        const SizedBox(height: 12),
+                        Text(
+                          titleForItem(item),
                           textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: CwType.title.copyWith(color: fg, fontSize: 24),
+                        ),
+                        if (brand.isNotEmpty && brand != card.name.trim())
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Text(
+                              brand,
+                              textAlign: TextAlign.center,
+                              style: CwType.footnote
+                                  .copyWith(color: fg.withValues(alpha: 0.7)),
+                            ),
                           ),
-                        )),
-                  const SizedBox(height: 14),
-                  if (readOnly)
-                    _GlassButton(
-                      icon: Icons.lock_open_rounded,
-                      label: 'openApp'.tr(),
-                      onTap: _onOpenApp,
-                    )
-                  else ...[
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _GlassButton(
-                          icon: Icons.copy_rounded,
-                          label: 'copyBarcodeAction'.tr(),
-                          onTap: () {
-                            SensitiveClipboard.copy(
-                              card.barcode,
-                              cardType: AnalyticsCardType.loyalty,
-                            );
-                            HapticFeedback.lightImpact();
-                            Get.context?.showSuccessSnackBar('copyInfo');
-                          },
+                        const SizedBox(height: 24),
+                        _BarcodePanel(
+                          card: card,
+                          valid: check.isValid,
+                          onTap: () => _openLandscape(),
+                          onFix: readOnly ? null : _onEdit,
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _GlassButton(
-                          icon: Icons.ios_share_rounded,
-                          label: 'actShare'.tr(),
-                          onTap: () => _onShare(context),
+                        const SizedBox(height: 16),
+                        _Hint(
+                          fg: fg,
+                          icon: CwIcons.rotate,
+                          text: 'cwTurnSideways'.tr(),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  _GlassButton(
-                    icon: Icons.account_balance_wallet_rounded,
-                    assetIcon: loyaltyWalletActionAsset(context),
-                    label: loyaltyWalletActionLabel(context),
-                    onTap: () => addLoyaltyCardToWallet(context, card),
-                  ),
-                  if (card.notes != null && card.notes!.trim().isNotEmpty) ...[
-                    const SizedBox(height: 16),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.25),
-                        ),
-                      ),
-                      child: Text(
-                        card.notes!,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.white,
-                        ),
-                      ),
+                        if (hasNotes) ...[
+                          const SizedBox(height: 18),
+                          _GlassBox(
+                            fg: fg,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('cwNotes'.tr().toUpperCase(),
+                                    style: CwType.overline.copyWith(
+                                        color: fg.withValues(alpha: 0.7))),
+                                const SizedBox(height: 6),
+                                SelectableText(card.notes!.trim(),
+                                    style: CwType.callout.copyWith(color: fg)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
-                  ],
-                  ],
+                  ),
                 ],
               ),
             ),
-          ),
-        ],
+            Positioned(
+              left: 18,
+              right: 18,
+              bottom: 18 + MediaQuery.paddingOf(context).bottom,
+              child: readOnly
+                  ? _Dock(fg: fg, actions: [
+                      _DockAction(CwIcons.unlock, 'openApp'.tr(), _onOpenApp),
+                    ])
+                  : _Dock(fg: fg, actions: [
+                      _DockAction(CwIcons.copy, 'cwCopy'.tr(), _onCopy),
+                      _DockAction(CwIcons.share, 'cwShare'.tr(),
+                          () => _onShare(context)),
+                      _DockAction(
+                        CwIcons.walletPass,
+                        'cwDockWallet'.tr(),
+                        () => addLoyaltyCardToWallet(context, card),
+                        semantic: loyaltyWalletActionLabel(context),
+                      ),
+                      _DockAction(CwIcons.edit, 'cwEdit'.tr(), _onEdit),
+                    ]),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  String _formatBarcodeText(String raw) {
-    if (raw.length <= 4) return raw;
-    final chars = raw.split('');
-    final buffer = StringBuffer();
-    for (var i = 0; i < chars.length; i++) {
-      if (i > 0 && i % 4 == 0) buffer.write(' ');
-      buffer.write(chars[i]);
-    }
-    return buffer.toString();
+  void _onCopy() {
+    SensitiveClipboard.copy(
+      card.barcode,
+      cardType: AnalyticsCardType.loyalty,
+    );
+    HapticFeedback.lightImpact();
+    Get.context?.showSuccessSnackBar('cwBarcodeCopied');
+  }
+
+  Future<void> _openMore() async {
+    final c = CwColors.of(context);
+    final fav = isFavoriteCard(card);
+    await showCwSheet<void>(
+      context,
+      builder: (sheet) => SafeArea(
+        top: false,
+        child: CwGroup(
+          margin: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+          children: [
+            CwRow(
+              leading: CwIcon(fav ? CwIcons.starFill : CwIcons.star,
+                  color: fav ? c.warn : c.ink),
+              title: fav ? 'cwFavRemove'.tr() : 'cwFavAdd'.tr(),
+              onTap: () {
+                Navigator.pop(sheet);
+                HapticFeedback.lightImpact();
+                toggleFavoriteTag(card);
+                if (mounted) setState(() {});
+              },
+            ),
+            CwRow(
+              leading: CwIcon(CwIcons.edit, color: c.ink),
+              title: 'cwEdit'.tr(),
+              onTap: () {
+                Navigator.pop(sheet);
+                _onEdit();
+              },
+            ),
+            CwRow(
+              leading: CwIcon(CwIcons.trash, color: c.danger),
+              title: 'cwDelete'.tr(),
+              titleColor: c.danger,
+              onTap: () {
+                Navigator.pop(sheet);
+                _onDelete(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _onShare(BuildContext context) async {
@@ -415,89 +339,439 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
     );
   }
 
-  void _onDelete(BuildContext context) {
-    showConfirmActionSheet(
+  Future<void> _onDelete(BuildContext context) async {
+    final ok = await showConfirmActionSheet(
       context: context,
       title: 'deleteCard'.tr(),
       content: 'deleteDataMessage'.tr(),
-      onConfirm: () async {
-        if (Get.isRegistered<LoyaltyCardController>()) {
-          await Get.find<LoyaltyCardController>().removeLoyaltyCard(card);
-        }
-        Get.back();
-      },
+    );
+    if (!ok) return;
+    // The list controller is registered lazily app-wide; the service is
+    // the fallback if bindings ever change.
+    if (Get.isRegistered<LoyaltyCardController>()) {
+      await Get.find<LoyaltyCardController>().removeLoyaltyCard(card);
+    } else {
+      await LoyaltyCardService().removeLoyaltyCard(card);
+    }
+    if (mounted) Navigator.of(this.context).pop();
+  }
+}
+
+String formatBarcodeText(String raw) {
+  if (raw.length <= 4 || raw.contains(' ')) return raw;
+  final b = StringBuffer();
+  for (var i = 0; i < raw.length; i++) {
+    if (i > 0 && i % 4 == 0) b.write(' ');
+    b.write(raw[i]);
+  }
+  return b.toString();
+}
+
+String barcodeFormatLabel(String format) =>
+    format == 'QR_CODE' ? 'QR' : format.replaceAll('_', ' ');
+
+class _TopBar extends StatelessWidget {
+  final Color fg;
+  final bool readOnly;
+  final VoidCallback onClose;
+  final VoidCallback onMore;
+
+  const _TopBar({
+    required this.fg,
+    required this.readOnly,
+    required this.onClose,
+    required this.onMore,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final glass = fg.withValues(alpha: 0.14);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 6, 14, 0),
+      child: Row(
+        children: [
+          _GlassCircle(
+            icon: CwIcons.close,
+            fg: fg,
+            bg: glass,
+            label: 'cwClose'.tr(),
+            onTap: onClose,
+          ),
+          const Spacer(),
+          Obx(() {
+            final on = BarcodeDisplayBoost.instance.enabled.value;
+            return Semantics(
+              button: true,
+              toggled: on,
+              child: GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  BarcodeDisplayBoost.instance.setEnabled(!on);
+                },
+                child: AnimatedContainer(
+                  duration: CwMotion.fast,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                  decoration: BoxDecoration(
+                    color: on ? fg.withValues(alpha: 0.22) : glass,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CwIcon(CwIcons.sun,
+                          size: 16, color: fg.withValues(alpha: on ? 1 : 0.6)),
+                      const SizedBox(width: 6),
+                      Text(
+                        on ? 'cwMaxBrightness'.tr() : 'cwBrightnessOff'.tr(),
+                        style: CwType.caption.copyWith(
+                            color: fg.withValues(alpha: on ? 1 : 0.7)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
+          const Spacer(),
+          if (readOnly)
+            const SizedBox(width: 40)
+          else
+            _GlassCircle(
+              icon: CwIcons.more,
+              fg: fg,
+              bg: glass,
+              label: 'cwMore'.tr(),
+              onTap: onMore,
+            ),
+        ],
+      ),
     );
   }
 }
 
-/// Translucent action button — sits on top of the card-coloured gradient
-/// so it has to read against any backdrop. We give it a tinted-white fill
-/// + thin white border instead of a solid pill so the gradient still
-/// shows through faintly.
-class _GlassButton extends StatefulWidget {
-  final IconData icon;
-  final String? assetIcon;
+class _GlassCircle extends StatelessWidget {
+  final CwIcons icon;
+  final Color fg;
+  final Color bg;
   final String label;
   final VoidCallback onTap;
 
-  const _GlassButton({
+  const _GlassCircle({
     required this.icon,
-    this.assetIcon,
+    required this.fg,
+    required this.bg,
     required this.label,
     required this.onTap,
   });
 
   @override
-  State<_GlassButton> createState() => _GlassButtonState();
+  Widget build(BuildContext context) => Semantics(
+        button: true,
+        label: label,
+        excludeSemantics: true,
+        child: Material(
+          color: bg,
+          shape: const CircleBorder(),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onTap,
+            child: SizedBox(
+              width: 40,
+              height: 40,
+              child: Center(child: CwIcon(icon, size: 20, color: fg)),
+            ),
+          ),
+        ),
+      );
 }
 
-class _GlassButtonState extends State<_GlassButton> {
-  bool _down = false;
+class _BarcodePanel extends StatelessWidget {
+  final LoyaltyCard card;
+  final bool valid;
+  final VoidCallback onTap;
+  final VoidCallback? onFix;
+
+  const _BarcodePanel({
+    required this.card,
+    required this.valid,
+    required this.onTap,
+    this.onFix,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedScale(
-      scale: _down ? 0.97 : 1,
-      duration: const Duration(milliseconds: 100),
-      curve: Curves.easeOut,
-      child: Material(
-        color: Colors.white.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(14),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: widget.onTap,
-          onHighlightChanged: (v) => setState(() => _down = v),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.28),
+    const ink = Color(0xFF111215);
+    const mute = Color(0xFF7C7F88);
+    final isQr = card.barcodeFormat == 'QR_CODE';
+    final uses = card.useCount ?? 0;
+    return GestureDetector(
+      onTap: valid ? onTap : null,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x59000000),
+              blurRadius: 60,
+              offset: Offset(0, 30),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            LayoutBuilder(
+              builder: (context, box) => BarcodeRenderer(
+                data: card.barcode,
+                format: card.barcodeFormat,
+                qrSize: box.maxWidth.clamp(0, 230).toDouble(),
+                barcodeHeight: 150,
+                onChangeFormat: onFix,
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            const SizedBox(height: 14),
+            SelectableText(
+              formatBarcodeText(card.barcode),
+              textAlign: TextAlign.center,
+              style: CwType.mono(
+                size: isQr ? 15 : 19,
+                color: ink,
+                letterSpacing: isQr ? 1 : 2.5,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
               children: [
-                if (widget.assetIcon != null)
-                  Image.asset(
-                    widget.assetIcon!,
-                    height: 20,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) =>
-                        Icon(widget.icon, size: 16, color: Colors.white),
-                  )
-                else
-                  Icon(widget.icon, size: 16, color: Colors.white),
-                const SizedBox(width: 8),
-                Text(
-                  widget.label,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                Flexible(
+                  child: Text(
+                    valid
+                        ? '${barcodeFormatLabel(card.barcodeFormat)} · ${'cwVerified'.tr()}'
+                        : barcodeFormatLabel(card.barcodeFormat),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: CwType.caption.copyWith(color: mute),
                   ),
                 ),
+                if (valid) ...[
+                  const SizedBox(width: 4),
+                  const CwIcon(CwIcons.checkCircle,
+                      size: 14, color: Color(0xFF12B76A)),
+                ],
+                const Spacer(),
+                Text(
+                  'cwUsedTimes'.plural(uses),
+                  style: CwType.caption.copyWith(color: mute),
+                ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Hint extends StatelessWidget {
+  final Color fg;
+  final CwIcons icon;
+  final String text;
+  const _Hint({required this.fg, required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = fg.withValues(alpha: 0.75);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        CwIcon(icon, size: 16, color: c),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(text,
+              textAlign: TextAlign.center,
+              style: CwType.footnote.copyWith(color: c)),
+        ),
+      ],
+    );
+  }
+}
+
+class _GlassBox extends StatelessWidget {
+  final Color fg;
+  final Widget child;
+  const _GlassBox({required this.fg, required this.child});
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: fg.withValues(alpha: 0.10),
+          borderRadius: BorderRadius.circular(CwRadius.m),
+          border: Border.all(color: fg.withValues(alpha: 0.14)),
+        ),
+        child: child,
+      );
+}
+
+class _DockAction {
+  final CwIcons icon;
+  final String label;
+  final VoidCallback onTap;
+  final String? semantic;
+  const _DockAction(this.icon, this.label, this.onTap, {this.semantic});
+}
+
+/// Frosted action bar floating over the brand colour.
+class _Dock extends StatelessWidget {
+  final Color fg;
+  final List<_DockAction> actions;
+  const _Dock({required this.fg, required this.actions});
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(22),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          height: 68,
+          decoration: BoxDecoration(
+            color: fg.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: fg.withValues(alpha: 0.14)),
+          ),
+          child: Row(
+            children: [
+              for (final a in actions)
+                Expanded(
+                  child: Semantics(
+                    button: true,
+                    label: a.semantic ?? a.label,
+                    excludeSemantics: true,
+                    child: InkWell(
+                      onTap: a.onTap,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CwIcon(a.icon, size: 22, color: fg),
+                          const SizedBox(height: 4),
+                          Text(
+                            a.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: CwType.caption
+                                .copyWith(color: fg, fontSize: 11),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// White full-screen barcode drawn rotated, as if the phone were in
+/// landscape. Closes on tap or when the phone is turned upright again.
+class _LandscapeBarcode extends StatefulWidget {
+  final LoyaltyCard card;
+  final int quarterTurns;
+  const _LandscapeBarcode({required this.card, required this.quarterTurns});
+
+  @override
+  State<_LandscapeBarcode> createState() => _LandscapeBarcodeState();
+}
+
+class _LandscapeBarcodeState extends State<_LandscapeBarcode> {
+  StreamSubscription<AccelerometerEvent>? _sub;
+  bool _closing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    BarcodeDisplayBoost.instance.acquire();
+    try {
+      _sub = accelerometerEventStream(
+        samplingPeriod: SensorInterval.uiInterval,
+      ).listen((e) {
+        if (e.y > 7.5 && e.x.abs() < 4) _close();
+      }, onError: (_) {}, cancelOnError: false);
+    } catch (_) {}
+  }
+
+  void _close() {
+    if (_closing || !mounted) return;
+    _closing = true;
+    Navigator.of(context).maybePop();
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    BarcodeDisplayBoost.instance.release();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final card = widget.card;
+    final isQr = card.barcodeFormat == 'QR_CODE';
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: _close,
+          child: SafeArea(
+            child: RotatedBox(
+              quarterTurns: widget.quarterTurns,
+              child: LayoutBuilder(builder: (context, box) {
+                return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        card.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: CwType.headline
+                            .copyWith(color: const Color(0xFF111215)),
+                      ),
+                      const SizedBox(height: 14),
+                      BarcodeRenderer(
+                        data: card.barcode,
+                        format: card.barcodeFormat,
+                        qrSize: (box.maxHeight * 0.62).clamp(120, 420),
+                        barcodeHeight: box.maxHeight * 0.5,
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        formatBarcodeText(card.barcode),
+                        style: CwType.mono(
+                          size: isQr ? 16 : 22,
+                          color: const Color(0xFF111215),
+                          letterSpacing: 3,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'cwTapToClose'.tr(),
+                        style: CwType.caption
+                            .copyWith(color: const Color(0xFF7C7F88)),
+                      ),
+                    ],
+                  ),
+                );
+              }),
             ),
           ),
         ),

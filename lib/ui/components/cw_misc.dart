@@ -246,8 +246,8 @@ class CwNotice extends StatelessWidget {
               children: [
                 if (title != null) ...[
                   Text(title!,
-                      style: CwType.callout.copyWith(
-                          color: c.ink, fontWeight: FontWeight.w700)),
+                      style: CwType.callout
+                          .copyWith(color: c.ink, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 2),
                 ],
                 Text(text, style: CwType.footnote.copyWith(color: c.ink2)),

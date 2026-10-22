@@ -74,7 +74,8 @@ class _CardFaceState extends State<CardFace> with CwTiltSubscriber {
                 child: widget.interactive
                     ? ValueListenableBuilder<Offset>(
                         valueListenable: CwTilt.instance.value,
-                        builder: (_, t, __) => _Shine(tilt: t, metal: m.isMetal),
+                        builder: (_, t, __) =>
+                            _Shine(tilt: t, metal: m.isMetal),
                       )
                     : _Shine(tilt: Offset.zero, metal: m.isMetal),
               ),

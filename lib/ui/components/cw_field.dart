@@ -123,8 +123,7 @@ class _CwFieldState extends State<CwField> {
                 Padding(
                   padding: EdgeInsets.only(top: widget.maxLines > 1 ? 10 : 0),
                   child: CwIcon(widget.icon!,
-                      size: CwIconSize.m,
-                      color: _focused ? c.accent : c.mute),
+                      size: CwIconSize.m, color: _focused ? c.accent : c.mute),
                 ),
                 const SizedBox(width: 12),
               ],
@@ -173,8 +172,8 @@ class _CwFieldState extends State<CwField> {
             padding: const EdgeInsets.fromLTRB(14, 6, 14, 0),
             child: Text(
               hasError ? widget.error! : widget.helper!,
-              style: CwType.footnote
-                  .copyWith(color: hasError ? c.danger : c.mute),
+              style:
+                  CwType.footnote.copyWith(color: hasError ? c.danger : c.mute),
             ),
           ),
       ],

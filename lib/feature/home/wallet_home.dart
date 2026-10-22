@@ -116,6 +116,14 @@ class _WalletHomeState extends State<WalletHome> {
               ],
             ),
           ),
+          // Keeps scrolled cards from running under the status bar.
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: MediaQuery.paddingOf(context).top,
+            child: ColoredBox(color: c.bg.withValues(alpha: 0.94)),
+          ),
           Positioned(
             right: 20,
             bottom: 20 + bottomInset,
@@ -388,18 +396,7 @@ class _UpNextBanner extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
             child: Row(
               children: [
-                CardFace(
-                  material: materialForItem(item),
-                  width: 56,
-                  height: 36,
-                  radius: 7,
-                  shadow: false,
-                  padding: const EdgeInsets.all(5),
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: CardLogoChip(item: item, size: 16),
-                  ),
-                ),
+                CardThumb(item: item, width: 56),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -490,7 +487,7 @@ class _CountLine extends StatelessWidget {
               ? 'cwNoticePayment'
               : 'cwNoticeExpiry')
           .tr(namedArgs: {'card': name, 'when': whenText(n.date.daysUntil)});
-      right = Flexible(
+      right = Expanded(
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () => showCreditCardReminderSheet(
@@ -501,7 +498,7 @@ class _CountLine extends StatelessWidget {
             daysUntil: n.date.daysUntil,
           ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Container(
                 width: 7,
@@ -532,7 +529,7 @@ class _CountLine extends StatelessWidget {
             style: CwType.overline.copyWith(color: c.mute),
           ),
           const SizedBox(width: 12),
-          if (right != null) ...[const Spacer(), right],
+          if (right != null) right,
         ],
       ),
     );
@@ -582,7 +579,7 @@ class _StackStrip extends StatelessWidget {
                 child: CardFace(
                   material: m,
                   shadow: false,
-                  padding: const EdgeInsets.fromLTRB(14, 13, 16, 0),
+                  padding: kCardStripPadding,
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: CardStripHeader(
@@ -746,8 +743,8 @@ class _EmptyWallet extends StatelessWidget {
                           Text(
                             'cwEmptyTitle'.tr(),
                             textAlign: TextAlign.center,
-                            style: CwType.headline
-                                .copyWith(color: Colors.white),
+                            style:
+                                CwType.headline.copyWith(color: Colors.white),
                           ),
                           const SizedBox(height: 4),
                           Text(

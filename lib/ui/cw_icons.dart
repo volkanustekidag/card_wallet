@@ -107,7 +107,9 @@ class CwIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? IconTheme.of(context).color ?? Theme.of(context).colorScheme.onSurface;
+    final c = color ??
+        IconTheme.of(context).color ??
+        Theme.of(context).colorScheme.onSurface;
     return SvgPicture.asset(
       icon.asset,
       width: size,
