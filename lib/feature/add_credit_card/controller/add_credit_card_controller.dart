@@ -140,6 +140,9 @@ class AddCreditCardController extends GetxController {
   }
 
   Future<void> saveCard() async {
+    // A second tap can land before Obx rebuilds the disabled button; without
+    // this guard both calls run and two cards with different ids are added.
+    if (isLoading.value) return;
     try {
       isLoading.value = true;
       final wasEditMode = isEditMode.value;

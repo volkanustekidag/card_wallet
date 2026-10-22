@@ -124,6 +124,8 @@ class AddLoyaltyCardController extends GetxController {
   }
 
   Future<void> saveCard() async {
+    // Ignore a second tap that lands before the button rebuilds disabled.
+    if (isLoading.value) return;
     try {
       isLoading.value = true;
       final wasEditMode = isEditMode.value;

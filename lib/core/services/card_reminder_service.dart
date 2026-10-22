@@ -14,6 +14,7 @@ import 'package:wallet_app/core/data/local_services/card_services/credi_card/cre
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/utils/card_reminder_rules.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 
 class CardReminderService {
   CardReminderService._internal();
@@ -47,8 +48,35 @@ class CardReminderService {
   }
 
   Future<void> init() {
-    _initFuture ??= _initialize();
-    return _initFuture!;
+    return _initFuture ??= _initializeOrReset();
+  }
+
+  /// Runs a reminder side effect without letting it fail the caller.
+  ///
+  /// Reminders always follow a write that has already succeeded (saving a
+  /// card, restoring a backup). Propagating a notification error there made
+  /// the UI report "could not save" for a card that was saved, and users
+  /// retried into duplicates.
+  static Future<void> guarded(
+    String reason,
+    Future<void> Function() action,
+  ) async {
+    try {
+      await action();
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: reason);
+    }
+  }
+
+  Future<void> _initializeOrReset() async {
+    try {
+      await _initialize();
+    } catch (_) {
+      // Don't cache the failure: the next call retries instead of every
+      // reminder operation failing until the app restarts.
+      _initFuture = null;
+      rethrow;
+    }
   }
 
   Future<void> scheduleForCard(
@@ -81,10 +109,12 @@ class CardReminderService {
   /// first frame (translations loaded) and after the user switches language.
   Future<void> rescheduleAll({required Locale locale}) async {
     _localeTag = locale.toString();
-    final service = CreditCardService();
-    await service.openBox();
-    final cards = await service.getAllCreditCards();
-    await scheduleAllCreditCardReminders(cards);
+    await guarded('rescheduleReminders', () async {
+      final service = CreditCardService();
+      await service.openBox();
+      final cards = await service.getAllCreditCards();
+      await scheduleAllCreditCardReminders(cards);
+    });
   }
 
   String _formatDate(DateTime date) {

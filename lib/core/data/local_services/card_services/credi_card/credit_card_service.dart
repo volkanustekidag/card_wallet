@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
 import 'package:wallet_app/core/data/storage/encrypted_box_opener.dart';
@@ -7,11 +8,19 @@ import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 
 class CreditCardService {
-  CreditCardService._internal();
+  CreditCardService._internal() : _reminders = CardReminderService();
   static final CreditCardService _instance = CreditCardService._internal();
   factory CreditCardService() => _instance;
 
+  @visibleForTesting
+  CreditCardService.withBox(
+    Box<CreditCard> box, {
+    required CardReminderService reminders,
+  })  : _creditCards = box,
+        _reminders = reminders;
+
   final EncryptedBoxOpener _opener = EncryptedBoxOpener();
+  final CardReminderService _reminders;
   Box<CreditCard>? _creditCards;
   Future<void>? _openingFuture;
 
@@ -71,13 +80,16 @@ class CreditCardService {
         box.values.firstWhere((element) => element == creditCard);
 
     await creditCardToRemove.delete();
-    await CardReminderService().cancelForCard(creditCard);
+    await CardReminderService.guarded(
+      'cancelCardReminders',
+      () => _reminders.cancelForCard(creditCard),
+    );
   }
 
   Future<void> addToCreditCard(final CreditCard creditCard) async {
     final box = await _ensureBoxReady();
     await box.add(creditCard);
-    await CardReminderService().scheduleForCard(creditCard);
+    await _scheduleReminders(creditCard);
   }
 
   // Yeni eklenen güncelleme metodu
@@ -89,12 +101,24 @@ class CreditCardService {
         card.creditCardNumber == originalCard.creditCardNumber);
 
     if (index != -1) {
-      await CardReminderService().cancelForCard(originalCard);
+      await CardReminderService.guarded(
+        'cancelCardReminders',
+        () => _reminders.cancelForCard(originalCard),
+      );
       await box.putAt(index, updatedCard);
-      await CardReminderService().scheduleForCard(updatedCard);
+      await _scheduleReminders(updatedCard);
     } else {
       throw Exception('Credit card not found for update');
     }
+  }
+
+  /// The card is already persisted when this runs; a reminder failure is
+  /// reported, not rethrown, so the save still counts as a success.
+  Future<void> _scheduleReminders(CreditCard card) {
+    return CardReminderService.guarded(
+      'scheduleCardReminders',
+      () => _reminders.scheduleForCard(card),
+    );
   }
 
   Future<Box<CreditCard>> _ensureBoxReady() async {
