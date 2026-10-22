@@ -4,6 +4,11 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/ui/components/cw_button.dart';
+import 'package:wallet_app/ui/components/cw_misc.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
+import 'package:wallet_app/ui/typography.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/utils/secure_storage_provider.dart';
@@ -62,9 +67,9 @@ Future<bool> maybePromptWidgetSetup({
   final platform = Platform.isIOS ? 'ios' : 'android';
   unawaited(AnalyticsService.instance.logWidgetSetupShown(platform));
 
-  final acknowledged = await Get.dialog<bool>(
-    const _WidgetSetupDialog(),
-    barrierDismissible: true,
+  final acknowledged = await showCwSheet<bool>(
+    context,
+    builder: (_) => const _WidgetSetupSheet(),
   );
 
   if (acknowledged == true) {
@@ -81,187 +86,85 @@ Future<bool> maybePromptWidgetSetup({
   return true;
 }
 
-class _WidgetSetupDialog extends StatelessWidget {
-  const _WidgetSetupDialog();
+class _WidgetSetupSheet extends StatelessWidget {
+  const _WidgetSetupSheet();
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final c = CwColors.of(context);
     final isIOS = Platform.isIOS;
     final steps = isIOS
-        ? const [
-            'widgetSetupiOSStep1',
-            'widgetSetupiOSStep2',
-            'widgetSetupiOSStep3',
-          ]
+        ? const ['widgetSetupiOSStep1', 'widgetSetupiOSStep2', 'widgetSetupiOSStep3']
         : const [
             'widgetSetupAndroidStep1',
             'widgetSetupAndroidStep2',
             'widgetSetupAndroidStep3',
           ];
-
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 420),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(22, 22, 22, 14),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: colorScheme.primary.withValues(alpha: 0.12),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.dashboard_customize_rounded,
-                    size: 32,
-                    color: colorScheme.primary,
-                  ),
+    return SafeArea(
+      top: false,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(22, 4, 22, 14),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: c.accentSoft,
+                  borderRadius: BorderRadius.circular(18),
                 ),
+                alignment: Alignment.center,
+                child: CwIcon(CwIcons.grid, size: 26, color: c.accent),
               ),
-              const SizedBox(height: 14),
-              Text(
-                'widgetSetupTitle'.tr(),
+            ),
+            const SizedBox(height: 14),
+            Text('widgetSetupTitle'.tr(),
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 19,
-                  height: 1.25,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'widgetSetupSubtitle'.tr(),
+                style: CwType.title.copyWith(color: c.ink, fontSize: 20)),
+            const SizedBox(height: 6),
+            Text('widgetSetupSubtitle'.tr(),
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 13.5,
-                  height: 1.4,
-                  color: colorScheme.onSurface.withValues(alpha: 0.7),
+                style: CwType.callout.copyWith(color: c.ink2, height: 1.4)),
+            const SizedBox(height: 18),
+            for (var i = 0; i < steps.length; i++)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration:
+                          BoxDecoration(color: c.ink, shape: BoxShape.circle),
+                      alignment: Alignment.center,
+                      child: Text('${i + 1}',
+                          style: CwType.caption.copyWith(color: c.bg)),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(steps[i].tr(),
+                          style: CwType.callout.copyWith(color: c.ink)),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 18),
-              for (int i = 0; i < steps.length; i++) ...[
-                _StepRow(index: i + 1, labelKey: steps[i]),
-                if (i < steps.length - 1) const SizedBox(height: 10),
-              ],
-              if (isIOS) ...[
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colorScheme.tertiary.withValues(alpha: 0.10),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.watch_rounded,
-                        size: 18,
-                        color: colorScheme.tertiary,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          'widgetSetupWatchHint'.tr(),
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
-                            color: colorScheme.tertiary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              const SizedBox(height: 18),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TextButton(
-                    onPressed: () => Get.back<bool>(result: false),
-                    child: Text(
-                      'widgetSetupLater'.tr(),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  ElevatedButton(
-                    onPressed: () => Get.back<bool>(result: true),
-                    child: Text(
-                      'widgetSetupGotIt'.tr(),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            if (isIOS) ...[
+              const SizedBox(height: 6),
+              CwNotice.info(context, 'widgetSetupWatchHint'.tr()),
             ],
-          ),
+            const SizedBox(height: 18),
+            CwButton('widgetSetupGotIt'.tr(),
+                onPressed: () => Navigator.pop(context, true)),
+            const SizedBox(height: 6),
+            CwButton.ghost('widgetSetupLater'.tr(),
+                onPressed: () => Navigator.pop(context, false)),
+          ],
         ),
       ),
-    );
-  }
-}
-
-class _StepRow extends StatelessWidget {
-  final int index;
-  final String labelKey;
-
-  const _StepRow({required this.index, required this.labelKey});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 26,
-          height: 26,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: colorScheme.primary.withValues(alpha: 0.14),
-            shape: BoxShape.circle,
-          ),
-          child: Text(
-            '$index',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: colorScheme.primary,
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 3),
-            child: Text(
-              labelKey.tr(),
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                height: 1.35,
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

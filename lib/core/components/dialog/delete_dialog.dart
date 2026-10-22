@@ -25,6 +25,7 @@ Future<bool> showConfirmActionSheet({
   String? cancelText,
   bool destructive = true,
   IconData? icon,
+  CwIcons? glyph,
   Future<void> Function()? onConfirm,
 }) async {
   final result = await showCwSheet<bool>(
@@ -36,6 +37,7 @@ Future<bool> showConfirmActionSheet({
       cancelText: cancelText ?? 'cancel'.tr(),
       destructive: destructive,
       icon: icon,
+      glyph: glyph,
       onConfirm: onConfirm,
     ),
   );
@@ -49,6 +51,7 @@ class _ConfirmSheet extends StatefulWidget {
   final String cancelText;
   final bool destructive;
   final IconData? icon;
+  final CwIcons? glyph;
   final Future<void> Function()? onConfirm;
 
   const _ConfirmSheet({
@@ -58,6 +61,7 @@ class _ConfirmSheet extends StatefulWidget {
     required this.cancelText,
     required this.destructive,
     required this.icon,
+    this.glyph,
     required this.onConfirm,
   });
 
@@ -92,7 +96,8 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
                 child: widget.icon != null
                     ? Icon(widget.icon, color: accent, size: 24)
                     : CwIcon(
-                        widget.destructive ? CwIcons.trash : CwIcons.help,
+                        widget.glyph ??
+                            (widget.destructive ? CwIcons.trash : CwIcons.help),
                         size: CwIconSize.l,
                         color: accent,
                       ),

@@ -4,6 +4,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
@@ -150,36 +152,34 @@ class AddLoyaltyCardController extends GetxController {
     final suggested =
         LoyaltyBarcodeValidator.suggestFormat(card.barcode, format);
     final reason = describeBarcodeIssue(check, format);
-    final useSuggested = await Get.dialog<bool>(
-      AlertDialog(
-        icon: const Icon(Icons.qr_code_2_rounded),
-        title: Text('loyaltyBarcodeInvalidTitle'.tr()),
-        content: Text(
-          [
-            'loyaltyBarcodeInvalidBody'
-                .tr(namedArgs: {'format': barcodeFormatLabel(format)}),
-            if (reason != null) reason,
-            if (suggested != null)
-              'loyaltyBarcodeSuggestFormat'
-                  .tr(namedArgs: {'format': barcodeFormatLabel(suggested)}),
-          ].join('\n\n'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: Text('loyaltyBarcodeEditValue'.tr()),
-          ),
-          if (suggested != null)
-            ElevatedButton(
-              onPressed: () => Get.back(result: true),
-              child: Text(
-                'loyaltyBarcodeUseFormat'
-                    .tr(namedArgs: {'format': barcodeFormatLabel(suggested)}),
-              ),
-            ),
-        ],
-      ),
-    );
+    final body = [
+      'loyaltyBarcodeInvalidBody'
+          .tr(namedArgs: {'format': barcodeFormatLabel(format)}),
+      if (reason != null) reason,
+      if (suggested != null)
+        'loyaltyBarcodeSuggestFormat'
+            .tr(namedArgs: {'format': barcodeFormatLabel(suggested)}),
+    ].join('\n\n');
+    final useSuggested = suggested == null
+        ? await showConfirmActionSheet(
+            context: ctx,
+            title: 'loyaltyBarcodeInvalidTitle'.tr(),
+            content: body,
+            confirmText: 'loyaltyBarcodeEditValue'.tr(),
+            cancelText: 'cancel'.tr(),
+            destructive: false,
+            glyph: CwIcons.barcode,
+          ).then((_) => false)
+        : await showConfirmActionSheet(
+            context: ctx,
+            title: 'loyaltyBarcodeInvalidTitle'.tr(),
+            content: body,
+            confirmText: 'loyaltyBarcodeUseFormat'
+                .tr(namedArgs: {'format': barcodeFormatLabel(suggested)}),
+            cancelText: 'loyaltyBarcodeEditValue'.tr(),
+            destructive: false,
+            glyph: CwIcons.barcode,
+          );
     if (useSuggested != true || suggested == null) return false;
     updateField('barcodeFormat', suggested);
     return true;

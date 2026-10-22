@@ -106,10 +106,18 @@ class ShareableLoyaltyCard extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  child: const Icon(
-                    Icons.local_offer_rounded,
-                    color: Colors.white,
-                    size: 52,
+                  alignment: Alignment.center,
+                  child: Text(
+                    (card.name.isNotEmpty ? card.name : brand)
+                        .characters
+                        .take(1)
+                        .toString()
+                        .toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 44,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 24),

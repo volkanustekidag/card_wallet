@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
@@ -297,21 +299,14 @@ class CardReminderService {
 
   Future<void> _offerNotificationSettings() async {
     if (Get.context == null) return;
-    final shouldOpen = await Get.dialog<bool>(
-      AlertDialog(
-        title: Text('notificationPermissionRequired'.tr()),
-        content: Text('notificationPermissionSettingsMessage'.tr()),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: Text('cancel'.tr()),
-          ),
-          TextButton(
-            onPressed: () => Get.back(result: true),
-            child: Text('openSettings'.tr()),
-          ),
-        ],
-      ),
+    final shouldOpen = await showConfirmActionSheet(
+      context: Get.context!,
+      title: 'notificationPermissionRequired'.tr(),
+      content: 'notificationPermissionSettingsMessage'.tr(),
+      confirmText: 'openSettings'.tr(),
+      cancelText: 'cancel'.tr(),
+      destructive: false,
+      glyph: CwIcons.bell,
     );
     if (shouldOpen == true) {
       await AppLockService.guard(() => openAppSettings());

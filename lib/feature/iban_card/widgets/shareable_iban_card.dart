@@ -97,7 +97,7 @@ class ShareableIbanCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              _BankMark(image: bankLogoImage),
+              _BankMark(image: bankLogoImage, name: card.bankName),
               const SizedBox(width: 24),
               Expanded(
                 child: Text(
@@ -205,7 +205,12 @@ class ShareableIbanCard extends StatelessWidget {
 
 class _BankMark extends StatelessWidget {
   final ImageProvider? image;
-  const _BankMark({required this.image});
+  final String name;
+  const _BankMark({required this.image, this.name = ''});
+
+  String get _monogram => name.trim().isEmpty
+      ? 'IBAN'.substring(0, 1)
+      : name.trim().characters.take(1).toString().toUpperCase();
 
   @override
   Widget build(BuildContext context) {
@@ -226,10 +231,17 @@ class _BankMark extends StatelessWidget {
               fit: BoxFit.contain,
               filterQuality: FilterQuality.high,
             )
-          : const Icon(
-              Icons.account_balance_rounded,
-              color: Colors.white,
-              size: 48,
+          // Text, not an SVG icon: the image is captured off-screen and an
+          // asynchronously decoded vector could miss the frame.
+          : Center(
+              child: Text(
+                _monogram,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 40,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
     );
   }
@@ -265,7 +277,14 @@ class _Brand extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.account_balance_wallet_rounded, size: 18, color: color),
+        Container(
+          width: 16,
+          height: 12,
+          decoration: BoxDecoration(
+            border: Border.all(color: color, width: 2),
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
         const SizedBox(width: 8),
         Text.rich(
           TextSpan(

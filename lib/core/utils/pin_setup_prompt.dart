@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/utils/secure_storage_provider.dart';
@@ -59,46 +60,14 @@ Future<bool> maybePromptPinSetup({
   final context = Get.context;
   if (context == null) return false;
 
-  final accepted = await Get.dialog<bool>(
-    AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      title: Text(
-        'pinPromptTitle'.tr(),
-        style: const TextStyle(
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      content: Text(
-        'pinPromptMessage'.tr(),
-        style: const TextStyle(
-          fontSize: 14,
-          height: 1.4,
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Get.back<bool>(result: false),
-          child: Text(
-            'pinPromptLater'.tr(),
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-        ElevatedButton(
-          onPressed: () => Get.back<bool>(result: true),
-          child: Text(
-            'pinPromptYes'.tr(),
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ],
-    ),
-    barrierDismissible: false,
+  final accepted = await showConfirmActionSheet(
+    context: context,
+    title: 'pinPromptTitle'.tr(),
+    content: 'pinPromptMessage'.tr(),
+    confirmText: 'pinPromptYes'.tr(),
+    cancelText: 'pinPromptLater'.tr(),
+    destructive: false,
+    glyph: CwIcons.lock,
   );
 
   if (accepted == true) {

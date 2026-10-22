@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_validator.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/barcode_renderer.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
 
 BarcodeIssue? _issue(String value, String format) =>
     LoyaltyBarcodeValidator.validate(value, format).issue;
@@ -113,7 +114,7 @@ void rendererTests() {
           _host(BarcodeRenderer(data: '', format: format)),
         );
         expect(find.byType(BarcodeWidget), findsNothing);
-        expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
+        expect(find.byType(CwIcon), findsOneWidget);
       }
     });
 
