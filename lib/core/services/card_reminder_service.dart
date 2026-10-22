@@ -211,6 +211,15 @@ class CardReminderService {
     return _notificationsAllowed(promptForPermissions: false);
   }
 
+  /// Asks the OS for notification permission (onboarding priming). True
+  /// when reminders can fire afterwards. Wrapped so the system dialog
+  /// doesn't trip the app lock.
+  Future<bool> requestPermission() async {
+    await init();
+    return AppLockService.guard(
+        () => _notificationsAllowed(promptForPermissions: true));
+  }
+
   /// Opens the system app-settings screen so the user can flip the
   /// notification toggle. Returns true if the platform call succeeded.
   Future<bool> openNotificationSettings() async {
