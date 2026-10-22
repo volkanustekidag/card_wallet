@@ -251,7 +251,9 @@ class _LiveScannerPageState extends State<LiveScannerPage>
       bytes: plane.bytes,
       metadata: InputImageMetadata(
         size: Size(image.width.toDouble(), image.height.toDouble()),
-        rotation: Platform.isIOS ? InputImageRotation.rotation0deg : rotation,
+        // The app is portrait-locked, so the sensor orientation is the
+        // rotation on both platforms (ML Kit camera example).
+        rotation: rotation,
         format: format,
         bytesPerRow: plane.bytesPerRow,
       ),
