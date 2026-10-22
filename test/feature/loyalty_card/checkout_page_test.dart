@@ -87,6 +87,23 @@ void main() {
     expect(find.text('cwEdit'.tr()).hitTestable(), findsOneWidget);
   });
 
+  testWidgets('tap-opened full screen stays while the phone is upright',
+      (tester) async {
+    await open(tester);
+    await tester.tap(find.text('4006 3813 3393 1'));
+    await tester.pumpAndSettle();
+    await tilt(tester, 0, 9.8);
+    await tilt(tester, 0.3, 9.7);
+    await tester.pumpAndSettle();
+    expect(find.text('cwEdit'.tr()).hitTestable(), findsNothing);
+
+    // Turned sideways and back upright: that closes it.
+    await tilt(tester, 9.8, 0.2);
+    await tilt(tester, 0, 9.8);
+    await tester.pumpAndSettle();
+    expect(find.text('cwEdit'.tr()).hitTestable(), findsOneWidget);
+  });
+
   testWidgets('delete from the menu removes the card and closes',
       (tester) async {
     Get.put(LoyaltyCardController());

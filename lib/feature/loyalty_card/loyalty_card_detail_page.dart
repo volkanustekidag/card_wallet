@@ -692,6 +692,10 @@ class _LandscapeBarcodeState extends State<_LandscapeBarcode> {
   StreamSubscription<AccelerometerEvent>? _sub;
   bool _closing = false;
 
+  /// Turning back upright closes the page only once it has been held
+  /// sideways: opened with a tap, the phone is already upright.
+  bool _wasSideways = false;
+
   @override
   void initState() {
     super.initState();
@@ -700,7 +704,11 @@ class _LandscapeBarcodeState extends State<_LandscapeBarcode> {
       _sub = accelerometerEventStream(
         samplingPeriod: SensorInterval.uiInterval,
       ).listen((e) {
-        if (e.y > 7.5 && e.x.abs() < 4) _close();
+        if (e.x.abs() > 7.0 && e.y.abs() < 4.5) {
+          _wasSideways = true;
+        } else if (_wasSideways && e.y > 7.5 && e.x.abs() < 4) {
+          _close();
+        }
       }, onError: (_) {}, cancelOnError: false);
     } catch (_) {}
   }

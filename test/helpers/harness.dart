@@ -440,3 +440,18 @@ Future<void> loadRealFonts() async {
   }
   await mono.load();
 }
+
+/// Feeds one accelerometer reading (m/s², portrait upright is y ≈ 9.8).
+Future<void> tilt(WidgetTester tester, double x, double y) async {
+  await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+    'dev.fluttercommunity.plus/sensors/accelerometer',
+    const StandardMethodCodec().encodeSuccessEnvelope(<double>[
+      x,
+      y,
+      0,
+      DateTime.now().microsecondsSinceEpoch.toDouble(),
+    ]),
+    (_) {},
+  );
+  await tester.pump();
+}
