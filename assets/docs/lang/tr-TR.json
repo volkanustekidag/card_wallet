@@ -613,7 +613,7 @@
     "cwCopyExpiry": "SKT'yi kopyala",
     "cwCopied": "Kopyalandı",
     "cwReminders": "Hatırlatıcılar",
-    "cwPaymentDueOn": "Ödeme günü · ayın {}'i",
+    "cwPaymentDueOn": "Ödeme · ayın {}. günü",
     "cwPaymentDue": "Ödeme günü",
     "cwPaymentDueSet": "Günü seçmek için dokun",
     "cwCardExpiresOn": "Kart son kullanma · {}",

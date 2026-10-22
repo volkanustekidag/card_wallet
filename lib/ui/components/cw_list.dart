@@ -103,7 +103,14 @@ class CwIconTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(size * 0.27),
         ),
         alignment: Alignment.center,
-        child: CwIcon(icon, size: size * 0.6, color: iconColor ?? Colors.white),
+        // Tiles tinted with ink flip to a light colour in dark mode; keep the
+        // glyph readable on any fill.
+        child: CwIcon(icon,
+            size: size * 0.6,
+            color: iconColor ??
+                (color.computeLuminance() > 0.6
+                    ? const Color(0xFF0E0F12)
+                    : Colors.white)),
       );
 }
 
