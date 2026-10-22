@@ -218,8 +218,16 @@ class CwSwitch extends StatelessWidget {
               },
       );
     }
+    // Material 3 switch, coloured from our palette so it reads on both
+    // light and night surfaces.
     return Switch(
       value: value,
+      activeTrackColor: c.ok,
+      activeThumbColor: Colors.white,
+      inactiveTrackColor: c.surface2,
+      inactiveThumbColor: c.mute,
+      trackOutlineColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? c.ok : c.mute),
       onChanged: onChanged == null
           ? null
           : (v) {
