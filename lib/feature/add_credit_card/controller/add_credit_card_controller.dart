@@ -16,6 +16,7 @@ import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/utils/session_prompt_gate.dart';
 import 'package:wallet_app/core/utils/card_number_layout.dart';
 import 'package:wallet_app/core/utils/validators.dart';
+import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
@@ -159,6 +160,12 @@ class AddCreditCardController extends GetxController {
       }
 
       await _creditCardService.openBox();
+      if (currentCard.value.bankName.trim().isEmpty) {
+        final network =
+            CardBankDetector.networkFor(currentCard.value.creditCardNumber);
+        currentCard.value.bankName =
+            network == CardNetwork.unknown ? 'cwTypeCard'.tr() : network.label;
+      }
 
       // Premium kontrolü sadece yeni kart eklerken
       if (!wasEditMode) {
@@ -285,8 +292,10 @@ class AddCreditCardController extends GetxController {
     final expirationPattern = RegExp(r'^\d{2}\s?\/\s?\d{2}$');
 
     // 13-19 digits depending on the network (Amex 15, Diners 14, Visa 13/16/19…).
-    return card.bankName.trim().isNotEmpty &&
-        CardNumberLayout.isValidLength(card.creditCardNumber) &&
+    // The bank is optional: many issuers worldwide aren't in the BIN table,
+    // and an unknown bank must not block a scanned card ([saveCard] names
+    // it after the network instead).
+    return CardNumberLayout.isValidLength(card.creditCardNumber) &&
         card.cardHolder.trim().isNotEmpty &&
         expirationPattern.hasMatch(card.expirationDate.trim());
   }

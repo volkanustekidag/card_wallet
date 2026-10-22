@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
@@ -82,51 +81,79 @@ class _LiveScannerPageState extends State<LiveScannerPage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive && Platform.isAndroid) {
+    // Only a real background trip releases the camera; permission dialogs
+    // and the notification shade just make the app inactive.
+    if (state == AppLifecycleState.paused) {
       _stop();
     } else if (state == AppLifecycleState.resumed &&
         _camera == null &&
+        !_starting &&
         _state != _CamState.denied &&
         !_handling) {
       _start();
     }
   }
 
+  bool _starting = false;
+
   Future<void> _start() async {
+    if (_starting || _camera != null) return;
+    _starting = true;
+    try {
+      await _startCamera();
+    } finally {
+      _starting = false;
+    }
+  }
+
+  Future<void> _startCamera() async {
     final status = await AppLockService.guard(() => Permission.camera.request());
     if (!mounted) return;
     if (!status.isGranted && !status.isLimited) {
       setState(() => _state = _CamState.denied);
       return;
     }
+    List<CameraDescription> cameras;
     try {
-      final cameras = await availableCameras();
-      if (cameras.isEmpty) throw StateError('no camera');
-      final back = cameras.firstWhere(
-        (c) => c.lensDirection == CameraLensDirection.back,
-        orElse: () => cameras.first,
-      );
+      cameras = await availableCameras();
+    } catch (_) {
+      cameras = const [];
+    }
+    if (cameras.isEmpty) {
+      if (mounted) setState(() => _state = _CamState.unavailable);
+      return;
+    }
+    final back = cameras.firstWhere(
+      (c) => c.lensDirection == CameraLensDirection.back,
+      orElse: () => cameras.first,
+    );
+    // 720p reads card numbers well; fall back for devices that can't
+    // stream that alongside the preview.
+    for (final preset in const [ResolutionPreset.high, ResolutionPreset.medium]) {
       final controller = CameraController(
         back,
-        ResolutionPreset.high,
+        preset,
         enableAudio: false,
         imageFormatGroup: Platform.isAndroid
             ? ImageFormatGroup.nv21
             : ImageFormatGroup.bgra8888,
       );
-      await controller.initialize();
-      if (!mounted) {
-        await controller.dispose();
+      try {
+        await controller.initialize();
+        if (!mounted) {
+          await controller.dispose();
+          return;
+        }
+        await controller.startImageStream(_onFrame);
+        _camera = controller;
+        setState(() => _state = _CamState.live);
         return;
+      } catch (e) {
+        debugPrint('Scanner camera error ($preset): $e');
+        await controller.dispose();
       }
-      _camera = controller;
-      await controller.startImageStream(_onFrame);
-      setState(() => _state = _CamState.live);
-    } catch (e) {
-      debugPrint('Scanner camera error: $e');
-      if (mounted) setState(() => _state = _CamState.unavailable);
     }
+    if (mounted) setState(() => _state = _CamState.unavailable);
   }
 
   Future<void> _stop() async {
