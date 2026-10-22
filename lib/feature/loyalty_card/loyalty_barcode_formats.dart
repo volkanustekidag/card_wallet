@@ -30,3 +30,11 @@ const Set<String> kDigitOnlyBarcodeFormats = {
 
 bool isDigitOnlyBarcodeFormat(String format) =>
     kDigitOnlyBarcodeFormats.contains(format);
+
+/// Display label for a stored format code ("EAN_13" → "EAN-13").
+String barcodeFormatLabel(String code) {
+  for (final f in kLoyaltyBarcodeFormats) {
+    if (f.code == code) return f.label;
+  }
+  return code.replaceAll('_', ' ');
+}

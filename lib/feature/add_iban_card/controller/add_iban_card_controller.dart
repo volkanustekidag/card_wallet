@@ -115,6 +115,8 @@ class AddIbanCardController extends GetxController {
 
   Future<void> saveCard() async {
     if (!canSave) return;
+    // Ignore a second tap that lands before the button rebuilds disabled.
+    if (isLoading.value) return;
     try {
       isLoading.value = true;
       final wasEditMode = isEditMode.value;

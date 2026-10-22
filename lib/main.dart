@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:wallet_app/core/constants/app_locales.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
 import 'package:wallet_app/core/router/getx_routes.dart';
 import 'package:wallet_app/core/data/migration/hive_migration_runner.dart';
@@ -38,6 +39,11 @@ void main() async {
   await runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
     await EasyLocalization.ensureInitialized();
+    // ensureInitialized copies the raw device locale into Intl.systemLocale.
+    // intl throws "Invalid locale" for one it has no data for (chr_GN seen
+    // in Crashlytics), so any formatter that slips past LocaleFormat gets
+    // English instead of a crash.
+    Intl.defaultLocale = kFallbackLocale.toString();
 
     // Crash reporting and analytics are not worth a dead app: if Firebase
     // fails to come up, start without it.
@@ -57,20 +63,10 @@ void main() async {
     await bootAndRunApp(
       boot: _boot,
       wrap: (root) => EasyLocalization(
-        supportedLocales: const [
-          Locale("en", "US"),
-          Locale("tr", "TR"),
-          Locale("de", "DE"),
-          Locale("fr", "FR"),
-          Locale("es", "ES"),
-          Locale("pt", "BR"),
-          Locale("it", "IT"),
-          Locale("nl", "NL"),
-          Locale("pl", "PL"),
-        ],
+        supportedLocales: kAppLocales,
         // Anything else (system in AR, ZH, JA, …) falls back to English.
         // Without this the strings render as raw keys ("loyaltyCardsTitle").
-        fallbackLocale: const Locale("en", "US"),
+        fallbackLocale: kFallbackLocale,
         saveLocale: true,
         path: "assets/docs/lang",
         child: root,

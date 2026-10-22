@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:uuid/uuid.dart';
@@ -15,6 +16,8 @@ import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/utils/session_prompt_gate.dart';
 import 'package:wallet_app/feature/loyalty_card/controller/loyalty_card_controller.dart';
+import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_formats.dart';
+import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_validator.dart';
 
 class AddLoyaltyCardController extends GetxController {
   static const _uuid = Uuid();
@@ -123,10 +126,63 @@ class AddLoyaltyCardController extends GetxController {
     );
   }
 
+  /// True when saving can go ahead. A value its format can't encode (wrong
+  /// length or check digit, letters in EAN…) would save fine but never show
+  /// or scan, so the user either switches to a format that fits or goes
+  /// back to fix the number.
+  Future<bool> _resolveInvalidBarcode() async {
+    final card = currentCard.value;
+    final format = card.barcodeFormat;
+    final check = LoyaltyBarcodeValidator.validate(card.barcode, format);
+    if (check.isValid) return true;
+
+    final ctx = Get.context;
+    if (ctx == null) return false;
+    final suggested =
+        LoyaltyBarcodeValidator.suggestFormat(card.barcode, format);
+    final reason = describeBarcodeIssue(check, format);
+    final useSuggested = await Get.dialog<bool>(
+      AlertDialog(
+        icon: const Icon(Icons.qr_code_2_rounded),
+        title: Text('loyaltyBarcodeInvalidTitle'.tr()),
+        content: Text(
+          [
+            'loyaltyBarcodeInvalidBody'
+                .tr(namedArgs: {'format': barcodeFormatLabel(format)}),
+            if (reason != null) reason,
+            if (suggested != null)
+              'loyaltyBarcodeSuggestFormat'
+                  .tr(namedArgs: {'format': barcodeFormatLabel(suggested)}),
+          ].join('\n\n'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(result: false),
+            child: Text('loyaltyBarcodeEditValue'.tr()),
+          ),
+          if (suggested != null)
+            ElevatedButton(
+              onPressed: () => Get.back(result: true),
+              child: Text(
+                'loyaltyBarcodeUseFormat'
+                    .tr(namedArgs: {'format': barcodeFormatLabel(suggested)}),
+              ),
+            ),
+        ],
+      ),
+    );
+    if (useSuggested != true || suggested == null) return false;
+    updateField('barcodeFormat', suggested);
+    return true;
+  }
+
   Future<void> saveCard() async {
+    // Ignore a second tap that lands before the button rebuilds disabled.
+    if (isLoading.value) return;
     try {
       isLoading.value = true;
       final wasEditMode = isEditMode.value;
+      if (!await _resolveInvalidBarcode()) return;
       await _service.openBox();
 
       if (!wasEditMode) {

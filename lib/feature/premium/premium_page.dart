@@ -16,6 +16,7 @@ import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/widgets/loading_widget.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/utils/locale_upper.dart';
+import 'package:wallet_app/core/utils/locale_format.dart';
 
 /// Paywall: tight hero, three side-by-side plan tiles (yearly default with
 /// BEST VALUE badge + per-month equivalent, monthly, weekly), a compact
@@ -973,7 +974,7 @@ class _PricingRow extends StatelessWidget {
                       isMonthly: plans[i].id == monthlyId,
                       isYearly: plans[i].id == yearlyId,
                       priceFontSize: priceFontSize,
-                      monthlyEquivalent: _equivalentFor(plans[i]),
+                      monthlyEquivalent: _equivalentFor(plans[i], context.locale),
                       onTap: () => onSelected(plans[i]),
                     ),
                   ),
@@ -1012,24 +1013,31 @@ class _PricingRow extends StatelessWidget {
     return scaled < _priceMinSize ? _priceMinSize : scaled;
   }
 
-  String? _equivalentFor(ProductDetails plan) {
+  String? _equivalentFor(ProductDetails plan, Locale locale) {
     if (plan.id == yearlyId) {
-      return _formatPerMonth(plan.rawPrice / 12, plan);
+      return _formatPerMonth(plan.rawPrice / 12, plan, locale);
     }
     if (plan.id == weeklyId) {
       // 4.345 weeks per month — converts the weekly price into a
       // per-month equivalent so the user sees the real monthly cost
       // of staying on the weekly plan.
-      return _formatPerMonth(plan.rawPrice * 4.345, plan);
+      return _formatPerMonth(plan.rawPrice * 4.345, plan, locale);
     }
     return null;
   }
 
-  String _formatPerMonth(double amount, ProductDetails source) {
+  String _formatPerMonth(
+    double amount,
+    ProductDetails source,
+    Locale locale,
+  ) {
     if (amount <= 0) return '';
     final symbol = _extractSymbol(source.price) ?? source.currencyCode;
-    return NumberFormat.currency(symbol: symbol, decimalDigits: 2)
-        .format(amount);
+    return LocaleFormat.currency(
+      locale,
+      symbol: symbol,
+      decimalDigits: 2,
+    ).format(amount);
   }
 
   String? _extractSymbol(String price) {
@@ -1697,8 +1705,9 @@ class _CtaSubText extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // Apple Guideline 3.1.2(a) — auto-renewal disclosure block must be visible
-// next to the subscribe button. Same copy applies on Android (Play also
-// requires clear subscription disclosure under their billing policy).
+// next to the subscribe button. Play's subscription policy asks for the
+// same disclosure, but it has to name the Google Play account and Play
+// Store settings, not Apple ID / App Store.
 // ---------------------------------------------------------------------------
 
 class _LegalDisclosure extends StatelessWidget {
@@ -1710,7 +1719,10 @@ class _LegalDisclosure extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Text(
-        'premiumLegalDisclosure'.tr(),
+        (Theme.of(context).platform == TargetPlatform.android
+                ? 'premiumLegalDisclosureAndroid'
+                : 'premiumLegalDisclosureIos')
+            .tr(),
         textAlign: TextAlign.center,
         style: TextStyle(
           fontFamily: 'Poppins',

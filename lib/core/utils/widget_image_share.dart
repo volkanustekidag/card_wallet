@@ -8,6 +8,28 @@ import 'package:share_plus/share_plus.dart';
 import 'package:wallet_app/core/utils/share_origin.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 
+/// Opens the share sheet for [text]. Returns false without opening it when
+/// there is nothing to share: share_plus throws
+/// `ArgumentError('text provided, but cannot be empty')` for an empty
+/// string, which reached Crashlytics from text shares of incomplete cards.
+Future<bool> shareText(
+  String text, {
+  String? subject,
+  Rect? origin,
+  @visibleForTesting SharePlus? sharePlus,
+}) async {
+  if (text.trim().isEmpty) return false;
+  final plugin = sharePlus ?? SharePlus.instance;
+  await AppLockService.guard(() => plugin.share(
+        ShareParams(
+          text: text,
+          subject: subject,
+          sharePositionOrigin: origin,
+        ),
+      ));
+  return true;
+}
+
 /// Renders [widget] into a PNG and hands it off to the system share sheet.
 ///
 /// The widget is mounted into the active [Overlay] at a far off-screen
@@ -92,7 +114,8 @@ Future<bool> shareWidgetAsImage({
     await AppLockService.guard(() => SharePlus.instance.share(
       ShareParams(
         files: [XFile(file.path, mimeType: 'image/png')],
-        text: text,
+        // share_plus rejects an empty string (but accepts null).
+        text: (text == null || text.trim().isEmpty) ? null : text,
         subject: subject,
         sharePositionOrigin: shareOrigin,
       ),

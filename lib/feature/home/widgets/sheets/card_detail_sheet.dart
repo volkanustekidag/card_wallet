@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
@@ -38,7 +37,6 @@ import 'package:wallet_app/feature/loyalty_card/controller/loyalty_card_controll
 import 'package:wallet_app/feature/loyalty_card/utils/loyalty_wallet_action.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/barcode_renderer.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/shareable_loyalty_card.dart';
-import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/utils/card_number_layout.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/card_share_choice_sheet.dart';
 import 'package:wallet_app/core/services/barcode_display_boost.dart';
@@ -753,10 +751,7 @@ class _CreditDetailBodyState extends State<_CreditDetailBody> {
             .join(' • ')
         : '${c.bankName} • ${_formatGroupedNumber(c.creditCardNumber)} • '
             '${c.cardHolder} • ${c.expirationDate}';
-    await AppLockService.guard(() => Share.share(
-      text,
-      sharePositionOrigin: shareOriginFromContext(context),
-    ));
+    await shareText(text, origin: shareOriginFromContext(context));
   }
 
   void _edit(BuildContext context) {
@@ -1208,6 +1203,7 @@ class _LoyaltyDetailBodyState extends State<_LoyaltyDetailBody> {
                         format: widget.card.barcodeFormat,
                         qrSize: 220,
                         barcodeHeight: 130,
+                        onChangeFormat: () => _edit(context),
                       ),
                       const SizedBox(height: 14),
                       InkWell(

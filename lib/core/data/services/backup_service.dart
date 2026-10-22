@@ -403,9 +403,6 @@ class BackupService {
       for (final card in parsedLoyalty) {
         await loyaltyCardsBox.add(card);
       }
-      await CardReminderService().scheduleAllCreditCardReminders(
-        creditCardsBox.values.toList(),
-      );
     } catch (e) {
       // Roll back to the pre-restore snapshot so the user keeps their data.
       // The rollback itself can fail (disk full, box closed, etc.) — guard it
@@ -424,9 +421,6 @@ class BackupService {
         for (final card in loyaltySnapshot) {
           await loyaltyCardsBox.add(card);
         }
-        await CardReminderService().scheduleAllCreditCardReminders(
-          creditSnapshot,
-        );
       } catch (rollbackError) {
         throw BackupError(
           BackupErrorKind.io,
@@ -434,11 +428,26 @@ class BackupService {
           'Original error: $e. Rollback error: $rollbackError',
         );
       }
+      await CardReminderService.guarded(
+        'restoreRollbackReminders',
+        () => CardReminderService().scheduleAllCreditCardReminders(
+          creditSnapshot,
+        ),
+      );
       throw BackupError(
         BackupErrorKind.io,
         'Restore aborted; previous data was kept: $e',
       );
     }
+
+    // Outside the try: the cards are already written, so a notification
+    // failure must not roll the restore back.
+    await CardReminderService.guarded(
+      'restoreReminders',
+      () => CardReminderService().scheduleAllCreditCardReminders(
+        creditCardsBox.values.toList(),
+      ),
+    );
   }
 
   CreditCard _buildCreditCard(Map raw) {

@@ -2,12 +2,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:share_plus/share_plus.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
-import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/utils/premium_gate.dart';
 import 'package:wallet_app/core/utils/share_origin.dart';
@@ -40,10 +38,10 @@ Future<void> shareIban(
         format: AnalyticsShareFormat.text,
         withQr: false,
       );
-      await AppLockService.guard(() => Share.share(
-            ibanShareText(card),
-            sharePositionOrigin: shareOriginFromContext(context),
-          ));
+      await shareText(
+        ibanShareText(card),
+        origin: shareOriginFromContext(context),
+      );
     case IbanShareChoice.image:
       final qr = isPremium
           ? (qrData ?? ShareableIbanCard.paymentQrData(card))

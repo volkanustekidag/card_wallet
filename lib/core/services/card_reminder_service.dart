@@ -13,7 +13,9 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/utils/card_reminder_rules.dart';
+import 'package:wallet_app/core/utils/locale_format.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 
 class CardReminderService {
   CardReminderService._internal();
@@ -36,7 +38,7 @@ class CardReminderService {
   /// Locale the notification texts are rendered in (e.g. `tr_TR`). Titles
   /// and bodies are baked into the scheduled notification, so they must be
   /// produced after translations load and again when the language changes.
-  String? _localeTag;
+  Locale? _locale;
 
   Stream<CardReminderPayload> get reminderPayloads => _payloadController.stream;
 
@@ -47,8 +49,35 @@ class CardReminderService {
   }
 
   Future<void> init() {
-    _initFuture ??= _initialize();
-    return _initFuture!;
+    return _initFuture ??= _initializeOrReset();
+  }
+
+  /// Runs a reminder side effect without letting it fail the caller.
+  ///
+  /// Reminders always follow a write that has already succeeded (saving a
+  /// card, restoring a backup). Propagating a notification error there made
+  /// the UI report "could not save" for a card that was saved, and users
+  /// retried into duplicates.
+  static Future<void> guarded(
+    String reason,
+    Future<void> Function() action,
+  ) async {
+    try {
+      await action();
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: reason);
+    }
+  }
+
+  Future<void> _initializeOrReset() async {
+    try {
+      await _initialize();
+    } catch (_) {
+      // Don't cache the failure: the next call retries instead of every
+      // reminder operation failing until the app restarts.
+      _initFuture = null;
+      rethrow;
+    }
   }
 
   Future<void> scheduleForCard(
@@ -80,22 +109,17 @@ class CardReminderService {
   /// Re-renders and reschedules every reminder in [locale]. Call after the
   /// first frame (translations loaded) and after the user switches language.
   Future<void> rescheduleAll({required Locale locale}) async {
-    _localeTag = locale.toString();
-    final service = CreditCardService();
-    await service.openBox();
-    final cards = await service.getAllCreditCards();
-    await scheduleAllCreditCardReminders(cards);
+    _locale = locale;
+    await guarded('rescheduleReminders', () async {
+      final service = CreditCardService();
+      await service.openBox();
+      final cards = await service.getAllCreditCards();
+      await scheduleAllCreditCardReminders(cards);
+    });
   }
 
-  String _formatDate(DateTime date) {
-    try {
-      return DateFormat.yMMMd(_localeTag).format(date);
-    } catch (_) {
-      // Date symbols for the locale not loaded yet: fall back to the
-      // default locale rather than dropping the reminder.
-      return DateFormat.yMMMd().format(date);
-    }
-  }
+  String _formatDate(DateTime date) =>
+      LocaleFormat.yearMonthDay(_locale).format(date);
 
   Future<void> scheduleAllCreditCardReminders(
     List<CreditCard> cards, {

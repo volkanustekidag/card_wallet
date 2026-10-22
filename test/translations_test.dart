@@ -32,4 +32,17 @@ void main() {
       }
     }
   });
+
+  test('paywall legal text names the right store per platform', () {
+    for (final lang in _langs) {
+      final t = _load(lang);
+      final android = t['premiumLegalDisclosureAndroid'] as String;
+      final ios = t['premiumLegalDisclosureIos'] as String;
+      expect(android, contains('Google Play'), reason: lang);
+      expect(android, isNot(contains('Apple')), reason: lang);
+      expect(android, isNot(contains('App Store')), reason: lang);
+      expect(ios, contains('Apple'), reason: lang);
+      expect(ios, isNot(contains('Google')), reason: lang);
+    }
+  });
 }
