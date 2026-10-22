@@ -1705,8 +1705,9 @@ class _CtaSubText extends StatelessWidget {
 
 // ---------------------------------------------------------------------------
 // Apple Guideline 3.1.2(a) — auto-renewal disclosure block must be visible
-// next to the subscribe button. Same copy applies on Android (Play also
-// requires clear subscription disclosure under their billing policy).
+// next to the subscribe button. Play's subscription policy asks for the
+// same disclosure, but it has to name the Google Play account and Play
+// Store settings, not Apple ID / App Store.
 // ---------------------------------------------------------------------------
 
 class _LegalDisclosure extends StatelessWidget {
@@ -1718,7 +1719,10 @@ class _LegalDisclosure extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Text(
-        'premiumLegalDisclosure'.tr(),
+        (Theme.of(context).platform == TargetPlatform.android
+                ? 'premiumLegalDisclosureAndroid'
+                : 'premiumLegalDisclosureIos')
+            .tr(),
         textAlign: TextAlign.center,
         style: TextStyle(
           fontFamily: 'Poppins',
