@@ -7,6 +7,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:wallet_app/core/brands/brand_catalog.dart';
+import 'package:wallet_app/core/services/ui_prefs.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:hive_flutter/hive_flutter.dart';
@@ -247,6 +248,7 @@ class _AppWrapperState extends State<AppWrapper> with WidgetsBindingObserver {
       if (mounted) unawaited(_rescheduleReminders(context.locale));
       // Logos + brand colours; parsed off the UI isolate.
       unawaited(BrandCatalog.instance.load());
+      unawaited(UiPrefs.instance.load());
     });
   }
 

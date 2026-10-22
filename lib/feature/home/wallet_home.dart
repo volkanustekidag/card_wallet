@@ -6,6 +6,7 @@ import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
+import 'package:wallet_app/core/services/ui_prefs.dart';
 import 'package:wallet_app/core/utils/card_reminder_rules.dart';
 import 'package:wallet_app/core/utils/loyalty_usage.dart';
 import 'package:wallet_app/core/utils/tag_index.dart';
@@ -101,6 +102,7 @@ class _WalletHomeState extends State<WalletHome> {
                 ),
                 Obx(() {
                   final items = _c.walletItems.toList();
+                  final showUpNext = UiPrefs.instance.upNext.value;
                   if (items.isEmpty) {
                     return const SliverToBoxAdapter(child: _EmptyWallet());
                   }
@@ -109,6 +111,7 @@ class _WalletHomeState extends State<WalletHome> {
                     builder: (context, filter, _) => _WalletSlivers(
                       controller: _c,
                       items: items,
+                      showUpNext: showUpNext,
                       filter: filter,
                       onFilter: (f) => _filter.value = f,
                     ),
@@ -184,10 +187,12 @@ class _WalletSlivers extends StatelessWidget {
   final List<WalletItem> items;
   final HomeFilter filter;
   final ValueChanged<HomeFilter> onFilter;
+  final bool showUpNext;
 
   const _WalletSlivers({
     required this.controller,
     required this.items,
+    required this.showUpNext,
     required this.filter,
     required this.onFilter,
   });
@@ -217,7 +222,8 @@ class _WalletSlivers extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final stack = stackOrder(items, filter);
-    final upNext = (filter == HomeFilter.all || filter == HomeFilter.loyalty)
+    final upNext = showUpNext &&
+            (filter == HomeFilter.all || filter == HomeFilter.loyalty)
         ? _upNext(now)
         : null;
     final notice = (filter == HomeFilter.all || filter == HomeFilter.credit)

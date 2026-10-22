@@ -1,52 +1,41 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:wallet_app/feature/settings/widgets/settings_app_bar.dart';
+import 'package:flutter/material.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_body.dart';
+import 'package:wallet_app/ui/components/cw_button.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends StatelessWidget {
   const SettingsPage({Key? key}) : super(key: key);
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
-}
-
-class _SettingsPageState extends State<SettingsPage> {
-  String _currentLanguage = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _currentLanguage = '';
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Check if language changed and force rebuild if needed
-    final currentLang = context.locale.languageCode;
-    if (_currentLanguage != currentLang) {
-      debugPrint('Language changed from $_currentLanguage to $currentLang');
-      _currentLanguage = currentLang;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {});
-        }
-      });
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    debugPrint(
-        'SettingsPage rebuilding with language: ${context.locale.languageCode}');
-
-    return Scaffold(
-      key: ValueKey(
-          'settings_${context.locale.languageCode}'), // Force rebuild on language change
-      backgroundColor: context.theme.scaffoldBackgroundColor,
-      appBar: const SettingsAppBar(),
-      body: const SettingsBody(),
+    return CwPageStyle(
+      child: Scaffold(
+        // Rebuild every row when the language changes.
+        key: ValueKey('settings_${context.locale.languageCode}'),
+        backgroundColor: CwColors.of(context).bg,
+        body: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(14, 6, 14, 0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: CwCircleButton(
+                    CwIcons.back,
+                    onPressed: () => Navigator.of(context).maybePop(),
+                    semanticLabel:
+                        MaterialLocalizations.of(context).backButtonTooltip,
+                  ),
+                ),
+              ),
+              const Expanded(child: SettingsBody()),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

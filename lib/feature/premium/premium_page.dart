@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:ui' as ui;
+import 'dart:math' as math;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -11,17 +11,22 @@ import 'package:wallet_app/core/constants/legal_urls.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
-import 'package:wallet_app/core/services/premium_service.dart';
-import 'package:wallet_app/core/styles/app_themes.dart';
-import 'package:wallet_app/core/widgets/loading_widget.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
-import 'package:wallet_app/core/utils/locale_upper.dart';
+import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/utils/locale_format.dart';
+import 'package:wallet_app/feature/home/controller/home_controller.dart';
+import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
+import 'package:wallet_app/ui/card/card_face.dart';
+import 'package:wallet_app/ui/card/card_material.dart';
+import 'package:wallet_app/ui/card/wallet_card_faces.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
+import 'package:wallet_app/ui/typography.dart';
 
-/// Paywall: tight hero, three side-by-side plan tiles (yearly default with
-/// BEST VALUE badge + per-month equivalent, monthly, weekly), a compact
-/// feature checklist, and a gold CTA that adapts to the selected plan.
-/// No trial copy, no lifetime tile.
+/// Paywall v2: the user's own cards fanned out on a night stage, one line
+/// on why it opened (trigger), what Premium adds, the store's three plans
+/// (yearly default + best-value badge + per-month equivalent) and one CTA.
+/// Pricing, plans and gating are unchanged — this is presentation only.
 class PremiumPage extends StatefulWidget {
   const PremiumPage({Key? key}) : super(key: key);
 
@@ -29,14 +34,10 @@ class PremiumPage extends StatefulWidget {
   State<PremiumPage> createState() => _PremiumPageState();
 }
 
-class _PremiumPageState extends State<PremiumPage>
-    with TickerProviderStateMixin {
+class _PremiumPageState extends State<PremiumPage> {
   late final PremiumController _premiumController;
-  late final AnimationController _diamondController;
-  late final AnimationController _ctaPulseController;
   Worker? _productWorker;
   ProductDetails? _selectedProduct;
-  _PremiumFeatureSpec? _triggerFeature;
 
   /// Premium subscribers see a status card instead of the plan picker; this
   /// flips to the picker when they tap "Change plan".
@@ -47,42 +48,13 @@ class _PremiumPageState extends State<PremiumPage>
   String? _featureArg;
   bool _purchased = false;
 
-  // Each feature pairs a translation key with the icon that visually
-  // represents it; `ad-free` was dropped because the app has no ads.
-  static const List<_Feature> _features = [
-    _Feature('featureUnlimitedCardsTitle', Icons.credit_card_rounded),
-    _Feature('featureBackupRestoreTitle', Icons.cloud_sync_rounded),
-    _Feature(
-      'featureWalletExportTitle',
-      Icons.account_balance_wallet_rounded,
-    ),
-    _Feature('featureQrCreateTitle', Icons.qr_code_rounded),
-  ];
-
-  // Pass `arguments: {'feature': '<key>'}` when navigating to /premium to
-  // surface a single feature card (instead of the wrap of all features).
-  // The keys mirror the feature title keys without the title suffix.
-  static const Map<String, _PremiumFeatureSpec> _featureSpecs = {
-    'unlimitedCards': _PremiumFeatureSpec(
-      'featureUnlimitedCardsTitle',
-      'featureUnlimitedCardsDesc',
-      Icons.credit_card_rounded,
-    ),
-    'backupRestore': _PremiumFeatureSpec(
-      'featureBackupRestoreTitle',
-      'featureBackupRestoreDesc',
-      Icons.cloud_sync_rounded,
-    ),
-    'walletExport': _PremiumFeatureSpec(
-      'featureWalletExportTitle',
-      'featureWalletExportDesc',
-      Icons.account_balance_wallet_rounded,
-    ),
-    'qrCreate': _PremiumFeatureSpec(
-      'featureQrCreateTitle',
-      'featureQrCreateDesc',
-      Icons.qr_code_rounded,
-    ),
+  /// Subtitle under the headline: why the paywall opened.
+  static const Map<String, String> _triggerSubtitles = {
+    'unlimitedCards': 'cwPaySubCards',
+    'backupRestore': 'cwPaySubBackup',
+    'walletExport': 'cwPaySubWallet',
+    'qrCreate': 'cwPaySubQr',
+    'premiumColors': 'cwPaySubColors',
   };
 
   @override
@@ -96,7 +68,6 @@ class _PremiumPageState extends State<PremiumPage>
     if (args is Map) {
       if (args['feature'] is String) {
         featureArg = args['feature'] as String;
-        _triggerFeature = _featureSpecs[featureArg];
       }
       if (args['trigger'] is String) {
         triggerArg = args['trigger'] as String;
@@ -114,14 +85,6 @@ class _PremiumPageState extends State<PremiumPage>
         cardType: cardTypeArg,
       ),
     );
-    _diamondController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 6),
-    )..repeat();
-    _ctaPulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    )..repeat(reverse: true);
     _productWorker = ever<List<ProductDetails>>(
       _premiumController.availableProductsRx,
       (_) => _ensureDefaultSelectedProduct(),
@@ -135,134 +98,153 @@ class _PremiumPageState extends State<PremiumPage>
       AnalyticsService.instance
           .logPaywallDismissed(trigger: _trigger, feature: _featureArg);
     }
-    _diamondController.dispose();
-    _ctaPulseController.dispose();
     _productWorker?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Force light theme regardless of the app's theme setting — the
-    // gold-on-white design was tuned for that palette and reads as
-    // "premium" most clearly. Wrapping with Theme makes every Theme.of()
-    // call inside the page return the light values.
-    return Theme(
-      data: AppThemes.lightTheme,
-      child: Builder(builder: _buildBody),
+    const night = CwColors.night;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light,
+      child: Scaffold(
+        backgroundColor: night.bg,
+        body: Obx(() {
+          final isLoading = _premiumController.isLoading;
+          final isPremium = _premiumController.isPremium;
+          final currentPlanId = _premiumController.currentPlanId;
+          final showPicker = !isPremium || _changingPlan;
+          final weekly = _premiumController.weeklyProduct;
+          final monthly = _premiumController.monthlyProduct;
+          final yearly = _premiumController.yearlyProduct;
+
+          // Weekly → monthly → yearly. Yearly sits on the right as the
+          // BEST VALUE anchor (still the default selection). When changing
+          // plan, the current one is left out so it can't be bought twice.
+          final orderedPlans = <ProductDetails>[
+            if (weekly != null) weekly,
+            if (monthly != null) monthly,
+            if (yearly != null) yearly,
+          ].where((p) => !isPremium || p.id != currentPlanId).toList();
+          final selected = _selectedProduct != null &&
+                  orderedPlans.any((p) => p.id == _selectedProduct!.id)
+              ? _selectedProduct
+              : null;
+          final bestValueId = _bestValueProductId(weekly, monthly, yearly);
+          final subtitleKey =
+              _triggerSubtitles[_featureArg] ?? 'cwPaySubDefault';
+
+          return Stack(
+            children: [
+              const Positioned.fill(child: _NightBackdrop()),
+              SafeArea(
+                child: CustomScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: _TopBar(
+                        onClose: () => Get.back(),
+                        onRestore: _handleRestore,
+                      ),
+                    ),
+                    const SliverToBoxAdapter(child: _CardFan()),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 18, 24, 0),
+                        child: Column(
+                          children: [
+                            Text(
+                              'cwPayTitle'.tr(),
+                              textAlign: TextAlign.center,
+                              style: CwType.display
+                                  .copyWith(color: night.ink, fontSize: 30),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              subtitleKey.tr(),
+                              textAlign: TextAlign.center,
+                              style: CwType.callout
+                                  .copyWith(color: night.ink2, height: 1.45),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SliverToBoxAdapter(child: _FeatureList()),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
+                        child: !showPicker
+                            ? _PremiumActiveCard(
+                                planLabel: _planLabel(currentPlanId),
+                                onManage: PremiumService.hasActiveSubscription
+                                    ? _openManageSubscription
+                                    : null,
+                                onChangePlan:
+                                    PremiumService.hasActiveSubscription
+                                        ? _startPlanChange
+                                        : null,
+                              )
+                            : Column(
+                                children: [
+                                  if (orderedPlans.isEmpty)
+                                    const _ProductsUnavailable()
+                                  else
+                                    _PlanRow(
+                                      plans: orderedPlans,
+                                      weeklyId: weekly?.id,
+                                      yearlyId: yearly?.id,
+                                      bestValueId: bestValueId,
+                                      selected: selected,
+                                      onSelected: _onPlanSelected,
+                                    ),
+                                  const SizedBox(height: 16),
+                                  _ContinueButton(
+                                    label: isPremium
+                                        ? 'switchPlanCta'.tr()
+                                        : _ctaLabel(selected),
+                                    onPressed: selected == null
+                                        ? null
+                                        : () => _handlePurchase(selected),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'premiumCancelAnytime'.tr(),
+                                    style: CwType.caption
+                                        .copyWith(color: night.mute),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+                    const SliverToBoxAdapter(child: _Legal()),
+                  ],
+                ),
+              ),
+              if (isLoading)
+                Positioned.fill(
+                  child: ColoredBox(
+                    color: night.bg.withValues(alpha: 0.6),
+                    child: const Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+                  ),
+                ),
+            ],
+          );
+        }),
+      ),
     );
   }
 
-  Widget _buildBody(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      body: Obx(() {
-        final isLoading = _premiumController.isLoading;
-        final isPremium = _premiumController.isPremium;
-        final currentPlanId = _premiumController.currentPlanId;
-        final showPicker = !isPremium || _changingPlan;
-        final weekly = _premiumController.weeklyProduct;
-        final monthly = _premiumController.monthlyProduct;
-        final yearly = _premiumController.yearlyProduct;
-
-        // Weekly → monthly → yearly. Yearly sits on the right as the
-        // BEST VALUE anchor (still the default selection). When changing
-        // plan, the current one is left out so it can't be bought twice.
-        final orderedPlans = <ProductDetails>[
-          if (weekly != null) weekly,
-          if (monthly != null) monthly,
-          if (yearly != null) yearly,
-        ].where((p) => !isPremium || p.id != currentPlanId).toList();
-        final selected = _selectedProduct != null &&
-                orderedPlans.any((p) => p.id == _selectedProduct!.id)
-            ? _selectedProduct
-            : null;
-        final bestValueId = _bestValueProductId(weekly, monthly, yearly);
-
-        return Stack(
-          children: [
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 380,
-              child: _HeroBackdrop(isDark: isDark),
-            ),
-            SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 40,
-                  ),
-                  _TopBar(
-                    onClose: () => Get.back(),
-                    onRestore: _handleRestore,
-                  ),
-                  _Hero(controller: _diamondController),
-                  const SizedBox(height: 28),
-                  if (_triggerFeature != null)
-                    _BigFeatureCard(spec: _triggerFeature!)
-                  else
-                    _FeatureChecklist(features: _features),
-                  const SizedBox(height: 28),
-                  if (!showPicker)
-                    _PremiumActiveCard(
-                      planLabel: _planLabel(currentPlanId),
-                      onManage: PremiumService.hasActiveSubscription
-                          ? _openManageSubscription
-                          : null,
-                      onChangePlan: PremiumService.hasActiveSubscription
-                          ? _startPlanChange
-                          : null,
-                    )
-                  else ...[
-                    if (orderedPlans.isEmpty)
-                      _ProductsUnavailable()
-                    else
-                      _PricingRow(
-                        plans: orderedPlans,
-                        weeklyId: weekly?.id,
-                        monthlyId: monthly?.id,
-                        yearlyId: yearly?.id,
-                        bestValueId: bestValueId,
-                        selected: selected,
-                        onSelected: _onPlanSelected,
-                      ),
-                    const SizedBox(height: 20),
-                    _CtaButton(
-                      product: selected,
-                      label: isPremium ? 'switchPlanCta'.tr() : null,
-                      pulseController: _ctaPulseController,
-                      onPressed: selected == null
-                          ? null
-                          : () => _handlePurchase(selected),
-                    ),
-                    const SizedBox(height: 8),
-                    _CtaSubText(product: selected),
-                  ],
-                  const SizedBox(height: 16),
-                  const _LegalDisclosure(),
-                  const SizedBox(height: 14),
-                  _LegalLinks(),
-                  const SizedBox(height: 28),
-                ],
-              ),
-            ),
-            if (isLoading)
-              Positioned.fill(
-                child: ColoredBox(
-                  color: colorScheme.surface.withValues(alpha: 0.65),
-                  child: const Center(child: LoadingWidget()),
-                ),
-              ),
-          ],
-        );
-      }),
-    );
+  String _ctaLabel(ProductDetails? p) {
+    if (p == null) return 'getPremium'.tr();
+    if (p.id == PremiumService.yearlyProductId) return 'premiumCtaYearly'.tr();
+    if (p.id == PremiumService.monthlyProductId) {
+      return 'premiumCtaMonthly'.tr();
+    }
+    if (p.id == PremiumService.weeklyProductId) return 'premiumCtaWeekly'.tr();
+    return 'getPremium'.tr();
   }
 
   Future<void> _handleRestore() async {
@@ -419,41 +401,33 @@ class _PremiumPageState extends State<PremiumPage>
 }
 
 // ---------------------------------------------------------------------------
-// Hero backdrop — deeper gold radial glow.
+// Presentation
 // ---------------------------------------------------------------------------
 
-class _HeroBackdrop extends StatelessWidget {
-  final bool isDark;
-  const _HeroBackdrop({required this.isDark});
+class _NightBackdrop extends StatelessWidget {
+  const _NightBackdrop();
 
   @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment.topCenter,
-          radius: 1.0,
-          colors: isDark
-              ? [
-                  const Color(0x77B8862C),
-                  const Color(0x33B8862C),
-                  Colors.transparent,
-                ]
-              : [
-                  const Color(0x44E0B85F),
-                  const Color(0x1FE0B85F),
-                  Colors.transparent,
-                ],
-          stops: const [0, 0.55, 1],
+  Widget build(BuildContext context) => const DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: Alignment(-0.6, -0.95),
+            radius: 1.2,
+            colors: [Color(0xFF26245E), Color(0xFF0B0C0F)],
+            stops: [0, 0.7],
+          ),
         ),
-      ),
-    );
-  }
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              center: Alignment(0.9, -0.6),
+              radius: 0.9,
+              colors: [Color(0x401A8A62), Color(0x000B0C0F)],
+            ),
+          ),
+        ),
+      );
 }
-
-// ---------------------------------------------------------------------------
-// Top bar.
-// ---------------------------------------------------------------------------
 
 class _TopBar extends StatelessWidget {
   final VoidCallback onClose;
@@ -462,31 +436,21 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    const night = CwColors.night;
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
       child: Row(
         children: [
           IconButton(
+            tooltip: MaterialLocalizations.of(context).closeButtonLabel,
             onPressed: onClose,
-            icon: Icon(
-              Icons.close_rounded,
-              color: colorScheme.onSurface.withValues(alpha: 0.85),
-            ),
+            icon: CwIcon(CwIcons.close, color: night.ink2),
           ),
           const Spacer(),
           TextButton(
             onPressed: onRestore,
-            style: TextButton.styleFrom(
-              foregroundColor: colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-            child: Text(
-              'restorePurchases'.tr(),
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: Text('restorePurchases'.tr(),
+                style: CwType.callout.copyWith(color: night.ink2)),
           ),
         ],
       ),
@@ -494,312 +458,298 @@ class _TopBar extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Hero — diamond + PREMIUM eyebrow + big title.
-// ---------------------------------------------------------------------------
-
-class _Hero extends StatelessWidget {
-  final AnimationController controller;
-  const _Hero({required this.controller});
-
-  static const _gold = Color(0xFFC8A14A);
+/// Up to three of the user's own cards, fanned; materials when the wallet
+/// is empty. Seeing *their* cards is the point of the page.
+class _CardFan extends StatelessWidget {
+  const _CardFan();
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Big bold title — typography-only, no sparkle. FittedBox keeps
-          // long localisations (e.g. "Premium'a Geç") from overflowing on
-          // narrow screens.
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              'premiumHeroTitle'.tr(),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 42,
-                fontWeight: FontWeight.w700,
-                color: colorScheme.onSurface,
-                height: 1.05,
-                letterSpacing: -1.2,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          // First sub: dark "Unlimited cards." + gold "More control."
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                height: 1.25,
-              ),
-              children: [
-                TextSpan(
-                  text: 'premiumHeroSub'.tr(),
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                const TextSpan(text: ' '),
-                TextSpan(
-                  text: 'premiumHeroSubAccent'.tr(),
-                  style: const TextStyle(
-                    color: _gold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 6),
-          // Second sub: smaller muted tagline.
-          Text(
-            'premiumHeroTagline'.tr(),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: colorScheme.onSurface.withValues(alpha: 0.5),
-              height: 1.3,
-            ),
-          ),
-          const SizedBox(height: 12),
-          const _HeroCardStack(),
-        ],
-      ),
-    );
-  }
-}
-
-// Three placeholder cards stacked: a big teal IBAN-style card in front,
-// purple + rose cards peeking at slight angles behind. Pure decoration —
-// sells the "your wallet, premium" feel without needing real data.
-class _HeroCardStack extends StatelessWidget {
-  const _HeroCardStack();
-
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final cardWidth = (screenWidth * 0.62).clamp(220.0, 320.0);
-    final cardHeight = cardWidth / 1.6;
+    final items = Get.isRegistered<HomeController>()
+        ? Get.find<HomeController>().walletItems.take(3).toList()
+        : <WalletItem>[];
+    final w = math.min(MediaQuery.sizeOf(context).width * 0.62, 280.0);
+    Widget face(int i) {
+      if (i < items.length) return WalletCardFace(item: items[i], width: w);
+      const ids = [10, 11, 14];
+      return CardFace(
+        material: CardMaterial.of(ids[i]),
+        width: w,
+        height: w / kCardAspect,
+      );
+    }
 
     return SizedBox(
-      height: cardHeight + 20,
+      height: w / kCardAspect + 40,
       child: Stack(
         alignment: Alignment.center,
         clipBehavior: Clip.none,
         children: [
-          // Left peek — purple
           Transform.translate(
-            offset: Offset(-cardWidth * 0.42, 8),
-            child: Transform.rotate(
-              angle: -0.10,
-              child: Opacity(
-                opacity: 0.55,
-                child: _PlaceholderCard(
-                  width: cardWidth,
-                  height: cardHeight,
-                  isIban: true,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFB084CC), Color(0xFF7B5BA0)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-              ),
-            ),
+            offset: Offset(-w * 0.38, 18),
+            child: Transform.rotate(angle: -0.16, child: face(1)),
           ),
-          // Right peek — rose
           Transform.translate(
-            offset: Offset(cardWidth * 0.42, 8),
-            child: Transform.rotate(
-              angle: 0.10,
-              child: Opacity(
-                opacity: 0.55,
-                child: _PlaceholderCard(
-                  width: cardWidth,
-                  height: cardHeight,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFE0A0A8), Color(0xFFC07480)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-              ),
-            ),
+            offset: Offset(w * 0.38, 18),
+            child: Transform.rotate(angle: 0.16, child: face(2)),
           ),
-          // Center — teal, prominent
-          _PlaceholderCard(
-            width: cardWidth,
-            height: cardHeight,
-            isFront: true,
-            gradient: const LinearGradient(
-              colors: [Color(0xFF2A7B6A), Color(0xFF1F5648)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
+          face(0),
         ],
       ),
     );
   }
 }
 
-class _PlaceholderCard extends StatelessWidget {
-  final double width;
-  final double height;
-  final Gradient gradient;
-  final bool isFront;
-  final bool isIban;
+class _FeatureList extends StatelessWidget {
+  const _FeatureList();
 
-  const _PlaceholderCard({
-    required this.width,
-    required this.height,
-    required this.gradient,
-    this.isFront = false,
-    this.isIban = false,
-  });
+  static const _rows = [
+    (CwIcons.infinity, 'cwFeatUnlimited', 'cwFeatUnlimitedSub'),
+    (CwIcons.cloudUp, 'cwFeatBackup', 'cwFeatBackupSub'),
+    (CwIcons.sparkle, 'cwFeatMaterials', 'cwFeatMaterialsSub'),
+    (CwIcons.qr, 'cwFeatQr', 'cwFeatQrSub'),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        gradient: gradient,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: isFront
-            ? [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.28),
-                  blurRadius: 24,
-                  offset: const Offset(0, 12),
-                ),
-              ]
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.10),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  context.upper('placeholderBankName'.tr()),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.6,
+    const night = CwColors.night;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+      child: Column(
+        children: [
+          for (final r in _rows)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    alignment: Alignment.center,
+                    child: CwIcon(r.$1, size: 18, color: night.ink),
                   ),
-                ),
-                const Spacer(),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: 26,
-              height: 18,
-              decoration: BoxDecoration(
-                color: const Color(0xFFEAC76C),
-                borderRadius: BorderRadius.circular(3),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(r.$2.tr(),
+                            style: CwType.callout.copyWith(
+                                color: night.ink, fontWeight: FontWeight.w700)),
+                        Text(r.$3.tr(),
+                            style: CwType.footnote.copyWith(color: night.mute)),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
-            const Spacer(),
-            if (isIban)
-              Text(
-                'IBAN',
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  fontSize: 7,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            const SizedBox(height: 2),
-            Text(
-              '${_ibanCountryFor(context)}12 1234 •••• •••• 6543',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.6,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                Text(
-                  context.upper('placeholderHolderName'.tr()),
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.95),
-                    fontSize: 9,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.4,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  '12345334',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: 9,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.4,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }
 }
 
-/// IBAN country prefix that matches the UI language so the sample card reads
-/// as local (Brazilian Portuguese → BR, English → GB).
-String _ibanCountryFor(BuildContext context) {
-  switch (Localizations.maybeLocaleOf(context)?.languageCode) {
-    case 'tr':
-      return 'TR';
-    case 'de':
-      return 'DE';
-    case 'fr':
-      return 'FR';
-    case 'es':
-      return 'ES';
-    case 'pt':
-      return 'BR';
-    case 'it':
-      return 'IT';
-    case 'nl':
-      return 'NL';
-    case 'pl':
-      return 'PL';
-    default:
-      return 'GB';
+class _PlanRow extends StatelessWidget {
+  final List<ProductDetails> plans;
+  final String? weeklyId;
+  final String? yearlyId;
+  final String? bestValueId;
+  final ProductDetails? selected;
+  final ValueChanged<ProductDetails> onSelected;
+
+  const _PlanRow({
+    required this.plans,
+    required this.weeklyId,
+    required this.yearlyId,
+    required this.bestValueId,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  String _title(ProductDetails p) {
+    if (p.id == yearlyId) return 'yearlyPlanTitle'.tr();
+    if (p.id == weeklyId) return 'weeklyPlanTitle'.tr();
+    return 'monthlyPlanTitle'.tr();
+  }
+
+  String _period(ProductDetails p) {
+    if (p.id == yearlyId) return 'perYear'.tr();
+    if (p.id == weeklyId) return 'perWeek'.tr();
+    return 'perMonth'.tr();
+  }
+
+  /// Per-month equivalent for yearly / weekly so plans compare fairly.
+  String? _perMonth(ProductDetails p, Locale locale) {
+    double? amount;
+    if (p.id == yearlyId) amount = p.rawPrice / 12;
+    if (p.id == weeklyId) amount = p.rawPrice * 4.345;
+    if (amount == null || amount <= 0) return null;
+    final symbol = RegExp(r'[^\d\s.,]+').firstMatch(p.price.trim())?.group(0) ??
+        p.currencyCode;
+    final value =
+        LocaleFormat.currency(locale, symbol: symbol, decimalDigits: 2)
+            .format(amount);
+    return '$value ${'perMonth'.tr()}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const night = CwColors.night;
+    final locale = context.locale;
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < plans.length; i++) ...[
+            if (i > 0) const SizedBox(width: 8),
+            Expanded(
+              child: Builder(builder: (context) {
+                final p = plans[i];
+                final on = p.id == selected?.id;
+                final perMonth = _perMonth(p, locale);
+                return Semantics(
+                  button: true,
+                  selected: on,
+                  child: GestureDetector(
+                    onTap: () => onSelected(p),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        AnimatedContainer(
+                          duration: CwMotion.fast,
+                          padding: const EdgeInsets.fromLTRB(8, 16, 8, 12),
+                          decoration: BoxDecoration(
+                            color: on
+                                ? Colors.white.withValues(alpha: 0.10)
+                                : Colors.white.withValues(alpha: 0.04),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: on
+                                  ? Colors.white
+                                  : Colors.white.withValues(alpha: 0.16),
+                              width: on ? 2 : 1,
+                            ),
+                          ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(_title(p),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: CwType.footnote.copyWith(
+                                      color: night.ink2,
+                                      fontWeight: FontWeight.w600)),
+                              const SizedBox(height: 4),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(p.price,
+                                    style: CwType.headline.copyWith(
+                                        color: night.ink,
+                                        fontWeight: FontWeight.w800)),
+                              ),
+                              Text(_period(p),
+                                  style: CwType.caption
+                                      .copyWith(color: night.mute)),
+                              if (perMonth != null) ...[
+                                const SizedBox(height: 4),
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(perMonth,
+                                      style: CwType.caption.copyWith(
+                                          color: night.ink2,
+                                          fontWeight: FontWeight.w700)),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        if (p.id == bestValueId)
+                          Positioned(
+                            top: -10,
+                            left: 0,
+                            right: 0,
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  'cwBestValue'.tr().toUpperCase(),
+                                  style: CwType.overline.copyWith(
+                                      color: const Color(0xFF0B0C0F),
+                                      fontSize: 9.5),
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ],
+        ],
+      ),
+    );
   }
 }
 
-// ---------------------------------------------------------------------------
-// Premium subscriber state — replaces the plan picker so an active
-// subscriber can't start a second subscription by accident.
-// ---------------------------------------------------------------------------
+class _ContinueButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  const _ContinueButton({required this.label, required this.onPressed});
 
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: const Color(0xFF0B0C0F),
+            disabledBackgroundColor: Colors.white.withValues(alpha: 0.3),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(CwRadius.l),
+            ),
+          ),
+          onPressed: onPressed == null
+              ? null
+              : () {
+                  HapticFeedback.mediumImpact();
+                  onPressed!();
+                },
+          child: Text(label,
+              style: CwType.headline.copyWith(
+                  color: const Color(0xFF0B0C0F), fontWeight: FontWeight.w700)),
+        ),
+      );
+}
+
+class _ProductsUnavailable extends StatelessWidget {
+  const _ProductsUnavailable();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Text(
+          'premiumProductsUnavailable'.tr(),
+          textAlign: TextAlign.center,
+          style: CwType.callout.copyWith(color: CwColors.night.warn),
+        ),
+      );
+}
+
+/// Premium subscriber state — replaces the plan picker so an active
+/// subscriber can't start a second subscription by accident.
 class _PremiumActiveCard extends StatelessWidget {
   final String planLabel;
   final VoidCallback? onManage;
@@ -811,968 +761,121 @@ class _PremiumActiveCard extends StatelessWidget {
     this.onChangePlan,
   });
 
-  static const _gold = Color(0xFFC8A14A);
-
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: _gold.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: _gold.withValues(alpha: 0.45)),
-        ),
-        child: Column(
-          children: [
-            const Icon(Icons.workspace_premium_rounded, color: _gold, size: 40),
-            const SizedBox(height: 10),
-            Text(
-              'premiumActiveTitle'.tr(),
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'premiumActiveSubtitle'.tr(),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'premiumCurrentPlan'.tr(args: [planLabel]),
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            if (onManage != null || onChangePlan != null) ...[
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  if (onManage != null)
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: onManage,
-                        child: Text(
-                          'manageSubscription'.tr(),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  if (onManage != null && onChangePlan != null)
-                    const SizedBox(width: 12),
-                  if (onChangePlan != null)
-                    Expanded(
-                      child: FilledButton(
-                        style: FilledButton.styleFrom(backgroundColor: _gold),
-                        onPressed: onChangePlan,
-                        child: Text(
-                          'changePlan'.tr(),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Pricing — three equal tiles (yearly / monthly / weekly). BEST VALUE badge
-// is applied programmatically to whichever plan has the lowest cost per
-// month; the yearly tile shows its per-month equivalent under the price.
-// ---------------------------------------------------------------------------
-
-class _PricingRow extends StatelessWidget {
-  final List<ProductDetails> plans;
-  final String? weeklyId;
-  final String? monthlyId;
-  final String? yearlyId;
-  final String? bestValueId;
-  final ProductDetails? selected;
-  final ValueChanged<ProductDetails> onSelected;
-
-  const _PricingRow({
-    required this.plans,
-    required this.weeklyId,
-    required this.monthlyId,
-    required this.yearlyId,
-    required this.bestValueId,
-    required this.selected,
-    required this.onSelected,
-  });
-
-  // Inner horizontal padding of each tile (must match _PlanTile padding).
-  static const double _tileInnerHPadding = 12;
-  // Gap between adjacent tiles (must match the SizedBox(width: 8) below).
-  static const double _tileGap = 8;
-  // Target price font size when nothing needs scaling.
-  static const double _priceTargetSize = 22;
-  // Floor so prices never get unreadably small if all are very wide.
-  static const double _priceMinSize = 16;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      // Top padding leaves room for the BEST VALUE pill that floats
-      // half-above the card border.
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final gaps = plans.length > 1 ? plans.length - 1 : 0;
-          final tileWidth =
-              (constraints.maxWidth - (_tileGap * gaps)) / plans.length;
-          final priceMaxWidth = tileWidth - (_tileInnerHPadding * 2);
-          // One font size shared by all tiles so $14.99 and $0.99 render at
-          // the same visual scale instead of each tile scaling independently.
-          final priceFontSize = _computePriceFontSize(
-            priceMaxWidth,
-            Directionality.of(context),
-          );
-
-          return IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (var i = 0; i < plans.length; i++) ...[
-                  if (i > 0) const SizedBox(width: _tileGap),
-                  Expanded(
-                    child: _PlanTile(
-                      product: plans[i],
-                      isSelected: selected?.id == plans[i].id,
-                      isBestValue: plans[i].id == bestValueId,
-                      isWeekly: plans[i].id == weeklyId,
-                      isMonthly: plans[i].id == monthlyId,
-                      isYearly: plans[i].id == yearlyId,
-                      priceFontSize: priceFontSize,
-                      monthlyEquivalent: _equivalentFor(plans[i], context.locale),
-                      onTap: () => onSelected(plans[i]),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  double _computePriceFontSize(
-      double priceMaxWidth, ui.TextDirection direction) {
-    if (priceMaxWidth <= 0) return _priceTargetSize;
-    double minScale = 1.0;
-    const baseStyle = TextStyle(
-      fontSize: _priceTargetSize,
-      fontWeight: FontWeight.w700,
-      letterSpacing: -0.4,
-      height: 1.1,
-    );
-    for (final p in plans) {
-      final tp = TextPainter(
-        text: TextSpan(text: p.price, style: baseStyle),
-        textDirection: direction,
-        maxLines: 1,
-      )..layout();
-      if (tp.width > priceMaxWidth) {
-        final scale = priceMaxWidth / tp.width;
-        if (scale < minScale) minScale = scale;
-      }
-    }
-    final scaled = _priceTargetSize * minScale;
-    return scaled < _priceMinSize ? _priceMinSize : scaled;
-  }
-
-  String? _equivalentFor(ProductDetails plan, Locale locale) {
-    if (plan.id == yearlyId) {
-      return _formatPerMonth(plan.rawPrice / 12, plan, locale);
-    }
-    if (plan.id == weeklyId) {
-      // 4.345 weeks per month — converts the weekly price into a
-      // per-month equivalent so the user sees the real monthly cost
-      // of staying on the weekly plan.
-      return _formatPerMonth(plan.rawPrice * 4.345, plan, locale);
-    }
-    return null;
-  }
-
-  String _formatPerMonth(
-    double amount,
-    ProductDetails source,
-    Locale locale,
-  ) {
-    if (amount <= 0) return '';
-    final symbol = _extractSymbol(source.price) ?? source.currencyCode;
-    return LocaleFormat.currency(
-      locale,
-      symbol: symbol,
-      decimalDigits: 2,
-    ).format(amount);
-  }
-
-  String? _extractSymbol(String price) {
-    final match = RegExp(r'[^\d\s.,]+').firstMatch(price.trim());
-    return match?.group(0);
-  }
-}
-
-class _PlanTile extends StatefulWidget {
-  final ProductDetails product;
-  final bool isSelected;
-  final bool isBestValue;
-  final bool isWeekly;
-  final bool isMonthly;
-  final bool isYearly;
-  final double priceFontSize;
-  final String? monthlyEquivalent;
-  final VoidCallback onTap;
-
-  const _PlanTile({
-    required this.product,
-    required this.isSelected,
-    required this.isBestValue,
-    required this.isWeekly,
-    required this.isMonthly,
-    required this.isYearly,
-    required this.priceFontSize,
-    required this.monthlyEquivalent,
-    required this.onTap,
-  });
-
-  @override
-  State<_PlanTile> createState() => _PlanTileState();
-}
-
-class _PlanTileState extends State<_PlanTile>
-    with SingleTickerProviderStateMixin {
-  AnimationController? _shimmer;
-
-  static const _gold = Color(0xFFC8A14A);
-  static const _goldGradient = LinearGradient(
-    colors: [Color(0xFFE0B85F), Color(0xFFB8862C)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.isBestValue) _ensureShimmer();
-  }
-
-  @override
-  void didUpdateWidget(covariant _PlanTile oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.isBestValue) {
-      _ensureShimmer();
-    } else if (_shimmer != null) {
-      _shimmer!.dispose();
-      _shimmer = null;
-    }
-  }
-
-  void _ensureShimmer() {
-    _shimmer ??= AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2800),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _shimmer?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final showTopBadge = widget.isBestValue;
-    final topBadgeText = widget.isBestValue ? 'premiumPlanBest'.tr() : '';
-    final borderColor = widget.isSelected
-        ? _gold
-        : colorScheme.onSurface.withValues(alpha: 0.10);
-
-    // Row + IntrinsicHeight stretches every tile to the tallest one. The
-    // inner Column reserves a fixed slot for the equivalent-line so every
-    // tile has the same content height too — the bottom edges align even
-    // when the monthly tile has no equivalent-line text. The BEST VALUE
-    // badge sits in the outer Stack with a negative top so it floats
-    // above the card border without taking room inside.
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOutCubic,
+    const night = CwColors.night;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: borderColor,
-          width: widget.isSelected ? 1.6 : 1,
-        ),
-        boxShadow: widget.isSelected
-            ? [
-                BoxShadow(
-                  color: _gold.withValues(alpha: 0.22),
-                  blurRadius: 14,
-                  offset: const Offset(0, 8),
-                ),
-              ]
-            : null,
+        color: Colors.white.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(CwRadius.l),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
       ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(18),
-          onTap: widget.onTap,
-          child: Stack(
-            clipBehavior: Clip.none,
-            fit: StackFit.expand,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 16, 12, 14),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Fixed-height + FittedBox keeps the title baseline aligned
-                    // across all three tiles, and quietly scales down if a
-                    // localized title is unexpectedly wide.
-                    SizedBox(
-                      height: 14,
-                      child: FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          context.upper(_planTitle()),
-                          maxLines: 1,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.8,
-                            color:
-                                colorScheme.onSurface.withValues(alpha: 0.55),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        widget.product.price,
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontSize: widget.priceFontSize,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.4,
-                          color: colorScheme.onSurface,
-                          height: 1.1,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _cadenceLabel(),
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        color: colorScheme.onSurface.withValues(alpha: 0.55),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    // Reserve the equivalent-line slot on every tile (even
-                    // when empty on the monthly plan) so all three card
-                    // bottoms line up. FittedBox scales the text down for
-                    // long currency prefixes like "TRY225.90 / month"
-                    // instead of clipping with an ellipsis.
-                    SizedBox(
-                      height: 14,
-                      child: (widget.monthlyEquivalent != null &&
-                              widget.monthlyEquivalent!.isNotEmpty)
-                          ? FittedBox(
-                              fit: BoxFit.scaleDown,
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'premiumPerMonthEq'
-                                    .tr(args: [widget.monthlyEquivalent!]),
-                                maxLines: 1,
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: _gold,
-                                ),
-                              ),
-                            )
-                          : null,
-                    ),
-                  ],
-                ),
-              ),
-              // Sheen sweep over the BEST VALUE tile. Clipped to the card's
-              // rounded rect, sat under the floating badge so the badge
-              // never gets washed out by the highlight.
-              if (widget.isBestValue && _shimmer != null)
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(18),
-                      child: AnimatedBuilder(
-                        animation: _shimmer!,
-                        builder: (_, __) => CustomPaint(
-                          painter: _ShimmerPainter(
-                            progress: _shimmer!.value,
-                            widthFactor: 0.45,
-                            maxAlpha: 0.45,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              if (showTopBadge)
-                Positioned(
-                  top: -10,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: widget.isBestValue ? _goldGradient : null,
-                        color: widget.isBestValue
-                            ? null
-                            : colorScheme.onSurface.withValues(alpha: 0.18),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: widget.isBestValue
-                            ? [
-                                BoxShadow(
-                                  color: _gold.withValues(alpha: 0.4),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
-                                ),
-                              ]
-                            : null,
-                      ),
-                      child: Text(
-                        topBadgeText,
-                        style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.8,
-                          color: widget.isBestValue
-                              ? Colors.white
-                              : colorScheme.onSurface.withValues(alpha: 0.85),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _planTitle() {
-    if (widget.isYearly) return 'yearlyPlanTitle'.tr();
-    if (widget.isWeekly) return 'weeklyPlanTitle'.tr();
-    return 'monthlyPlanTitle'.tr();
-  }
-
-  String _cadenceLabel() {
-    if (widget.isYearly) return 'perYear'.tr();
-    if (widget.isWeekly) return 'perWeek'.tr();
-    return 'perMonth'.tr();
-  }
-}
-
-class _ProductsUnavailable extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Text(
-        'premiumProductsUnavailable'.tr(),
-        style: TextStyle(
-          fontSize: 13,
-          color: colorScheme.error,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Feature checklist — single-line items, each with a soft gold-tinted icon
-// plate matching the feature it describes (no generic checkmarks).
-// ---------------------------------------------------------------------------
-
-class _Feature {
-  final String titleKey;
-  final IconData icon;
-  const _Feature(this.titleKey, this.icon);
-}
-
-/// Spec used when the paywall is opened with a specific feature trigger
-/// (`Get.toNamed('/premium', arguments: {'feature': 'walletExport'})`).
-/// Pairs a title + description + icon so the page can render a single
-/// hero feature card instead of the wrap of all features.
-class _PremiumFeatureSpec {
-  final String titleKey;
-  final String descKey;
-  final IconData icon;
-  const _PremiumFeatureSpec(this.titleKey, this.descKey, this.icon);
-}
-
-/// Minimal "the feature you tried to use" highlight. No card box, no
-/// dark fill — just a gold icon plate, the title and a short description
-/// centred on the page. A periodic shine sweeps over the icon to give
-/// the moment a hint of motion without feeling like a banner ad.
-class _BigFeatureCard extends StatefulWidget {
-  final _PremiumFeatureSpec spec;
-  const _BigFeatureCard({required this.spec});
-
-  @override
-  State<_BigFeatureCard> createState() => _BigFeatureCardState();
-}
-
-class _BigFeatureCardState extends State<_BigFeatureCard>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _shimmer;
-
-  static const _gold = Color(0xFFC8A14A);
-  static const _goldGradient = LinearGradient(
-    colors: [Color(0xFFE0B85F), Color(0xFFB8862C)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  @override
-  void initState() {
-    super.initState();
-    _shimmer = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 3200),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _shimmer.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: Stack(
+          CwIcon(CwIcons.gem, size: 30, color: night.accent),
+          const SizedBox(height: 10),
+          Text('premiumActiveTitle'.tr(),
+              textAlign: TextAlign.center,
+              style: CwType.title.copyWith(color: night.ink, fontSize: 20)),
+          const SizedBox(height: 4),
+          Text('premiumActiveSubtitle'.tr(),
+              textAlign: TextAlign.center,
+              style: CwType.footnote.copyWith(color: night.ink2)),
+          const SizedBox(height: 8),
+          Text('premiumCurrentPlan'.tr(args: [planLabel]),
+              style: CwType.footnote
+                  .copyWith(color: night.ink, fontWeight: FontWeight.w700)),
+          if (onManage != null || onChangePlan != null) ...[
+            const SizedBox(height: 16),
+            Row(
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    gradient: _goldGradient,
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _gold.withValues(alpha: 0.32),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                if (onManage != null)
+                  Expanded(
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: night.ink,
+                        side: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.3)),
                       ),
-                    ],
-                  ),
-                  child: Icon(widget.spec.icon, color: Colors.white, size: 24),
-                ),
-                Positioned.fill(
-                  child: IgnorePointer(
-                    child: AnimatedBuilder(
-                      animation: _shimmer,
-                      builder: (_, __) => CustomPaint(
-                        painter: _ShimmerPainter(progress: _shimmer.value),
-                      ),
+                      onPressed: onManage,
+                      child: Text('manageSubscription'.tr(),
+                          textAlign: TextAlign.center),
                     ),
                   ),
-                ),
+                if (onManage != null && onChangePlan != null)
+                  const SizedBox(width: 12),
+                if (onChangePlan != null)
+                  Expanded(
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: const Color(0xFF0B0C0F),
+                      ),
+                      onPressed: onChangePlan,
+                      child:
+                          Text('changePlan'.tr(), textAlign: TextAlign.center),
+                    ),
+                  ),
               ],
             ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _Legal extends StatelessWidget {
+  const _Legal();
+
+  Future<void> _open(BuildContext context, String url) async {
+    final ok = await AppLockService.guard(
+        () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication));
+    if (!ok && context.mounted) context.showErrorSnackBar('couldNotLaunchUrl');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const night = CwColors.night;
+    final link = CwType.caption.copyWith(color: night.ink2);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 18, 24, 28),
+      child: Column(
+        children: [
+          Text(
+            (Theme.of(context).platform == TargetPlatform.android
+                    ? 'premiumLegalDisclosureAndroid'
+                    : 'premiumLegalDisclosureIos')
+                .tr(),
+            textAlign: TextAlign.center,
+            style: CwType.caption.copyWith(
+                color: night.mute,
+                fontWeight: FontWeight.w400,
+                fontSize: 10.5,
+                height: 1.45),
           ),
           const SizedBox(height: 12),
-          Text(
-            widget.spec.titleKey.tr(),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: colorScheme.onSurface,
-              height: 1.15,
-              letterSpacing: -0.2,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            widget.spec.descKey.tr(),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: colorScheme.onSurface.withValues(alpha: 0.6),
-              height: 1.35,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              InkWell(
+                onTap: () => _open(context, LegalUrls.termsOfUse),
+                child: Text('termsOfUse'.tr(), style: link),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Text('·', style: link),
+              ),
+              InkWell(
+                onTap: () => _open(context, LegalUrls.privacyPolicy),
+                child: Text('privacyPolicy'.tr(), style: link),
+              ),
+            ],
           ),
         ],
       ),
     );
-  }
-}
-
-/// Diagonal white sweep that travels from off-screen-left to off-screen-
-/// right during the first ~35 % of the cycle, then idles so the card
-/// doesn't strobe.
-class _ShimmerPainter extends CustomPainter {
-  final double progress;
-  final double widthFactor;
-  final double maxAlpha;
-  const _ShimmerPainter({
-    required this.progress,
-    this.widthFactor = 0.32,
-    this.maxAlpha = 0.22,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (progress > 0.35) return;
-    final t = progress / 0.35;
-    final shineWidth = size.width * widthFactor;
-    final dx = -shineWidth + (size.width + shineWidth * 2) * t;
-
-    final rect = Rect.fromLTWH(
-      dx,
-      -size.height * 0.2,
-      shineWidth,
-      size.height * 1.4,
-    );
-
-    final paint = Paint()
-      ..shader = LinearGradient(
-        colors: [
-          Colors.white.withValues(alpha: 0),
-          Colors.white.withValues(alpha: maxAlpha),
-          Colors.white.withValues(alpha: 0),
-        ],
-        stops: const [0, 0.5, 1],
-      ).createShader(rect);
-
-    canvas.save();
-    canvas.translate(rect.center.dx, rect.center.dy);
-    canvas.rotate(-0.35);
-    canvas.translate(-rect.center.dx, -rect.center.dy);
-    canvas.drawRect(rect, paint);
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(covariant _ShimmerPainter oldDelegate) =>
-      oldDelegate.progress != progress ||
-      oldDelegate.widthFactor != widthFactor ||
-      oldDelegate.maxAlpha != maxAlpha;
-}
-
-class _FeatureChecklist extends StatelessWidget {
-  final List<_Feature> features;
-  const _FeatureChecklist({required this.features});
-
-  static const _gold = Color(0xFFC8A14A);
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          for (final f in features)
-            Container(
-              padding: const EdgeInsets.fromLTRB(10, 6, 12, 6),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: _gold.withValues(alpha: 0.22),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(f.icon, size: 14, color: _gold),
-                  const SizedBox(width: 6),
-                  Text(
-                    f.titleKey.tr(),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: colorScheme.onSurface,
-                      height: 1.1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// CTA — bigger, bolder, with subtle pulse and arrow.
-// ---------------------------------------------------------------------------
-
-class _CtaButton extends StatelessWidget {
-  final ProductDetails? product;
-  final String? label;
-  final AnimationController pulseController;
-  final VoidCallback? onPressed;
-
-  const _CtaButton({
-    required this.product,
-    required this.pulseController,
-    this.label,
-    this.onPressed,
-  });
-
-  static const _gold = Color(0xFFC8A14A);
-  static const _goldGradient = LinearGradient(
-    colors: [Color(0xFFE0B85F), Color(0xFFB8862C)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-
-  String _ctaLabel(ProductDetails? p) {
-    if (p == null) return 'getPremium'.tr();
-    if (p.id == PremiumService.yearlyProductId) {
-      return 'premiumCtaYearly'.tr();
-    }
-    if (p.id == PremiumService.monthlyProductId) {
-      return 'premiumCtaMonthly'.tr();
-    }
-    if (p.id == PremiumService.weeklyProductId) {
-      return 'premiumCtaWeekly'.tr();
-    }
-    return 'getPremium'.tr();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final label = this.label ?? _ctaLabel(product);
-    final disabled = onPressed == null;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Opacity(
-        opacity: disabled ? 0.5 : 1,
-        child: AnimatedBuilder(
-          animation: pulseController,
-          builder: (_, __) {
-            final t = pulseController.value;
-            final glowAlpha = 0.35 + 0.25 * (0.5 - (t - 0.5).abs()) * 2;
-            return Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(32),
-                onTap: onPressed,
-                child: Container(
-                  height: 60,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    gradient: _goldGradient,
-                    borderRadius: BorderRadius.circular(32),
-                    boxShadow: disabled
-                        ? null
-                        : [
-                            BoxShadow(
-                              color: _gold.withValues(alpha: glowAlpha),
-                              blurRadius: 22,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        label,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white,
-                          letterSpacing: 0.4,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(
-                        Icons.arrow_forward_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _CtaSubText extends StatelessWidget {
-  final ProductDetails? product;
-  const _CtaSubText({required this.product});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Text(
-      'premiumCancelAnytime'.tr(),
-      style: TextStyle(
-        fontSize: 11,
-        fontWeight: FontWeight.w500,
-        color: colorScheme.onSurface.withValues(alpha: 0.6),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Apple Guideline 3.1.2(a) — auto-renewal disclosure block must be visible
-// next to the subscribe button. Play's subscription policy asks for the
-// same disclosure, but it has to name the Google Play account and Play
-// Store settings, not Apple ID / App Store.
-// ---------------------------------------------------------------------------
-
-class _LegalDisclosure extends StatelessWidget {
-  const _LegalDisclosure();
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Text(
-        (Theme.of(context).platform == TargetPlatform.android
-                ? 'premiumLegalDisclosureAndroid'
-                : 'premiumLegalDisclosureIos')
-            .tr(),
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 10,
-          height: 1.45,
-          fontWeight: FontWeight.w400,
-          color: colorScheme.onSurface.withValues(alpha: 0.55),
-        ),
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Footer.
-// ---------------------------------------------------------------------------
-
-class _LegalLinks extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _LegalLink(
-          label: 'termsOfUse'.tr(),
-          url: LegalUrls.termsOfUse,
-          color: colorScheme.onSurface.withValues(alpha: 0.55),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Text(
-            '·',
-            style: TextStyle(
-              color: colorScheme.onSurface.withValues(alpha: 0.4),
-            ),
-          ),
-        ),
-        _LegalLink(
-          label: 'privacyPolicy'.tr(),
-          url: LegalUrls.privacyPolicy,
-          color: colorScheme.onSurface.withValues(alpha: 0.55),
-        ),
-      ],
-    );
-  }
-}
-
-class _LegalLink extends StatelessWidget {
-  final String label;
-  final String url;
-  final Color color;
-  const _LegalLink({
-    required this.label,
-    required this.url,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () => _launch(context, url),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          color: color,
-        ),
-      ),
-    );
-  }
-
-  Future<void> _launch(BuildContext context, String urlString) async {
-    final uri = Uri.parse(urlString);
-    if (!await AppLockService.guard(() => launchUrl(uri, mode: LaunchMode.externalApplication))) {
-      if (context.mounted) context.showErrorSnackBar('couldNotLaunchUrl');
-    }
   }
 }
