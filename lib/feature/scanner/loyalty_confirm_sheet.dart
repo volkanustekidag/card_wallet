@@ -27,30 +27,32 @@ Future<bool> showLoyaltyConfirmSheet(
   required String format,
   BrandEntry? brand,
 }) async {
-  var saved = false;
+  // saveCard closes the sheet itself before it returns, so the sheet's
+  // future completes first; the save's own result is what counts.
+  Future<bool>? saving;
   await showCwSheet<void>(
     context,
     builder: (_) => _ConfirmBody(
       raw: raw,
       format: format,
       brand: brand,
-      onSaved: () => saved = true,
+      onSaving: (f) => saving = f,
     ),
   );
-  return saved;
+  return await (saving ?? Future.value(false));
 }
 
 class _ConfirmBody extends StatefulWidget {
   final String raw;
   final String format;
   final BrandEntry? brand;
-  final VoidCallback onSaved;
+  final ValueChanged<Future<bool>> onSaving;
 
   const _ConfirmBody({
     required this.raw,
     required this.format,
     required this.brand,
-    required this.onSaved,
+    required this.onSaving,
   });
 
   @override
@@ -114,8 +116,9 @@ class _ConfirmBodyState extends State<_ConfirmBody> {
       ..updateField('website', d.website)
       ..updateField('brandColor', d.brandColor);
     // saveCard pops this sheet itself on success.
-    final ok = await ctrl.saveCard();
-    if (ok) widget.onSaved();
+    final save = ctrl.saveCard();
+    widget.onSaving(save);
+    await save;
     if (mounted) setState(() => _saving = false);
   }
 
@@ -137,8 +140,7 @@ class _ConfirmBodyState extends State<_ConfirmBody> {
               children: [
                 Expanded(
                   child: Text('cwLooksGood'.tr(),
-                      style:
-                          CwType.title.copyWith(color: c.ink, fontSize: 22)),
+                      style: CwType.title.copyWith(color: c.ink, fontSize: 22)),
                 ),
                 valid
                     ? CwPill.ok(
@@ -176,8 +178,7 @@ class _ConfirmBodyState extends State<_ConfirmBody> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('cwBrand'.tr(),
-                                style:
-                                    CwType.caption.copyWith(color: c.mute)),
+                                style: CwType.caption.copyWith(color: c.mute)),
                             const SizedBox(height: 2),
                             Text(
                               _brand == null
@@ -214,8 +215,7 @@ class _ConfirmBodyState extends State<_ConfirmBody> {
             CwButton(
               'cwAddToWallet'.tr(),
               loading: _saving,
-              onPressed:
-                  _name.text.trim().isEmpty || _saving ? null : _save,
+              onPressed: _name.text.trim().isEmpty || _saving ? null : _save,
             ),
             const SizedBox(height: 12),
             CwTrustLine('cwOnDevice'.tr(), icon: CwIcons.lock),

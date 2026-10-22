@@ -368,7 +368,6 @@ String formatBarcodeText(String raw) {
   return b.toString();
 }
 
-
 class _TopBar extends StatelessWidget {
   final Color fg;
   final bool readOnly;
@@ -531,7 +530,9 @@ class _BarcodePanel extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            SelectableText(
+            // Plain text: a selectable one would swallow the tap that
+            // enlarges the barcode (Copy in the dock copies it unspaced).
+            Text(
               formatBarcodeText(card.barcode),
               textAlign: TextAlign.center,
               style: CwType.mono(
