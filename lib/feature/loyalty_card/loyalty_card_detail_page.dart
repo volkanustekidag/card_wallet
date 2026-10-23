@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
+import 'package:wallet_app/core/data/storage/card_photo_store.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
@@ -25,6 +26,7 @@ import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_formats.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_validator.dart';
 import 'package:wallet_app/feature/loyalty_card/utils/loyalty_wallet_action.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/barcode_renderer.dart';
+import 'package:wallet_app/feature/loyalty_card/widgets/card_photos.dart';
 import 'package:wallet_app/feature/loyalty_card/widgets/shareable_loyalty_card.dart';
 import 'package:wallet_app/ui/card/wallet_card_faces.dart';
 import 'package:wallet_app/ui/components/cw_list.dart';
@@ -93,7 +95,7 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
   }
 
   void _onAccel(AccelerometerEvent e) {
-    if (_landscapeOpen || !mounted) return;
+    if (_landscapeOpen || !mounted || !card.hasBarcode) return;
     if (ModalRoute.of(context)?.isCurrent != true) return;
     final sideways = e.x.abs() > 7.0 && e.y.abs() < 4.5;
     if (!sideways) {
@@ -192,18 +194,41 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
                             ),
                           ),
                         const SizedBox(height: 24),
-                        _BarcodePanel(
-                          card: card,
-                          valid: check.isValid,
-                          onTap: () => _openLandscape(),
-                          onFix: readOnly ? null : _onEdit,
-                        ),
-                        const SizedBox(height: 16),
-                        _Hint(
-                          fg: fg,
-                          icon: CwIcons.rotate,
-                          text: 'cwTurnSideways'.tr(),
-                        ),
+                        if (card.hasBarcode) ...[
+                          _BarcodePanel(
+                            card: card,
+                            valid: check.isValid,
+                            onTap: () => _openLandscape(),
+                            onFix: readOnly ? null : _onEdit,
+                          ),
+                          const SizedBox(height: 16),
+                          _Hint(
+                            fg: fg,
+                            icon: CwIcons.rotate,
+                            text: 'cwTurnSideways'.tr(),
+                          ),
+                          if (card.photoIds.isNotEmpty) ...[
+                            const SizedBox(height: 18),
+                            _PhotoStrip(
+                              card: card,
+                              fg: fg,
+                              onOpen: (i) =>
+                                  showCardPhotos(context, card, initial: i),
+                            ),
+                          ],
+                        ] else ...[
+                          _PhotoPanel(
+                            card: card,
+                            onOpen: (i) =>
+                                showCardPhotos(context, card, initial: i),
+                          ),
+                          const SizedBox(height: 16),
+                          _Hint(
+                            fg: fg,
+                            icon: CwIcons.photos,
+                            text: 'cwShowPhotoAtCheckout'.tr(),
+                          ),
+                        ],
                         if (hasNotes) ...[
                           const SizedBox(height: 18),
                           _GlassBox(
@@ -236,15 +261,17 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
                       _DockAction(CwIcons.unlock, 'openApp'.tr(), _onOpenApp),
                     ])
                   : _Dock(fg: fg, actions: [
-                      _DockAction(CwIcons.copy, 'cwCopy'.tr(), _onCopy),
+                      if (card.hasBarcode)
+                        _DockAction(CwIcons.copy, 'cwCopy'.tr(), _onCopy),
                       _DockAction(CwIcons.share, 'cwShare'.tr(),
                           () => _onShare(context)),
-                      _DockAction(
-                        CwIcons.walletPass,
-                        'cwDockWallet'.tr(),
-                        () => addLoyaltyCardToWallet(context, card),
-                        semantic: loyaltyWalletActionLabel(context),
-                      ),
+                      if (card.hasBarcode)
+                        _DockAction(
+                          CwIcons.walletPass,
+                          'cwDockWallet'.tr(),
+                          () => addLoyaltyCardToWallet(context, card),
+                          semantic: loyaltyWalletActionLabel(context),
+                        ),
                       _DockAction(CwIcons.edit, 'cwEdit'.tr(), _onEdit),
                     ]),
             ),
@@ -311,6 +338,13 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
     HapticFeedback.lightImpact();
     AnalyticsService.instance
         .logCardShared(cardType: AnalyticsCardType.loyalty, masked: false);
+    if (!card.hasBarcode) {
+      // A photo card is shared as its photo.
+      final bytes = await CardPhotoStore.instance.load(card.frontPhoto);
+      if (bytes == null) return;
+      await shareImageBytes(bytes, filename: 'loyalty-${card.id}.jpg');
+      return;
+    }
     final brandLogo =
         await ShareableLoyaltyCard.precacheBrandLogo(context, card);
     if (!context.mounted) return;
@@ -573,6 +607,104 @@ class _BarcodePanel extends StatelessWidget {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Thumbnails of the card's photos under the barcode.
+class _PhotoStrip extends StatelessWidget {
+  final LoyaltyCard card;
+  final Color fg;
+  final ValueChanged<int> onOpen;
+  const _PhotoStrip(
+      {required this.card, required this.fg, required this.onOpen});
+
+  @override
+  Widget build(BuildContext context) {
+    final ids = card.photoIds;
+    final labels = [
+      if (card.frontPhoto != null) 'cwPhotoFront'.tr(),
+      if (card.backPhoto != null) 'cwPhotoBack'.tr(),
+    ];
+    return _GlassBox(
+      fg: fg,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('cwCardPhotos'.tr().toUpperCase(),
+              style:
+                  CwType.overline.copyWith(color: fg.withValues(alpha: 0.7))),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              for (var i = 0; i < ids.length; i++) ...[
+                if (i > 0) const SizedBox(width: 10),
+                Expanded(
+                  child: Semantics(
+                    button: true,
+                    label: labels[i],
+                    excludeSemantics: true,
+                    child: GestureDetector(
+                      key: ValueKey('detailPhoto_$i'),
+                      onTap: () => onOpen(i),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: AspectRatio(
+                          aspectRatio: 1.586,
+                          child: CardPhotoImage(ids[i]),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+              if (ids.length == 1) const Expanded(child: SizedBox()),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A card without a barcode: its front photo, big, where the barcode
+/// would be. Tap for full screen.
+class _PhotoPanel extends StatelessWidget {
+  final LoyaltyCard card;
+  final ValueChanged<int> onOpen;
+  const _PhotoPanel({required this.card, required this.onOpen});
+
+  @override
+  Widget build(BuildContext context) {
+    final front = card.frontPhoto;
+    return Semantics(
+      button: true,
+      label: 'cwShowPhotoAtCheckout'.tr(),
+      child: GestureDetector(
+        key: const ValueKey('detailPhotoPanel'),
+        onTap: () => onOpen(0),
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x59000000),
+                blurRadius: 60,
+                offset: Offset(0, 30),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: AspectRatio(
+              aspectRatio: 1.586,
+              child: front == null ? const SizedBox() : CardPhotoImage(front),
+            ),
+          ),
         ),
       ),
     );

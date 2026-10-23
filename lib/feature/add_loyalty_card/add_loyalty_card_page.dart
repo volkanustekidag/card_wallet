@@ -7,6 +7,7 @@ import 'package:wallet_app/core/widgets/notes_and_tags_section.dart';
 import 'package:wallet_app/feature/add_loyalty_card/controller/add_loyalty_card_controller.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_formats.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_validator.dart';
+import 'package:wallet_app/feature/loyalty_card/widgets/card_photos.dart';
 import 'package:wallet_app/feature/scanner/brand_picker_sheet.dart';
 import 'package:wallet_app/feature/scanner/live_scanner_page.dart';
 import 'package:wallet_app/feature/scanner/scan_analyzer.dart';
@@ -225,6 +226,24 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                         : () => _c.updateField('barcodeFormat', suggestion),
                   ),
           ],
+          CwSectionHeader('cwCardPhotos'.tr(),
+              padding: const EdgeInsets.fromLTRB(4, 22, 4, 8)),
+          CardPhotoSlots(
+            front: card.frontPhoto,
+            back: card.backPhoto,
+            onFront: (id) => _c.setPhoto(front: true, id: id),
+            onBack: (id) => _c.setPhoto(front: false, id: id),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              card.barcode.trim().isEmpty && card.frontPhoto != null
+                  ? 'cwPhotoInsteadOfBarcode'.tr()
+                  : 'cwCardPhotosHint'.tr(),
+              style: CwType.footnote.copyWith(color: CwColors.of(context).mute),
+            ),
+          ),
           const SizedBox(height: 18),
           MaterialPicker(
             selected: card.colorId,

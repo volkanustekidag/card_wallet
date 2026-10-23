@@ -66,7 +66,8 @@ void main() {
     });
 
     test('round-trips with the production iteration count', () async {
-      final raw = _encryptedFile('secret123', iterations: kBackupPbkdf2Iterations);
+      final raw =
+          _encryptedFile('secret123', iterations: kBackupPbkdf2Iterations);
       expect(await _decode(raw), _payload);
     });
 
@@ -140,7 +141,10 @@ void main() {
 
     test('payload without card lists is rejected', () async {
       await expectLater(
-        _decode(jsonEncode({'version': '1.0', 'data': {'creditCards': 1}})),
+        _decode(jsonEncode({
+          'version': '1.0',
+          'data': {'creditCards': 1}
+        })),
         throwsA(_backupError(BackupErrorKind.invalidFormat)),
       );
     });
@@ -190,5 +194,23 @@ void main() {
       expect(restored.useCount, isNull);
       expect(restored.lastUsedAt, isNull);
     });
+  });
+
+  test('loyalty card photos survive the backup shape', () {
+    final card = LoyaltyCard(
+      id: 'l9',
+      name: 'Library',
+      barcode: '',
+      barcodeFormat: 'CODE_128',
+      colorId: 0,
+      frontPhoto: 'front-0001-aaaa',
+      backPhoto: 'back-0002-bbbb',
+    );
+    final back = BackupService.loyaltyCardFromJson(
+        jsonDecode(jsonEncode(BackupService.loyaltyCardToJson(card))) as Map);
+    expect(back.frontPhoto, 'front-0001-aaaa');
+    expect(back.backPhoto, 'back-0002-bbbb');
+    expect(back.hasBarcode, isFalse);
+    expect(back.photoIds, ['front-0001-aaaa', 'back-0002-bbbb']);
   });
 }

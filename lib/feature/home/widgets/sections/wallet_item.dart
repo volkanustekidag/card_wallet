@@ -83,6 +83,34 @@ class WalletItem {
   String get heroTag => 'home-card-${kind.name}-$id';
 
   bool get isFavorite => isFavoriteCard(card);
+
+  /// The user's own tags ("work", "family"); the favourite flag excluded.
+  List<String> get tags {
+    final raw = switch (kind) {
+      WalletItemKind.credit => (card as CreditCard).tags,
+      WalletItemKind.iban => (card as IbanCard).tags,
+      WalletItemKind.loyalty => (card as LoyaltyCard).tags,
+    };
+    return [
+      for (final t in raw ?? const <String>[])
+        if (t.trim().isNotEmpty && t != kFavoriteTag) t.trim(),
+    ];
+  }
+}
+
+/// How Home orders the cards.
+enum HomeSort {
+  /// Up Next guess and favourites first, grouped by kind (the default).
+  smart,
+
+  /// Alphabetical by the name shown on the card.
+  name,
+
+  /// The user's own drag-and-drop order.
+  manual;
+
+  static HomeSort parse(String? s) =>
+      HomeSort.values.firstWhere((v) => v.name == s, orElse: () => smart);
 }
 
 List<WalletItem> mergeAndSort({

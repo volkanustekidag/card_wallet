@@ -17,7 +17,9 @@ import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
+import 'package:wallet_app/core/data/storage/card_photo_store.dart';
 import 'package:wallet_app/feature/import/importers.dart';
+import 'package:wallet_app/feature/import/photo_import.dart';
 import 'package:wallet_app/ui/components/cw_button.dart';
 import 'package:wallet_app/ui/components/cw_field.dart';
 import 'package:wallet_app/ui/components/cw_list.dart';
@@ -41,6 +43,87 @@ class _ImportPageState extends State<ImportPage> {
   ImportResult? _result;
   final Set<int> _on = {};
   bool _busy = false;
+
+  /// Photo import in progress: images read so far / picked.
+  (int, int)? _reading;
+
+  /// The "found" header: results scroll into view when they arrive.
+  final _foundKey = GlobalKey();
+
+  Future<void> _pickPhotos() async {
+    if (_reading != null) return;
+    final files = await PhotoImport.pick();
+    if (files.isEmpty || !mounted) return;
+    setState(() => _reading = (0, files.length));
+    final cards = await PhotoImport.read(files, onProgress: (done) {
+      if (mounted) setState(() => _reading = (done, files.length));
+    });
+    if (!mounted) return;
+    setState(() => _reading = null);
+    _show(ImportResult(ImportSource.photos, cards));
+  }
+
+  void _show(ImportResult r) {
+    if (r.cards.isEmpty) {
+      context.showInfoSnackBar('cwImportNothing');
+      return;
+    }
+    setState(() {
+      _result = r;
+      _on
+        ..clear()
+        ..addAll([
+          for (var i = 0; i < r.cards.length; i++)
+            if (r.cards[i].usable) i,
+        ]);
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final ctx = _foundKey.currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(ctx,
+            duration: CwMotion.base, curve: CwMotion.standard);
+      }
+    });
+  }
+
+  Future<void> _rename(int i) async {
+    final r = _result;
+    if (r == null) return;
+    final ctrl = TextEditingController(text: r.cards[i].name);
+    final name = await showCwSheet<String>(
+      context,
+      builder: (sheet) => SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+              18, 4, 18, 18 + MediaQuery.viewInsetsOf(sheet).bottom),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              CwField(
+                controller: ctrl,
+                label: 'cwName'.tr(),
+                autofocus: true,
+                maxLength: 40,
+                textCapitalization: TextCapitalization.words,
+                onSubmitted: (v) => Navigator.pop(sheet, v),
+              ),
+              const SizedBox(height: 14),
+              CwButton('cwSave'.tr(),
+                  onPressed: () => Navigator.pop(sheet, ctrl.text)),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (name == null || name.trim().isEmpty || !mounted) return;
+    setState(() {
+      final cards = [...r.cards];
+      cards[i] = cards[i].copyWith(name: name.trim());
+      _result = ImportResult(r.source, cards);
+    });
+  }
 
   Future<void> _pick({bool stocardGuide = false}) async {
     if (stocardGuide) {
@@ -68,19 +151,7 @@ class _ImportPageState extends State<ImportPage> {
     try {
       final r = Importers.parse(name, bytes, password: password);
       if (!mounted) return;
-      if (r.cards.isEmpty) {
-        context.showInfoSnackBar('cwImportNothing');
-        return;
-      }
-      setState(() {
-        _result = r;
-        _on
-          ..clear()
-          ..addAll([
-            for (var i = 0; i < r.cards.length; i++)
-              if (r.cards[i].barcodeValid) i,
-          ]);
-      });
+      _show(r);
     } on ImportNeedsPassword {
       if (!mounted) return;
       final pw = await _askPassword();
@@ -177,7 +248,11 @@ class _ImportPageState extends State<ImportPage> {
       for (var i = 0; i < allowed; i++) {
         final card = chosen[i];
         final brand = BrandCatalog.instance.match(card.name);
+        final photo = card.photoOnly
+            ? await CardPhotoStore.instance.save(card.photo!)
+            : null;
         await service.addLoyaltyCard(LoyaltyCard(
+          frontPhoto: photo,
           id: uuid.v4(),
           name: card.name,
           brand: brand?.name,
@@ -284,18 +359,45 @@ class _ImportPageState extends State<ImportPage> {
                               'cwSrcPkpassSub', _pick),
                           _source(CwIcons.document, c.ink2, 'cwSrcCsv',
                               'cwSrcCsvSub', _pick),
+                          _source(CwIcons.photos, c.ink2, 'cwSrcPhotos',
+                              'cwSrcPhotosSub', _pickPhotos,
+                              key: const ValueKey('importPhotos')),
                         ],
                       ),
+                      if (_reading != null)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(22, 18, 22, 0),
+                          child: Row(
+                            children: [
+                              const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'cwReadingPhotos'.tr(args: [
+                                  '${_reading!.$1}',
+                                  '${_reading!.$2}'
+                                ]),
+                                style: CwType.callout.copyWith(color: c.ink2),
+                              ),
+                            ],
+                          ),
+                        ),
                       if (r != null) ...[
-                        CwSectionHeader('cwFoundInFile'.tr()),
+                        CwSectionHeader('cwFoundInFile'.tr(), key: _foundKey),
                         CwGroup(
                           children: [
                             for (var i = 0; i < r.cards.length; i++)
                               _FoundRow(
+                                key: ValueKey('found_$i'),
                                 card: r.cards[i],
                                 on: _on.contains(i),
                                 onChanged: (v) => setState(
                                     () => v ? _on.add(i) : _on.remove(i)),
+                                onRename: () => _rename(i),
                               ),
                           ],
                         ),
@@ -323,8 +425,10 @@ class _ImportPageState extends State<ImportPage> {
   }
 
   Widget _source(CwIcons icon, Color color, String title, String sub,
-          VoidCallback onTap) =>
+          VoidCallback onTap,
+          {Key? key}) =>
       CwRow(
+        key: key,
         leading: CwIconTile(icon, color: color),
         title: title.tr(),
         subtitle: sub.tr(),
@@ -337,11 +441,14 @@ class _FoundRow extends StatelessWidget {
   final ImportedCard card;
   final bool on;
   final ValueChanged<bool> onChanged;
+  final VoidCallback? onRename;
 
   const _FoundRow({
+    super.key,
     required this.card,
     required this.on,
     required this.onChanged,
+    this.onRename,
   });
 
   @override
@@ -356,44 +463,69 @@ class _FoundRow extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 10, 12, 10),
       child: Row(
         children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: card.barcodeValid ? colour : c.warn,
+          if (card.photo != null)
+            ClipRRect(
               borderRadius: BorderRadius.circular(9),
+              child: Image.memory(card.photo!,
+                  width: 32, height: 32, fit: BoxFit.cover, cacheWidth: 96),
+            )
+          else
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: card.barcodeValid ? colour : c.warn,
+                borderRadius: BorderRadius.circular(9),
+              ),
+              alignment: Alignment.center,
+              child: card.barcodeValid
+                  ? Text(
+                      card.name.characters.take(1).toString().toUpperCase(),
+                      style: CwType.callout.copyWith(
+                          color: colour.computeLuminance() > 0.55
+                              ? Colors.black
+                              : Colors.white,
+                          fontWeight: FontWeight.w800),
+                    )
+                  : const CwIcon(CwIcons.warning,
+                      size: 16, color: Colors.white),
             ),
-            alignment: Alignment.center,
-            child: card.barcodeValid
-                ? Text(
-                    card.name.characters.take(1).toString().toUpperCase(),
-                    style: CwType.callout.copyWith(
-                        color: colour.computeLuminance() > 0.55
-                            ? Colors.black
-                            : Colors.white,
-                        fontWeight: FontWeight.w800),
-                  )
-                : const CwIcon(CwIcons.warning, size: 16, color: Colors.white),
-          ),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(card.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: CwType.callout
-                        .copyWith(color: c.ink, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 2),
-                card.barcodeValid
-                    ? Text(card.barcode,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: CwType.mono(size: 12, color: c.mute))
-                    : Text('cwImportInvalid'.tr(),
-                        style: CwType.caption.copyWith(color: c.warn)),
-              ],
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onRename,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(card.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: CwType.callout.copyWith(
+                                color: c.ink, fontWeight: FontWeight.w600)),
+                      ),
+                      if (onRename != null) ...[
+                        const SizedBox(width: 6),
+                        CwIcon(CwIcons.edit, size: 14, color: c.mute),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  card.barcodeValid
+                      ? Text(card.barcode,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: CwType.mono(size: 12, color: c.mute))
+                      : card.photoOnly
+                          ? Text('cwImportPhotoOnly'.tr(),
+                              style: CwType.caption.copyWith(color: c.mute))
+                          : Text('cwImportInvalid'.tr(),
+                              style: CwType.caption.copyWith(color: c.warn)),
+                ],
+              ),
             ),
           ),
           const SizedBox(width: 8),

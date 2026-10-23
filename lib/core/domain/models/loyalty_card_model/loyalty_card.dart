@@ -71,6 +71,14 @@ class LoyaltyCard extends HiveObject {
   @HiveField(14)
   int? brandColor;
 
+  /// [CardPhotoStore] ids of photos of the card's front and back. A card
+  /// with a front photo may have no barcode at all (shown as the photo).
+  @HiveField(15)
+  String? frontPhoto;
+
+  @HiveField(16)
+  String? backPhoto;
+
   LoyaltyCard({
     required this.id,
     required this.name,
@@ -87,7 +95,17 @@ class LoyaltyCard extends HiveObject {
     this.useCount,
     this.usageLog,
     this.brandColor,
+    this.frontPhoto,
+    this.backPhoto,
   });
+
+  bool get hasBarcode => barcode.trim().isNotEmpty;
+
+  /// Photo ids in display order (front first).
+  List<String> get photoIds => [
+        if (frontPhoto != null) frontPhoto!,
+        if (backPhoto != null) backPhoto!,
+      ];
 }
 
 /// How many recent uses [LoyaltyCard.usageLog] keeps.

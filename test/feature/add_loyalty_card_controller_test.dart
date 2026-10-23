@@ -41,4 +41,37 @@ void main() {
     expect(saved.useCount, 12);
     expect(saved.lastUsedAt, DateTime(2026, 10, 1));
   });
+
+  test('photos survive an edit; a front photo can stand in for a barcode', () {
+    final original = LoyaltyCard(
+      id: 'c',
+      name: 'Gym',
+      barcode: '',
+      barcodeFormat: 'CODE_128',
+      colorId: 0,
+      frontPhoto: 'old-front-1234',
+      backPhoto: 'back-12345678',
+    );
+    final draft = LoyaltyCard(
+      id: 'c',
+      name: 'Gym',
+      barcode: '',
+      barcodeFormat: 'CODE_128',
+      colorId: 0,
+      frontPhoto: 'new-front-1234',
+      backPhoto: 'back-12345678',
+    );
+    final saved = AddLoyaltyCardController.mergeEdit(original, draft);
+    expect(saved.frontPhoto, 'new-front-1234');
+    expect(saved.backPhoto, 'back-12345678');
+
+    final c = AddLoyaltyCardController()..initializeForCreate();
+    c.updateField('name', 'Library');
+    expect(c.isFormValid, isFalse);
+    c.updateField('frontPhoto', 'front-12345678');
+    expect(c.isFormValid, isTrue);
+    c.updateField('frontPhoto', null);
+    c.updateField('backPhoto', 'back-12345678');
+    expect(c.isFormValid, isFalse, reason: 'a back photo alone is not enough');
+  });
 }

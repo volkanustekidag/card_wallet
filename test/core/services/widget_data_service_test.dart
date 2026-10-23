@@ -23,6 +23,8 @@ void main() {
     final cards = [
       loyalty('a', 'Bakery', barcode: 'NOT-ENCODABLE-AS-EAN'),
       loyalty('b', 'Gym', format: 'QR_CODE', barcode: 'gym-42'),
+      // Photo-only: nothing a widget could draw.
+      loyalty('c', 'Library', barcode: '', frontPhoto: 'front-12345678'),
     ];
     var done = false;
     final pending =
@@ -45,6 +47,10 @@ void main() {
       expect(c['bg'], matches(RegExp(r'^#[0-9A-F]{6}$')));
       expect(c['fg'], matches(RegExp(r'^#[0-9A-F]{6}$')));
     }
+    // Every drawable card, A to Z, for the "pinned card" widget.
+    final all = jsonDecode(data['cw_all_cards'] as String) as List;
+    expect(all.map((c) => (c as Map)['name']), ['Bakery', 'Gym']);
+    expect(jsonEncode(timeline), isNot(contains('"c"')));
     // Labels follow the in-app language (raw keys here: no translations).
     expect(data.containsKey('cw_label_upnext'), isTrue);
     expect(data.containsKey('cw_label_add'), isTrue);

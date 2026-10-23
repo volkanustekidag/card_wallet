@@ -16,12 +16,20 @@ class UiPrefs {
   static const _kRemindDefault = 'remind_by_default';
   static const _kHomeGrid = 'home_grid';
   static const _kBrandCountry = 'brand_country';
+  static const _kHomeSort = 'home_sort';
+  static const _kManualOrder = 'manual_order';
 
   final RxBool upNext = true.obs;
   final Rxn<DateTime> lastBackup = Rxn<DateTime>();
   final RxList<String> carry = <String>[].obs;
   final RxBool remindByDefault = false.obs;
   final RxBool homeGrid = false.obs;
+
+  /// Home order: `smart`, `name` or `manual` (see HomeSort).
+  final RxString homeSort = 'smart'.obs;
+
+  /// Hero tags of the cards in the user's own order (manual sort).
+  final RxList<String> manualOrder = <String>[].obs;
 
   /// Country picked in the brand picker; null follows the phone.
   final Rxn<String> brandCountry = Rxn<String>();
@@ -42,6 +50,10 @@ class UiPrefs {
       carry.assignAll(kinds is List ? kinds.cast<String>() : const []);
       remindByDefault.value = b.get(_kRemindDefault) == true;
       homeGrid.value = b.get(_kHomeGrid) == true;
+      final sort = b.get(_kHomeSort);
+      homeSort.value = sort is String ? sort : 'smart';
+      final order = b.get(_kManualOrder);
+      manualOrder.assignAll(order is List ? order.cast<String>() : const []);
       final bc = b.get(_kBrandCountry);
       brandCountry.value = bc is String && bc.isNotEmpty ? bc : null;
     } catch (_) {
@@ -75,6 +87,20 @@ class UiPrefs {
     homeGrid.value = v;
     try {
       await (await _open()).put(_kHomeGrid, v);
+    } catch (_) {}
+  }
+
+  Future<void> setHomeSort(String sort) async {
+    homeSort.value = sort;
+    try {
+      await (await _open()).put(_kHomeSort, sort);
+    } catch (_) {}
+  }
+
+  Future<void> setManualOrder(List<String> heroTags) async {
+    manualOrder.assignAll(heroTags);
+    try {
+      await (await _open()).put(_kManualOrder, heroTags);
     } catch (_) {}
   }
 

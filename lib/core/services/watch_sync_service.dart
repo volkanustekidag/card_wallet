@@ -79,8 +79,7 @@ class WatchSyncService {
           '(${cards.length} cards). Sync may be silently dropped.',
         );
       }
-      final result =
-          await _channel.invokeMethod<bool>('pushAllCards', json);
+      final result = await _channel.invokeMethod<bool>('pushAllCards', json);
       return result ?? false;
     } on MissingPluginException {
       // Watch sync is iOS-only; on Android (or unsupported platform)
@@ -131,12 +130,12 @@ class WatchSyncService {
   @visibleForTesting
   static String encodePayload(List<LoyaltyCard> cards) {
     final gradients = LinearGradients().linearGradientList;
-    final cardMaps = sortLoyaltyByUsage(cards).map((c) {
-      final gradient =
-          gradients[c.colorId.clamp(0, gradients.length - 1)];
+    // The watch draws barcodes only; photo-only cards stay on the phone.
+    final cardMaps =
+        sortLoyaltyByUsage(cards.where((c) => c.hasBarcode).toList()).map((c) {
+      final gradient = gradients[c.colorId.clamp(0, gradients.length - 1)];
       final colors = gradient.colors;
-      final color1 =
-          colors.isNotEmpty ? colors.first : const Color(0xFF1A1D24);
+      final color1 = colors.isNotEmpty ? colors.first : const Color(0xFF1A1D24);
       final color2 = colors.length > 1 ? colors.last : color1;
       return <String, dynamic>{
         'id': c.id,

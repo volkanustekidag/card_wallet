@@ -351,16 +351,18 @@ class WalletCardFace extends StatelessWidget {
             Row(
               children: [
                 CwIcon(
-                  isSquareBarcodeFormat(c.barcodeFormat)
-                      ? CwIcons.qr
-                      : CwIcons.barcode,
+                  !c.hasBarcode
+                      ? CwIcons.photos
+                      : isSquareBarcodeFormat(c.barcodeFormat)
+                          ? CwIcons.qr
+                          : CwIcons.barcode,
                   size: 18,
                   color: fg.withValues(alpha: 0.8),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    c.barcode,
+                    c.hasBarcode ? c.barcode : 'cwPhotoCard'.tr(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style:

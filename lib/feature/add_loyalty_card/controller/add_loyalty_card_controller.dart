@@ -11,6 +11,7 @@ import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
+import 'package:wallet_app/core/data/storage/card_photo_store.dart';
 import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
@@ -36,9 +37,41 @@ class AddLoyaltyCardController extends GetxController {
   final isEditMode = false.obs;
   LoyaltyCard? _originalCard;
 
+  /// Photos taken in this form. Those the saved card doesn't keep are
+  /// deleted when the form closes (cancelled, or replaced before saving).
+  final Set<String> _newPhotos = {};
+  final Set<String> _committedPhotos = {};
+
+  /// A name, and a barcode or at least a front photo to show instead.
   bool get isFormValid {
     final c = currentCard.value;
-    return c.name.trim().isNotEmpty && c.barcode.trim().isNotEmpty;
+    return c.name.trim().isNotEmpty &&
+        (c.barcode.trim().isNotEmpty || c.frontPhoto != null);
+  }
+
+  void setPhoto({required bool front, String? id}) {
+    if (id != null) _newPhotos.add(id);
+    updateField(front ? 'frontPhoto' : 'backPhoto', id);
+  }
+
+  @override
+  void onClose() {
+    for (final id in _newPhotos.difference(_committedPhotos)) {
+      unawaited(CardPhotoStore.instance.delete(id));
+    }
+    _newPhotos.clear();
+    super.onClose();
+  }
+
+  /// After a save: keeps the card's photos, drops those an edit replaced.
+  void _commitPhotos(LoyaltyCard saved, LoyaltyCard? original) {
+    _committedPhotos.addAll(saved.photoIds);
+    if (original == null) return;
+    for (final id in original.photoIds) {
+      if (!saved.photoIds.contains(id)) {
+        unawaited(CardPhotoStore.instance.delete(id));
+      }
+    }
   }
 
   void initializeForCreate() {
@@ -71,6 +104,8 @@ class AddLoyaltyCardController extends GetxController {
       tags: card.tags == null ? null : List<String>.from(card.tags!),
       website: card.website,
       brandColor: card.brandColor,
+      frontPhoto: card.frontPhoto,
+      backPhoto: card.backPhoto,
     );
     isEditMode.value = true;
     currentCard.refresh();
@@ -109,6 +144,12 @@ class AddLoyaltyCardController extends GetxController {
       case 'website':
         c.website = value as String?;
         break;
+      case 'frontPhoto':
+        c.frontPhoto = value as String?;
+        break;
+      case 'backPhoto':
+        c.backPhoto = value as String?;
+        break;
     }
     currentCard.refresh();
   }
@@ -134,6 +175,8 @@ class AddLoyaltyCardController extends GetxController {
       useCount: original.useCount,
       usageLog: original.usageLog,
       brandColor: draft.brandColor,
+      frontPhoto: draft.frontPhoto,
+      backPhoto: draft.backPhoto,
     );
   }
 
@@ -143,6 +186,8 @@ class AddLoyaltyCardController extends GetxController {
   /// back to fix the number.
   Future<bool> _resolveInvalidBarcode() async {
     final card = currentCard.value;
+    // No barcode: the card shows its photo (the form requires one).
+    if (card.barcode.trim().isEmpty) return card.frontPhoto != null;
     final format = card.barcodeFormat;
     final check = LoyaltyBarcodeValidator.validate(card.barcode, format);
     if (check.isValid) return true;
@@ -214,6 +259,7 @@ class AddLoyaltyCardController extends GetxController {
       if (wasEditMode && _originalCard != null) {
         final updated = mergeEdit(_originalCard!, currentCard.value);
         await _service.updateLoyaltyCard(_originalCard!, updated);
+        _commitPhotos(updated, _originalCard);
         saved = true;
         HapticFeedback.mediumImpact();
         Get.back();
@@ -232,8 +278,11 @@ class AddLoyaltyCardController extends GetxController {
           tags: currentCard.value.tags,
           website: currentCard.value.website,
           brandColor: currentCard.value.brandColor,
+          frontPhoto: currentCard.value.frontPhoto,
+          backPhoto: currentCard.value.backPhoto,
         );
         await _service.addLoyaltyCard(newCard);
+        _commitPhotos(newCard, null);
         saved = true;
         unawaited(
           AnalyticsService.instance.logCardAdded(AnalyticsCardType.loyalty),

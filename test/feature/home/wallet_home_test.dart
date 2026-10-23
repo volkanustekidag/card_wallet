@@ -8,6 +8,7 @@ import 'package:wallet_app/core/utils/tag_index.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/wallet_home.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
+import 'package:wallet_app/feature/home/widgets/home_order.dart';
 import 'package:wallet_app/ui/card/wallet_card_faces.dart';
 
 import '../../helpers/harness.dart';
@@ -19,6 +20,8 @@ void main() {
     await h.setUp();
     UiPrefs.instance.upNext.value = true;
     UiPrefs.instance.homeGrid.value = false;
+    UiPrefs.instance.homeSort.value = 'smart';
+    UiPrefs.instance.manualOrder.clear();
   });
   tearDown(h.tearDown);
 
@@ -275,5 +278,119 @@ void main() {
         expect(tester.takeException(), isNull);
       });
     }
+  });
+
+  group('order and folders', () {
+    final items = mergeAndSort(
+      credits: [
+        credit('c1', bank: 'Zeta Bank', tags: ['work'])
+      ],
+      ibans: [
+        iban(1, bank: 'Alpha Bank', tags: ['family'])
+      ],
+      loyalties: [
+        loyalty('a', 'Market', tags: ['family']),
+        loyalty('b', 'Bakery', tags: [kFavoriteTag]),
+      ],
+    );
+    List<String> names(List<WalletItem> l) =>
+        [for (final i in l) titleForItem(i)];
+
+    test('name order is A to Z across kinds', () {
+      expect(names(stackOrder(items, HomeFilter.all, sort: HomeSort.name)),
+          ['Alpha Bank', 'Bakery', 'Market', 'Zeta Bank']);
+    });
+
+    test('my order follows the saved list, new cards on top', () {
+      final byName = {for (final i in items) titleForItem(i): i.heroTag};
+      final manual = [
+        byName['Zeta Bank']!,
+        byName['Market']!,
+        byName['Bakery']!
+      ];
+      expect(
+          names(stackOrder(items, HomeFilter.all,
+              sort: HomeSort.manual, manualOrder: manual)),
+          ['Alpha Bank', 'Zeta Bank', 'Market', 'Bakery']);
+    });
+
+    test('a folder keeps its cards; favourites are a folder too', () {
+      expect(names(stackOrder(items, HomeFilter.all, folder: 'family')),
+          containsAll(['Market', 'Alpha Bank']));
+      expect(stackOrder(items, HomeFilter.all, folder: 'family'), hasLength(2));
+      expect(names(stackOrder(items, HomeFilter.all, folder: kFavoriteTag)),
+          ['Bakery']);
+      expect(walletFolders(items), [kFavoriteTag, 'family', 'work']);
+    });
+
+    testWidgets('folder chips narrow the wallet and clear again',
+        (tester) async {
+      await pumpHome(
+          tester,
+          FakeHome(
+            loyalties: [
+              loyalty('a', 'Market', tags: ['family']),
+              loyalty('b', 'Bakery'),
+            ],
+            credits: [
+              credit('c', bank: 'Chase', tags: ['work'])
+            ],
+          ));
+      expect(find.byKey(const ValueKey('folder_family')), findsOneWidget);
+      expect(find.byKey(const ValueKey('folder_work')), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('folder_family')));
+      await tester.pumpAndSettle();
+      expect(find.text('Market'), findsWidgets);
+      expect(find.text('Bakery'), findsNothing);
+      expect(find.text('Chase'), findsNothing);
+      // Up Next is about the whole wallet, not a folder.
+      expect(find.byKey(const ValueKey('homeUpNext')), findsNothing);
+
+      await tester.tap(find.byKey(const ValueKey('folder_family')));
+      await tester.pumpAndSettle();
+      expect(find.text('Bakery'), findsWidgets);
+    });
+
+    testWidgets('the order sheet switches to A to Z', (tester) async {
+      await pumpHome(
+          tester,
+          FakeHome(loyalties: [
+            loyalty('a', 'Market'),
+            loyalty('b', 'Bakery'),
+          ]));
+      await tester.tap(find.byKey(const ValueKey('homeSortButton')));
+      await tester.pumpAndSettle();
+      await tapIo(tester, find.byKey(const ValueKey('sort_name')));
+      expect(UiPrefs.instance.homeSort.value, 'name');
+      expect(find.byType(ReorderCardsPage), findsNothing);
+    });
+
+    testWidgets('dragging in Edit order saves my order', (tester) async {
+      await pumpHome(
+          tester,
+          FakeHome(loyalties: [
+            loyalty('a', 'Market'),
+            loyalty('b', 'Bakery'),
+            loyalty('c', 'Cinema'),
+          ]));
+      await tester.tap(find.byKey(const ValueKey('homeSortButton')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey('sortEditOrder')));
+      await tester.pumpAndSettle();
+      expect(find.byType(ReorderCardsPage), findsOneWidget);
+      expect(UiPrefs.instance.homeSort.value, 'manual');
+
+      final before = UiPrefs.instance.manualOrder.toList();
+      expect(before, hasLength(3));
+      final handle = find.descendant(
+          of: find.byKey(ValueKey(before.first)),
+          matching: find.byType(ReorderableDragStartListener));
+      await tester.drag(handle, const Offset(0, 200));
+      await tester.pumpAndSettle();
+      final after = UiPrefs.instance.manualOrder.toList();
+      expect(after.first, isNot(before.first));
+      expect(after.toSet(), before.toSet());
+    });
   });
 }

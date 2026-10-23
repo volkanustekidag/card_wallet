@@ -19,6 +19,7 @@
 		59704484FF1731F76FF9A35C /* LoyaltyWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1C606ABD2D6C559F8B1985F /* LoyaltyWidgetBundle.swift */; };
 		5F3E48A8FC766B135C7A25DF /* CardWalletWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4345A2E0EC56EFBF12813393 /* CardWalletWatchApp.swift */; };
 		6B8EB348AA77B57A4A733126 /* Provider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B57C1ED5C00944D03D23C089 /* Provider.swift */; };
+		D901CCF7F5EAF61BEA76B83B /* PinnedCardWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F287A28241A0C4029202E9B /* PinnedCardWidget.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		7CA0611E2ECA1EF8005567BC /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7CA0611D2ECA1EF8005567BC /* StoreKit.framework */; };
 		8392CC16FA9B8CD3741F8F75 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 92DFA97F596AD654B21C82D7 /* InfoPlist.strings */; };
@@ -129,6 +130,7 @@
 		A6B4D3E61B2809894598E6C8 /* es */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		B43A90FEC6F46C0C73EFF070 /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Runner/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B57C1ED5C00944D03D23C089 /* Provider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Provider.swift; sourceTree = "<group>"; };
+		3F287A28241A0C4029202E9B /* PinnedCardWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PinnedCardWidget.swift; sourceTree = "<group>"; };
 		C5AFA70EB815CAA7CA4EB91E /* CardWalletWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CardWalletWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6720E390D5EBE6FEF0ECB5B /* CardDetailView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CardDetailView.swift; sourceTree = "<group>"; };
 		C7EDFE70D316CFE700FA2A36 /* BarcodeRenderer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BarcodeRenderer.swift; sourceTree = "<group>"; };
@@ -174,6 +176,7 @@
 				488AC6D9B0E09932E1CB9F62 /* LoyaltyWidget.swift */,
 				D1C606ABD2D6C559F8B1985F /* LoyaltyWidgetBundle.swift */,
 				B57C1ED5C00944D03D23C089 /* Provider.swift */,
+				3F287A28241A0C4029202E9B /* PinnedCardWidget.swift */,
 				6412B2ED6AD4D1FD93AF0DDE /* LoyaltyEntry.swift */,
 				3F57502E7E520DD20EBC1FFC /* BarcodeRenderer.swift */,
 				99505D8CEE93266E02F2271B /* Info.plist */,
@@ -547,6 +550,7 @@
 				F0131BB81F4DCBE0ACEC4122 /* LoyaltyWidget.swift in Sources */,
 				59704484FF1731F76FF9A35C /* LoyaltyWidgetBundle.swift in Sources */,
 				6B8EB348AA77B57A4A733126 /* Provider.swift in Sources */,
+				D901CCF7F5EAF61BEA76B83B /* PinnedCardWidget.swift in Sources */,
 				A65BD34443ADED88AAD4484C /* LoyaltyEntry.swift in Sources */,
 				3E301D6668EDA9CE146A67D3 /* BarcodeRenderer.swift in Sources */,
 			);

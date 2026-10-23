@@ -91,6 +91,7 @@ class _NotesAndTagsSectionState extends State<NotesAndTagsSection> {
     final pool = collectAllTags(
       credits: home.creditCards,
       ibans: home.ibanCards,
+      loyalties: home.loyaltyCards,
     );
     final used = _tags.map((t) => t.toLowerCase()).toSet();
     final prefix = _typed.trim().toLowerCase();

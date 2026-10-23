@@ -119,7 +119,7 @@ private struct UpNextBlock: View {
     }
 }
 
-private struct BarcodePanel: View {
+struct BarcodePanel: View {
     let card: WidgetCard
 
     var body: some View {
@@ -189,7 +189,7 @@ private struct EmptyStateView: View {
     }
 }
 
-private struct WidgetBackground: View {
+struct WidgetBackground: View {
     let card: WidgetCard?
 
     var body: some View {

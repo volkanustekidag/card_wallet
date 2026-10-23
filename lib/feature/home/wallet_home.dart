@@ -12,6 +12,7 @@ import 'package:wallet_app/core/utils/loyalty_usage.dart';
 import 'package:wallet_app/core/utils/tag_index.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/widgets/sections/add_card_navigator.dart';
+import 'package:wallet_app/feature/home/widgets/home_order.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/credit_card_reminder_sheet.dart';
 import 'package:wallet_app/feature/scanner/add_flows.dart';
@@ -47,6 +48,9 @@ class WalletHome extends StatefulWidget {
 
 class _WalletHomeState extends State<WalletHome> {
   final ValueNotifier<HomeFilter> _filter = ValueNotifier(HomeFilter.all);
+
+  /// Tag the stack is narrowed to ([kFavoriteTag] = starred), or null.
+  final ValueNotifier<String?> _folder = ValueNotifier(null);
   bool _pullArmed = true;
 
   HomeController get _c => widget.controller;
@@ -54,6 +58,7 @@ class _WalletHomeState extends State<WalletHome> {
   @override
   void dispose() {
     _filter.dispose();
+    _folder.dispose();
     super.dispose();
   }
 
@@ -115,18 +120,28 @@ class _WalletHomeState extends State<WalletHome> {
                   final items = _c.walletItems.toList();
                   final showUpNext = UiPrefs.instance.upNext.value;
                   final grid = UiPrefs.instance.homeGrid.value;
+                  final sort = HomeSort.parse(UiPrefs.instance.homeSort.value);
+                  final manual = UiPrefs.instance.manualOrder.toList();
                   if (items.isEmpty) {
                     return const SliverToBoxAdapter(child: _EmptyWallet());
                   }
                   return ValueListenableBuilder<HomeFilter>(
                     valueListenable: _filter,
-                    builder: (context, filter, _) => _WalletSlivers(
-                      controller: _c,
-                      items: items,
-                      showUpNext: showUpNext,
-                      grid: grid,
-                      filter: filter,
-                      onFilter: (f) => _filter.value = f,
+                    builder: (context, filter, _) =>
+                        ValueListenableBuilder<String?>(
+                      valueListenable: _folder,
+                      builder: (context, folder, _) => _WalletSlivers(
+                        controller: _c,
+                        items: items,
+                        showUpNext: showUpNext,
+                        grid: grid,
+                        filter: filter,
+                        onFilter: (f) => _filter.value = f,
+                        sort: sort,
+                        manualOrder: manual,
+                        folder: folder,
+                        onFolder: (f) => _folder.value = f,
+                      ),
                     ),
                   );
                 }),
@@ -153,6 +168,10 @@ class _WalletSlivers extends StatelessWidget {
   final ValueChanged<HomeFilter> onFilter;
   final bool showUpNext;
   final bool grid;
+  final HomeSort sort;
+  final List<String> manualOrder;
+  final String? folder;
+  final ValueChanged<String?> onFolder;
 
   const _WalletSlivers({
     required this.controller,
@@ -161,6 +180,10 @@ class _WalletSlivers extends StatelessWidget {
     required this.grid,
     required this.filter,
     required this.onFilter,
+    this.sort = HomeSort.smart,
+    this.manualOrder = const [],
+    this.folder,
+    required this.onFolder,
   });
 
   static const _segments = [
@@ -187,11 +210,16 @@ class _WalletSlivers extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final stack = stackOrder(items, filter);
-    final upNext =
-        showUpNext && (filter == HomeFilter.all || filter == HomeFilter.loyalty)
-            ? _upNext(now)
-            : null;
+    final folders = walletFolders(items);
+    // A folder whose last card lost the tag is gone: show everything.
+    final active = folders.contains(folder) ? folder : null;
+    final stack = stackOrder(items, filter,
+        sort: sort, manualOrder: manualOrder, folder: active);
+    final upNext = showUpNext &&
+            active == null &&
+            (filter == HomeFilter.all || filter == HomeFilter.loyalty)
+        ? _upNext(now)
+        : null;
     final notice = (filter == HomeFilter.all || filter == HomeFilter.credit)
         ? _topNotice()
         : null;
@@ -210,6 +238,14 @@ class _WalletSlivers extends StatelessWidget {
             ),
           ),
         ),
+        if (folders.isNotEmpty)
+          SliverToBoxAdapter(
+            child: FolderRow(
+              folders: folders,
+              selected: active,
+              onChanged: onFolder,
+            ),
+          ),
         if (upNext != null)
           SliverToBoxAdapter(
             child: _UpNextBanner(card: upNext.$1, reason: upNext.$2),
@@ -220,6 +256,9 @@ class _WalletSlivers extends StatelessWidget {
             notice: notice,
             grid: grid,
             onGrid: stack.isEmpty ? null : UiPrefs.instance.setHomeGrid,
+            onSort: stack.length < 2
+                ? null
+                : () => showHomeSortSheet(context, items: items),
           ),
         ),
         if (stack.isEmpty)
@@ -333,15 +372,71 @@ class _WalletSlivers extends StatelessWidget {
   }
 }
 
-/// Stack order for a filter: loyalty first (best guess for now on top),
-/// then IBANs, then bank cards — the front card is the one shown in full.
-/// Favourites lead within each kind.
-List<WalletItem> stackOrder(List<WalletItem> items, HomeFilter filter) {
+/// Cards for a filter (and [folder]) in the order Home shows them.
+///
+/// [HomeSort.smart]: loyalty first (best guess for now on top), then IBANs,
+/// then bank cards; favourites lead each kind, and the last card (shown in
+/// full) is a bank card. [HomeSort.name]: A to Z. [HomeSort.manual]: the
+/// user's [manualOrder] (hero tags), cards added since on top.
+/// [folder] keeps cards with that tag ([kFavoriteTag] = starred ones).
+List<WalletItem> stackOrder(
+  List<WalletItem> items,
+  HomeFilter filter, {
+  HomeSort sort = HomeSort.smart,
+  List<String> manualOrder = const [],
+  String? folder,
+}) {
+  bool inFolder(WalletItem it) =>
+      folder == null ||
+      (folder == kFavoriteTag ? it.isFavorite : it.tags.contains(folder));
+  final visible = [
+    for (final it in items)
+      if (filter.matches(it) && inFolder(it)) it,
+  ];
+  switch (sort) {
+    case HomeSort.smart:
+      return _smartOrder(visible);
+    case HomeSort.name:
+      final named = [
+        for (final it in visible) (titleForItem(it).toLowerCase(), it),
+      ]..sort((a, b) {
+          final d = a.$1.compareTo(b.$1);
+          return d != 0 ? d : a.$2.heroTag.compareTo(b.$2.heroTag);
+        });
+      return [for (final n in named) n.$2];
+    case HomeSort.manual:
+      final pos = {
+        for (var i = 0; i < manualOrder.length; i++) manualOrder[i]: i,
+      };
+      final smart = _smartOrder(visible);
+      final known = smart.where((it) => pos.containsKey(it.heroTag)).toList()
+        ..sort((a, b) => pos[a.heroTag]!.compareTo(pos[b.heroTag]!));
+      return [
+        ...smart.where((it) => !pos.containsKey(it.heroTag)),
+        ...known,
+      ];
+  }
+}
+
+/// User tags across [items], favourites first, for the folder row.
+List<String> walletFolders(List<WalletItem> items) {
+  final tags = <String>{};
+  var favourites = false;
+  for (final it in items) {
+    if (it.isFavorite) favourites = true;
+    tags.addAll(it.tags);
+  }
+  return [
+    if (favourites) kFavoriteTag,
+    ...sortedTags(tags),
+  ];
+}
+
+List<WalletItem> _smartOrder(List<WalletItem> visible) {
   final loyalty = <LoyaltyCard>[];
   final ibans = <WalletItem>[];
   final credits = <WalletItem>[];
-  for (final it in items) {
-    if (!filter.matches(it)) continue;
+  for (final it in visible) {
     switch (it.kind) {
       case WalletItemKind.loyalty:
         loyalty.add(it.card as LoyaltyCard);
@@ -469,11 +564,15 @@ class _CountLine extends StatelessWidget {
   /// Switches stack / grid; null hides the switch (nothing to show).
   final ValueChanged<bool>? onGrid;
 
+  /// Opens the order sheet; null hides the button.
+  final VoidCallback? onSort;
+
   const _CountLine({
     required this.count,
     this.notice,
     this.grid = false,
     this.onGrid,
+    this.onSort,
   });
 
   static String whenText(int days) {
@@ -539,6 +638,10 @@ class _CountLine extends StatelessWidget {
           ),
           const SizedBox(width: 12),
           if (right != null) right else const Spacer(),
+          if (onSort != null) ...[
+            const SizedBox(width: 10),
+            SortButton(onTap: onSort!),
+          ],
           if (onGrid != null) ...[
             const SizedBox(width: 10),
             _ViewSwitch(grid: grid, onChanged: onGrid!),

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 
@@ -35,6 +36,7 @@ class WidgetDataService {
   /// Widget identifiers — must match the SwiftUI `@main` widget struct name
   /// on iOS and the AppWidgetProvider receiver class on Android.
   static const String _iOSWidgetName = 'LoyaltyWidget';
+  static const String _iOSPinnedWidgetName = 'PinnedCardWidget';
   static const String _androidWidgetReceiver =
       'com.volkan.wallet_app.LoyaltyWidgetReceiver';
 
@@ -69,6 +71,8 @@ class WidgetDataService {
   /// detail / barcode page is opened — that interaction is what defines
   /// "most recently used" for the widget.
   Future<void> setLastUsedLoyaltyCard(LoyaltyCard card) async {
+    // The widget draws a barcode; a photo-only card has none.
+    if (!card.hasBarcode) return;
     try {
       await _ensureInit();
 
@@ -113,6 +117,7 @@ class WidgetDataService {
         HomeWidget.saveWidgetData<String>(_keyUsedAt, ''),
         HomeWidget.saveWidgetData<String>(_keyCards, '[]'),
         HomeWidget.saveWidgetData<String>(_keyTimeline, '[]'),
+        HomeWidget.saveWidgetData<String>(_keyAllCards, '[]'),
       ]);
       await _refresh();
     } catch (e, st) {
@@ -139,7 +144,12 @@ class WidgetDataService {
   /// image per card — so the home/lock-screen widgets stay right through
   /// the day without the app being opened. The legacy `last_loyalty_*`
   /// keys mirror the current Up Next card (quick tile, older widgets).
-  Future<void> reconcile(List<LoyaltyCard> cards) async {
+  Future<void> reconcile(List<LoyaltyCard> all) async {
+    // Widgets draw barcodes; photo-only cards stay in the app.
+    final cards = [
+      for (final c in all)
+        if (c.hasBarcode) c
+    ];
     if (cards.isEmpty) {
       await clearLastUsedLoyaltyCard();
       return;
@@ -154,7 +164,8 @@ class WidgetDataService {
       for (var h = 0; h < 24; h++) {
         final t = hour0.add(Duration(hours: h));
         // Score at the middle of the hour.
-        final ranked = sortLoyaltyForNow(cards, t.add(const Duration(minutes: 30)));
+        final ranked =
+            sortLoyaltyForNow(cards, t.add(const Duration(minutes: 30)));
         final ids = [for (final c in ranked.take(4)) c.id];
         used.addAll(ids);
         timeline.add({'t': t.millisecondsSinceEpoch ~/ 1000, 'ids': ids});
@@ -164,20 +175,18 @@ class WidgetDataService {
       for (final id in used) {
         final card = byId[id];
         if (card == null) continue;
-        final m = materialForItem(WalletItem.loyalty(card));
-        payload.add({
-          'id': card.id,
-          'name': card.name.trim().isNotEmpty ? card.name.trim() : (card.brand ?? ''),
-          'barcode': card.barcode,
-          'format': card.barcodeFormat,
-          'bg': _toHex(m.base),
-          'bg2': _toHex(m.colors.first),
-          'fg': _toHex(m.foreground),
-          'img': await _barcodeImage(card),
-        });
+        payload.add(await _cardJson(card));
       }
+      // Every card, A to Z: the "pinned card" widget lets the user pick one.
+      final all = [
+        for (final c in [...cards]..sort((a, b) => _displayName(a)
+            .toLowerCase()
+            .compareTo(_displayName(b).toLowerCase())))
+          await _cardJson(c),
+      ];
       await Future.wait([
         HomeWidget.saveWidgetData<String>(_keyCards, jsonEncode(payload)),
+        HomeWidget.saveWidgetData<String>(_keyAllCards, jsonEncode(all)),
         HomeWidget.saveWidgetData<String>(_keyTimeline, jsonEncode(timeline)),
         // Widgets follow the in-app language, not the system one.
         HomeWidget.saveWidgetData<String>(_keyLabelUpNext, 'cwUpNext'.tr()),
@@ -190,7 +199,25 @@ class WidgetDataService {
     }
   }
 
+  static String _displayName(LoyaltyCard card) =>
+      card.name.trim().isNotEmpty ? card.name.trim() : (card.brand ?? '');
+
+  Future<Map<String, Object?>> _cardJson(LoyaltyCard card) async {
+    final m = materialForItem(WalletItem.loyalty(card));
+    return {
+      'id': card.id,
+      'name': _displayName(card),
+      'barcode': card.barcode,
+      'format': card.barcodeFormat,
+      'bg': _toHex(m.base),
+      'bg2': _toHex(m.colors.first),
+      'fg': _toHex(m.foreground),
+      'img': await _barcodeImage(card),
+    };
+  }
+
   static const String _keyCards = 'cw_cards';
+  static const String _keyAllCards = 'cw_all_cards';
   static const String _keyLabelUpNext = 'cw_label_upnext';
   static const String _keyLabelAdd = 'cw_label_add';
   static const String _keyTimeline = 'cw_timeline';
@@ -208,7 +235,8 @@ class WidgetDataService {
       if (oldSig == sig && oldPath != null && oldPath.isNotEmpty) {
         return oldPath;
       }
-      if (!LoyaltyBarcodeValidator.canEncode(card.barcode, card.barcodeFormat)) {
+      if (!LoyaltyBarcodeValidator.canEncode(
+          card.barcode, card.barcodeFormat)) {
         return null;
       }
       final square = isSquareBarcodeFormat(card.barcodeFormat);
@@ -239,7 +267,9 @@ class WidgetDataService {
         pixelRatio: 2,
       );
       await HomeWidget.saveWidgetData<String>(sigKey, sig);
-      return path is String ? path : await HomeWidget.getWidgetData<String>(key);
+      return path is String
+          ? path
+          : await HomeWidget.getWidgetData<String>(key);
     } catch (_) {
       return null;
     }
@@ -264,6 +294,10 @@ class WidgetDataService {
       iOSName: _iOSWidgetName,
       qualifiedAndroidName: _androidWidgetReceiver,
     );
+    if (Platform.isIOS) {
+      // The "pinned card" widget (iOS 17+) reads the same data.
+      await HomeWidget.updateWidget(iOSName: _iOSPinnedWidgetName);
+    }
   }
 
   String _toHex(Color c) {

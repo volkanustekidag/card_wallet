@@ -15,6 +15,10 @@ class ImportedCard {
   /// Past uses from the source app, oldest first (Stocard keeps them).
   final List<DateTime> usedAt;
 
+  /// The screenshot / photo a card was read from (photo import). Kept as
+  /// the card's front photo when no barcode could be read from it.
+  final Uint8List? photo;
+
   const ImportedCard({
     required this.name,
     required this.barcode,
@@ -22,13 +26,30 @@ class ImportedCard {
     this.color,
     this.note,
     this.usedAt = const [],
+    this.photo,
   });
 
   bool get barcodeValid =>
       LoyaltyBarcodeValidator.validate(barcode, format).isValid;
+
+  /// No readable barcode, but a photo to show at the checkout instead.
+  bool get photoOnly => barcode.trim().isEmpty && photo != null;
+
+  /// Worth importing as it is.
+  bool get usable => barcodeValid || photoOnly;
+
+  ImportedCard copyWith({String? name}) => ImportedCard(
+        name: name ?? this.name,
+        barcode: barcode,
+        format: format,
+        color: color,
+        note: note,
+        usedAt: usedAt,
+        photo: photo,
+      );
 }
 
-enum ImportSource { catima, stocard, fidme, pkpass, csv }
+enum ImportSource { catima, stocard, fidme, pkpass, csv, photos }
 
 class ImportResult {
   final ImportSource source;

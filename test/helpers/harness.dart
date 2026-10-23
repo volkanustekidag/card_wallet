@@ -230,8 +230,12 @@ LoyaltyCard loyalty(
   List<int>? usageLog,
   DateTime? createdAt,
   String? notes,
+  String? frontPhoto,
+  String? backPhoto,
 }) =>
     LoyaltyCard(
+      frontPhoto: frontPhoto,
+      backPhoto: backPhoto,
       id: id,
       name: name,
       barcode: barcode,
