@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Card Wallet</string>
+    <string name="list_title">Cartões fidelidade</string>
+    <string name="empty_title">Adicione cartões no celular</string>
+    <string name="empty_body">Eles são sincronizados aqui automaticamente.</string>
+    <string name="card_unavailable">Cartão indisponível</string>
+    <string name="show_on_phone">Mostre no celular</string>
+</resources>

@@ -3,13 +3,15 @@ import 'dart:convert';
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
+import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
+import 'package:wallet_app/ui/card/wallet_card_faces.dart';
 import 'package:flutter/services.dart';
-import 'package:wallet_app/core/constants/linear_gradient_color.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/utils/loyalty_usage.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
 
-/// Bridges loyalty cards from Dart → native iOS → Apple Watch.
+/// Bridges loyalty cards from Dart → native → the watch: Apple Watch on
+/// iOS (WCSession), Wear OS on Android (Data Layer, `MainActivity.kt`).
 ///
 /// The native side (`AppDelegate.swift`) forwards the JSON payload to
 /// `WCSession.updateApplicationContext`, which has last-write-wins
@@ -18,8 +20,7 @@ import 'package:wallet_app/core/services/error_reporter.dart';
 /// deltas — the watch reconstructs its UI from the latest snapshot it
 /// has cached.
 ///
-/// All operations are silent no-ops on Android. The channel only exists
-/// on iOS; calling it elsewhere would throw `MissingPluginException`.
+/// Elsewhere the channel doesn't exist and calls are silent no-ops.
 class WatchSyncService {
   WatchSyncService._();
   static final WatchSyncService instance = WatchSyncService._();
@@ -121,7 +122,8 @@ class WatchSyncService {
     // only. Still, the check keeps us from crashing if the file is
     // ever pulled into a web build.
     if (kIsWeb) return false;
-    return Platform.isIOS;
+    // iOS: WCSession → Apple Watch. Android: Data Layer → Wear OS.
+    return Platform.isIOS || Platform.isAndroid;
   }
 
   /// JSON posted to the watch. Cards go in usage order (favourites → most
@@ -129,14 +131,13 @@ class WatchSyncService {
   /// and `lastUsedAt` are additive keys older watch builds ignore.
   @visibleForTesting
   static String encodePayload(List<LoyaltyCard> cards) {
-    final gradients = LinearGradients().linearGradientList;
     // The watch draws barcodes only; photo-only cards stay on the phone.
     final cardMaps =
         sortLoyaltyByUsage(cards.where((c) => c.hasBarcode).toList()).map((c) {
-      final gradient = gradients[c.colorId.clamp(0, gradients.length - 1)];
-      final colors = gradient.colors;
-      final color1 = colors.isNotEmpty ? colors.first : const Color(0xFF1A1D24);
-      final color2 = colors.length > 1 ? colors.last : color1;
+      // Same look as on the phone: the card's material or brand colour.
+      final m = materialForItem(WalletItem.loyalty(c));
+      final color1 = m.base;
+      final color2 = m.colors.last;
       return <String, dynamic>{
         'id': c.id,
         'name': c.name,
@@ -145,6 +146,8 @@ class WatchSyncService {
         'format': c.barcodeFormat,
         'color1': _hex(color1),
         'color2': _hex(color2),
+        // Text on the card (dark on gold / light materials).
+        'fg': _hex(m.foreground),
         'useCount': c.useCount ?? 0,
         'lastUsedAt': c.lastUsedAt?.toUtc().toIso8601String(),
       };

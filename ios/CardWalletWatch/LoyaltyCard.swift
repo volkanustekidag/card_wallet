@@ -13,6 +13,8 @@ struct LoyaltyCard: Codable, Identifiable, Hashable {
     let format: String
     let color1: String
     let color2: String
+    /// Text colour on the card (phone 2.3+); white when absent.
+    let fg: String?
     /// Usage stats (phone 2.2+). Optional so older payloads and the on-watch
     /// cache still decode. The phone already sends cards in usage order, so
     /// the list needs no sorting here.

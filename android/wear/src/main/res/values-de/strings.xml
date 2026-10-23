@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Card Wallet</string>
+    <string name="list_title">Kundenkarten</string>
+    <string name="empty_title">Karten auf dem Handy hinzufügen</string>
+    <string name="empty_body">Sie werden automatisch hierher synchronisiert.</string>
+    <string name="card_unavailable">Karte nicht verfügbar</string>
+    <string name="show_on_phone">Auf dem Handy anzeigen</string>
+</resources>

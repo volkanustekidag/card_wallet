@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Card Wallet</string>
+    <string name="list_title">Loyalty cards</string>
+    <string name="empty_title">Add cards on your phone</string>
+    <string name="empty_body">They sync here automatically.</string>
+    <string name="card_unavailable">Card unavailable</string>
+    <string name="show_on_phone">Show this on your phone</string>
+</resources>
