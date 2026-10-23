@@ -15,12 +15,16 @@ class UiPrefs {
   static const _kCarry = 'carry_kinds';
   static const _kRemindDefault = 'remind_by_default';
   static const _kHomeGrid = 'home_grid';
+  static const _kBrandCountry = 'brand_country';
 
   final RxBool upNext = true.obs;
   final Rxn<DateTime> lastBackup = Rxn<DateTime>();
   final RxList<String> carry = <String>[].obs;
   final RxBool remindByDefault = false.obs;
   final RxBool homeGrid = false.obs;
+
+  /// Country picked in the brand picker; null follows the phone.
+  final Rxn<String> brandCountry = Rxn<String>();
 
   Future<Box<dynamic>> _open() async {
     if (Hive.isBoxOpen(_box)) return Hive.box<dynamic>(_box);
@@ -38,6 +42,8 @@ class UiPrefs {
       carry.assignAll(kinds is List ? kinds.cast<String>() : const []);
       remindByDefault.value = b.get(_kRemindDefault) == true;
       homeGrid.value = b.get(_kHomeGrid) == true;
+      final bc = b.get(_kBrandCountry);
+      brandCountry.value = bc is String && bc.isNotEmpty ? bc : null;
     } catch (_) {
       // Defaults stand; nothing here is critical.
     }
@@ -69,6 +75,16 @@ class UiPrefs {
     homeGrid.value = v;
     try {
       await (await _open()).put(_kHomeGrid, v);
+    } catch (_) {}
+  }
+
+  Future<void> setBrandCountry(String? code) async {
+    brandCountry.value = code;
+    try {
+      final b = await _open();
+      code == null
+          ? await b.delete(_kBrandCountry)
+          : await b.put(_kBrandCountry, code);
     } catch (_) {}
   }
 

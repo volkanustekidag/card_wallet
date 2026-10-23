@@ -1,0 +1,1411 @@
+[
+{
+"n": "Pick n Pay",
+"d": "pnp.co.za",
+"c": "#E31837",
+"r": [
+"za"
+],
+"a": [
+"smart shopper"
+]
+},
+{
+"n": "Checkers",
+"d": "checkers.co.za",
+"c": "#00A651",
+"r": [
+"za"
+],
+"a": [
+"xtra savings"
+]
+},
+{
+"n": "Shoprite South Africa",
+"d": "shoprite.co.za",
+"c": "#E31837",
+"r": [
+"za"
+]
+},
+{
+"n": "Woolworths SA",
+"d": "woolworths.co.za",
+"c": "#000000",
+"r": [
+"za"
+],
+"a": [
+"wrewards",
+"woolies"
+]
+},
+{
+"n": "Spar South Africa",
+"d": "spar.co.za",
+"c": "#E30613",
+"r": [
+"za"
+]
+},
+{
+"n": "Clicks",
+"d": "clicks.co.za",
+"c": "#00A6D6",
+"r": [
+"za"
+],
+"a": [
+"clicks clubcard"
+]
+},
+{
+"n": "Dis-Chem",
+"d": "dischem.co.za",
+"c": "#00A651",
+"r": [
+"za"
+],
+"a": [
+"dischem"
+]
+},
+{
+"n": "Makro",
+"d": "makro.co.za",
+"c": "#003F87",
+"r": [
+"za"
+]
+},
+{
+"n": "Game",
+"d": "game.co.za",
+"c": "#E30613",
+"r": [
+"za"
+]
+},
+{
+"n": "Mr Price",
+"d": "mrp.com",
+"c": "#E30613",
+"r": [
+"za"
+]
+},
+{
+"n": "Edgars",
+"d": "edgars.co.za",
+"c": "#000000",
+"r": [
+"za"
+]
+},
+{
+"n": "Takealot",
+"d": "takealot.com",
+"c": "#0B79BF",
+"r": [
+"za"
+]
+},
+{
+"n": "Engen",
+"d": "engen.co.za",
+"c": "#E30613",
+"r": [
+"za"
+]
+},
+{
+"n": "Sasol",
+"d": "sasol.com",
+"c": "#0072BC",
+"r": [
+"za"
+]
+},
+{
+"n": "Discovery Vitality",
+"d": "discovery.co.za",
+"c": "#004B87",
+"r": [
+"za"
+],
+"a": [
+"vitality"
+]
+},
+{
+"n": "eBucks",
+"d": "ebucks.com",
+"c": "#00A3E0",
+"r": [
+"za"
+]
+},
+{
+"n": "Ackermans",
+"d": "ackermans.co.za",
+"c": "#E30613",
+"r": [
+"za"
+]
+},
+{
+"n": "PEP",
+"d": "pepstores.com",
+"c": "#0072BC",
+"r": [
+"za"
+]
+},
+{
+"n": "Builders",
+"d": "builders.co.za",
+"c": "#FFD200",
+"r": [
+"za"
+]
+},
+{
+"n": "Countdown",
+"d": "countdown.co.nz",
+"c": "#00843D",
+"r": [
+"nz"
+]
+},
+{
+"n": "盒马 Freshippo",
+"d": "freshippo.com",
+"c": "#0068FF",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"hema",
+"盒马"
+]
+},
+{
+"n": "永辉超市 Yonghui",
+"d": "yonghui.com.cn",
+"c": "#E30613",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"yonghui"
+]
+},
+{
+"n": "华润万家 CR Vanguard",
+"d": "crv.com.cn",
+"c": "#E30613",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"vanguard"
+]
+},
+{
+"n": "沃尔玛 Walmart China",
+"d": "walmart.cn",
+"c": "#0071CE",
+"r": [
+"cn",
+"hk",
+"tw"
+]
+},
+{
+"n": "山姆会员店 Sam's Club China",
+"d": "samsclub.cn",
+"c": "#0067A0",
+"r": [
+"cn",
+"hk",
+"tw"
+]
+},
+{
+"n": "大润发 RT-Mart",
+"d": "rt-mart.com.cn",
+"c": "#E30613",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"rt mart"
+]
+},
+{
+"n": "物美 Wumart",
+"d": "wumart.com",
+"c": "#E30613",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"wumart"
+]
+},
+{
+"n": "瑞幸咖啡 Luckin Coffee",
+"d": "luckincoffee.com",
+"c": "#0022AB",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"luckin",
+"瑞幸"
+]
+},
+{
+"n": "喜茶 HeyTea",
+"d": "heytea.com",
+"c": "#000000",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"heytea"
+]
+},
+{
+"n": "奈雪的茶 Nayuki",
+"d": "naixue.com",
+"c": "#000000",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"nayuki"
+]
+},
+{
+"n": "蜜雪冰城 Mixue",
+"d": "mxbc.com",
+"c": "#E30613",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"mixue"
+]
+},
+{
+"n": "海底捞 Haidilao",
+"d": "haidilao.com",
+"c": "#E30613",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"haidilao"
+]
+},
+{
+"n": "屈臣氏 Watsons",
+"d": "watsons.com.cn",
+"c": "#00A0AF",
+"r": [
+"cn",
+"hk",
+"tw"
+]
+},
+{
+"n": "优衣库 Uniqlo China",
+"d": "uniqlo.cn",
+"c": "#FF0000",
+"r": [
+"cn",
+"hk",
+"tw"
+]
+},
+{
+"n": "Muji China",
+"d": "muji.com.cn",
+"c": "#7F0019",
+"r": [
+"cn",
+"hk",
+"tw"
+]
+},
+{
+"n": "全家 FamilyMart",
+"d": "familymart.com.cn",
+"c": "#00A040",
+"r": [
+"cn",
+"hk",
+"tw"
+]
+},
+{
+"n": "罗森 Lawson China",
+"d": "lawson.com.cn",
+"c": "#0067B1",
+"r": [
+"cn",
+"hk",
+"tw"
+]
+},
+{
+"n": "7-Eleven",
+"d": "7-eleven.com",
+"c": "#008163",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"7 eleven",
+"seven eleven"
+]
+},
+{
+"n": "百联 Bailian",
+"d": "bl.com",
+"c": "#E30613",
+"r": [
+"cn",
+"hk",
+"tw"
+]
+},
+{
+"n": "京东 JD",
+"d": "jd.com",
+"c": "#E1251B",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"jd",
+"jingdong"
+]
+},
+{
+"n": "天猫 Tmall",
+"d": "tmall.com",
+"c": "#FF0036",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"tmall"
+]
+},
+{
+"n": "中国国航 Air China",
+"d": "airchina.com.cn",
+"c": "#E30613",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"phoenix miles",
+"air china"
+]
+},
+{
+"n": "东方航空 China Eastern",
+"d": "ceair.com",
+"c": "#002F6C",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"eastern miles"
+]
+},
+{
+"n": "南方航空 China Southern",
+"d": "csair.com",
+"c": "#0066B3",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"sky pearl"
+]
+},
+{
+"n": "PARKnSHOP",
+"d": "parknshop.com",
+"c": "#E30613",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"moneyback"
+]
+},
+{
+"n": "Wellcome",
+"d": "wellcome.com.hk",
+"c": "#E30613",
+"r": [
+"cn",
+"hk",
+"tw"
+]
+},
+{
+"n": "Mannings",
+"d": "mannings.com.hk",
+"c": "#F58220",
+"r": [
+"cn",
+"hk",
+"tw"
+]
+},
+{
+"n": "Cathay",
+"d": "cathaypacific.com",
+"c": "#006564",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"asia miles",
+"cathay pacific"
+]
+},
+{
+"n": "全聯 PX Mart",
+"d": "pxmart.com.tw",
+"c": "#0054A6",
+"r": [
+"cn",
+"hk",
+"tw"
+],
+"a": [
+"px mart"
+]
+},
+{
+"n": "Aeon",
+"d": "aeon.com",
+"c": "#B60081",
+"r": [
+"jp",
+"kr"
+],
+"a": [
+"waon"
+]
+},
+{
+"n": "Ito-Yokado",
+"d": "itoyokado.co.jp",
+"c": "#E30613",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "Lawson",
+"d": "lawson.co.jp",
+"c": "#0067B1",
+"r": [
+"jp",
+"kr"
+],
+"a": [
+"ponta"
+]
+},
+{
+"n": "FamilyMart",
+"d": "family.co.jp",
+"c": "#00A040",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "T-Point",
+"d": "tsite.jp",
+"c": "#004EA2",
+"r": [
+"jp",
+"kr"
+],
+"a": [
+"t point",
+"v point"
+]
+},
+{
+"n": "Rakuten",
+"d": "rakuten.co.jp",
+"c": "#BF0000",
+"r": [
+"jp",
+"kr"
+],
+"a": [
+"rakuten point"
+]
+},
+{
+"n": "Uniqlo",
+"d": "uniqlo.com",
+"c": "#FF0000",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "Muji",
+"d": "muji.com",
+"c": "#7F0019",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "Don Quijote",
+"d": "donki.com",
+"c": "#FFD100",
+"r": [
+"jp",
+"kr"
+],
+"a": [
+"donki"
+]
+},
+{
+"n": "Bic Camera",
+"d": "biccamera.com",
+"c": "#E30613",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "Yodobashi",
+"d": "yodobashi.com",
+"c": "#E30613",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "Tsutaya",
+"d": "tsutaya.co.jp",
+"c": "#003F87",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "ANA Mileage Club",
+"d": "ana.co.jp",
+"c": "#13448F",
+"r": [
+"jp",
+"kr"
+],
+"a": [
+"ana"
+]
+},
+{
+"n": "JAL Mileage Bank",
+"d": "jal.co.jp",
+"c": "#CC0000",
+"r": [
+"jp",
+"kr"
+],
+"a": [
+"jal"
+]
+},
+{
+"n": "E-Mart",
+"d": "emart.com",
+"c": "#FFD400",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "Lotte Mart",
+"d": "lottemart.com",
+"c": "#E30613",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "Homeplus",
+"d": "homeplus.co.kr",
+"c": "#E30613",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "CU",
+"d": "cu.bgfretail.com",
+"c": "#652D90",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "GS25",
+"d": "gs25.gsretail.com",
+"c": "#00A0E9",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "Olive Young",
+"d": "oliveyoung.co.kr",
+"c": "#9ACD32",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "Korean Air SKYPASS",
+"d": "koreanair.com",
+"c": "#00256C",
+"r": [
+"jp",
+"kr"
+],
+"a": [
+"skypass"
+]
+},
+{
+"n": "Asiana Club",
+"d": "flyasiana.com",
+"c": "#C8102E",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "Coupang",
+"d": "coupang.com",
+"c": "#E52528",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "CJ ONE",
+"d": "cjone.com",
+"c": "#E30613",
+"r": [
+"jp",
+"kr"
+]
+},
+{
+"n": "L.POINT",
+"d": "lpoint.com",
+"c": "#E30613",
+"r": [
+"jp",
+"kr"
+],
+"a": [
+"lpoint"
+]
+},
+{
+"n": "Reliance Smart",
+"d": "relianceretail.com",
+"c": "#00539B",
+"r": [
+"in",
+"ae",
+"sa"
+],
+"a": [
+"reliance"
+]
+},
+{
+"n": "DMart",
+"d": "dmartindia.com",
+"c": "#00843D",
+"r": [
+"in",
+"ae",
+"sa"
+]
+},
+{
+"n": "BigBasket",
+"d": "bigbasket.com",
+"c": "#84C225",
+"r": [
+"in",
+"ae",
+"sa"
+]
+},
+{
+"n": "Tata Neu",
+"d": "tataneu.com",
+"c": "#5A2D82",
+"r": [
+"in",
+"ae",
+"sa"
+]
+},
+{
+"n": "Shoppers Stop",
+"d": "shoppersstop.com",
+"c": "#000000",
+"r": [
+"in",
+"ae",
+"sa"
+],
+"a": [
+"first citizen"
+]
+},
+{
+"n": "Lulu Hypermarket",
+"d": "luluhypermarket.com",
+"c": "#E30613",
+"r": [
+"in",
+"ae",
+"sa"
+],
+"a": [
+"lulu"
+]
+},
+{
+"n": "Carrefour UAE",
+"d": "carrefouruae.com",
+"c": "#004E9F",
+"r": [
+"in",
+"ae",
+"sa"
+],
+"a": [
+"share"
+]
+},
+{
+"n": "Emirates Skywards",
+"d": "emirates.com",
+"c": "#D71921",
+"r": [
+"in",
+"ae",
+"sa"
+],
+"a": [
+"skywards",
+"emirates"
+]
+},
+{
+"n": "Etihad Guest",
+"d": "etihad.com",
+"c": "#BD8B13",
+"r": [
+"in",
+"ae",
+"sa"
+],
+"a": [
+"etihad"
+]
+},
+{
+"n": "Qatar Airways Privilege Club",
+"d": "qatarairways.com",
+"c": "#5C0632",
+"r": [
+"in",
+"ae",
+"sa"
+],
+"a": [
+"privilege club",
+"qatar airways"
+]
+},
+{
+"n": "Panda",
+"d": "panda.com.sa",
+"c": "#00843D",
+"r": [
+"in",
+"ae",
+"sa"
+]
+},
+{
+"n": "Danube",
+"d": "danube.sa",
+"c": "#E30613",
+"r": [
+"in",
+"ae",
+"sa"
+]
+},
+{
+"n": "Air India",
+"d": "airindia.com",
+"c": "#DA0000",
+"r": [
+"in",
+"ae",
+"sa"
+],
+"a": [
+"maharaja club"
+]
+},
+{
+"n": "ICA",
+"d": "ica.se",
+"c": "#E3000F",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+]
+},
+{
+"n": "Coop Sverige",
+"d": "coop.se",
+"c": "#00AA46",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+]
+},
+{
+"n": "Willys",
+"d": "willys.se",
+"c": "#E30613",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+]
+},
+{
+"n": "Hemköp",
+"d": "hemkop.se",
+"c": "#E30613",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+],
+"a": [
+"hemkop"
+]
+},
+{
+"n": "Apotek Hjärtat",
+"d": "apotekhjartat.se",
+"c": "#E30613",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+]
+},
+{
+"n": "Rema 1000",
+"d": "rema.no",
+"c": "#003D7D",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+],
+"a": [
+"rema"
+]
+},
+{
+"n": "Kiwi",
+"d": "kiwi.no",
+"c": "#00A651",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+]
+},
+{
+"n": "Meny",
+"d": "meny.no",
+"c": "#E30613",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+]
+},
+{
+"n": "Trumf",
+"d": "trumf.no",
+"c": "#E30613",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+]
+},
+{
+"n": "Coop Norge",
+"d": "coop.no",
+"c": "#00539B",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+]
+},
+{
+"n": "Netto Danmark",
+"d": "netto.dk",
+"c": "#FFD500",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+]
+},
+{
+"n": "Føtex",
+"d": "foetex.dk",
+"c": "#00539B",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+],
+"a": [
+"foetex"
+]
+},
+{
+"n": "Bilka",
+"d": "bilka.dk",
+"c": "#0072BC",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+]
+},
+{
+"n": "Salling Group",
+"d": "sallinggroup.com",
+"c": "#00539B",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+]
+},
+{
+"n": "Matas",
+"d": "matas.dk",
+"c": "#00539B",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+]
+},
+{
+"n": "S-Group",
+"d": "s-kanava.fi",
+"c": "#00843D",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+],
+"a": [
+"s-etukortti",
+"prisma",
+"s market"
+]
+},
+{
+"n": "K-Citymarket",
+"d": "k-ruoka.fi",
+"c": "#FF6B00",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+],
+"a": [
+"plussa",
+"k market"
+]
+},
+{
+"n": "Lidl Suomi",
+"d": "lidl.fi",
+"c": "#0050AA",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+]
+},
+{
+"n": "SAS EuroBonus",
+"d": "flysas.com",
+"c": "#000A8C",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+],
+"a": [
+"eurobonus",
+"sas"
+]
+},
+{
+"n": "Finnair Plus",
+"d": "finnair.com",
+"c": "#0B1560",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+],
+"a": [
+"finnair"
+]
+},
+{
+"n": "Norwegian Reward",
+"d": "norwegian.com",
+"c": "#D81939",
+"r": [
+"se",
+"no",
+"dk",
+"fi"
+],
+"a": [
+"norwegian"
+]
+},
+{
+"n": "Walmart México",
+"d": "walmart.com.mx",
+"c": "#0071CE",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+]
+},
+{
+"n": "Soriana",
+"d": "soriana.com",
+"c": "#E30613",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+]
+},
+{
+"n": "Chedraui",
+"d": "chedraui.com.mx",
+"c": "#E30613",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+]
+},
+{
+"n": "OXXO",
+"d": "oxxo.com",
+"c": "#E30613",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+],
+"a": [
+"oxxo premia"
+]
+},
+{
+"n": "Liverpool",
+"d": "liverpool.com.mx",
+"c": "#E10098",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+]
+},
+{
+"n": "Coppel",
+"d": "coppel.com",
+"c": "#FFD100",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+]
+},
+{
+"n": "Sanborns",
+"d": "sanborns.com.mx",
+"c": "#003D7D",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+]
+},
+{
+"n": "Club Premier",
+"d": "clubpremier.com",
+"c": "#00205B",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+],
+"a": [
+"aeromexico"
+]
+},
+{
+"n": "Jumbo Chile",
+"d": "jumbo.cl",
+"c": "#00A651",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+]
+},
+{
+"n": "Líder",
+"d": "lider.cl",
+"c": "#0071CE",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+],
+"a": [
+"lider"
+]
+},
+{
+"n": "Falabella",
+"d": "falabella.com",
+"c": "#9BC31C",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+],
+"a": [
+"cmr puntos"
+]
+},
+{
+"n": "Cencosud Puntos",
+"d": "puntoscencosud.cl",
+"c": "#00539B",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+]
+},
+{
+"n": "Éxito",
+"d": "exito.com",
+"c": "#FFE600",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+],
+"a": [
+"exito",
+"puntos colombia"
+]
+},
+{
+"n": "Coto",
+"d": "coto.com.ar",
+"c": "#E30613",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+]
+},
+{
+"n": "Carrefour Argentina",
+"d": "carrefour.com.ar",
+"c": "#004E9F",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+]
+},
+{
+"n": "LATAM Pass",
+"d": "latamairlines.com",
+"c": "#1B0088",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+],
+"a": [
+"latam"
+]
+},
+{
+"n": "Avianca LifeMiles",
+"d": "lifemiles.com",
+"c": "#E30613",
+"r": [
+"mx",
+"ar",
+"cl",
+"co"
+],
+"a": [
+"lifemiles"
+]
+}
+]

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:wallet_app/core/brands/brand_catalog.dart';
+import 'package:wallet_app/core/services/ui_prefs.dart';
 import 'package:wallet_app/core/widgets/bank_logo.dart';
 import 'package:wallet_app/ui/components/cw_field.dart';
 import 'package:wallet_app/ui/components/cw_list.dart';
@@ -21,8 +22,16 @@ class BrandPick {
         clear = true;
 }
 
+/// Localised country name for a catalogue region code ("it" → "Italy").
+String countryName(String code) {
+  final key = 'cwCountry.$code';
+  final name = key.tr();
+  return name == key ? code.toUpperCase() : name;
+}
+
 /// Searchable list of the brand catalogue, local brands first.
-Future<BrandPick?> showBrandPicker(BuildContext context, {String initial = ''}) {
+Future<BrandPick?> showBrandPicker(BuildContext context,
+    {String initial = ''}) {
   return showCwSheet<BrandPick>(
     context,
     builder: (_) => FractionallySizedBox(
@@ -77,6 +86,7 @@ class _BrandPickerState extends State<_BrandPicker> {
             onChanged: (_) => setState(() {}),
           ),
         ),
+        _CountryLine(onChanged: () => setState(() {})),
         Expanded(
           child: ListView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -87,8 +97,7 @@ class _BrandPickerState extends State<_BrandPicker> {
                   CwRow(
                     leading: CwIconTile(CwIcons.edit, color: c.mute),
                     title: 'cwNoBrand'.tr(),
-                    onTap: () =>
-                        Navigator.pop(context, const BrandPick.none()),
+                    onTap: () => Navigator.pop(context, const BrandPick.none()),
                   ),
                   for (final b in results)
                     CwRow(
@@ -104,6 +113,112 @@ class _BrandPickerState extends State<_BrandPicker> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// "Brands in Italy · Change": which country ranks first, and a way to
+/// pick another one (travellers, phones set to another region).
+class _CountryLine extends StatelessWidget {
+  final VoidCallback onChanged;
+  const _CountryLine({required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    final code = BrandCatalog.instance.country;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(22, 0, 12, 6),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              code == null
+                  ? 'cwChooseCountry'.tr()
+                  : 'cwBrandsFor'.tr(args: [countryName(code)]),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: CwType.footnote.copyWith(color: c.mute),
+            ),
+          ),
+          TextButton(
+            key: const ValueKey('brandCountryChange'),
+            onPressed: () async {
+              final changed = await _pickCountry(context);
+              if (changed == true) onChanged();
+            },
+            child: Text(
+              'cwChange'.tr(),
+              style: CwType.footnote
+                  .copyWith(color: c.accent, fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// True when the choice changed.
+  static Future<bool?> _pickCountry(BuildContext context) {
+    final catalog = BrandCatalog.instance;
+    final picked = UiPrefs.instance.brandCountry.value;
+    final detected = catalog.detectedCountry;
+    final codes = catalog.countries
+      ..sort((a, b) => countryName(a).compareTo(countryName(b)));
+    return showCwSheet<bool>(
+      context,
+      builder: (sheet) {
+        final c = CwColors.of(sheet);
+        Widget check(bool on) => on
+            ? CwIcon(CwIcons.check, color: c.accent)
+            : const SizedBox(width: 24);
+        Future<void> choose(String? code) async {
+          final changed = code != picked;
+          await UiPrefs.instance.setBrandCountry(code);
+          if (sheet.mounted) Navigator.pop(sheet, changed);
+        }
+
+        return FractionallySizedBox(
+          heightFactor: 0.8,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(22, 4, 22, 10),
+                child: Text('cwChooseCountry'.tr(),
+                    style: CwType.title.copyWith(color: c.ink, fontSize: 20)),
+              ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  children: [
+                    CwGroup(children: [
+                      CwRow(
+                        title: 'cwCountryAuto'.tr(),
+                        subtitle: detected == null
+                            ? null
+                            : 'cwCountryAutoSub'
+                                .tr(args: [countryName(detected)]),
+                        trailing: check(picked == null),
+                        onTap: () => choose(null),
+                      ),
+                    ]),
+                    const SizedBox(height: 12),
+                    CwGroup(children: [
+                      for (final code in codes)
+                        CwRow(
+                          key: ValueKey('country_$code'),
+                          title: countryName(code),
+                          trailing: check(picked == code),
+                          onTap: () => choose(code),
+                        ),
+                    ]),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

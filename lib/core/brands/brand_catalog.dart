@@ -3,6 +3,9 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
+import 'package:wallet_app/core/brands/brand_region.dart';
+import 'package:wallet_app/core/services/ui_prefs.dart';
 import 'package:wallet_app/core/utils/search_normalize.dart';
 
 /// One loyalty programme / merchant from `assets/brands/brands.json`.
@@ -18,6 +21,10 @@ class BrandEntry {
   final List<String> aliases;
   final String kind;
 
+  /// 1 = a household name in its countries, 2 = major, 3 = regional.
+  /// Orders the list shown before the user types.
+  final int tier;
+
   BrandEntry({
     required this.name,
     required this.domain,
@@ -25,15 +32,20 @@ class BrandEntry {
     required this.regions,
     this.aliases = const [],
     this.kind = '',
+    this.tier = 2,
   });
 
   factory BrandEntry.fromJson(Map<String, dynamic> j) => BrandEntry(
         name: j['n'] as String,
         domain: j['d'] as String,
-        color: 0xFF000000 | int.parse((j['c'] as String).substring(1), radix: 16),
-        regions: (j['r'] as List).cast<String>(),
+        color:
+            0xFF000000 | int.parse((j['c'] as String).substring(1), radix: 16),
+        regions: [
+          for (final r in (j['r'] as List).cast<String>()) normalizeCountry(r)!
+        ],
         aliases: ((j['a'] as List?) ?? const []).cast<String>(),
         kind: (j['k'] as String?) ?? '',
+        tier: (j['p'] as int?) ?? 2,
       );
 
   /// Every searchable spelling, normalised.
@@ -48,29 +60,56 @@ class BrandEntry {
 
   bool inRegion(String? country) =>
       regions.contains('global') ||
-      (country != null && regions.contains(country.toLowerCase()));
+      (country != null && regions.contains(normalizeCountry(country)));
 }
 
-/// Global catalogue of ~700 loyalty brands (all regions, incl. CJK names).
+/// Global catalogue of loyalty brands (all regions, incl. CJK names).
 /// Loaded once in the background at startup; until then lookups simply
 /// return nothing and the app falls back to what the user typed.
+///
+/// Local brands rank first. "Local" is the country the user picked in the
+/// brand picker, else the one their time zone points to, else the one in
+/// the phone's locale.
 class BrandCatalog {
   BrandCatalog._();
   static final BrandCatalog instance = BrandCatalog._();
 
   List<BrandEntry> _all = const [];
   Future<void>? _loading;
+  String? _zoneCountry;
 
   bool get isLoaded => _all.isNotEmpty;
   List<BrandEntry> get all => _all;
 
-  /// Device country ("fr", "tr", …) used to rank local brands first.
+  /// Country ("it", "gb", …) whose brands rank first.
   String? get country =>
-      ui.PlatformDispatcher.instance.locale.countryCode?.toLowerCase();
+      normalizeCountry(UiPrefs.instance.brandCountry.value) ?? detectedCountry;
+
+  /// Best guess without the user's pick: time zone, then locale.
+  String? get detectedCountry =>
+      _zoneCountry ??
+      normalizeCountry(ui.PlatformDispatcher.instance.locale.countryCode);
+
+  /// Countries with brands of their own, for the country picker.
+  List<String> get countries {
+    final out = {
+      for (final e in _all)
+        for (final r in e.regions)
+          if (r != 'global') r,
+    }.toList()
+      ..sort();
+    return out;
+  }
 
   Future<void> load() => _loading ??= _load();
 
   Future<void> _load() async {
+    try {
+      final zone = await FlutterTimezone.getLocalTimezone();
+      _zoneCountry = countryForTimezone(zone.identifier);
+    } catch (_) {
+      // No plugin (tests) or no zone: the locale decides.
+    }
     try {
       final raw = await rootBundle.loadString('assets/brands/brands.json');
       _all = await compute(_parse, raw);
@@ -87,6 +126,9 @@ class BrandCatalog {
 
   @visibleForTesting
   void debugSetEntries(List<BrandEntry> entries) => _all = entries;
+
+  @visibleForTesting
+  set debugZoneCountry(String? c) => _zoneCountry = c;
 
   /// The brand [text] names: exact name/alias first, then a known brand
   /// appearing as whole words inside it ("My Starbucks card"). Local and
@@ -142,16 +184,33 @@ class BrandCatalog {
     }
     scored.sort((a, b) {
       final d = b.$2.compareTo(a.$2);
-      return d != 0 ? d : a.$1.name.length.compareTo(b.$1.name.length);
+      if (d != 0) return d;
+      final t = a.$1.tier.compareTo(b.$1.tier);
+      return t != 0 ? t : a.$1.name.length.compareTo(b.$1.name.length);
     });
     return [for (final s in scored.take(limit)) s.$1];
   }
 
-  /// Local brands first (by device country), then global ones.
+  /// Shown before the user types: the country's brands, best known first,
+  /// then international ones.
   List<BrandEntry> popular({int limit = 30}) {
     final c = country;
-    final local = _all.where((e) => c != null && e.regions.contains(c));
-    final global = _all.where((e) => e.regions.contains('global'));
+    List<BrandEntry> byTier(Iterable<BrandEntry> l) {
+      final list = l.toList();
+      // Inside a tier, the country's own chains before pan-European ones
+      // (Esselunga before OBI in Italy). Stable: keeps catalogue order.
+      bool home(BrandEntry e) => e.regions.length <= 3;
+      return [
+        for (final t in [1, 2, 3]) ...[
+          ...list.where((e) => e.tier == t && home(e)),
+          ...list.where((e) => e.tier == t && !home(e)),
+        ],
+        ...list.where((e) => e.tier < 1 || e.tier > 3),
+      ];
+    }
+
+    final local = byTier(_all.where((e) => c != null && e.regions.contains(c)));
+    final global = byTier(_all.where((e) => e.regions.contains('global')));
     return {...local, ...global}.take(limit).toList();
   }
 }

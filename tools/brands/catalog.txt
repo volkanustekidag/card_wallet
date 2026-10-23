@@ -1,0 +1,529 @@
+# Loyalty brand catalogue, source of assets/brands/brands.json.
+# Build: python3 tools/brands/build.py
+#
+# name | domain | colour | kind | tier | countries | aliases (;-separated)
+#
+# domain  fetches the logo (favicon service), no scheme.
+# kind    grocery, drugstore, beauty, fashion, shoes, sports, home, diy,
+#         electronics, books, pets, toys, department, fuel, food, cinema,
+#         fitness, travel, points
+# tier    1 household name in those countries, 2 major, 3 regional/niche.
+#         Orders the list shown before the user types.
+# countries  ISO 3166 codes (gb, not uk), or "global" for programmes that
+#         exist in most markets.
+# Only programmes with a member card, number or app barcode belong here.
+
+# ── International ───────────────────────────────────────────────────────
+Starbucks | starbucks.com | #006241 | food | 1 | global | starbucks rewards
+McDonald's | mcdonalds.com | #DA291C | food | 1 | global | mcdonalds;mymcdonalds;my mcdonalds rewards
+Burger King | bk.com | #D62300 | food | 2 | global | royal perks;bk
+KFC | kfc.com | #E4002B | food | 2 | global |
+Subway | subway.com | #008C15 | food | 2 | global | subway myway;subway rewards
+Domino's | dominos.com | #006491 | food | 2 | global | dominos;piece of the pie
+Pizza Hut | pizzahut.com | #EE3A43 | food | 3 | global | hut rewards
+Nespresso | nespresso.com | #1A1A1A | food | 3 | global | nespresso club
+IKEA | ikea.com | #0058A3 | home | 1 | global | ikea family
+H&M | hm.com | #E50010 | fashion | 1 | global | h&m member;hm;h and m
+Decathlon | decathlon.com | #0082C3 | sports | 1 | global | decathlon card
+Sephora | sephora.com | #000000 | beauty | 1 | global | beauty insider;sephora beauty insider;sephora card;carte sephora
+Nike | nike.com | #111111 | sports | 2 | global | nike membership
+Adidas | adidas.com | #000000 | sports | 2 | global | adiclub;adidas adiclub
+Uniqlo | uniqlo.com | #FF0000 | fashion | 3 | global | uniqlo membership
+Levi's | levi.com | #C41230 | fashion | 3 | global | levis;red tab
+Lululemon | lululemon.com | #D22030 | sports | 3 | global |
+Foot Locker | footlocker.com | #000000 | shoes | 3 | global | flx
+Lego | lego.com | #E3000B | toys | 3 | global | lego insiders;lego vip
+L'Occitane | loccitane.com | #FCB813 | beauty | 3 | global | loccitane
+The Body Shop | thebodyshop.com | #004236 | beauty | 3 | global | love your body
+Shell | shell.com | #FBCE07 | fuel | 1 | global | shell go+;shell go plus;clubsmart;shell clubsmart;fuel rewards;shell fuel rewards;shell box
+BP | bp.com | #009900 | fuel | 2 | global | bpme;bpme rewards
+TotalEnergies | totalenergies.com | #E30613 | fuel | 2 | fr,be,nl,de,lu,ch,it | total;club total;total card
+Esso | esso.com | #E31837 | fuel | 2 | gb,fr,it,nl,be,de,ca | esso nectar;esso extra
+Circle K | circlek.com | #E30613 | fuel | 2 | us,ca,ie,pl,se,no,dk | circle k extra;inner circle
+7-Eleven | 7-eleven.com | #008163 | food | 2 | us,ca,jp,cn,hk,tw | 7 eleven;seven eleven;7rewards;7now
+Marriott Bonvoy | marriott.com | #B84C16 | travel | 2 | global | bonvoy;marriott
+Hilton Honors | hilton.com | #104C97 | travel | 2 | global | hilton
+IHG One Rewards | ihg.com | #1D3D64 | travel | 3 | global | ihg;holiday inn
+World of Hyatt | hyatt.com | #00205B | travel | 3 | global | hyatt
+Accor ALL | all.accor.com | #050033 | travel | 2 | global | accor;all accor;ibis;novotel;mercure
+Radisson Rewards | radissonhotels.com | #000000 | travel | 3 | global | radisson
+Best Western Rewards | bestwestern.com | #003C71 | travel | 3 | global | best western
+Wyndham Rewards | wyndhamhotels.com | #0C2340 | travel | 3 | global | wyndham
+Choice Privileges | choicehotels.com | #00305E | travel | 3 | global | choice hotels;comfort inn
+Hertz Gold Plus Rewards | hertz.com | #FFD100 | travel | 3 | global | hertz
+Avis Preferred | avis.com | #D4002A | travel | 3 | global | avis
+Sixt | sixt.com | #FF5F00 | travel | 3 | global | sixt card
+Europcar | europcar.com | #00843D | travel | 3 | global | privilege
+Enterprise Plus | enterprise.com | #169A5A | travel | 3 | global | enterprise
+Miles & More | miles-and-more.com | #05164D | travel | 2 | global | miles and more;lufthansa;swiss;austrian;brussels airlines;lot
+Flying Blue | flyingblue.com | #002157 | travel | 2 | global | air france;klm;air france klm
+British Airways Club | britishairways.com | #075AAA | travel | 2 | global | avios;executive club;british airways
+Emirates Skywards | emirates.com | #D71921 | travel | 3 | global | skywards;emirates
+Qatar Airways Privilege Club | qatarairways.com | #5C0632 | travel | 3 | global | privilege club;qatar airways
+Etihad Guest | etihad.com | #BD8B13 | travel | 3 | global | etihad
+Turkish Airlines Miles&Smiles | turkishairlines.com | #C8102E | travel | 2 | global | miles&smiles;miles and smiles;thy;turkish airlines
+Singapore Airlines KrisFlyer | singaporeair.com | #F99F1C | travel | 3 | global | krisflyer
+Delta SkyMiles | delta.com | #003366 | travel | 2 | global | skymiles;delta
+United MileagePlus | united.com | #005DAA | travel | 2 | global | mileageplus;united
+American Airlines AAdvantage | aa.com | #0078D2 | travel | 2 | global | aadvantage;american airlines
+Virgin Atlantic Flying Club | virginatlantic.com | #E10A0A | travel | 3 | global | flying club;virgin atlantic;virgin points
+
+# ── United States ───────────────────────────────────────────────────────
+Target | target.com | #CC0000 | department | 1 | us | target circle
+Walmart | walmart.com | #0071CE | grocery | 1 | us | walmart+;walmart plus
+Kroger | kroger.com | #0F4C81 | grocery | 1 | us | kroger plus;kroger card
+Costco | costco.com | #E31837 | grocery | 1 | us,ca,gb,es,fr | costco membership;costco executive
+Sam's Club | samsclub.com | #0067A0 | grocery | 1 | us | sams club
+Safeway | safeway.com | #E21A2C | grocery | 1 | us | safeway for u;for u
+CVS | cvs.com | #CC0000 | drugstore | 1 | us | extracare;cvs pharmacy;cvs extracare
+Walgreens | walgreens.com | #E31837 | drugstore | 1 | us | mywalgreens;my walgreens
+Albertsons | albertsons.com | #00539B | grocery | 2 | us | albertsons for u
+Publix | publix.com | #3F8F29 | grocery | 2 | us | club publix
+H-E-B | heb.com | #E21A2C | grocery | 2 | us | heb
+Meijer | meijer.com | #E31837 | grocery | 2 | us | mperks
+Whole Foods | wholefoodsmarket.com | #00674B | grocery | 2 | us | whole foods market
+Wegmans | wegmans.com | #1B5E20 | grocery | 2 | us | shoppers club
+Food Lion | foodlion.com | #004B8D | grocery | 2 | us | mvp;food lion mvp
+BJ's Wholesale | bjs.com | #D50032 | grocery | 2 | us | bjs
+Dollar General | dollargeneral.com | #FFD100 | grocery | 2 | us | mydg;dg
+Ulta Beauty | ulta.com | #F26822 | beauty | 1 | us | ulta;ultamate;ulta rewards
+Best Buy | bestbuy.com | #0046BE | electronics | 1 | us,ca | my best buy
+Home Depot | homedepot.com | #F96302 | diy | 1 | us,ca | the home depot;pro xtra
+Lowe's | lowes.com | #004990 | diy | 1 | us | lowes;mylowes rewards
+Macy's | macys.com | #E21A2C | department | 2 | us | macys;star rewards
+Kohl's | kohls.com | #860038 | department | 2 | us | kohls;kohls rewards
+Nordstrom | nordstrom.com | #000000 | department | 2 | us | the nordy club
+TJ Maxx | tjmaxx.com | #C8102E | department | 2 | us | tjx rewards
+Marshalls | marshalls.com | #003DA5 | department | 3 | us |
+Old Navy | oldnavy.com | #003764 | fashion | 2 | us | navyist rewards
+Gap | gap.com | #002D62 | fashion | 3 | us | gap good rewards
+Bath & Body Works | bathandbodyworks.com | #000000 | beauty | 2 | us | bath and body works
+American Eagle | ae.com | #00205B | fashion | 3 | us | real rewards;aerie
+Victoria's Secret | victoriassecret.com | #E3007E | fashion | 3 | us | victorias secret
+DSW | dsw.com | #000000 | shoes | 3 | us | vip
+Barnes & Noble | barnesandnoble.com | #2A5934 | books | 2 | us | barnes and noble
+GameStop | gamestop.com | #E31837 | electronics | 3 | us | pro rewards
+PetSmart | petsmart.com | #E31837 | pets | 2 | us | treats
+Petco | petco.com | #00539B | pets | 2 | us | vital care;petco pals
+Dick's Sporting Goods | dickssportinggoods.com | #006F51 | sports | 2 | us | dicks;scorecard
+REI | rei.com | #36593D | sports | 3 | us | rei co-op
+Michaels | michaels.com | #E31837 | home | 3 | us | michaels rewards
+Staples | staples.com | #CC0000 | home | 3 | us,ca | staples rewards
+Office Depot | officedepot.com | #E31837 | home | 3 | us | officemax
+Ace Hardware | acehardware.com | #E31837 | diy | 3 | us | ace rewards
+Dunkin' | dunkindonuts.com | #FF671F | food | 1 | us | dunkin;dunkin donuts;dunkin rewards
+Chipotle | chipotle.com | #A81612 | food | 2 | us | chipotle rewards
+Panera Bread | panerabread.com | #4D7B30 | food | 2 | us | panera;mypanera
+Chick-fil-A | chick-fil-a.com | #DD0033 | food | 2 | us | chick fil a one
+Wendy's | wendys.com | #E2203D | food | 2 | us | wendys
+Taco Bell | tacobell.com | #702082 | food | 2 | us |
+Popeyes | popeyes.com | #F15A22 | food | 3 | us |
+Panda Express | pandaexpress.com | #D02030 | food | 3 | us | panda rewards
+Dutch Bros | dutchbros.com | #00467F | food | 3 | us |
+Peet's Coffee | peets.com | #4C1C1B | food | 3 | us | peets
+Wawa | wawa.com | #E31837 | fuel | 3 | us |
+Sheetz | sheetz.com | #E31837 | fuel | 3 | us |
+Exxon Mobil Rewards+ | exxon.com | #E31837 | fuel | 2 | us | exxon;mobil
+Chevron Texaco Rewards | chevron.com | #0054A4 | fuel | 3 | us | chevron;texaco
+AMC Stubs | amctheatres.com | #E31837 | cinema | 2 | us | amc
+Regal Crown Club | regmovies.com | #E31837 | cinema | 3 | us | regal
+Cinemark | cinemark.com | #E31837 | cinema | 3 | us,br | movie club
+Planet Fitness | planetfitness.com | #5E2B7B | fitness | 2 | us,ca |
+LA Fitness | lafitness.com | #003F87 | fitness | 3 | us,ca |
+Southwest Rapid Rewards | southwest.com | #304CB2 | travel | 2 | us | rapid rewards;southwest
+JetBlue TrueBlue | jetblue.com | #003876 | travel | 3 | us | trueblue;jetblue
+Alaska Airlines Mileage Plan | alaskaair.com | #01426A | travel | 3 | us | alaska airlines;atmos rewards
+Amtrak Guest Rewards | amtrak.com | #005B95 | travel | 3 | us | amtrak
+
+# ── Canada ──────────────────────────────────────────────────────────────
+PC Optimum | pcoptimum.ca | #000000 | points | 1 | ca | pc optimum;loblaws;no frills;real canadian superstore;zehrs;fortinos
+Shoppers Drug Mart | shoppersdrugmart.ca | #E31837 | drugstore | 1 | ca | shoppers
+Pharmaprix | pharmaprix.ca | #E31837 | drugstore | 3 | ca |
+Scene+ | sceneplus.ca | #000000 | points | 1 | ca | scene;sobeys;safeway canada;foodland;freshco;cineplex
+Canadian Tire | canadiantire.ca | #E31837 | diy | 1 | ca | triangle rewards;triangle;sport chek;marks
+Tim Hortons | timhortons.com | #C8102E | food | 1 | ca,us | tims rewards;tims
+Air Miles | airmiles.ca | #00A3E0 | points | 2 | ca |
+Aeroplan | aircanada.com | #F01428 | travel | 2 | ca | air canada
+Sobeys | sobeys.com | #00843D | grocery | 2 | ca |
+Metro | metro.ca | #E31837 | grocery | 2 | ca | moi;metro moi
+Petro-Canada | petro-canada.ca | #E31837 | fuel | 2 | ca | petro points
+Save-On-Foods | saveonfoods.com | #E31837 | grocery | 3 | ca | more rewards
+IGA | iga.net | #E31837 | grocery | 3 | ca |
+London Drugs | londondrugs.com | #00539B | drugstore | 3 | ca | london drugs extras
+Rexall | rexall.ca | #00539B | drugstore | 3 | ca | be well
+Indigo | indigo.ca | #000000 | books | 3 | ca | plum;plum rewards;chapters
+WestJet Rewards | westjet.com | #00AAA5 | travel | 3 | ca | westjet
+Pet Valu | petvalu.ca | #E31837 | pets | 3 | ca | your pet rewards
+
+# ── United Kingdom & Ireland ────────────────────────────────────────────
+Tesco | tesco.com | #00539F | grocery | 1 | gb,ie | tesco clubcard;clubcard
+Sainsbury's | sainsburys.co.uk | #F06C00 | grocery | 1 | gb | sainsburys;nectar sainsburys
+Nectar | nectar.com | #5A2D82 | points | 1 | gb | nectar card
+Asda | asda.com | #78BE20 | grocery | 1 | gb | asda rewards
+Boots | boots.com | #05054B | drugstore | 1 | gb,ie | boots advantage;advantage card
+Marks & Spencer | marksandspencer.com | #000000 | department | 1 | gb,ie | m&s;sparks;marks and spencer;m and s
+Morrisons | morrisons.com | #00563F | grocery | 2 | gb | more card;my morrisons
+Waitrose | waitrose.com | #5C8727 | grocery | 2 | gb | mywaitrose;my waitrose
+Co-op | coop.co.uk | #00A1CC | grocery | 2 | gb | coop;co op;co-op membership
+Iceland | iceland.co.uk | #D2232A | grocery | 2 | gb | bonus card
+Superdrug | superdrug.com | #E5007E | drugstore | 2 | gb,ie | health & beautycard;beautycard
+Costa Coffee | costa.co.uk | #6F1D1B | food | 1 | gb,ie,pl | costa;costa club
+Caffè Nero | caffenero.com | #1D1D1B | food | 2 | gb,ie,tr,us | caffe nero;nero
+Pret A Manger | pret.com | #862633 | food | 2 | gb,us,fr | pret;club pret
+Greggs | greggs.co.uk | #00539F | food | 2 | gb | greggs rewards
+Nando's | nandos.co.uk | #DC291E | food | 2 | gb,ie,au | nandos
+Wagamama | wagamama.com | #E2231A | food | 3 | gb,ie | soul club
+Itsu | itsu.com | #EE3124 | food | 3 | gb |
+John Lewis | johnlewis.com | #000000 | department | 2 | gb | my john lewis;john lewis partnership
+Argos | argos.co.uk | #E31837 | department | 3 | gb |
+Currys | currys.co.uk | #5C2D91 | electronics | 3 | gb | currys perks
+Next | next.co.uk | #000000 | fashion | 3 | gb,ie |
+TK Maxx | tkmaxx.com | #C8102E | department | 3 | gb,ie,de,at,nl,pl |
+Matalan | matalan.co.uk | #000000 | fashion | 3 | gb | matalan me
+Sports Direct | sportsdirect.com | #000000 | sports | 3 | gb,ie |
+B&Q | diy.com | #F18500 | diy | 2 | gb | b and q;b&q club
+Wickes | wickes.co.uk | #00A0DF | diy | 3 | gb |
+Dunelm | dunelm.com | #000000 | home | 3 | gb |
+Waterstones | waterstones.com | #000000 | books | 2 | gb | waterstones plus
+WHSmith | whsmith.co.uk | #00539F | books | 3 | gb | wh smith
+Pets at Home | petsathome.com | #00A651 | pets | 2 | gb | vip club;pets at home vip
+Holland & Barrett | hollandandbarrett.com | #00543C | drugstore | 2 | gb,ie,nl,be | holland and barrett;rewards for life
+Odeon | odeon.co.uk | #00205B | cinema | 3 | gb | odeon limitless;myodeon
+Cineworld | cineworld.co.uk | #000000 | cinema | 3 | gb | cineworld unlimited
+Vue | myvue.com | #E5007E | cinema | 3 | gb |
+PureGym | puregym.com | #000000 | fitness | 3 | gb |
+The Gym Group | thegymgroup.com | #000000 | fitness | 3 | gb |
+David Lloyd | davidlloyd.co.uk | #00205B | fitness | 3 | gb |
+Virgin Active | virginactive.co.uk | #E10A0A | fitness | 3 | gb,it |
+Eurostar | eurostar.com | #FFD500 | travel | 3 | gb,fr,be,nl | club eurostar
+SuperValu | supervalu.ie | #E31837 | grocery | 1 | ie | real rewards
+Dunnes Stores | dunnesstores.com | #000000 | grocery | 1 | ie | value club
+Applegreen | applegreenstores.com | #00A651 | fuel | 3 | ie | applegreen rewards
+Aer Lingus AerClub | aerlingus.com | #006272 | travel | 3 | ie | aerclub;aer lingus
+
+# ── Australia & New Zealand ─────────────────────────────────────────────
+Woolworths | woolworths.com.au | #00843D | grocery | 1 | au | everyday rewards;woolies
+Coles | coles.com.au | #E01A22 | grocery | 1 | au | coles flybuys
+Flybuys | flybuys.com.au | #00A3E0 | points | 1 | au | fly buys
+Qantas Frequent Flyer | qantas.com | #E40000 | travel | 1 | au,nz | qantas;qff
+Velocity | velocityfrequentflyer.com | #E2231A | travel | 2 | au | virgin australia
+Chemist Warehouse | chemistwarehouse.com.au | #E30613 | drugstore | 2 | au | chemist warehouse rewards
+Priceline Pharmacy | priceline.com.au | #E5007E | drugstore | 2 | au | sister club;priceline
+Myer | myer.com.au | #000000 | department | 2 | au | myer one
+David Jones | davidjones.com | #000000 | department | 3 | au |
+Dan Murphy's | danmurphys.com.au | #00563F | grocery | 2 | au | my dans
+BWS | bws.com.au | #E30613 | grocery | 3 | au |
+Big W | bigw.com.au | #0046BE | department | 3 | au |
+IGA Australia | iga.com.au | #E31837 | grocery | 3 | au | iga
+Ampol | ampol.com.au | #E30613 | fuel | 3 | au |
+Mecca | mecca.com | #000000 | beauty | 3 | au,nz | beauty loop
+Rebel | rebelsport.com.au | #E30613 | sports | 3 | au | rebel active
+Hoyts | hoyts.com.au | #E30613 | cinema | 3 | au,nz | hoyts rewards
+Event Cinemas | eventcinemas.com.au | #000000 | cinema | 3 | au,nz | cinebuzz
+Guzman y Gomez | guzmanygomez.com.au | #000000 | food | 3 | au | gyg
+Boost Juice | boostjuice.com.au | #E5007E | food | 3 | au | vibe club
+Gloria Jean's | gloriajeanscoffees.com.au | #4B2C20 | food | 3 | au | gloria jeans
+Air New Zealand Airpoints | airnewzealand.co.nz | #000000 | travel | 2 | nz | airpoints
+
+# ── Multi-country Europe ────────────────────────────────────────────────
+Lidl | lidl.com | #0050AA | grocery | 1 | de,at,ch,fr,be,nl,lu,it,es,pt,pl,gb,ie,fi,se,dk,us | lidl plus;mylidl
+Carrefour | carrefour.com | #004E9F | grocery | 1 | fr,be,it,es,pl,br | carte carrefour;club carrefour;le club carrefour;carrefour italia;carrefour polska;carrefour brasil;mi carrefour
+Auchan | auchan.fr | #E30613 | grocery | 1 | fr,pt,pl,lu | waaoh;auchan polska;meu auchan
+Intermarché | intermarche.com | #E2001A | grocery | 1 | fr,be,pt | intermarche;carte intermarche
+Kaufland | kaufland.de | #E10915 | grocery | 1 | de,pl | kaufland card;kaufland polska
+Payback | payback.de | #003EAA | points | 1 | de,at,it,pl | payback karte;payback italia;payback polska
+dm | dm.de | #002878 | drugstore | 1 | de,at | dm drogerie;dm drogerie markt;dm app
+Rossmann | rossmann.de | #C3002F | drugstore | 1 | de,pl,tr | rossmann club;babyweltclub
+Müller | mueller.de | #F39200 | drugstore | 2 | de,at,ch | mueller;muller
+Douglas | douglas.de | #000000 | beauty | 1 | de,at,ch,nl,be,it,es,pl,pt | douglas beauty card;beauty card
+Marionnaud | marionnaud.fr | #000000 | beauty | 2 | fr,it,at,ch |
+Kiko Milano | kikocosmetics.com | #000000 | beauty | 2 | it,es,fr,de,pt,pl,nl,be,ch,at,gb | kiko;kiko kisses
+Rituals | rituals.com | #000000 | beauty | 3 | nl,be,de,fr,gb,es,it,ch,at,pt,pl | my rituals
+Yves Rocher | yves-rocher.com | #00704A | beauty | 2 | fr,be,ch,de,es,it,pt,pl,tr |
+ICI Paris XL | iciparisxl.be | #000000 | beauty | 2 | be,nl,lu |
+Kruidvat | kruidvat.nl | #E2001A | drugstore | 1 | nl,be | kruidvat club;kruidvat belgie
+MediaMarkt | mediamarkt.de | #DF0000 | electronics | 1 | de,at,ch,nl,be,es,pt,pl,tr | mediamarkt club;media markt;myMediaMarkt
+Saturn | saturn.de | #F28C00 | electronics | 3 | de,at |
+Fnac | fnac.com | #E1A925 | books | 1 | fr,be,es,pt,ch | fnac+;fnac darty;carte fnac;fnac one
+Worten | worten.pt | #E30613 | electronics | 1 | pt,es | worten resolve
+Leroy Merlin | leroymerlin.fr | #78BE20 | diy | 1 | fr,es,it,pt,pl,br | leroy merlin espana;leroy merlin italia;leroy merlin polska
+Castorama | castorama.fr | #0078D7 | diy | 2 | fr,pl | castorama polska
+Brico Dépôt | bricodepot.fr | #E30613 | diy | 2 | fr,es,pt | brico depot
+OBI | obi.de | #FF7E00 | diy | 1 | de,at,ch,it,pl | obi heimwerker
+Bauhaus | bauhaus.info | #E30613 | diy | 2 | de,at,ch,nl | bauhaus card
+Hornbach | hornbach.de | #F7A600 | diy | 2 | de,at,ch,nl | projektwelt
+Gamma | gamma.nl | #E30613 | diy | 2 | nl,be | gamma voordeelpas
+Maisons du Monde | maisonsdumonde.com | #000000 | home | 3 | fr,be,es,it,de,ch,lu,pt | maison du monde
+C&A | c-and-a.com | #E30613 | fashion | 3 | de,nl,be,fr,es,at,ch,pl,pt | c and a
+Deichmann | deichmann.com | #E30613 | shoes | 2 | de,at,ch,pl,nl,it,gb,tr | deichmann club
+Peek & Cloppenburg | peek-cloppenburg.de | #000000 | fashion | 3 | de,at,nl,be,pl,ch | p&c;p und c
+Kiabi | kiabi.com | #003E7E | fashion | 2 | fr,es,it,be,pt | kiabi club
+Hunkemöller | hunkemoller.com | #000000 | fashion | 3 | nl,de,be,fr,es,at,pl,lu | hunkemoller;hunkemoller hunk club
+Calzedonia | calzedonia.com | #000000 | fashion | 3 | it,es,pt,at,de,pl | calzedonia card
+Intimissimi | intimissimi.com | #000000 | fashion | 3 | it,es,pt,at,de,pl,fr |
+Tezenis | tezenis.com | #000000 | fashion | 3 | it,es,pt,pl |
+Tchibo | tchibo.de | #003F87 | food | 3 | de,at,ch,pl,tr | tchibo privilegien
+Zalando | zalando.com | #FF6900 | fashion | 3 | de,at,ch,nl,be,fr,it,es,pl | zalando plus
+Intersport | intersport.com | #003F87 | sports | 3 | de,at,ch,fr,nl,be,pl | intersport club
+Fressnapf | fressnapf.de | #E30613 | pets | 2 | de,at,ch,it | fressnapf friends;maxi zoo
+Maxi Zoo | maxizoo.fr | #E30613 | pets | 3 | fr,be,pl,ie | maxi zoo friends
+Basic-Fit | basic-fit.com | #FF7300 | fitness | 2 | nl,be,fr,es,lu,de | basic fit
+McFit | mcfit.com | #E30613 | fitness | 3 | de,at,it,es,pl |
+Kinepolis | kinepolis.com | #003F87 | cinema | 2 | be,nl,fr,es,lu,ch | kinepolis card
+Pathé | pathe.fr | #FFD100 | cinema | 2 | fr,nl,ch,be | pathe;cinepass;pathe unlimited;gaumont
+UCI Cinemas | uci-kinowelt.de | #E30613 | cinema | 3 | de,it,at | uci kinowelt;uci
+Galp | galp.com | #FF6A13 | fuel | 2 | pt,es | mundo galp
+Repsol | repsol.es | #FF8200 | fuel | 1 | es,pt | waylet;repsol move
+Q8 | q8.it | #003F87 | fuel | 2 | it,be,nl,lu | q8 star;q8 smart
+Orlen | orlen.pl | #E30613 | fuel | 1 | pl,de | orlen vitay;vitay;star
+Hofer | hofer.at | #00549F | grocery | 3 | at | aldi
+Spar | spar.at | #E30613 | grocery | 1 | at,nl,it,ch | spar plus;interspar;eurospar;despar
+
+# ── Germany ─────────────────────────────────────────────────────────────
+DeutschlandCard | deutschlandcard.de | #E2001A | points | 1 | de | deutschland card
+REWE | rewe.de | #CC071E | grocery | 1 | de | rewe bonus;payback rewe
+EDEKA | edeka.de | #FFD400 | grocery | 1 | de | edeka app;marktkauf
+Penny | penny.de | #CD1719 | grocery | 2 | de,at | penny app
+Netto Marken-Discount | netto-online.de | #FFE500 | grocery | 2 | de | netto;netto app
+Globus | globus.de | #004899 | grocery | 3 | de | globus card
+tegut | tegut.com | #E30613 | grocery | 3 | de | tegut teo
+Aral | aral.de | #0063AF | fuel | 2 | de | aral payback
+Galeria | galeria.de | #000000 | department | 3 | de | galeria kaufhof;karstadt
+Breuninger | breuninger.com | #000000 | department | 3 | de |
+Thalia | thalia.de | #000000 | books | 2 | de,at,ch | thalia club
+Hugendubel | hugendubel.de | #E30613 | books | 3 | de |
+toom | toom.de | #E30613 | diy | 3 | de | toom baumarkt
+Hagebaumarkt | hagebau.de | #E30613 | diy | 3 | de,at | hagebau
+s.Oliver | soliver.com | #000000 | fashion | 3 | de,at | soliver
+Takko | takko.com | #E30613 | fashion | 3 | de,at,nl | takko card
+Ernsting's family | ernstings-family.de | #E30613 | fashion | 3 | de,at | ernstings
+Deutsche Bahn BahnCard | bahn.de | #EC0016 | travel | 1 | de | bahncard;db;bahn bonus
+Cinestar | cinestar.de | #E30613 | cinema | 3 | de | cinestar card
+Fitness First | fitnessfirst.de | #E30613 | fitness | 3 | de |
+Coffee Fellows | coffee-fellows.com | #7A1E2C | food | 3 | de |
+Vapiano | vapiano.com | #C8102E | food | 3 | de,at,nl |
+
+# ── Austria ─────────────────────────────────────────────────────────────
+jö Bonus Club | joe-club.at | #FFD500 | points | 1 | at | joe;jo bonus club;jö
+Billa | billa.at | #FFE600 | grocery | 1 | at | billa plus;merkur
+bipa | bipa.at | #E5007E | drugstore | 2 | at |
+ÖBB Vorteilscard | oebb.at | #E2001A | travel | 2 | at | obb;oebb;vorteilscard
+OMV | omv.at | #00539B | fuel | 3 | at |
+Hervis | hervis.at | #E30613 | sports | 3 | at |
+
+# ── Switzerland ─────────────────────────────────────────────────────────
+Migros | migros.ch | #FF6600 | grocery | 1 | ch | cumulus;migros cumulus
+Coop | coop.ch | #E2001A | grocery | 1 | ch | supercard;coop supercard;coop schweiz
+Manor | manor.ch | #E30613 | department | 2 | ch | manor card
+Interdiscount | interdiscount.ch | #E30613 | electronics | 3 | ch |
+SBB | sbb.ch | #EB0000 | travel | 1 | ch | halbtax;swisspass;ga
+Ochsner Sport | ochsnersport.ch | #E30613 | sports | 3 | ch |
+
+# ── France ──────────────────────────────────────────────────────────────
+E.Leclerc | e.leclerc | #005CA9 | grocery | 1 | fr | leclerc;carte leclerc;ticket leclerc
+Super U | magasins-u.com | #E4002B | grocery | 1 | fr | systeme u;hyper u;u express;carte u
+Monoprix | monoprix.fr | #E2001A | grocery | 2 | fr | monop
+Franprix | franprix.fr | #E2001A | grocery | 3 | fr |
+Picard | picard.fr | #0060A8 | grocery | 2 | fr,be | picard fidelite
+Casino | supercasino.fr | #E30613 | grocery | 3 | fr | casino max
+Match | supermarchesmatch.fr | #E30613 | grocery | 3 | fr,be |
+Biocoop | biocoop.fr | #6BA539 | grocery | 3 | fr |
+Nicolas | nicolas.com | #8A1538 | grocery | 3 | fr,be |
+Nocibé | nocibe.fr | #000000 | beauty | 2 | fr | nocibe
+Pharmacie Lafayette | pharmacielafayette.com | #00A651 | drugstore | 3 | fr |
+Darty | darty.com | #E30613 | electronics | 2 | fr,be | darty max
+Boulanger | boulanger.com | #FF5A00 | electronics | 2 | fr | boulanger fidelite
+Mr.Bricolage | mr-bricolage.fr | #E30613 | diy | 3 | fr,be | mr bricolage
+Bricomarché | bricomarche.com | #E30613 | diy | 3 | fr,pt,pl | bricomarche
+Conforama | conforama.fr | #E30613 | home | 3 | fr,ch,pt |
+But | but.fr | #E30613 | home | 3 | fr |
+Gifi | gifi.fr | #E5007E | home | 3 | fr |
+Jardiland | jardiland.com | #00843D | home | 3 | fr | jardiland club
+Truffaut | truffaut.com | #00843D | home | 3 | fr |
+Cultura | cultura.com | #6C2A82 | books | 2 | fr |
+Galeries Lafayette | galerieslafayette.com | #000000 | department | 2 | fr | mes galeries
+Printemps | printemps.com | #000000 | department | 3 | fr |
+La Halle | lahalle.com | #E30613 | fashion | 3 | fr |
+Jules | jules.com | #000000 | fashion | 3 | fr,be |
+Celio | celio.com | #000000 | fashion | 3 | fr,be,ch |
+Etam | etam.com | #000000 | fashion | 3 | fr,be |
+Okaïdi | okaidi.fr | #E30613 | fashion | 3 | fr,be | okaidi;obaibi
+Vertbaudet | vertbaudet.fr | #00A3E0 | fashion | 3 | fr |
+Sergent Major | sergent-major.com | #E30613 | fashion | 3 | fr |
+Du Pareil au Même | dpam.com | #E30613 | fashion | 3 | fr | dpam
+King Jouet | king-jouet.com | #E30613 | toys | 3 | fr | club king
+JouéClub | joueclub.fr | #E30613 | toys | 3 | fr | joue club
+UGC | ugc.fr | #E30613 | cinema | 2 | fr,be | ugc illimite
+Fitness Park | fitnesspark.fr | #E30613 | fitness | 3 | fr |
+L'Orange Bleue | lorangebleue.fr | #F28C00 | fitness | 3 | fr | orange bleue
+Keep Cool | keepcool.fr | #E30613 | fitness | 3 | fr |
+Paul | paul.fr | #000000 | food | 3 | fr | paul boulangerie
+Brioche Dorée | briochedoree.fr | #E30613 | food | 3 | fr | brioche doree
+Columbus Café | columbuscafe.com | #00704A | food | 3 | fr | columbus cafe
+SNCF | sncf-connect.com | #0C131F | travel | 1 | fr | carte avantage;sncf connect;tgv max;carte liberte
+
+# ── Belgium & Luxembourg ────────────────────────────────────────────────
+Delhaize | delhaize.be | #E2001A | grocery | 1 | be,lu | superplus;delhaize superplus
+Colruyt | colruyt.be | #F47920 | grocery | 1 | be,lu | xtra;colruyt xtra
+Brico | brico.be | #E30613 | diy | 2 | be | brico plan-it
+Hubo | hubo.be | #E30613 | diy | 3 | be |
+Di | di.be | #E5007E | drugstore | 3 | be |
+Torfs | torfs.be | #E30613 | shoes | 3 | be |
+JBC | jbc.be | #E30613 | fashion | 3 | be |
+Vanden Borre | vandenborre.be | #E30613 | electronics | 3 | be |
+Krëfel | krefel.be | #E30613 | electronics | 3 | be | krefel
+Standaard Boekhandel | standaardboekhandel.be | #E30613 | books | 3 | be |
+Cactus | cactus.lu | #00843D | grocery | 1 | lu | cactus card;cactus carte
+
+# ── Netherlands ─────────────────────────────────────────────────────────
+Albert Heijn | ah.nl | #00ADE6 | grocery | 1 | nl,be | ah bonus;bonuskaart;ah bonuskaart;ah premium
+Jumbo | jumbo.com | #FFD200 | grocery | 1 | nl,be | jumbo extras
+Plus | plus.nl | #E2001A | grocery | 2 | nl | plus punten
+Etos | etos.nl | #005CA9 | drugstore | 2 | nl | etos klantenkaart
+HEMA | hema.nl | #E2001A | department | 3 | nl,be |
+Praxis | praxis.nl | #E30613 | diy | 2 | nl |
+Karwei | karwei.nl | #E30613 | diy | 3 | nl |
+de Bijenkorf | debijenkorf.nl | #000000 | department | 3 | nl | bijenkorf
+NS | ns.nl | #FFC917 | travel | 1 | nl | ns flex;ns voordeelurenabonnement;ov-chipkaart
+
+# ── Italy ───────────────────────────────────────────────────────────────
+Esselunga | esselunga.it | #1E6CB5 | grocery | 1 | it | fidaty;carta fidaty
+Conad | conad.it | #E30613 | grocery | 1 | it | carta insieme;conad card
+Coop | e-coop.it | #E30613 | grocery | 1 | it | coop italia;socio coop;carta socio coop
+Pam Panorama | pampanorama.it | #E30613 | grocery | 2 | it | pam;per te card
+Iper | iper.it | #E30613 | grocery | 3 | it | iper la grande i
+Bennet | bennet.com | #E30613 | grocery | 3 | it | bennet club
+Crai | crai-supermercati.it | #E30613 | grocery | 3 | it |
+Famila | famila.it | #E30613 | grocery | 3 | it |
+Tigros | tigros.it | #E30613 | grocery | 3 | it |
+NaturaSì | naturasi.it | #7AB51D | grocery | 3 | it | naturasi
+Decò | supermercatideco.it | #E30613 | grocery | 3 | it | deco
+Acqua & Sapone | acquaesapone.it | #00539B | drugstore | 2 | it | acqua e sapone
+Tigotà | tigota.it | #E5007E | drugstore | 2 | it | tigota
+Pinalli | pinalli.it | #000000 | beauty | 3 | it |
+MediaWorld | mediaworld.it | #DF0000 | electronics | 1 | it | media world
+Unieuro | unieuro.it | #E30613 | electronics | 1 | it | unieuro club
+Euronics | euronics.it | #003F87 | electronics | 2 | it |
+Feltrinelli | lafeltrinelli.it | #E30613 | books | 2 | it | carta feltrinelli;la feltrinelli
+Mondadori Store | mondadoristore.it | #E30613 | books | 3 | it | mondadori
+Giunti al Punto | giunti.it | #E30613 | books | 3 | it | giunti
+OVS | ovs.it | #003F87 | fashion | 2 | it | ovs card
+Brico io | bricoio.it | #E30613 | diy | 3 | it |
+Bricocenter | bricocenter.it | #E30613 | diy | 3 | it |
+Arcaplanet | arcaplanet.it | #00843D | pets | 3 | it |
+Cisalfa | cisalfasport.it | #E30613 | sports | 3 | it |
+Eni | eni.com | #FFD100 | fuel | 1 | it | eni live;enjoy;you&eni
+IP | ip.gruppoapi.com | #003F87 | fuel | 2 | it | ip plus;gruppo api
+Trenitalia | trenitalia.com | #C8102E | travel | 1 | it | cartafreccia;carta freccia;freccia
+Italo | italotreno.com | #8A1538 | travel | 2 | it | italo piu
+ITA Airways Volare | ita-airways.com | #00205B | travel | 2 | it | volare;ita airways
+The Space Cinema | thespacecinema.it | #E30613 | cinema | 3 | it |
+Old Wild West | oldwildwest.it | #8A1538 | food | 3 | it |
+
+# ── Spain ───────────────────────────────────────────────────────────────
+El Corte Inglés | elcorteingles.es | #00873D | department | 1 | es,pt | el corte ingles;hipercor;supercor;eci
+Dia | dia.es | #E30613 | grocery | 1 | es | club dia;dia club
+Eroski | eroski.es | #E30613 | grocery | 1 | es | club eroski
+Alcampo | alcampo.es | #E30613 | grocery | 2 | es | club alcampo
+Consum | consum.es | #F07C00 | grocery | 2 | es | mundo consum
+Caprabo | caprabo.com | #E2001A | grocery | 3 | es |
+BM Supermercados | bmsupermercados.es | #E30613 | grocery | 3 | es | bm
+Bonpreu | bonpreu.cat | #E30613 | grocery | 3 | es | bon preu;esclat
+Travel Club | travelclub.es | #0072BC | points | 2 | es |
+Primor | primor.eu | #E5007E | beauty | 3 | es,pt |
+Druni | druni.es | #E5007E | beauty | 3 | es |
+Bricomart | bricomart.es | #F7A600 | diy | 3 | es |
+Sprinter | sprinter.es | #003F87 | sports | 3 | es,pt |
+Casa del Libro | casadellibro.com | #E30613 | books | 3 | es |
+Tiendanimal | tiendanimal.es | #00843D | pets | 3 | es,pt |
+Kiwoko | kiwoko.com | #FF6600 | pets | 3 | es,pt |
+Moeve | moeveglobal.com | #E30613 | fuel | 2 | es,pt | cepsa;cepsa gow;moeve gow
+Cines Yelmo | yelmocines.es | #E30613 | cinema | 3 | es | yelmo
+Cinesa | cinesa.es | #E30613 | cinema | 3 | es | cinesa card
+Telepizza | telepizza.es | #D52B1E | food | 3 | es,pt | club telepizza
+100 Montaditos | spain.100montaditos.com | #000000 | food | 3 | es | cien montaditos
+Rodilla | rodilla.es | #E30613 | food | 3 | es |
+Renfe | renfe.com | #8A1538 | travel | 2 | es | mas renfe;renfe mas
+Iberia Club | iberia.com | #D7192D | travel | 1 | es | iberia plus;iberia;avios
+Vueling Club | vueling.com | #FFCC00 | travel | 3 | es | vueling
+Air Europa SUMA | aireuropa.com | #00205B | travel | 3 | es | suma;air europa
+
+# ── Portugal ────────────────────────────────────────────────────────────
+Continente | continente.pt | #E30613 | grocery | 1 | pt | cartao continente;cartão continente
+Pingo Doce | pingodoce.pt | #76B82A | grocery | 1 | pt | poupa mais
+Wells | wells.pt | #00A3E0 | drugstore | 2 | pt |
+Bertrand | bertrand.pt | #E30613 | books | 3 | pt |
+Sport Zone | sportzone.pt | #E30613 | sports | 3 | pt |
+NOS Cinemas | cinemas.nos.pt | #000000 | cinema | 3 | pt |
+TAP Miles&Go | flytap.com | #E30613 | travel | 2 | pt | tap;miles&go;miles and go
+
+# ── Poland ──────────────────────────────────────────────────────────────
+Biedronka | biedronka.pl | #E30613 | grocery | 1 | pl | moja biedronka
+Żabka | zabka.pl | #00A651 | grocery | 1 | pl | zabka;zappka;żappka
+Stokrotka | stokrotka.pl | #E30613 | grocery | 3 | pl |
+Hebe | hebe.pl | #E5007E | drugstore | 2 | pl |
+Super-Pharm | superpharm.pl | #E5007E | drugstore | 3 | pl | super pharm;lifestyle
+Dr.Max | drmax.pl | #E30613 | drugstore | 3 | pl,it | dr max
+Gemini | gemini.pl | #00A651 | drugstore | 3 | pl | apteka gemini
+Empik | empik.com | #E30613 | books | 1 | pl | mojempik;moj empik
+Media Expert | mediaexpert.pl | #FFD100 | electronics | 2 | pl |
+RTV Euro AGD | euro.com.pl | #003F87 | electronics | 3 | pl | euro rtv agd
+Reserved | reserved.com | #000000 | fashion | 3 | pl |
+CCC | ccc.eu | #E30613 | shoes | 3 | pl | ccc club
+Cinema City | cinema-city.pl | #E30613 | cinema | 3 | pl | unlimited
+Multikino | multikino.pl | #E30613 | cinema | 3 | pl |
+Helios | helios.pl | #E30613 | cinema | 3 | pl |
+PKP Intercity | intercity.pl | #003F87 | travel | 3 | pl | intercity
+LOT | lot.com | #11397E | travel | 3 | pl | lot miles and more
+
+# ── Türkiye ─────────────────────────────────────────────────────────────
+Migros | migros.com.tr | #FF6600 | grocery | 1 | tr | money club;migros money;macro
+CarrefourSA | carrefoursa.com | #004E9F | grocery | 1 | tr | carrefoursa kart
+ŞOK | sokmarket.com.tr | #FFD500 | grocery | 2 | tr | sok;cepte sok
+A101 | a101.com.tr | #00ADEF | grocery | 2 | tr |
+Macrocenter | macrocenter.com.tr | #000000 | grocery | 3 | tr |
+Metro Türkiye | metro-tr.com | #003D7D | grocery | 2 | tr | metro
+File | file.com.tr | #E30613 | grocery | 3 | tr |
+Gratis | gratis.com | #E5007E | drugstore | 1 | tr | gratis kart
+Watsons | watsons.com.tr | #00A0AF | drugstore | 2 | tr | watsons club
+Boyner | boyner.com.tr | #000000 | department | 2 | tr |
+LC Waikiki | lcwaikiki.com | #0047BA | fashion | 2 | tr | lcw
+DeFacto | defacto.com.tr | #000000 | fashion | 3 | tr |
+Koton | koton.com | #000000 | fashion | 3 | tr | koton club
+Mavi | mavi.com | #002D72 | fashion | 3 | tr |
+Flo | flo.com.tr | #E30613 | shoes | 3 | tr |
+Penti | penti.com | #000000 | fashion | 3 | tr |
+Teknosa | teknosa.com | #E30613 | electronics | 2 | tr | teknosa club
+Vatan Bilgisayar | vatanbilgisayar.com | #E30613 | electronics | 3 | tr | vatan
+D&R | dr.com.tr | #E30613 | books | 2 | tr | dr
+Koçtaş | koctas.com.tr | #F7A600 | diy | 3 | tr | koctas
+English Home | englishhome.com | #1D1D1B | home | 3 | tr |
+Madame Coco | madamecoco.com | #000000 | home | 3 | tr |
+Karaca | karaca.com | #E30613 | home | 3 | tr |
+Paşabahçe | pasabahce.com | #003D7D | home | 3 | tr | pasabahce
+Kahve Dünyası | kahvedunyasi.com | #5A2D0C | food | 2 | tr | kahve dunyasi
+Simit Sarayı | simitsarayi.com | #D52B1E | food | 3 | tr | simit sarayi
+Espressolab | espressolab.com | #000000 | food | 3 | tr |
+Mado | mado.com.tr | #E30613 | food | 3 | tr |
+Opet | opet.com.tr | #0058A3 | fuel | 1 | tr | opet worldcard;opet kart
+Petrol Ofisi | petrolofisi.com.tr | #E30613 | fuel | 2 | tr | po;positive card
+Pegasus BolBol | flypgs.com | #FDB813 | travel | 2 | tr | bolbol;pegasus
+Paribu Cineverse | paribucineverse.com | #5A2D82 | cinema | 3 | tr | cinemaximum;cineverse
+Mac-Fit | macfit.com.tr | #E30613 | fitness | 3 | tr | macfit
+
+# ── Brazil ──────────────────────────────────────────────────────────────
+Livelo | livelo.com.br | #E5007E | points | 1 | br |
+Smiles | smiles.com.br | #FF6600 | travel | 1 | br | gol
+Pão de Açúcar | paodeacucar.com | #00843D | grocery | 1 | br | pao de acucar;clube mais;pão de açúcar mais
+Drogasil | drogasil.com.br | #E30613 | drugstore | 1 | br |
+Droga Raia | drogaraia.com.br | #00843D | drugstore | 1 | br | raia
+Pague Menos | paguemenos.com.br | #E30613 | drugstore | 2 | br |
+Ipiranga | ipiranga.com.br | #FFD200 | fuel | 1 | br | km de vantagens
+Petrobras Premmia | premmia.com.br | #00843D | fuel | 2 | br | premmia;br mania
+Renner | lojasrenner.com.br | #E30613 | fashion | 2 | br | lojas renner
+C&A Brasil | cea.com.br | #E30613 | fashion | 3 | br |
+Riachuelo | riachuelo.com.br | #000000 | fashion | 3 | br |
+Esfera | esfera.com.vc | #E30613 | points | 3 | br |
+Dotz | dotz.com.br | #FF6600 | points | 3 | br |
+Centauro | centauro.com.br | #E30613 | sports | 3 | br |
+LATAM Pass | latamairlines.com | #1B0088 | travel | 2 | br,cl,co,ar,mx | latam
