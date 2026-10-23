@@ -93,9 +93,9 @@ dependency_overrides:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/images/logo_icon.png"
-  adaptive_icon_background: "#ffffff"
-  adaptive_icon_foreground: "assets/images/logo_foreground.png"
+  image_path: "docs/store/icon/app_store_1024.png"
+  adaptive_icon_background: "docs/store/icon/adaptive_background.png"
+  adaptive_icon_foreground: "docs/store/icon/adaptive_foreground.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

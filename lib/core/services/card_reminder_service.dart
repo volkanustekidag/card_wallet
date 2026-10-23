@@ -409,6 +409,8 @@ class CardReminderService {
           channelDescription: _channelDescription,
           importance: Importance.high,
           priority: Priority.high,
+          // Tints the status icon and header: the brand tangerine.
+          color: Color(0xFFFF5A1F),
         ),
         iOS: DarwinNotificationDetails(),
         macOS: DarwinNotificationDetails(),
