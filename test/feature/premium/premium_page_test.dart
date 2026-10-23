@@ -70,4 +70,22 @@ void main() {
     await tester.pump(const Duration(milliseconds: 800));
     expect(find.text('premiumLegalDisclosureAndroid'.tr()), findsOneWidget);
   });
+
+  testWidgets('picking another plan moves nothing on screen', (tester) async {
+    await phoneSurface(tester);
+    await pumpApp(tester, const PremiumPage());
+    await tester.pump(const Duration(milliseconds: 800));
+    final button = find.byType(FilledButton).last;
+    final before = tester.getRect(button);
+    final plansBefore = tester.getRect(find.text('€1.99'));
+    final headline = find.text('cwPayHeadline'.tr());
+    final headlineBefore = tester.getRect(headline);
+    for (final price in ['€4.99', '€1.99', '€29.99']) {
+      await tester.tap(find.text(price));
+      await tester.pump(const Duration(milliseconds: 800));
+      expect(tester.getRect(button), before);
+      expect(tester.getRect(find.text('€1.99')), plansBefore);
+      expect(tester.getRect(headline), headlineBefore);
+    }
+  });
 }

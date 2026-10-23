@@ -720,9 +720,11 @@ class _PlanRow extends StatelessWidget {
                                 ? c.ink.withValues(alpha: 0.10)
                                 : c.ink.withValues(alpha: 0.04),
                             borderRadius: BorderRadius.circular(16),
+                            // Same width selected or not: a thicker border
+                            // grew the tile and shifted the whole screen.
                             border: Border.all(
                               color: on ? c.ink : c.ink.withValues(alpha: 0.16),
-                              width: on ? 2 : 1,
+                              width: 2,
                             ),
                           ),
                           child: Column(
