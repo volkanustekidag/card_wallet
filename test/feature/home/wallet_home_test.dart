@@ -8,6 +8,7 @@ import 'package:wallet_app/core/utils/tag_index.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/feature/home/wallet_home.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
+import 'package:wallet_app/ui/card/wallet_card_faces.dart';
 
 import '../../helpers/harness.dart';
 
@@ -17,6 +18,7 @@ void main() {
   setUp(() async {
     await h.setUp();
     UiPrefs.instance.upNext.value = true;
+    UiPrefs.instance.homeGrid.value = false;
   });
   tearDown(h.tearDown);
 
@@ -194,5 +196,84 @@ void main() {
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -1500));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
+  });
+
+  group('grid view', () {
+    FakeHome wallet() => FakeHome(
+          loyalties: [loyalty('a', 'Bakery'), loyalty('b', 'Gym')],
+          credits: [credit('c', bank: 'Chase')],
+          ibans: [iban(1, bank: 'Deutsche Bank')],
+        );
+
+    testWidgets('the switch turns the stack into a grid and is kept',
+        (tester) async {
+      await pumpHome(tester, wallet());
+      expect(find.byType(WalletMiniCard), findsNothing);
+
+      await tapIo(tester, find.bySemanticsLabel('cwViewGrid'.tr()));
+      expect(find.byType(WalletMiniCard), findsNWidgets(4));
+      expect(UiPrefs.instance.homeGrid.value, isTrue);
+
+      UiPrefs.instance.homeGrid.value = false;
+      await tester.runAsync(UiPrefs.instance.load);
+      expect(UiPrefs.instance.homeGrid.value, isTrue);
+      await tester.pumpAndSettle();
+      expect(find.byType(WalletMiniCard), findsNWidgets(4));
+
+      await tapIo(tester, find.bySemanticsLabel('cwViewStack'.tr()));
+      expect(find.byType(WalletMiniCard), findsNothing);
+    });
+
+    testWidgets('segments filter the grid too', (tester) async {
+      UiPrefs.instance.homeGrid.value = true;
+      await pumpHome(tester, wallet());
+      await tester.tap(find.text('cwSegLoyalty'.tr()));
+      await tester.pumpAndSettle();
+      expect(find.byType(WalletMiniCard), findsNWidgets(2));
+    });
+
+    testWidgets('a payment due soon shows as a badge on the tile',
+        (tester) async {
+      UiPrefs.instance.homeGrid.value = true;
+      final card = credit('c', bank: 'Chase', dueDay: 1, paymentReminder: true);
+      final home = FakeHome(credits: [card]);
+      home.upcomingPaymentNotices.assignAll([
+        UpcomingCardDate(
+          card: card,
+          targetDate: DateTime.now().add(const Duration(days: 2)),
+          daysUntil: 2,
+        ),
+      ]);
+      await pumpHome(tester, home);
+      expect(
+          find.descendant(
+              of: find.byType(WalletMiniCard),
+              matching: find.text('cwDueBadge'.tr(args: ['2']))),
+          findsOneWidget);
+    });
+
+    for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+      testWidgets('no overflow with long names ($mode, de)', (tester) async {
+        UiPrefs.instance.homeGrid.value = true;
+        await phoneSurface(tester);
+        final home = FakeHome(
+          loyalties: [
+            for (var i = 0; i < 9; i++)
+              loyalty('l$i', 'A very long loyalty programme name number $i'),
+          ],
+          credits: [
+            credit('c', bank: 'A bank with an unusually long name'),
+          ],
+          ibans: [iban(1)],
+        );
+        Get.put<HomeController>(home);
+        await pumpApp(tester, Scaffold(body: WalletHome(controller: home)),
+            mode: mode, locale: const Locale('de', 'DE'));
+        await tester.drag(
+            find.byType(CustomScrollView), const Offset(0, -1500));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+      });
+    }
   });
 }

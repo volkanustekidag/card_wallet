@@ -14,11 +14,13 @@ class UiPrefs {
   static const _kLastBackup = 'last_backup_at';
   static const _kCarry = 'carry_kinds';
   static const _kRemindDefault = 'remind_by_default';
+  static const _kHomeGrid = 'home_grid';
 
   final RxBool upNext = true.obs;
   final Rxn<DateTime> lastBackup = Rxn<DateTime>();
   final RxList<String> carry = <String>[].obs;
   final RxBool remindByDefault = false.obs;
+  final RxBool homeGrid = false.obs;
 
   Future<Box<dynamic>> _open() async {
     if (Hive.isBoxOpen(_box)) return Hive.box<dynamic>(_box);
@@ -35,6 +37,7 @@ class UiPrefs {
       final kinds = b.get(_kCarry);
       carry.assignAll(kinds is List ? kinds.cast<String>() : const []);
       remindByDefault.value = b.get(_kRemindDefault) == true;
+      homeGrid.value = b.get(_kHomeGrid) == true;
     } catch (_) {
       // Defaults stand; nothing here is critical.
     }
@@ -59,6 +62,13 @@ class UiPrefs {
     remindByDefault.value = v;
     try {
       await (await _open()).put(_kRemindDefault, v);
+    } catch (_) {}
+  }
+
+  Future<void> setHomeGrid(bool v) async {
+    homeGrid.value = v;
+    try {
+      await (await _open()).put(_kHomeGrid, v);
     } catch (_) {}
   }
 

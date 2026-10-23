@@ -114,6 +114,7 @@ class _WalletHomeState extends State<WalletHome> {
                 Obx(() {
                   final items = _c.walletItems.toList();
                   final showUpNext = UiPrefs.instance.upNext.value;
+                  final grid = UiPrefs.instance.homeGrid.value;
                   if (items.isEmpty) {
                     return const SliverToBoxAdapter(child: _EmptyWallet());
                   }
@@ -123,6 +124,7 @@ class _WalletHomeState extends State<WalletHome> {
                       controller: _c,
                       items: items,
                       showUpNext: showUpNext,
+                      grid: grid,
                       filter: filter,
                       onFilter: (f) => _filter.value = f,
                     ),
@@ -150,11 +152,13 @@ class _WalletSlivers extends StatelessWidget {
   final HomeFilter filter;
   final ValueChanged<HomeFilter> onFilter;
   final bool showUpNext;
+  final bool grid;
 
   const _WalletSlivers({
     required this.controller,
     required this.items,
     required this.showUpNext,
+    required this.grid,
     required this.filter,
     required this.onFilter,
   });
@@ -211,7 +215,12 @@ class _WalletSlivers extends StatelessWidget {
             child: _UpNextBanner(card: upNext.$1, reason: upNext.$2),
           ),
         SliverToBoxAdapter(
-          child: _CountLine(count: stack.length, notice: notice),
+          child: _CountLine(
+            count: stack.length,
+            notice: notice,
+            grid: grid,
+            onGrid: stack.isEmpty ? null : UiPrefs.instance.setHomeGrid,
+          ),
         ),
         if (stack.isEmpty)
           SliverToBoxAdapter(
@@ -231,6 +240,27 @@ class _WalletSlivers extends StatelessWidget {
                           ? CardLimitType.credit
                           : CardLimitType.loyalty,
                 ),
+              ),
+            ),
+          )
+        else if (grid)
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: CwSpace.gutter),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: kCardAspect,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                (context, i) => _GridCard(
+                  key: ValueKey(stack[i].heroTag),
+                  item: stack[i],
+                  badge: _badgeFor(stack[i]),
+                ),
+                childCount: stack.length,
+                addAutomaticKeepAlives: false,
               ),
             ),
           )
@@ -434,8 +464,17 @@ class _ShowPill extends StatelessWidget {
 class _CountLine extends StatelessWidget {
   final int count;
   final _Notice? notice;
+  final bool grid;
 
-  const _CountLine({required this.count, this.notice});
+  /// Switches stack / grid; null hides the switch (nothing to show).
+  final ValueChanged<bool>? onGrid;
+
+  const _CountLine({
+    required this.count,
+    this.notice,
+    this.grid = false,
+    this.onGrid,
+  });
 
   static String whenText(int days) {
     if (days <= 0) return 'cwWhenToday'.tr();
@@ -499,8 +538,138 @@ class _CountLine extends StatelessWidget {
             style: CwType.overline.copyWith(color: c.mute),
           ),
           const SizedBox(width: 12),
-          if (right != null) right,
+          if (right != null) right else const Spacer(),
+          if (onGrid != null) ...[
+            const SizedBox(width: 10),
+            _ViewSwitch(grid: grid, onChanged: onGrid!),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+/// Two-icon switch between the stack and the grid.
+class _ViewSwitch extends StatelessWidget {
+  final bool grid;
+  final ValueChanged<bool> onChanged;
+
+  const _ViewSwitch({required this.grid, required this.onChanged});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    Widget option(bool isGrid, CwIcons icon, String label) {
+      final on = grid == isGrid;
+      return Semantics(
+        button: true,
+        selected: on,
+        label: label.tr(),
+        excludeSemantics: true,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: on
+              ? null
+              : () {
+                  HapticFeedback.selectionClick();
+                  onChanged(isGrid);
+                },
+          child: AnimatedContainer(
+            duration: CwMotion.fast,
+            curve: CwMotion.standard,
+            width: 32,
+            height: 26,
+            decoration: BoxDecoration(
+              color: on ? c.surface : Colors.transparent,
+              borderRadius: BorderRadius.circular(7),
+              boxShadow: on
+                  ? const [
+                      BoxShadow(
+                          color: Color(0x1F000000),
+                          blurRadius: 2,
+                          offset: Offset(0, 1)),
+                    ]
+                  : null,
+            ),
+            alignment: Alignment.center,
+            child: CwIcon(icon, size: 16, color: on ? c.ink : c.mute),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      key: const ValueKey('homeViewSwitch'),
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: c.surface2,
+        borderRadius: BorderRadius.circular(9),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          option(false, CwIcons.stack, 'cwViewStack'),
+          option(true, CwIcons.grid, 'cwViewGrid'),
+        ],
+      ),
+    );
+  }
+}
+
+/// A card in the Home grid. Presses in a touch, opens like a stack card.
+class _GridCard extends StatefulWidget {
+  final WalletItem item;
+  final String? badge;
+
+  const _GridCard({super.key, required this.item, this.badge});
+
+  @override
+  State<_GridCard> createState() => _GridCardState();
+}
+
+class _GridCardState extends State<_GridCard> {
+  bool _down = false;
+
+  void _press(bool v) {
+    if (_down != v) setState(() => _down = v);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final item = widget.item;
+    return Semantics(
+      button: true,
+      label: '${titleForItem(item)}, ${typeLabelFor(item.kind)}',
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTapDown: (_) => _press(true),
+        onTapCancel: () => _press(false),
+        onTapUp: (_) => _press(false),
+        onTap: () {
+          HapticFeedback.selectionClick();
+          openWalletItem(context, item);
+        },
+        child: AnimatedScale(
+          scale: _down ? 0.96 : 1,
+          duration: CwMotion.fast,
+          curve: CwMotion.standard,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x240E0F12),
+                  blurRadius: 14,
+                  offset: Offset(0, 6),
+                ),
+              ],
+            ),
+            child: Hero(
+              tag: item.heroTag,
+              child: WalletMiniCard(item: item, badge: widget.badge),
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -830,5 +830,7 @@
     "cwForgotBody": "Telefonunun ekran kilidiyle (şifre, desen, parmak izi ya da yüz) kendini doğrula, sonra yeni bir PIN belirle. Kartların olduğu gibi kalır.",
     "cwForgotUseLock": "Ekran kilidini kullan",
     "cwForgotReason": "Yeni PIN belirlemek için kendini doğrula",
-    "cwForgotNoLock": "Bu telefonda ekran kilidi yok; PIN bu yolla sıfırlanamaz."
+    "cwForgotNoLock": "Bu telefonda ekran kilidi yok; PIN bu yolla sıfırlanamaz.",
+    "cwViewStack": "Deste görünümü",
+    "cwViewGrid": "Izgara görünümü"
 }

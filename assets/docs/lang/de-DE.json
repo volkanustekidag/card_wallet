@@ -830,5 +830,7 @@
     "cwForgotBody": "Bestätige mit der Displaysperre deines Handys – Code, Muster, Fingerabdruck oder Gesicht –, dass du es bist, und lege eine neue PIN fest. Deine Karten bleiben, wie sie sind.",
     "cwForgotUseLock": "Displaysperre verwenden",
     "cwForgotReason": "Bestätige, dass du es bist, um eine neue PIN festzulegen",
-    "cwForgotNoLock": "Dieses Handy hat keine Displaysperre, daher lässt sich die PIN so nicht zurücksetzen."
+    "cwForgotNoLock": "Dieses Handy hat keine Displaysperre, daher lässt sich die PIN so nicht zurücksetzen.",
+    "cwViewStack": "Stapelansicht",
+    "cwViewGrid": "Rasteransicht"
 }

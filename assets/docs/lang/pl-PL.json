@@ -844,5 +844,7 @@
     "cwForgotBody": "Potwierdź, że to ty, blokadą ekranu telefonu (kodem, wzorem, odciskiem palca lub twarzą), a potem ustaw nowy PIN. Twoje karty pozostaną bez zmian.",
     "cwForgotUseLock": "Użyj blokady ekranu",
     "cwForgotReason": "Potwierdź, że to ty, aby ustawić nowy PIN",
-    "cwForgotNoLock": "Ten telefon nie ma blokady ekranu, więc nie można w ten sposób zresetować PIN-u."
+    "cwForgotNoLock": "Ten telefon nie ma blokady ekranu, więc nie można w ten sposób zresetować PIN-u.",
+    "cwViewStack": "Widok stosu",
+    "cwViewGrid": "Widok siatki"
 }

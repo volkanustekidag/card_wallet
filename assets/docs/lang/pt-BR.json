@@ -830,5 +830,7 @@
     "cwForgotBody": "Confirme que é você com o bloqueio de tela do celular (senha, padrão, digital ou rosto) e defina um novo PIN. Seus cartões continuam iguais.",
     "cwForgotUseLock": "Usar bloqueio de tela",
     "cwForgotReason": "Confirme que é você para definir um novo PIN",
-    "cwForgotNoLock": "Este celular não tem bloqueio de tela, então o PIN não pode ser redefinido assim."
+    "cwForgotNoLock": "Este celular não tem bloqueio de tela, então o PIN não pode ser redefinido assim.",
+    "cwViewStack": "Visualização em pilha",
+    "cwViewGrid": "Visualização em grade"
 }

@@ -830,5 +830,7 @@
     "cwForgotBody": "Confirmez votre identité avec le verrouillage de l'écran du téléphone (code, schéma, empreinte ou visage), puis choisissez un nouveau code PIN. Vos cartes restent intactes.",
     "cwForgotUseLock": "Utiliser le verrouillage",
     "cwForgotReason": "Confirmez votre identité pour choisir un nouveau code PIN",
-    "cwForgotNoLock": "Ce téléphone n'a pas de verrouillage d'écran : le code PIN ne peut pas être réinitialisé ainsi."
+    "cwForgotNoLock": "Ce téléphone n'a pas de verrouillage d'écran : le code PIN ne peut pas être réinitialisé ainsi.",
+    "cwViewStack": "Vue en pile",
+    "cwViewGrid": "Vue en grille"
 }

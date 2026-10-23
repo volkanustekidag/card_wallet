@@ -830,5 +830,7 @@
     "cwForgotBody": "Conferma che sei tu con il blocco schermo del telefono (codice, sequenza, impronta o volto), poi imposta un nuovo PIN. Le tue carte restano come sono.",
     "cwForgotUseLock": "Usa il blocco schermo",
     "cwForgotReason": "Conferma che sei tu per impostare un nuovo PIN",
-    "cwForgotNoLock": "Questo telefono non ha un blocco schermo, quindi il PIN non può essere reimpostato così."
+    "cwForgotNoLock": "Questo telefono non ha un blocco schermo, quindi il PIN non può essere reimpostato così.",
+    "cwViewStack": "Vista a pila",
+    "cwViewGrid": "Vista a griglia"
 }

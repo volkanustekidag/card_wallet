@@ -830,5 +830,7 @@
     "cwForgotBody": "Bevestig met de schermvergrendeling van je telefoon (code, patroon, vingerafdruk of gezicht) dat jij het bent en stel een nieuwe pincode in. Je kaarten blijven zoals ze zijn.",
     "cwForgotUseLock": "Schermvergrendeling gebruiken",
     "cwForgotReason": "Bevestig dat jij het bent om een nieuwe pincode in te stellen",
-    "cwForgotNoLock": "Deze telefoon heeft geen schermvergrendeling, dus de pincode kan zo niet worden gereset."
+    "cwForgotNoLock": "Deze telefoon heeft geen schermvergrendeling, dus de pincode kan zo niet worden gereset.",
+    "cwViewStack": "Stapelweergave",
+    "cwViewGrid": "Rasterweergave"
 }

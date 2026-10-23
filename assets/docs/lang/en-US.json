@@ -830,5 +830,7 @@
     "cwForgotBody": "Confirm it's you with your phone's screen lock — passcode, pattern, fingerprint or face — then set a new PIN. Your cards stay as they are.",
     "cwForgotUseLock": "Use screen lock",
     "cwForgotReason": "Confirm it's you to set a new PIN",
-    "cwForgotNoLock": "This phone has no screen lock, so the PIN can't be reset this way."
+    "cwForgotNoLock": "This phone has no screen lock, so the PIN can't be reset this way.",
+    "cwViewStack": "Stack view",
+    "cwViewGrid": "Grid view"
 }

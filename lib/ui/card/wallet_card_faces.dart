@@ -351,7 +351,9 @@ class WalletCardFace extends StatelessWidget {
             Row(
               children: [
                 CwIcon(
-                  isSquareBarcodeFormat(c.barcodeFormat) ? CwIcons.qr : CwIcons.barcode,
+                  isSquareBarcodeFormat(c.barcodeFormat)
+                      ? CwIcons.qr
+                      : CwIcons.barcode,
                   size: 18,
                   color: fg.withValues(alpha: 0.8),
                 ),
@@ -403,6 +405,86 @@ class CardThumb extends StatelessWidget {
       child: Align(
         alignment: Alignment.topLeft,
         child: CardLogoChip(item: item, size: h * 0.48),
+      ),
+    );
+  }
+}
+
+/// Small face for the Home grid: material, logo, name and one meta (type,
+/// last 4 or a status [badge]). Same card language as the stack, at half
+/// width.
+class WalletMiniCard extends StatelessWidget {
+  final WalletItem item;
+  final String? badge;
+
+  const WalletMiniCard({super.key, required this.item, this.badge});
+
+  @override
+  Widget build(BuildContext context) {
+    final m = materialForItem(item);
+    final fg = m.foreground;
+    final last4 = item.kind == WalletItemKind.credit
+        ? last4Of((item.card as CreditCard).creditCardNumber)
+        : null;
+    return CardFace(
+      material: m,
+      radius: 14,
+      shadow: false,
+      padding: const EdgeInsets.fromLTRB(11, 11, 12, 11),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CardLogoChip(item: item, size: 24),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Align(
+                  alignment: AlignmentDirectional.topEnd,
+                  child: badge != null
+                      ? Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 7, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: fg.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(badge!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: CwType.caption
+                                  .copyWith(color: fg, fontSize: 10.5)),
+                        )
+                      : last4 == null
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 3),
+                              child: Text(
+                                typeLabelFor(item.kind).toUpperCase(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: CwType.overline.copyWith(
+                                    color: fg.withValues(alpha: 0.8),
+                                    fontSize: 9),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                ),
+              ),
+            ],
+          ),
+          const Spacer(),
+          if (last4 != null)
+            Text('•••• $last4',
+                style:
+                    CwType.mono(size: 11, color: fg.withValues(alpha: 0.85))),
+          Text(
+            titleForItem(item),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: CwType.headline.copyWith(color: fg, fontSize: 14.5),
+          ),
+        ],
       ),
     );
   }

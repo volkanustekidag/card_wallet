@@ -830,5 +830,7 @@
     "cwForgotBody": "Confirma que eres tú con el bloqueo de pantalla del móvil (código, patrón, huella o cara) y elige un PIN nuevo. Tus tarjetas no cambian.",
     "cwForgotUseLock": "Usar bloqueo de pantalla",
     "cwForgotReason": "Confirma que eres tú para elegir un PIN nuevo",
-    "cwForgotNoLock": "Este móvil no tiene bloqueo de pantalla, así que el PIN no se puede restablecer así."
+    "cwForgotNoLock": "Este móvil no tiene bloqueo de pantalla, así que el PIN no se puede restablecer así.",
+    "cwViewStack": "Vista en pila",
+    "cwViewGrid": "Vista en cuadrícula"
 }
