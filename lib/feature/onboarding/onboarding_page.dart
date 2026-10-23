@@ -247,7 +247,7 @@ class _Stage extends StatelessWidget {
           radius: 1.0,
           colors: [
             Color.alphaBlend(
-                c.accent.withValues(alpha: dark ? 0.22 : 0.08), c.bg),
+                c.ink.withValues(alpha: dark ? 0.07 : 0.035), c.bg),
             c.bg,
           ],
         ),
@@ -356,7 +356,7 @@ class _Welcome extends StatelessWidget {
                   children: [
                     demo(10, -0.12, const Offset(-26, -56),
                         label('cwTypeLoyalty'.tr().toUpperCase())),
-                    demo(0, 0.08, const Offset(30, -8), label('IBAN')),
+                    demo(2, 0.08, const Offset(30, -8), label('IBAN')),
                     demo(
                       11,
                       -0.03,

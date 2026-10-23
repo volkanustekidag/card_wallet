@@ -36,8 +36,10 @@ class CardMaterial {
 
   // Order mirrors LinearGradients.linearGradientList — never reorder.
   static const List<CardMaterial> catalogue = [
+    // 0 is every new card's default: a quiet charcoal, not a brand hue
+    // (was plum, which put purple all over the wallet).
     CardMaterial(
-        [Color(0xFF4A1458), Color(0xFF8A2A7E), Color(0xFF2E0B3A)]), // 0 plum
+        [Color(0xFF1E232B), Color(0xFF3B4350), Color(0xFF14181E)]), // 0 charcoal
     CardMaterial(
         [Color(0xFF8E1B1F), Color(0xFFD7332F), Color(0xFF6C1013)]), // 1 red
     CardMaterial(

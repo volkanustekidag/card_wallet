@@ -7,19 +7,19 @@ import 'package:wallet_app/ui/typography.dart';
 /// Material themes built from the v2 design tokens ([CwColors], [CwType]).
 ///
 /// The app uses the platform font (SF Pro / Roboto) — no custom UI font.
-/// Colour lives in the cards; the chrome is neutral with one accent.
+/// Colour lives in the cards; the chrome is neutral (ink accent).
 class AppThemes {
   AppThemes._();
 
   // Kept for call sites that need a semantic colour without a theme lookup.
-  static const Color lightPrimary = Color(0xFF4B4BF0);
-  static const Color darkPrimary = Color(0xFF8C8CFF);
+  static const Color lightPrimary = Color(0xFF0E0F12);
+  static const Color darkPrimary = Color(0xFFF2F3F5);
   static const Color lightWarning = Color(0xFFDC6803);
   static const Color darkWarning = Color(0xFFFBBF24);
   static const Color lightSuccess = Color(0xFF12B76A);
   static const Color darkSuccess = Color(0xFF34D399);
-  static const Color lightInfo = Color(0xFF4B4BF0);
-  static const Color darkInfo = Color(0xFF8C8CFF);
+  static const Color lightInfo = Color(0xFF0E0F12);
+  static const Color darkInfo = Color(0xFFF2F3F5);
 
   static Color success(BuildContext context) => CwColors.of(context).ok;
   static Color warning(BuildContext context) => CwColors.of(context).warn;
@@ -33,7 +33,7 @@ class AppThemes {
     final scheme = ColorScheme(
       brightness: b,
       primary: c.accent,
-      onPrimary: Colors.white,
+      onPrimary: c.bg,
       secondary: c.ink,
       onSecondary: c.bg,
       tertiary: c.ok,

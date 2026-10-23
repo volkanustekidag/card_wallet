@@ -120,11 +120,11 @@ class _AuthViewsState extends State<AuthViews>
                     center: const Alignment(0, -0.55),
                     radius: 0.9,
                     colors: [
-                      c.accent.withValues(
+                      c.ink.withValues(
                           alpha: Theme.of(context).brightness == Brightness.dark
                               ? 0.30
                               : 0.10),
-                      c.accent.withValues(alpha: 0),
+                      c.ink.withValues(alpha: 0),
                     ],
                   ),
                 ),

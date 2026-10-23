@@ -291,7 +291,7 @@ class _ResultRow extends StatelessWidget {
                     query: query,
                     style: CwType.callout
                         .copyWith(color: c.ink, fontWeight: FontWeight.w600),
-                    highlight: TextStyle(color: c.accent),
+                    highlight: TextStyle(color: c.ink, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 2),
                   Text(

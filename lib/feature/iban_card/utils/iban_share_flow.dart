@@ -163,7 +163,7 @@ Future<IbanShareChoice?> showIbanShareSheet(
                   children: [
                     CwRow(
                       key: const ValueKey('ibanShareAddQr'),
-                      leading: CwIconTile(CwIcons.qr, color: c.accent),
+                      leading: CwIconTile(CwIcons.qr, color: c.ink2),
                       title: 'cwAddQrPremium'.tr(),
                       trailing: CwPill.accent(sheetContext, 'cwPremium'.tr(),
                           icon: CwIcons.gem),

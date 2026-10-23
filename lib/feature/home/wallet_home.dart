@@ -413,7 +413,7 @@ class _UpNextBanner extends StatelessWidget {
                     children: [
                       Text(
                         'cwUpNext'.tr().toUpperCase(),
-                        style: CwType.overline.copyWith(color: c.accent),
+                        style: CwType.overline.copyWith(color: c.ink2),
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -799,7 +799,7 @@ class _EmptyWallet extends StatelessWidget {
             (
               'iban',
               CwRow(
-                leading: CwIconTile(CwIcons.bank, color: c.accent),
+                leading: CwIconTile(CwIcons.bank, color: const Color(0xFF2E6385)),
                 title: 'cwQsIban'.tr(),
                 subtitle: 'cwQsIbanSub'.tr(),
                 chevron: true,

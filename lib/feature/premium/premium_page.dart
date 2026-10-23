@@ -138,12 +138,12 @@ class _PremiumPageState extends State<PremiumPage> {
                         builder: (context, box) {
                           final short = box.maxHeight < 440;
                           return SingleChildScrollView(
-                            padding: const EdgeInsets.fromLTRB(28, 6, 28, 12),
+                            padding: const EdgeInsets.fromLTRB(28, 16, 28, 12),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _Header(context: _contextLine()),
-                                SizedBox(height: short ? 10 : 14),
+                                SizedBox(height: short ? 24 : 28),
                                 _Perks(compact: short),
                                 const SizedBox(height: 8),
                                 const _Trust(),
@@ -179,7 +179,7 @@ class _PremiumPageState extends State<PremiumPage> {
                                     selected: selected,
                                     onSelected: _onPlanSelected,
                                   ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 16),
                                 _ContinueButton(
                                   label: isPremium
                                       ? 'switchPlanCta'.tr()
@@ -460,6 +460,8 @@ class _Header extends StatelessWidget {
   }
 }
 
+/// Why the paywall opened: a quiet chip in the page's own colours (no
+/// tinted fill), with only the small icon carrying a hint of colour.
 class _ContextPill extends StatelessWidget {
   final _ContextLine line;
   const _ContextPill({required this.line});
@@ -467,23 +469,23 @@ class _ContextPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = CwColors.of(context);
-    final fg = line.limit ? c.warn : c.accent;
     return Container(
       padding: const EdgeInsets.fromLTRB(10, 6, 12, 6),
       decoration: BoxDecoration(
-        color: line.limit ? c.warnSoft : c.accentSoft,
+        color: c.surface,
         borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: c.line),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           CwIcon(line.limit ? CwIcons.lock : CwIcons.sparkle,
-              size: 14, color: fg),
+              size: 14, color: line.limit ? c.warn : c.ink2),
           const SizedBox(width: 6),
           Flexible(
             child: Text(line.text,
                 style: CwType.footnote
-                    .copyWith(color: fg, fontWeight: FontWeight.w600)),
+                    .copyWith(color: c.ink2, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -986,7 +988,7 @@ class _Legal extends StatelessWidget {
     final small = CwType.caption.copyWith(color: c.mute, height: 1.5);
     final link = small.copyWith(color: c.ink2, fontWeight: FontWeight.w600);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 9, 20, 10),
+      padding: const EdgeInsets.fromLTRB(20, 32, 20, 0),
       child: Column(
         children: [
           if (renews != null)

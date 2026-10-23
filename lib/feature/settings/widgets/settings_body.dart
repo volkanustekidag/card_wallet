@@ -143,7 +143,7 @@ class _SettingsBodyState extends State<SettingsBody>
               Obx(() {
                 final lock = Get.find<AppLockService>();
                 return CwRow(
-                  leading: CwIconTile(CwIcons.clock, color: c.accent),
+                  leading: CwIconTile(CwIcons.clock, color: c.ink2),
                   title: 'autoLock'.tr(),
                   value: AutoLockTime.label(lock.autoLockSeconds.value),
                   chevron: true,
@@ -217,7 +217,7 @@ class _SettingsBodyState extends State<SettingsBody>
               : LocaleFormat.yearMonthDay(context.locale).format(last);
           return CwGroup(children: [
             CwRow(
-              leading: CwIconTile(CwIcons.cloudUp, color: c.accent),
+              leading: CwIconTile(CwIcons.cloudUp, color: c.ink2),
               title: 'cwBackupRestore'.tr(),
               subtitle: 'cwLastBackup'.tr(args: [lastText]),
               trailing: premium
@@ -272,7 +272,7 @@ class _SettingsBodyState extends State<SettingsBody>
             // Apple 3.1.2(a): a path back to the store-managed subscription.
             if (premium && PremiumService.hasActiveSubscription)
               CwRow(
-                leading: CwIconTile(CwIcons.gem, color: c.accent),
+                leading: CwIconTile(CwIcons.gem, color: c.ink2),
                 title: 'manageSubscription'.tr(),
                 trailing: CwIcon(CwIcons.external, size: 16, color: c.mute),
                 onTap: _openManageSubscription,
@@ -373,7 +373,7 @@ class _SettingsBodyState extends State<SettingsBody>
           margin: const EdgeInsets.fromLTRB(16, 4, 16, 16),
           children: [
             CwRow(
-              leading: CwIconTile(CwIcons.cloudUp, color: c.accent),
+              leading: CwIconTile(CwIcons.cloudUp, color: c.ink2),
               title: 'cwCreateBackup'.tr(),
               chevron: true,
               onTap: () => Navigator.pop(sheet, 'create'),

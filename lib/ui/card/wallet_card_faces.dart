@@ -25,7 +25,7 @@ const EdgeInsets kCardStripPadding = EdgeInsets.fromLTRB(14, 13, 16, 0);
 
 /// IBAN cards don't store a colour; they share one recognisable material.
 const CardMaterial kIbanMaterial = CardMaterial(
-  [Color(0xFF2C1458), Color(0xFF6A3BC0), Color(0xFF1F0D44)],
+  [Color(0xFF0E2A3B), Color(0xFF2E6385), Color(0xFF0A1F2C)],
 );
 
 CardMaterial materialForItem(WalletItem item) {

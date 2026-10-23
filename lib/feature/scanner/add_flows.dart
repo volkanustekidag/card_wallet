@@ -88,7 +88,7 @@ Future<void> pickManualEntry(BuildContext context, {bool replace = false}) async
                   onTap: () => Navigator.pop(sheet, CardLimitType.credit),
                 ),
                 CwRow(
-                  leading: CwIconTile(CwIcons.bank, color: c.accent),
+                  leading: CwIconTile(CwIcons.bank, color: const Color(0xFF2E6385)),
                   title: 'cwIbanAccount'.tr(),
                   chevron: true,
                   onTap: () => Navigator.pop(sheet, CardLimitType.iban),

@@ -280,7 +280,7 @@ class _ImportPageState extends State<ImportPage> {
                             'cwSrcFidme', 'cwSrcFidmeSub', _pick),
                         _source(CwIcons.walletPass, c.ink,
                             'cwSrcPkpass', 'cwSrcPkpassSub', _pick),
-                        _source(CwIcons.document, c.accent, 'cwSrcCsv',
+                        _source(CwIcons.document, c.ink2, 'cwSrcCsv',
                             'cwSrcCsvSub', _pick),
                       ],
                     ),
