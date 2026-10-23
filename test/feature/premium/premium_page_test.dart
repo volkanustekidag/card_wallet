@@ -49,10 +49,13 @@ void main() {
         final buy = find.byType(FilledButton);
         expect(buy, findsOneWidget);
         expect(tester.getRect(buy).bottom, lessThanOrEqualTo(size.height));
-        // All three plans, the last one (lifetime) above the button.
-        for (final price in ['€14.99', '€3.99', '€29.99']) {
-          expect(find.text(price), findsOneWidget);
-        }
+        // Monthly, yearly, lifetime, top to bottom, above the button.
+        final tops = [
+          for (final price in ['€3.99', '€14.99', '€29.99'])
+            tester.getRect(find.text(price)).top,
+        ];
+        expect(tops[0], lessThan(tops[1]));
+        expect(tops[1], lessThan(tops[2]));
         expect(tester.getRect(find.text('€29.99')).bottom,
             lessThan(tester.getRect(buy).top));
         expect(find.text('cwTerms'.tr()), findsOneWidget);

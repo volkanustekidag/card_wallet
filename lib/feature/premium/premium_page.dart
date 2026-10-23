@@ -108,11 +108,11 @@ class _PremiumPageState extends State<PremiumPage> {
           final yearly = _premiumController.yearlyProduct;
           final lifetime = _premiumController.lifetimeProduct;
 
-          // Yearly (the default), monthly, lifetime. When changing plan,
+          // Monthly, yearly (the default), lifetime. When changing plan,
           // the current one is left out so it can't be bought twice.
           final orderedPlans = <ProductDetails>[
-            if (yearly != null) yearly,
             if (monthly != null) monthly,
+            if (yearly != null) yearly,
             if (lifetime != null) lifetime,
           ].where((p) => !isPremium || p.id != currentPlanId).toList();
           final selected = _selectedProduct != null &&
@@ -705,8 +705,8 @@ class _Trust extends StatelessWidget {
   }
 }
 
-/// The store's plans as rows: yearly first (with its monthly equivalent
-/// and the saving against monthly), then monthly, then lifetime.
+/// The store's plans as rows: monthly, yearly (with its monthly
+/// equivalent and the saving against monthly), then lifetime.
 class _PlanList extends StatelessWidget {
   final List<ProductDetails> plans;
   final String? lifetimeId;
@@ -760,7 +760,7 @@ class _PlanList extends StatelessWidget {
     final c = CwColors.of(context);
     final locale = context.locale;
     int rank(ProductDetails p) =>
-        p.id == yearlyId ? 0 : (p.id == lifetimeId ? 2 : 1);
+        p.id == lifetimeId ? 2 : (p.id == yearlyId ? 1 : 0);
     final ordered = [...plans]..sort((a, b) => rank(a).compareTo(rank(b)));
     return Column(
       children: [
