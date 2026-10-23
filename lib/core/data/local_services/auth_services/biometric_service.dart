@@ -24,11 +24,16 @@ class BiometricService {
   static const int defaultAutoLockSeconds = 30;
 
   /// Check if biometric authentication is available on device
+  /// A fingerprint or face is actually enrolled. canCheckBiometrics alone
+  /// is true for the sensor even with nothing enrolled (a phone with only a
+  /// passcode), and turning biometric unlock on then hit the system's
+  /// "biometric required" dialog.
   Future<bool> isBiometricAvailable() async {
     try {
       final bool isAvailable = await _localAuth.canCheckBiometrics;
       final bool isDeviceSupported = await _localAuth.isDeviceSupported();
-      return isAvailable && isDeviceSupported;
+      if (!isAvailable || !isDeviceSupported) return false;
+      return (await _localAuth.getAvailableBiometrics()).isNotEmpty;
     } catch (e) {
       debugPrint('Error checking biometric availability: $e');
       return false;
