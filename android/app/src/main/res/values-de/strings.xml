@@ -7,4 +7,10 @@
     <string name="loyalty_add_card">Karte hinzufügen</string>
     <string name="loyalty_tap_to_show_barcode">Tippen, um den Barcode anzuzeigen</string>
     <string name="loyalty_up_next">Als Nächstes</string>
+    <string name="pinned_widget_label">Fixierte Karte</string>
+    <string name="pinned_widget_description">Immer die Karte deiner Wahl, bereit zum Scannen.</string>
+    <string name="pinned_widget_choose">Karte wählen</string>
+    <string name="pinned_widget_none_title">Noch keine Karten</string>
+    <string name="pinned_widget_none_body">Füge zuerst in der App eine Kundenkarte mit Barcode hinzu.</string>
+    <string name="pinned_widget_open_app">App öffnen</string>
 </resources>

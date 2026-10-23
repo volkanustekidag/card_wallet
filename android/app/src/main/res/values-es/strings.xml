@@ -7,4 +7,10 @@
     <string name="loyalty_add_card">Añadir una tarjeta</string>
     <string name="loyalty_tap_to_show_barcode">Toca para mostrar el código de barras</string>
     <string name="loyalty_up_next">Siguiente</string>
+    <string name="pinned_widget_label">Tarjeta fija</string>
+    <string name="pinned_widget_description">Siempre la tarjeta que elijas, lista para escanear.</string>
+    <string name="pinned_widget_choose">Elegir tarjeta</string>
+    <string name="pinned_widget_none_title">Aún no hay tarjetas</string>
+    <string name="pinned_widget_none_body">Primero añade en la app una tarjeta de fidelidad con código de barras.</string>
+    <string name="pinned_widget_open_app">Abrir la app</string>
 </resources>

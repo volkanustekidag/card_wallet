@@ -7,4 +7,10 @@
     <string name="loyalty_add_card">Add a card</string>
     <string name="loyalty_tap_to_show_barcode">Tap to show barcode</string>
     <string name="loyalty_up_next">Up next</string>
+    <string name="pinned_widget_label">Pinned card</string>
+    <string name="pinned_widget_description">Always the card you choose, ready to scan.</string>
+    <string name="pinned_widget_choose">Choose a card</string>
+    <string name="pinned_widget_none_title">No cards yet</string>
+    <string name="pinned_widget_none_body">Add a loyalty card with a barcode in the app first.</string>
+    <string name="pinned_widget_open_app">Open app</string>
 </resources>

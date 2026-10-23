@@ -7,4 +7,10 @@
     <string name="loyalty_add_card">Ajouter une carte</string>
     <string name="loyalty_tap_to_show_barcode">Touchez pour afficher le code-barres</string>
     <string name="loyalty_up_next">À suivre</string>
+    <string name="pinned_widget_label">Carte épinglée</string>
+    <string name="pinned_widget_description">Toujours la carte de votre choix, prête à scanner.</string>
+    <string name="pinned_widget_choose">Choisir une carte</string>
+    <string name="pinned_widget_none_title">Aucune carte</string>
+    <string name="pinned_widget_none_body">Ajoutez d’abord dans l’app une carte de fidélité avec code-barres.</string>
+    <string name="pinned_widget_open_app">Ouvrir l’app</string>
 </resources>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pinned card widget: loyalty_widget.xml without the "Up next" label. -->
+<!--
+  Compact "Up Next" widget: label + name on the card colour, the barcode on
+  a white panel filling the rest. Background gradient is an ImageView
+  underlay (RemoteViews can't take a runtime GradientDrawable).
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/loyalty_widget_root"
+    android:background="@drawable/loyalty_widget_preview_bg"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/loyalty_widget_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:contentDescription="@null"
+        android:importantForAccessibility="no" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/loyalty_widget_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/loyalty_up_next"
+            android:visibility="gone"
+            android:textAllCaps="true"
+            android:textColor="#B3FFFFFF"
+            android:textSize="9sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08" />
+
+        <TextView
+            android:id="@+id/loyalty_widget_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <ImageView
+            android:id="@+id/loyalty_widget_barcode"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="6dp"
+            android:scaleType="fitCenter"
+            android:background="@drawable/loyalty_widget_barcode_panel"
+            android:padding="6dp"
+            android:contentDescription="@string/loyalty_widget_barcode_cd" />
+    </LinearLayout>
+</FrameLayout>

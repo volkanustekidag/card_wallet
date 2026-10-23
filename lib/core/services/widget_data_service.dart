@@ -39,6 +39,8 @@ class WidgetDataService {
   static const String _iOSPinnedWidgetName = 'PinnedCardWidget';
   static const String _androidWidgetReceiver =
       'com.volkan.wallet_app.LoyaltyWidgetReceiver';
+  static const String _androidPinnedWidgetReceiver =
+      'com.volkan.wallet_app.PinnedCardWidgetReceiver';
 
   // Keys written to the shared store. Native widget reads the same keys.
   static const String _keyId = 'last_loyalty_id';
@@ -294,9 +296,12 @@ class WidgetDataService {
       iOSName: _iOSWidgetName,
       qualifiedAndroidName: _androidWidgetReceiver,
     );
+    // The "pinned card" widget (iOS 17+, Android) reads the same data.
     if (Platform.isIOS) {
-      // The "pinned card" widget (iOS 17+) reads the same data.
       await HomeWidget.updateWidget(iOSName: _iOSPinnedWidgetName);
+    } else {
+      await HomeWidget.updateWidget(
+          qualifiedAndroidName: _androidPinnedWidgetReceiver);
     }
   }
 
