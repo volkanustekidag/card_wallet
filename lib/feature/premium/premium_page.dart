@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -136,12 +135,10 @@ class _PremiumPageState extends State<PremiumPage> {
                       onClose: () => Get.back(),
                       onRestore: _handleRestore,
                     ),
-                    // The cards, with what Premium adds floating around
-                    // them, take what's left above the purchase block.
-                    // Cards, then the headline, then what Premium adds as
-                    // a sliding row — grouped a little below centre.
+                    // Cards on top, the headline, then the features sliding.
                     Expanded(
                       child: _Hero(
+                        highlight: _featureArg,
                         headline: Text(
                           'cwPayHeadline'.tr(),
                           textAlign: TextAlign.center,
@@ -149,7 +146,6 @@ class _PremiumPageState extends State<PremiumPage> {
                           style: CwType.display.copyWith(
                               color: c.ink, fontSize: 28, height: 1.1),
                         ),
-                        features: _FeatureStrip(highlight: _featureArg),
                       ),
                     ),
                     // Always on screen: plans, the button, the terms.
@@ -444,47 +440,46 @@ class _TopBar extends StatelessWidget {
 
 /// Up to three of the user's own cards, fanned; materials when the wallet
 /// is empty. Seeing *their* cards is the point of the page.
-/// Up to three of the user's own cards, cascading upward (materials when
-/// the wallet is empty). Seeing *their* cards is the point of the page.
+/// Up to three of the user's own cards, fanned; materials when the wallet
+/// is empty. Seeing *their* cards is the point of the page.
 class _CardFan extends StatelessWidget {
-  final double width;
-
-  /// How far the back cards rise, in front-card heights (more on tall
-  /// phones so the stack fills the space).
-  final double spread;
-  const _CardFan({required this.width, this.spread = 0.42});
-
-  /// Total height for a front card [w] wide at [spread].
-  static double heightFor(double w, [double spread = 0.42]) =>
-      w / kCardAspect * (1 + spread) + 12;
+  /// Height available for the fan; it shrinks (or hides) to fit.
+  final double maxHeight;
+  const _CardFan({required this.maxHeight});
 
   @override
   Widget build(BuildContext context) {
     final items = Get.isRegistered<HomeController>()
         ? Get.find<HomeController>().walletItems.take(3).toList()
         : <WalletItem>[];
-    final w = width;
-    final h = w / kCardAspect;
+    final w = math.min(
+      math.min(MediaQuery.sizeOf(context).width * 0.5, 210.0),
+      (maxHeight - 44) * kCardAspect,
+    );
+    if (w < 120) return const SizedBox.shrink();
     Widget face(int i) {
       if (i < items.length) return WalletCardFace(item: items[i], width: w);
       const ids = [10, 11, 14];
-      return CardFace(material: CardMaterial.of(ids[i]), width: w, height: h);
+      return CardFace(
+        material: CardMaterial.of(ids[i]),
+        width: w,
+        height: w / kCardAspect,
+      );
     }
 
     return SizedBox(
-      width: w,
-      height: heightFor(w, spread),
+      height: w / kCardAspect + 44,
       child: Stack(
-        alignment: Alignment.bottomCenter,
+        alignment: Alignment.center,
         clipBehavior: Clip.none,
         children: [
           Transform.translate(
-            offset: Offset(-w * 0.12, -h * spread * 0.95),
-            child: Transform.rotate(angle: -0.09, child: face(1)),
+            offset: Offset(-w * 0.32, 14),
+            child: Transform.rotate(angle: -0.16, child: face(1)),
           ),
           Transform.translate(
-            offset: Offset(w * 0.12, -h * spread * 0.5),
-            child: Transform.rotate(angle: 0.07, child: face(2)),
+            offset: Offset(w * 0.32, 14),
+            child: Transform.rotate(angle: 0.16, child: face(2)),
           ),
           face(0),
         ],
@@ -493,186 +488,237 @@ class _CardFan extends StatelessWidget {
   }
 }
 
-/// The card fan, then the headline and the feature row right above the
-/// plans. The fan grows into all the height that's left, so there's no
-/// empty band on tall phones; on small ones it shrinks (or hides).
+/// Cards at the top, the headline right under them, then the feature
+/// carousel, whose boxes grow into the height that's left.
 class _Hero extends StatelessWidget {
   final Widget headline;
-  final Widget features;
-  const _Hero({required this.headline, required this.features});
-
-  @override
-  Widget build(BuildContext context) => Column(
-        children: [
-          Expanded(
-            child: LayoutBuilder(builder: (context, box) {
-              final w = math.min(
-                math.min(box.maxWidth * 0.78, 380.0),
-                (box.maxHeight - 16 - 12) * kCardAspect / 1.42,
-              );
-              if (w < 110) return const SizedBox.shrink();
-              final h = w / kCardAspect;
-              final spread =
-                  ((box.maxHeight - 28 - h) / h).clamp(0.42, 1.15).toDouble();
-              // Sits right on the headline; any height left goes on top.
-              return Align(
-                alignment: Alignment.bottomCenter,
-                child: _CardFan(width: w, spread: spread),
-              );
-            }),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 22, 24, 12),
-            child: headline,
-          ),
-          features,
-          const SizedBox(height: 14),
-        ],
-      );
-}
-
-/// What Premium adds, side by side in one row that slides by itself (and
-/// can be swiped). The feature that opened the paywall comes first, lit.
-class _FeatureStrip extends StatefulWidget {
   final String? highlight;
-  const _FeatureStrip({required this.highlight});
+  const _Hero({required this.headline, required this.highlight});
 
   @override
-  State<_FeatureStrip> createState() => _FeatureStripState();
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, box) {
+        final fanMax = box.maxHeight * 0.42;
+        final fanW = math.min(
+          math.min(MediaQuery.sizeOf(context).width * 0.5, 210.0),
+          (fanMax - 44) * kCardAspect,
+        );
+        final fanH = fanW < 120 ? 0.0 : fanW / kCardAspect + 44;
+        // headline ≈ 48, gaps + dots ≈ 56
+        final boxH = (box.maxHeight - fanH - 48 - 56).clamp(96.0, 240.0);
+        // Top-aligned: the cards sit right under the close button.
+        return Align(
+          alignment: Alignment.topCenter,
+          child: SingleChildScrollView(
+            physics: const NeverScrollableScrollPhysics(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 6),
+                _CardFan(maxHeight: fanMax),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 14, 24, 16),
+                  child: headline,
+                ),
+                _FeatureCarousel(highlight: highlight, height: boxH),
+              ],
+            ),
+          ),
+        );
+      });
 }
 
-class _FeatureStripState extends State<_FeatureStrip>
-    with SingleTickerProviderStateMixin {
-  static const _speed = 26.0; // logical px per second
-  final _scroll = ScrollController();
-  late final Ticker _ticker = createTicker(_tick);
-  Duration _last = Duration.zero;
-  bool _held = false;
-  Timer? _resume;
+/// What Premium adds, one big box per feature, sliding on its own every
+/// few seconds (and swipeable). The feature that opened the paywall comes
+/// first and is lit.
+class _FeatureCarousel extends StatefulWidget {
+  final String? highlight;
+  final double height;
+  const _FeatureCarousel({required this.highlight, required this.height});
 
-  /// (feature arg that lights it, icon, label key)
-  static List<(String, CwIcons, String)> _tags(bool apple) => [
-        ('unlimitedCards', CwIcons.infinity, 'cwTagUnlimited'),
-        ('backupRestore', CwIcons.cloudUp, 'cwTagBackup'),
-        ('premiumColors', CwIcons.sparkle, 'cwTagMetal'),
+  @override
+  State<_FeatureCarousel> createState() => _FeatureCarouselState();
+}
+
+class _FeatureCarouselState extends State<_FeatureCarousel> {
+  /// Starts far into an endless list so it can be swiped both ways.
+  static const _start = 5000;
+  final _pages = PageController(viewportFraction: 0.74, initialPage: _start);
+  Timer? _auto;
+  int _page = _start;
+
+  /// (feature arg that lights it, icon, title key, line key)
+  static List<(String, CwIcons, String, String)> _features(bool apple) => [
+        (
+          'unlimitedCards',
+          CwIcons.infinity,
+          'cwTagUnlimited',
+          'cwFeatLineUnlimited'
+        ),
+        ('backupRestore', CwIcons.cloudUp, 'cwTagBackup', 'cwFeatLineBackup'),
+        ('premiumColors', CwIcons.sparkle, 'cwTagMetal', 'cwFeatLineMetal'),
         (
           'walletExport',
           CwIcons.walletPass,
-          apple ? 'cwTagAppleWallet' : 'cwTagGoogleWallet'
+          apple ? 'cwTagAppleWallet' : 'cwTagGoogleWallet',
+          apple ? 'cwFeatLineAppleWallet' : 'cwFeatLineGoogleWallet'
         ),
-        ('qrCreate', CwIcons.qr, 'cwTagQr'),
+        ('qrCreate', CwIcons.qr, 'cwTagQr', 'cwFeatLineQr'),
       ];
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final still = MediaQuery.disableAnimationsOf(context);
-    if (still && _ticker.isActive) _ticker.stop();
-    if (!still && !_ticker.isActive) _ticker.start();
+    _auto?.cancel();
+    if (!MediaQuery.disableAnimationsOf(context)) _schedule();
   }
 
-  void _tick(Duration now) {
-    final dt = (now - _last).inMicroseconds / 1e6;
-    _last = now;
-    if (_held || !_scroll.hasClients || dt <= 0 || dt > 0.1) return;
-    _scroll.jumpTo(_scroll.offset + _speed * dt);
-  }
-
-  void _hold() {
-    _resume?.cancel();
-    _held = true;
-  }
-
-  void _release() {
-    _resume?.cancel();
-    _resume = Timer(const Duration(seconds: 2), () => _held = false);
+  void _schedule() {
+    _auto?.cancel();
+    _auto = Timer.periodic(const Duration(milliseconds: 3200), (_) {
+      if (!_pages.hasClients) return;
+      _pages.nextPage(duration: CwMotion.slow, curve: CwMotion.standard);
+    });
   }
 
   @override
   void dispose() {
-    _resume?.cancel();
-    _ticker.dispose();
-    _scroll.dispose();
+    _auto?.cancel();
+    _pages.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final c = CwColors.of(context);
     final apple = defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.macOS;
-    final all = _tags(apple);
-    final tags = [
-      ...all.where((t) => t.$1 == widget.highlight),
-      ...all.where((t) => t.$1 != widget.highlight),
+    final all = _features(apple);
+    final features = [
+      ...all.where((f) => f.$1 == widget.highlight),
+      ...all.where((f) => f.$1 != widget.highlight),
     ];
-    return SizedBox(
-      height: 40,
-      child: Listener(
-        onPointerDown: (_) => _hold(),
-        onPointerUp: (_) => _release(),
-        onPointerCancel: (_) => _release(),
-        // Soft edges: tags slide in and out instead of being cut.
-        child: ShaderMask(
-          blendMode: BlendMode.dstIn,
-          shaderCallback: (r) => const LinearGradient(
-            colors: [
-              Color(0x00000000),
-              Color(0xFF000000),
-              Color(0xFF000000),
-              Color(0x00000000),
-            ],
-            stops: [0, 0.07, 0.93, 1],
-          ).createShader(r),
-          child: ListView.builder(
-            controller: _scroll,
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            // Endless: the row repeats as it slides.
-            itemBuilder: (_, i) {
-              final t = tags[i % tags.length];
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: _Tag(
-                  icon: t.$2,
-                  label: t.$3.tr(),
-                  lit: t.$1 == widget.highlight,
-                ),
-              );
+    final active = _page % features.length;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          height: widget.height,
+          // A touch stops the auto-slide; it resumes after the swipe.
+          child: Listener(
+            onPointerDown: (_) => _auto?.cancel(),
+            onPointerUp: (_) {
+              if (!MediaQuery.disableAnimationsOf(context)) _schedule();
             },
+            child: PageView.builder(
+              controller: _pages,
+              onPageChanged: (i) => setState(() => _page = i),
+              itemBuilder: (_, i) {
+                final f = features[i % features.length];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: _FeatureBox(
+                    icon: f.$2,
+                    title: f.$3.tr(),
+                    line: f.$4.tr(),
+                    lit: f.$1 == widget.highlight,
+                  ),
+                );
+              },
+            ),
           ),
         ),
-      ),
+        const SizedBox(height: 10),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < features.length; i++)
+              AnimatedContainer(
+                duration: CwMotion.fast,
+                margin: const EdgeInsets.symmetric(horizontal: 3),
+                width: i == active ? 16 : 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: i == active ? c.ink : c.ink.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }
 
-class _Tag extends StatelessWidget {
+class _FeatureBox extends StatelessWidget {
   final CwIcons icon;
-  final String label;
+  final String title;
+  final String line;
   final bool lit;
-  const _Tag({required this.icon, required this.label, required this.lit});
+  const _FeatureBox({
+    required this.icon,
+    required this.title,
+    required this.line,
+    required this.lit,
+  });
 
   @override
   Widget build(BuildContext context) {
     final c = CwColors.of(context);
     final fg = lit ? Colors.white : c.ink;
+    final iconTile = Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: lit
+            ? Colors.white.withValues(alpha: 0.18)
+            : c.ink.withValues(alpha: 0.06),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      alignment: Alignment.center,
+      child: CwIcon(icon, size: 20, color: fg),
+    );
+    final text = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: CwType.headline
+                .copyWith(color: fg, fontWeight: FontWeight.w700)),
+        const SizedBox(height: 2),
+        Text(line,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: CwType.footnote.copyWith(
+                color: lit ? Colors.white.withValues(alpha: 0.85) : c.mute,
+                height: 1.35)),
+      ],
+    );
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 0, 15, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       decoration: BoxDecoration(
         color: lit ? c.accent : c.surface,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(CwRadius.l),
         border:
             Border.all(color: lit ? c.accent : c.ink.withValues(alpha: 0.08)),
+        boxShadow: CwElevation.e1(context),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CwIcon(icon, size: 16, color: fg),
-          const SizedBox(width: 7),
-          Text(label,
-              style: CwType.footnote
-                  .copyWith(color: fg, fontWeight: FontWeight.w700)),
-        ],
+      // Tall box: icon above the text; short one: icon beside it.
+      child: LayoutBuilder(
+        builder: (context, box) => box.maxHeight >= 112
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [iconTile, const SizedBox(height: 12), text],
+              )
+            : Row(
+                children: [
+                  iconTile,
+                  const SizedBox(width: 14),
+                  Expanded(child: text),
+                ],
+              ),
       ),
     );
   }

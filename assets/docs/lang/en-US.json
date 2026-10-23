@@ -817,5 +817,11 @@
     "cwTagMetal": "Metal & titanium",
     "cwTagAppleWallet": "Apple Wallet",
     "cwTagGoogleWallet": "Google Wallet",
-    "cwTagQr": "IBAN QR codes"
+    "cwTagQr": "IBAN QR codes",
+    "cwFeatLineUnlimited": "Every loyalty card, bank card and IBAN you carry.",
+    "cwFeatLineBackup": "New phone? Your whole wallet comes with you.",
+    "cwFeatLineMetal": "Give your cards a brushed metal or titanium finish.",
+    "cwFeatLineAppleWallet": "Add loyalty cards to Apple Wallet in one tap.",
+    "cwFeatLineGoogleWallet": "Add loyalty cards to Google Wallet in one tap.",
+    "cwFeatLineQr": "Share an IBAN as a QR code anyone can scan to pay."
 }

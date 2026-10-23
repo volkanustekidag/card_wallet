@@ -817,5 +817,11 @@
     "cwTagMetal": "Metallo e titanio",
     "cwTagAppleWallet": "Apple Wallet",
     "cwTagGoogleWallet": "Google Wallet",
-    "cwTagQr": "Codici QR IBAN"
+    "cwTagQr": "Codici QR IBAN",
+    "cwFeatLineUnlimited": "Tutte le carte fedeltà, bancarie e IBAN che hai.",
+    "cwFeatLineBackup": "Nuovo telefono? Tutto il portafoglio viene con te.",
+    "cwFeatLineMetal": "Dai alle tue carte una finitura metallo o titanio.",
+    "cwFeatLineAppleWallet": "Aggiungi le carte fedeltà ad Apple Wallet con un tocco.",
+    "cwFeatLineGoogleWallet": "Aggiungi le carte fedeltà a Google Wallet con un tocco.",
+    "cwFeatLineQr": "Condividi l'IBAN come codice QR da scansionare per pagare."
 }

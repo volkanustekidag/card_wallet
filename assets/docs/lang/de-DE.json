@@ -817,5 +817,11 @@
     "cwTagMetal": "Metall & Titan",
     "cwTagAppleWallet": "Apple Wallet",
     "cwTagGoogleWallet": "Google Wallet",
-    "cwTagQr": "IBAN-QR-Codes"
+    "cwTagQr": "IBAN-QR-Codes",
+    "cwFeatLineUnlimited": "Jede Kundenkarte, Bankkarte und IBAN, die du hast.",
+    "cwFeatLineBackup": "Neues Handy? Deine ganze Wallet kommt mit.",
+    "cwFeatLineMetal": "Gib deinen Karten ein Metall- oder Titan-Finish.",
+    "cwFeatLineAppleWallet": "Kundenkarten mit einem Tipp in Apple Wallet.",
+    "cwFeatLineGoogleWallet": "Kundenkarten mit einem Tipp in Google Wallet.",
+    "cwFeatLineQr": "Teile deine IBAN als QR-Code zum Bezahlen."
 }
