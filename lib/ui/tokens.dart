@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 
-/// CardWallet v2 design tokens.
+/// Deckard v2 design tokens.
 ///
 /// One brand colour (tangerine), used sparingly and always in the same
 /// places: the add button, primary buttons, switches that are on, links and

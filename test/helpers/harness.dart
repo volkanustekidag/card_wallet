@@ -122,7 +122,7 @@ class Harness {
     if (channel.endsWith('screen_brightness')) return 0.5;
     if (channel.endsWith('package_info')) {
       return {
-        'appName': 'Card Wallet',
+        'appName': 'Deckard',
         'packageName': 'com.cardwallet',
         'version': '2.2.0',
         'buildNumber': '45',

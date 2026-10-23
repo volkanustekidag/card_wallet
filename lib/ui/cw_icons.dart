@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-/// CardWallet's own icon set — 24pt grid, 1.8 stroke, round caps.
+/// Deckard's own icon set — 24pt grid, 1.8 stroke, round caps.
 /// Never mix with Material/Cupertino icons or emoji: the icon family is
 /// part of the product's identity. Source files: `assets/icons/cw/`.
 enum CwIcons {

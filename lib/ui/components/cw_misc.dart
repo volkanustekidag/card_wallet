@@ -260,7 +260,7 @@ class CwNotice extends StatelessWidget {
   }
 }
 
-/// Grab handle + rounded modal sheet with CardWallet styling.
+/// Grab handle + rounded modal sheet with Deckard styling.
 Future<T?> showCwSheet<T>(
   BuildContext context, {
   required WidgetBuilder builder,

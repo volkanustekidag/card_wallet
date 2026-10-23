@@ -283,7 +283,7 @@ class WalletExportHandler(BaseHTTPRequestHandler):
         app_check_token = self.headers.get("X-Firebase-AppCheck", "").strip()
         if app_check_token and _verify_app_check_token(app_check_token):
             # App Check verified the request really came from a real,
-            # unmodified Card Wallet build on a real device. The legacy
+            # unmodified Deckard build on a real device. The legacy
             # API key check is skipped in this path.
             return
 
@@ -573,8 +573,8 @@ def create_google_save_url(card):
 
 
 def google_loyalty_class(class_id, logo_url):
-    issuer_name = os.getenv("GOOGLE_WALLET_ISSUER_NAME", "Card Wallet")
-    program_name = os.getenv("GOOGLE_WALLET_PROGRAM_NAME", "Card Wallet Loyalty")
+    issuer_name = os.getenv("GOOGLE_WALLET_ISSUER_NAME", "Deckard")
+    program_name = os.getenv("GOOGLE_WALLET_PROGRAM_NAME", "Deckard Loyalty")
     homepage_url = os.getenv("GOOGLE_WALLET_HOMEPAGE_URL", "").strip()
     loyalty_class = {
         "id": class_id,

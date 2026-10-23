@@ -20,7 +20,7 @@ struct LoyaltyWidget: Widget {
                     .background(WidgetBackground(card: entry.upNext))
             }
         }
-        .configurationDisplayName(Text("Card Wallet"))
+        .configurationDisplayName(Text("Deckard"))
         .description(Text("The card you need now, ready to scan."))
         .supportedFamilies(supportedFamilies)
     }

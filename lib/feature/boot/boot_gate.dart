@@ -97,7 +97,7 @@ class _BootGateState extends State<BootGate> with WidgetsBindingObserver {
     final l10n = EasyLocalization.of(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Card Wallet',
+      title: 'Deckard',
       theme: AppThemes.lightTheme,
       darkTheme: AppThemes.darkTheme,
       locale: l10n?.locale,

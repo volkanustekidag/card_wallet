@@ -1,4 +1,4 @@
-# Card Wallet 2.2.0 (45) — Sürüm notları
+# Deckard 2.2.0 (45) — Sürüm notları
 
 Konsola kopyalanacak "What's new" / "Bu sürümdeki yenilikler" metinleri. 2.1.0 ayrı yayınlanmıyor; bu metinler 2.0.0'dan sonraki her şeyi (2.1 + 2.2 değişiklikleri) tek sürüm olarak anlatıyor.
 
@@ -14,7 +14,7 @@ Neden iki ayrı metin var:
 - IBAN tarama kodda hiç kilitli değildi, sadece paywall onu Premium gibi listeliyordu. Bu yüzden "artık ücretsiz" demiyoruz, "herkes için ücretsiz" diyoruz.
 - Ayar/ekran adları uygulamadaki etiketlerden alındı (`autoLock`, `sectionSecurity`, `barcodeBrightnessTitle`, `shareAsImage`, `sortMostUsed`, `globalSearchTooltip`).
 
-- **v2 tasarım:** Play metni yeniden yazıldı (yeni tasarım, tek kamera, Sıradaki + widget, içe aktarma, 700+ marka başta). App Store metninin başına beş maddelik "yeni CardWallet" bölümü eklendi; eski "en çok kullanılanlar önde / ada veya tarihe göre sırala" maddesi çıkarıldı, çünkü sıralamayı artık Sıradaki yapıyor ve liste sayfaları ana sayfadaki segmentlere katlandı.
+- **v2 tasarım:** Play metni yeniden yazıldı (yeni tasarım, tek kamera, Sıradaki + widget, içe aktarma, 700+ marka başta). App Store metninin başına beş maddelik "yeni Deckard" bölümü eklendi; eski "en çok kullanılanlar önde / ada veya tarihe göre sırala" maddesi çıkarıldı, çünkü sıralamayı artık Sıradaki yapıyor ve liste sayfaları ana sayfadaki segmentlere katlandı.
 
 Uzunlukları yeniden saymak için: `python3 tools/check_store_text.py --write docs/store/release/whats_new.md`
 
@@ -62,14 +62,14 @@ Uzunlukları yeniden saymak için: `python3 tools/check_store_text.py --write do
 #### App Store — What's New (≤4000)
 
 ```text
-• A new CardWallet
+• A new Deckard
 The whole app is redesigned. Your wallet is now a stack of cards that look like the real thing, with their brand colors and logos. Tap any card to open it.
 
 • One camera for every card
 Tap + and point at a loyalty card, a bank card or an IBAN. Barcodes are read instantly, card numbers and IBANs in a moment, and you confirm before anything is saved. Works from a photo too.
 
 • Up Next
-CardWallet learns which card you use at which time of day, on your iPhone only, and puts it first on the home screen and in the new Up Next widget on your home and lock screen.
+Deckard learns which card you use at which time of day, on your iPhone only, and puts it first on the home screen and in the new Up Next widget on your home and lock screen.
 
 • Bring your cards over
 Moving from another app? Import its export file, a spreadsheet or an Apple Wallet pass from Settings › Import from another app.
@@ -87,7 +87,7 @@ Tap the search button on the home screen to find any credit card, IBAN or loyalt
 Send your IBAN as a clean card image with the account holder, bank and IBAN, ready for any chat. With Premium, the image also carries a payment QR code. Sharing as text is still there.
 
 • Auto-lock
-If you use a PIN, CardWallet now locks itself when you leave the app. Choose the timing in Settings › Security › Auto-lock: immediately, after 30 seconds, or after 1, 5 or 15 minutes.
+If you use a PIN, Deckard now locks itself when you leave the app. Choose the timing in Settings › Security › Auto-lock: immediately, after 30 seconds, or after 1, 5 or 15 minutes.
 
 • Hidden in the app switcher
 Your cards are covered when you switch between apps, so nobody can glance at them.
@@ -133,14 +133,14 @@ Copied card numbers clear themselves from the clipboard after a minute, your Pre
 #### App Store — What's New (≤4000)
 
 ```text
-• Yepyeni CardWallet
+• Yepyeni Deckard
 Uygulamanın tamamı yeniden tasarlandı. Cüzdanın artık marka renkleri ve logolarıyla gerçek kartlara benzeyen bir deste. Açmak için herhangi bir karta dokun.
 
 • Her kart için tek kamera
 +'ya dokun ve kameranı sadakat kartına, banka kartına ya da IBAN'a tut. Barkod anında, kart numarası ve IBAN saniyeler içinde okunur; kaydetmeden önce onaylarsın. Fotoğraftan da çalışır.
 
 • Sıradaki
-CardWallet hangi kartı günün hangi saatinde kullandığını yalnızca iPhone'unda öğrenir ve onu ana ekranda ve ana/kilit ekranındaki yeni Sıradaki widget'ında öne alır.
+Deckard hangi kartı günün hangi saatinde kullandığını yalnızca iPhone'unda öğrenir ve onu ana ekranda ve ana/kilit ekranındaki yeni Sıradaki widget'ında öne alır.
 
 • Kartlarını taşı
 Başka bir uygulamadan mı geliyorsun? Dışa aktarma dosyasını, bir tabloyu ya da Apple Wallet kartını Ayarlar › Başka bir uygulamadan aktar'dan içe aktar.
@@ -158,7 +158,7 @@ Ana ekrandaki arama düğmesine dokun; kredi kartı, IBAN ya da sadakat kartın�
 IBAN'ını hesap sahibi, banka ve IBAN'ın yer aldığı şık bir kart görseli olarak gönder. Premium'da görsele ödeme QR kodu da eklenir. Metin olarak paylaşım da yerinde duruyor.
 
 • Otomatik kilit
-PIN kullanıyorsan CardWallet artık uygulamadan çıktığında kendini kilitliyor. Süreyi Ayarlar › Güvenlik › Otomatik kilit bölümünden seçebilirsin: hemen, 30 saniye, 1, 5 ya da 15 dakika sonra.
+PIN kullanıyorsan Deckard artık uygulamadan çıktığında kendini kilitliyor. Süreyi Ayarlar › Güvenlik › Otomatik kilit bölümünden seçebilirsin: hemen, 30 saniye, 1, 5 ya da 15 dakika sonra.
 
 • Uygulama geçişinde gizli
 Uygulamalar arasında geçiş yaparken kartların görünmez; kimse ekrana göz atıp kart bilgini göremez.
@@ -204,14 +204,14 @@ Kopyaladığın kart numaraları bir dakika sonra panodan kendiliğinden silinir
 #### App Store — What's New (≤4000)
 
 ```text
-• Ein neues CardWallet
+• Ein neues Deckard
 Die ganze App ist neu gestaltet. Deine Wallet ist jetzt ein Stapel Karten, die mit Markenfarben und Logos wie die echten aussehen. Tippe auf eine Karte, um sie zu öffnen.
 
 • Eine Kamera für jede Karte
 Tippe auf + und richte die Kamera auf eine Kundenkarte, Bankkarte oder IBAN. Barcodes werden sofort erkannt, Kartennummern und IBANs in einem Moment, und du bestätigst, bevor etwas gespeichert wird. Klappt auch mit einem Foto.
 
 • Als Nächstes
-CardWallet lernt nur auf deinem iPhone, welche Karte du zu welcher Tageszeit nutzt, und zeigt sie zuerst – auf dem Homescreen und im neuen „Als Nächstes“-Widget auf Home- und Sperrbildschirm.
+Deckard lernt nur auf deinem iPhone, welche Karte du zu welcher Tageszeit nutzt, und zeigt sie zuerst – auf dem Homescreen und im neuen „Als Nächstes“-Widget auf Home- und Sperrbildschirm.
 
 • Karten mitnehmen
 Du kommst von einer anderen App? Importiere ihre Exportdatei, eine Tabelle oder einen Apple-Wallet-Pass unter Einstellungen › Aus anderer App importieren.
@@ -229,7 +229,7 @@ Tippe auf dem Startbildschirm auf die Suche und finde jede Kreditkarte, IBAN ode
 Schick deine IBAN als schönes Kartenbild mit Kontoinhaber, Bank und IBAN – passend für jeden Chat. Mit Premium enthält das Bild zusätzlich einen Zahlungs-QR-Code. Teilen als Text gibt es weiterhin.
 
 • Automatische Sperre
-Wenn du eine PIN nutzt, sperrt sich CardWallet jetzt von selbst, sobald du die App verlässt. Den Zeitpunkt wählst du unter Einstellungen › Sicherheit › Automatische Sperre: sofort, nach 30 Sekunden oder nach 1, 5 oder 15 Minuten.
+Wenn du eine PIN nutzt, sperrt sich Deckard jetzt von selbst, sobald du die App verlässt. Den Zeitpunkt wählst du unter Einstellungen › Sicherheit › Automatische Sperre: sofort, nach 30 Sekunden oder nach 1, 5 oder 15 Minuten.
 
 • Verborgen beim App-Wechsel
 Beim Wechseln zwischen Apps sind deine Karten abgedeckt, so kann niemand einen Blick darauf werfen.
@@ -275,14 +275,14 @@ Kopierte Kartennummern verschwinden nach einer Minute von selbst aus der Zwische
 #### App Store — What's New (≤4000)
 
 ```text
-• Un nouveau CardWallet
+• Un nouveau Deckard
 Toute l'app a été repensée. Votre portefeuille est désormais une pile de cartes qui ressemblent aux vraies, avec leurs couleurs et logos. Touchez une carte pour l'ouvrir.
 
 • Un seul scan pour toutes vos cartes
 Touchez + et visez une carte de fidélité, une carte bancaire ou un IBAN. Les codes-barres sont lus aussitôt, les numéros et IBAN en un instant, et vous validez avant tout enregistrement. Fonctionne aussi depuis une photo.
 
 • À suivre
-CardWallet apprend, uniquement sur votre iPhone, quelle carte vous utilisez à quel moment de la journée, et la place en premier sur l'accueil et dans le nouveau widget « À suivre » de l'écran d'accueil et de l'écran verrouillé.
+Deckard apprend, uniquement sur votre iPhone, quelle carte vous utilisez à quel moment de la journée, et la place en premier sur l'accueil et dans le nouveau widget « À suivre » de l'écran d'accueil et de l'écran verrouillé.
 
 • Récupérez vos cartes
 Vous venez d'une autre app ? Importez son fichier d'export, un tableur ou une carte Apple Wallet depuis Réglages › Importer depuis une autre app.
@@ -300,7 +300,7 @@ Touchez la recherche sur l'écran d'accueil pour retrouver une carte bancaire, u
 Envoyez votre IBAN sous forme de jolie carte avec le titulaire, la banque et l'IBAN, prête pour n'importe quelle messagerie. Avec Premium, l'image contient aussi un QR code de paiement. Le partage en texte est toujours là.
 
 • Verrouillage auto
-Si vous utilisez un code PIN, CardWallet se verrouille désormais tout seul quand vous quittez l'app. Choisissez le délai dans Paramètres › Sécurité › Verrouillage auto : immédiatement, après 30 secondes, ou après 1, 5 ou 15 minutes.
+Si vous utilisez un code PIN, Deckard se verrouille désormais tout seul quand vous quittez l'app. Choisissez le délai dans Paramètres › Sécurité › Verrouillage auto : immédiatement, après 30 secondes, ou après 1, 5 ou 15 minutes.
 
 • Masquée dans le sélecteur d'apps
 Vos cartes sont cachées quand vous passez d'une app à l'autre : personne ne peut y jeter un œil.
@@ -346,14 +346,14 @@ Les numéros de carte copiés s'effacent du presse-papiers au bout d'une minute,
 #### App Store — What's New (≤4000)
 
 ```text
-• Un nuevo CardWallet
+• Un nuevo Deckard
 Toda la app se ha rediseñado. Tu cartera es ahora un mazo de tarjetas que parecen reales, con los colores y logos de cada marca. Toca cualquiera para abrirla.
 
 • Una cámara para todas tus tarjetas
 Toca + y apunta a una tarjeta de fidelidad, una bancaria o un IBAN. Los códigos se leen al instante, los números e IBAN en un momento, y confirmas antes de guardar. También funciona desde una foto.
 
 • Siguiente
-CardWallet aprende, solo en tu iPhone, qué tarjeta usas a cada hora del día y la pone primero en el inicio y en el nuevo widget «Siguiente» de la pantalla de inicio y de bloqueo.
+Deckard aprende, solo en tu iPhone, qué tarjeta usas a cada hora del día y la pone primero en el inicio y en el nuevo widget «Siguiente» de la pantalla de inicio y de bloqueo.
 
 • Trae tus tarjetas
 ¿Vienes de otra app? Importa su archivo de exportación, una hoja de cálculo o un pase de Apple Wallet desde Ajustes › Importar de otra app.
@@ -371,7 +371,7 @@ Toca la búsqueda en la pantalla de inicio para encontrar cualquier tarjeta de c
 Envía tu IBAN como una imagen de tarjeta con el titular, el banco y el IBAN, lista para cualquier chat. Con Premium, la imagen incluye además un código QR de pago. Compartir como texto sigue disponible.
 
 • Bloqueo automático
-Si usas un PIN, CardWallet ahora se bloquea sola cuando sales de la app. Elige cuándo en Ajustes › Seguridad › Bloqueo automático: al instante, a los 30 segundos o a los 1, 5 o 15 minutos.
+Si usas un PIN, Deckard ahora se bloquea sola cuando sales de la app. Elige cuándo en Ajustes › Seguridad › Bloqueo automático: al instante, a los 30 segundos o a los 1, 5 o 15 minutos.
 
 • Oculta al cambiar de app
 Tus tarjetas quedan tapadas cuando pasas de una app a otra, así nadie puede echarles un vistazo.
@@ -417,14 +417,14 @@ Los números de tarjeta copiados se borran solos del portapapeles al minuto, tu 
 #### App Store — What's New (≤4000)
 
 ```text
-• Um novo CardWallet
+• Um novo Deckard
 O app inteiro foi redesenhado. Sua carteira agora é um maço de cartões que parecem os de verdade, com cores e logos de cada marca. Toque em qualquer um para abrir.
 
 • Uma câmera para todos os cartões
 Toque em + e aponte para um cartão fidelidade, um cartão bancário ou um IBAN. Códigos de barras são lidos na hora, números e IBAN num instante, e você confirma antes de salvar. Funciona também com uma foto.
 
 • A seguir
-O CardWallet aprende, só no seu iPhone, qual cartão você usa em cada horário e coloca ele primeiro na tela inicial do app e no novo widget “A seguir” da tela inicial e de bloqueio.
+O Deckard aprende, só no seu iPhone, qual cartão você usa em cada horário e coloca ele primeiro na tela inicial do app e no novo widget “A seguir” da tela inicial e de bloqueio.
 
 • Traga seus cartões
 Vindo de outro app? Importe o arquivo de exportação, uma planilha ou um passe do Apple Wallet em Ajustes › Importar de outro app.
@@ -442,7 +442,7 @@ Toque na busca da tela inicial para encontrar qualquer cartão de crédito, IBAN
 Envie seu IBAN como uma imagem de cartão com o titular, o banco e o IBAN, pronta para qualquer conversa. Com Premium, a imagem também traz um QR code de pagamento. Compartilhar como texto continua disponível.
 
 • Bloqueio automático
-Se você usa um PIN, o CardWallet agora se bloqueia sozinho quando você sai do app. Escolha o tempo em Configurações › Segurança › Bloqueio automático: na hora, depois de 30 segundos ou depois de 1, 5 ou 15 minutos.
+Se você usa um PIN, o Deckard agora se bloqueia sozinho quando você sai do app. Escolha o tempo em Configurações › Segurança › Bloqueio automático: na hora, depois de 30 segundos ou depois de 1, 5 ou 15 minutos.
 
 • Escondido na troca de apps
 Seus cartões ficam cobertos quando você alterna entre apps, então ninguém consegue espiar.
@@ -488,14 +488,14 @@ Números de cartão copiados somem da área de transferência depois de um minut
 #### App Store — What's New (≤4000)
 
 ```text
-• Un nuovo CardWallet
+• Un nuovo Deckard
 Tutta l'app è stata ridisegnata. Il tuo portafoglio ora è un mazzo di carte che sembrano vere, con colori e loghi dei marchi. Tocca una carta per aprirla.
 
 • Una fotocamera per ogni carta
 Tocca + e inquadra una carta fedeltà, una carta bancaria o un IBAN. I codici a barre vengono letti subito, numeri e IBAN in un attimo, e confermi prima di salvare. Funziona anche da una foto.
 
 • Prossima
-CardWallet impara, solo sul tuo iPhone, quale carta usi in quale momento della giornata e la mette prima nella Home dell'app e nel nuovo widget «Prossima» su Home e schermata di blocco.
+Deckard impara, solo sul tuo iPhone, quale carta usi in quale momento della giornata e la mette prima nella Home dell'app e nel nuovo widget «Prossima» su Home e schermata di blocco.
 
 • Porta le tue carte
 Arrivi da un'altra app? Importa il suo file di esportazione, un foglio di calcolo o un pass di Apple Wallet da Impostazioni › Importa da un'altra app.
@@ -513,7 +513,7 @@ Tocca la ricerca nella home per trovare qualsiasi carta di credito, IBAN o carta
 Invia il tuo IBAN come immagine della carta con intestatario, banca e IBAN, pronta per qualsiasi chat. Con Premium, l'immagine include anche un QR code di pagamento. La condivisione come testo resta disponibile.
 
 • Blocco automatico
-Se usi un PIN, CardWallet ora si blocca da sola quando esci dall'app. Scegli dopo quanto in Impostazioni › Sicurezza › Blocco automatico: subito, dopo 30 secondi oppure dopo 1, 5 o 15 minuti.
+Se usi un PIN, Deckard ora si blocca da sola quando esci dall'app. Scegli dopo quanto in Impostazioni › Sicurezza › Blocco automatico: subito, dopo 30 secondi oppure dopo 1, 5 o 15 minuti.
 
 • Nascosta nel cambio app
 Quando passi da un'app all'altra le tue carte sono coperte, così nessuno può sbirciare.
@@ -559,14 +559,14 @@ I numeri di carta copiati spariscono dagli appunti dopo un minuto, lo stato Prem
 #### App Store — What's New (≤4000)
 
 ```text
-• Een nieuw CardWallet
+• Een nieuw Deckard
 De hele app is opnieuw ontworpen. Je portemonnee is nu een stapel kaarten die op de echte lijken, met de kleuren en logo's van elk merk. Tik op een kaart om hem te openen.
 
 • Eén camera voor elke kaart
 Tik op + en richt op een klantenkaart, bankpas of IBAN. Barcodes worden direct gelezen, kaartnummers en IBAN's in een oogwenk, en je bevestigt voordat er iets wordt bewaard. Werkt ook met een foto.
 
 • Volgende
-CardWallet leert, alleen op je iPhone, welke kaart je op welk moment van de dag gebruikt en zet die vooraan, in de app en in de nieuwe ‘Volgende’-widget op begin- en toegangsscherm.
+Deckard leert, alleen op je iPhone, welke kaart je op welk moment van de dag gebruikt en zet die vooraan, in de app en in de nieuwe ‘Volgende’-widget op begin- en toegangsscherm.
 
 • Neem je kaarten mee
 Kom je van een andere app? Importeer het exportbestand, een spreadsheet of een Apple Wallet-pas via Instellingen › Importeren uit andere app.
@@ -584,7 +584,7 @@ Tik op het beginscherm op zoeken en vind elke creditcard, IBAN of klantenkaart o
 Stuur je IBAN als strakke kaartafbeelding met rekeninghouder, bank en IBAN, klaar voor elke chat. Met Premium staat er ook een betaal-QR-code op. Delen als tekst kan nog steeds.
 
 • Automatisch vergrendelen
-Gebruik je een pincode, dan vergrendelt CardWallet zich nu vanzelf zodra je de app verlaat. Kies wanneer in Instellingen › Beveiliging › Automatisch vergrendelen: meteen, na 30 seconden of na 1, 5 of 15 minuten.
+Gebruik je een pincode, dan vergrendelt Deckard zich nu vanzelf zodra je de app verlaat. Kies wanneer in Instellingen › Beveiliging › Automatisch vergrendelen: meteen, na 30 seconden of na 1, 5 of 15 minuten.
 
 • Verborgen bij het wisselen van apps
 Je kaarten zijn afgedekt als je tussen apps wisselt, zodat niemand kan meekijken.
@@ -630,14 +630,14 @@ Gekopieerde kaartnummers verdwijnen na een minuut vanzelf van het klembord, je P
 #### App Store — What's New (≤4000)
 
 ```text
-• Nowy CardWallet
+• Nowy Deckard
 Cała aplikacja ma nowy wygląd. Portfel to teraz stos kart wyglądających jak prawdziwe, z kolorami i logo marek. Dotknij karty, by ją otworzyć.
 
 • Jeden aparat do każdej karty
 Dotknij + i skieruj aparat na kartę lojalnościową, bankową lub IBAN. Kody kreskowe są odczytywane od razu, numery kart i IBAN w chwilę, a przed zapisaniem wszystko potwierdzasz. Działa też ze zdjęcia.
 
 • Następna
-CardWallet uczy się – tylko na Twoim iPhonie – której karty używasz o jakiej porze dnia, i pokazuje ją jako pierwszą w aplikacji oraz w nowym widżecie „Następna” na ekranie głównym i blokady.
+Deckard uczy się – tylko na Twoim iPhonie – której karty używasz o jakiej porze dnia, i pokazuje ją jako pierwszą w aplikacji oraz w nowym widżecie „Następna” na ekranie głównym i blokady.
 
 • Przenieś swoje karty
 Przechodzisz z innej aplikacji? Zaimportuj jej plik eksportu, arkusz lub kartę Apple Wallet w Ustawienia › Importuj z innej aplikacji.
@@ -655,7 +655,7 @@ Stuknij wyszukiwanie na ekranie głównym i znajdź kartę kredytową, IBAN lub 
 Wyślij swój IBAN jako estetyczny obraz karty z właścicielem konta, bankiem i numerem IBAN, gotowy do każdego czatu. W Premium obraz zawiera też kod QR do płatności. Udostępnianie jako tekst nadal działa.
 
 • Automatyczna blokada
-Jeśli używasz PIN-u, CardWallet blokuje się teraz sam, gdy wychodzisz z aplikacji. Czas wybierzesz w Ustawienia › Bezpieczeństwo › Automatyczna blokada: od razu, po 30 sekundach albo po 1, 5 lub 15 minutach.
+Jeśli używasz PIN-u, Deckard blokuje się teraz sam, gdy wychodzisz z aplikacji. Czas wybierzesz w Ustawienia › Bezpieczeństwo › Automatyczna blokada: od razu, po 30 sekundach albo po 1, 5 lub 15 minutach.
 
 • Ukryte przy przełączaniu aplikacji
 Gdy przechodzisz między aplikacjami, Twoje karty są zasłonięte, więc nikt nie zerknie na ich dane.

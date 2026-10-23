@@ -1,4 +1,4 @@
-# Card Wallet 2.2.0 (45) — Yayın checklist'i
+# Deckard 2.2.0 (45) — Yayın checklist'i
 
 2.1.0 (44) ayrı yayınlanmıyor; PR #6–#9'daki her şey bu sürümle birlikte çıkıyor. Karşılaştırmalar yayındaki son sürüm olan 2.0.0'a göre.
 
@@ -42,7 +42,7 @@ PR #6, #7 ve #9'daki "Cihazda doğrulanacak" listeleri tek listede birleştirild
 - [ ] iOS simülatör: kart ekle → `xcrun simctl keychain <device> reset` (Hive dosyaları kalsın) → app splash'te donmadan açılıyor. "Kartların bu cihazda güvende" mesajı **bir kez** çıkıyor, cüzdan boş, yeni kart eklenebiliyor. PIN varsa PIN ekranı gelmiyor.
 - [ ] Bu mesajdaki "Yedekten geri yükle": premium değilse paywall, premiumsa restore akışı açılıyor.
 - [ ] Gerçek iCloud restore (mümkünse): eski yedekte Hive dosyaları olduğu için yetim kutu yolu çalışıyor.
-- [ ] Ayarlar › [ad] › iCloud › Depolamayı Yönet › Yedekler › bu cihaz: Card Wallet boyutu Hive dosyalarını içermiyor. Ya da `xattr -l` çıktısında `com.apple.metadata:com_apple_backup_excludeItem` görünüyor.
+- [ ] Ayarlar › [ad] › iCloud › Depolamayı Yönet › Yedekler › bu cihaz: Deckard boyutu Hive dosyalarını içermiyor. Ya da `xattr -l` çıktısında `com.apple.metadata:com_apple_backup_excludeItem` görünüyor.
 - [ ] Cihaz kilitliyken (ilk unlock öncesi) arka planda başlatma: BootErrorPage açılıyor, kilit açılıp app öne gelince kendiliğinden toparlanıyor.
 - [ ] Android: normal açılış ve kart listesi (regresyon). Keystore hatası simüle edilebiliyorsa BootErrorPage ve home retry.
 - [ ] `AppDelegate.swift` değişikliği iOS release build'de derleniyor (backup exclusion kanalı).

@@ -27,7 +27,7 @@ class AuthViews extends StatefulWidget {
   /// Shows "Forgot?" while no digit is typed.
   final VoidCallback? onForgot;
 
-  /// The app lock screen: "Card Wallet is locked" headline.
+  /// The app lock screen: "Deckard is locked" headline.
   final bool lockScreen;
 
   const AuthViews({

@@ -312,7 +312,7 @@ class MyApp extends StatelessWidget {
       locale: context.locale,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
-      title: 'Card Wallet',
+      title: 'Deckard',
       debugShowCheckedModeBanner: false,
       theme: AppThemes.lightTheme,
       darkTheme: AppThemes.darkTheme,

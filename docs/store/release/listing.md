@@ -1,4 +1,4 @@
-# Card Wallet 2.2.0 (45) — Mağaza sayfası metinleri
+# Deckard 2.2.0 (45) — Mağaza sayfası metinleri
 
 Başlangıç noktası Mayıs taslakları (`toronto/app_store_metadata_2026-05-26.md`, `google_play_metadata_by_language_2026-05-28.md`, `aso_country_strategy_2026-05-28.md`, `store_metadata_plan_2026-05-26.md`). Bu sürümde yapılan değişiklikler:
 
@@ -110,7 +110,7 @@ Uzunlukları yeniden saymak için: `python3 tools/check_store_text.py --write do
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Loyalty Cards
+Deckard: Loyalty Cards
 ```
 
 #### App Store — Subtitle (≤30)
@@ -134,7 +134,7 @@ New look. One camera adds any card, Up Next puts the right one first, and you ca
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet keeps your loyalty and membership cards in one private wallet on your iPhone. There's no account to create, no ads, and it works without an internet connection.
+Deckard keeps your loyalty and membership cards in one private wallet on your iPhone. There's no account to create, no ads, and it works without an internet connection.
 
 At the checkout, open a card and the screen brightens automatically so the scanner reads your barcode on the first try. Your cards are also on your Apple Watch and in a home screen widget.
 
@@ -173,7 +173,7 @@ The free version includes 3 loyalty cards, 1 credit card and 1 IBAN. Premium add
 
 Premium is offered as a weekly, monthly or yearly subscription. Payment is charged to your Apple ID. A subscription renews automatically unless it's cancelled at least 24 hours before the end of the current period. You can manage or cancel it in your App Store account settings.
 
-CardWallet is not a banking app. It doesn't make payments, move money or connect to your bank.
+Deckard is not a banking app. It doesn't make payments, move money or connect to your bank.
 
 When you add a loyalty card to Apple Wallet, that card's name, number and note are sent to our pass-signing service to create the pass. No other card details leave your device.
 
@@ -186,7 +186,7 @@ Privacy Policy: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Loyalty Cards
+Deckard: Loyalty Cards
 ```
 
 #### Google Play — Short description (≤80)
@@ -198,7 +198,7 @@ Loyalty cards and barcodes in a private wallet. No account, no ads, offline.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet keeps your loyalty and membership cards in one private wallet on your phone. There's no account to create, no ads, and it works without an internet connection.
+Deckard keeps your loyalty and membership cards in one private wallet on your phone. There's no account to create, no ads, and it works without an internet connection.
 
 At the checkout, open a card and the screen brightens automatically so the scanner reads your barcode on the first try. Put your favorite card on the home screen with a widget or open it from a Quick Settings tile.
 
@@ -237,7 +237,7 @@ The free version includes 3 loyalty cards, 1 credit card and 1 IBAN. Premium add
 
 Premium is offered as a weekly, monthly or yearly subscription that renews automatically. You can cancel anytime in Google Play › Payments & subscriptions.
 
-CardWallet is not a banking app. It doesn't make payments, move money or connect to your bank.
+Deckard is not a banking app. It doesn't make payments, move money or connect to your bank.
 
 When you save a loyalty card to Google Wallet, that card's name, number and note are sent to our pass-signing service to create the pass. No other card details leave your device.
 
@@ -252,7 +252,7 @@ Terms of Use: https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Kart ve IBAN
+Deckard: Kart ve IBAN
 ```
 
 #### App Store — Subtitle (≤30)
@@ -276,7 +276,7 @@ Yeni görünüm. Tek kamera her kartı ekler, Sıradaki doğru kartı öne alır
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet; kredi kartlarını, IBAN'larını ve sadakat kartlarını tek bir güvenli cüzdanda toplar. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
+Deckard; kredi kartlarını, IBAN'larını ve sadakat kartlarını tek bir güvenli cüzdanda toplar. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
 
 IBAN'ını tek dokunuşla kopyala ya da paylaş, karşındakine QR kodla okut. Kasada sadakat kartını aç, ekran kendiliğinden parlasın. Kredi kartının ödeme ve son kullanma tarihini hatırlatıcılar senin yerine takip etsin. Aradığın kartı ana ekrandaki aramayla isim, banka, etiket ya da son 4 haneyle bul.
 
@@ -319,7 +319,7 @@ PREMIUM
 
 Premium; haftalık, aylık veya yıllık abonelik olarak sunulur. Ödeme Apple kimliğinden alınır. Abonelik, dönem bitiminden en az 24 saat önce iptal edilmezse otomatik olarak yenilenir. Aboneliğini App Store hesap ayarlarından yönetebilir ya da iptal edebilirsin.
 
-CardWallet bir banka uygulaması değildir; ödeme yapmaz, para göndermez, bankana bağlanmaz.
+Deckard bir banka uygulaması değildir; ödeme yapmaz, para göndermez, bankana bağlanmaz.
 
 Bir sadakat kartını Apple Cüzdan'a eklediğinde, kartın oluşturulabilmesi için yalnızca o kartın adı, numarası ve notu imzalama servisimize gönderilir. Diğer kart bilgilerin cihazından çıkmaz.
 
@@ -332,7 +332,7 @@ Gizlilik Politikası: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Kart ve IBAN
+Deckard: Kart ve IBAN
 ```
 
 #### Google Play — Short description (≤80)
@@ -344,7 +344,7 @@ Kart, IBAN ve sadakat kartların tek güvenli cüzdanda. IBAN'ı QR ile paylaş.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet; kredi kartlarını, IBAN'larını ve sadakat kartlarını tek bir güvenli cüzdanda toplar. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
+Deckard; kredi kartlarını, IBAN'larını ve sadakat kartlarını tek bir güvenli cüzdanda toplar. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
 
 IBAN'ını tek dokunuşla kopyala ya da paylaş, karşındakine QR kodla okut. Kasada sadakat kartını aç, ekran kendiliğinden parlasın. Kredi kartının ödeme ve son kullanma tarihini hatırlatıcılar senin yerine takip etsin. Aradığın kartı ana ekrandaki aramayla isim, banka, etiket ya da son 4 haneyle bul.
 
@@ -387,7 +387,7 @@ Premium
 
 Premium; haftalık, aylık veya yıllık abonelik olarak sunulur ve otomatik yenilenir. İstediğin zaman Google Play › Ödemeler ve abonelikler bölümünden iptal edebilirsin.
 
-CardWallet bir banka uygulaması değildir; ödeme yapmaz, para göndermez, bankana bağlanmaz.
+Deckard bir banka uygulaması değildir; ödeme yapmaz, para göndermez, bankana bağlanmaz.
 
 Bir sadakat kartını Google Cüzdan'a eklediğinde, kartın oluşturulabilmesi için yalnızca o kartın adı, numarası ve notu imzalama servisimize gönderilir. Diğer kart bilgilerin cihazından çıkmaz.
 
@@ -402,7 +402,7 @@ Kullanım Koşulları: https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Kundenkarten
+Deckard: Kundenkarten
 ```
 
 #### App Store — Subtitle (≤30)
@@ -426,7 +426,7 @@ Neues Design. Eine Kamera für jede Karte, „Als Nächstes“ zeigt die richtig
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet bewahrt deine Kunden- und Treuekarten in einer privaten Wallet auf deinem iPhone auf. Du brauchst kein Konto, es gibt keine Werbung, und die App funktioniert auch ohne Internet.
+Deckard bewahrt deine Kunden- und Treuekarten in einer privaten Wallet auf deinem iPhone auf. Du brauchst kein Konto, es gibt keine Werbung, und die App funktioniert auch ohne Internet.
 
 An der Kasse öffnest du die Karte, der Bildschirm wird automatisch hell und der Scanner liest den Barcode beim ersten Versuch. Deine Karten hast du außerdem auf der Apple Watch und im Widget auf dem Home-Bildschirm.
 
@@ -465,7 +465,7 @@ Die kostenlose Version umfasst 3 Kundenkarten, 1 Kreditkarte und 1 IBAN. Mit Pre
 
 Premium gibt es als Wochen-, Monats- oder Jahresabo. Die Zahlung wird über deine Apple-ID abgerechnet. Das Abo verlängert sich automatisch, wenn es nicht mindestens 24 Stunden vor Ende des laufenden Zeitraums gekündigt wird. Verwalten oder kündigen kannst du es in den Einstellungen deines App-Store-Accounts.
 
-CardWallet ist keine Banking-App. Sie führt keine Zahlungen aus, überweist kein Geld und verbindet sich nicht mit deiner Bank.
+Deckard ist keine Banking-App. Sie führt keine Zahlungen aus, überweist kein Geld und verbindet sich nicht mit deiner Bank.
 
 Wenn du eine Kundenkarte zu Apple Wallet hinzufügst, werden Name, Nummer und Notiz dieser Karte an unseren Signaturdienst gesendet, um den Pass zu erstellen. Andere Kartendaten verlassen dein Gerät nicht.
 
@@ -478,7 +478,7 @@ Datenschutz: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Kundenkarten
+Deckard: Kundenkarten
 ```
 
 #### Google Play — Short description (≤80)
@@ -490,7 +490,7 @@ Kundenkarten und Barcodes in einer privaten Wallet. Ohne Konto, ohne Werbung.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet bewahrt deine Kunden- und Treuekarten in einer privaten Wallet auf deinem Handy auf. Du brauchst kein Konto, es gibt keine Werbung, und die App funktioniert auch ohne Internet.
+Deckard bewahrt deine Kunden- und Treuekarten in einer privaten Wallet auf deinem Handy auf. Du brauchst kein Konto, es gibt keine Werbung, und die App funktioniert auch ohne Internet.
 
 An der Kasse öffnest du die Karte, der Bildschirm wird automatisch hell und der Scanner liest den Barcode beim ersten Versuch. Deine Lieblingskarte legst du als Widget auf den Startbildschirm oder öffnest sie über eine Schnelleinstellungs-Kachel.
 
@@ -529,7 +529,7 @@ Die kostenlose Version umfasst 3 Kundenkarten, 1 Kreditkarte und 1 IBAN. Mit Pre
 
 Premium gibt es als Wochen-, Monats- oder Jahresabo mit automatischer Verlängerung. Kündigen kannst du jederzeit in Google Play › Zahlungen & Abos.
 
-CardWallet ist keine Banking-App. Sie führt keine Zahlungen aus, überweist kein Geld und verbindet sich nicht mit deiner Bank.
+Deckard ist keine Banking-App. Sie führt keine Zahlungen aus, überweist kein Geld und verbindet sich nicht mit deiner Bank.
 
 Wenn du eine Kundenkarte in Google Wallet speicherst, werden Name, Nummer und Notiz dieser Karte an unseren Signaturdienst gesendet, um den Pass zu erstellen. Andere Kartendaten verlassen dein Gerät nicht.
 
@@ -544,7 +544,7 @@ Nutzungsbedingungen: https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet : Cartes fidélité
+Deckard : Cartes fidélité
 ```
 
 #### App Store — Subtitle (≤30)
@@ -568,7 +568,7 @@ Nouveau design. Un seul scan pour toutes vos cartes, « À suivre » met la bonn
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet range vos cartes de fidélité et d'adhérent dans un portefeuille privé, sur votre iPhone. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
+Deckard range vos cartes de fidélité et d'adhérent dans un portefeuille privé, sur votre iPhone. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
 
 En caisse, ouvrez la carte : l'écran s'éclaircit tout seul et le lecteur lit le code-barres du premier coup. Vos cartes sont aussi sur votre Apple Watch et dans un widget de l'écran d'accueil.
 
@@ -607,7 +607,7 @@ La version gratuite comprend 3 cartes de fidélité, 1 carte bancaire et 1 IBAN.
 
 Premium est proposé en abonnement hebdomadaire, mensuel ou annuel. Le paiement est débité sur votre identifiant Apple. L'abonnement se renouvelle automatiquement s'il n'est pas résilié au moins 24 heures avant la fin de la période en cours. Vous pouvez le gérer ou le résilier dans les réglages de votre compte App Store.
 
-CardWallet n'est pas une application bancaire. Elle n'effectue pas de paiement, ne transfère pas d'argent et ne se connecte pas à votre banque.
+Deckard n'est pas une application bancaire. Elle n'effectue pas de paiement, ne transfère pas d'argent et ne se connecte pas à votre banque.
 
 Quand vous ajoutez une carte de fidélité à Apple Wallet, son nom, son numéro et sa note sont envoyés à notre service de signature pour créer le pass. Aucune autre donnée de carte ne quitte votre appareil.
 
@@ -620,7 +620,7 @@ Politique de confidentialité : https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet : Cartes fidélité
+Deckard : Cartes fidélité
 ```
 
 #### Google Play — Short description (≤80)
@@ -632,7 +632,7 @@ Cartes de fidélité et codes-barres, sans compte ni pub, même hors ligne.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet range vos cartes de fidélité et d'adhérent dans un portefeuille privé, sur votre téléphone. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
+Deckard range vos cartes de fidélité et d'adhérent dans un portefeuille privé, sur votre téléphone. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
 
 En caisse, ouvrez la carte : l'écran s'éclaircit tout seul et le lecteur lit le code-barres du premier coup. Placez votre carte préférée sur l'écran d'accueil avec un widget ou ouvrez-la depuis une vignette des Réglages rapides.
 
@@ -671,7 +671,7 @@ La version gratuite comprend 3 cartes de fidélité, 1 carte bancaire et 1 IBAN.
 
 Premium est proposé en abonnement hebdomadaire, mensuel ou annuel, renouvelé automatiquement. Vous pouvez le résilier à tout moment dans Google Play › Paiements et abonnements.
 
-CardWallet n'est pas une application bancaire. Elle n'effectue pas de paiement, ne transfère pas d'argent et ne se connecte pas à votre banque.
+Deckard n'est pas une application bancaire. Elle n'effectue pas de paiement, ne transfère pas d'argent et ne se connecte pas à votre banque.
 
 Quand vous enregistrez une carte de fidélité dans Google Wallet, son nom, son numéro et sa note sont envoyés à notre service de signature pour créer le pass. Aucune autre donnée de carte ne quitte votre appareil.
 
@@ -686,7 +686,7 @@ Conditions d'utilisation : https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Tarjetas fidelidad
+Deckard: Tarjetas fidelidad
 ```
 
 #### App Store — Subtitle (≤30)
@@ -710,7 +710,7 @@ Nuevo diseño. Una cámara para cualquier tarjeta, «Siguiente» pone primero la
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet guarda tus tarjetas de fidelidad y de socio en una cartera privada en tu iPhone. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
+Deckard guarda tus tarjetas de fidelidad y de socio en una cartera privada en tu iPhone. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
 
 En caja, abre la tarjeta: la pantalla sube el brillo sola y el lector lee el código de barras a la primera. Tus tarjetas también están en el Apple Watch y en un widget de la pantalla de inicio.
 
@@ -749,7 +749,7 @@ La versión gratuita incluye 3 tarjetas de fidelidad, 1 tarjeta de crédito y 1 
 
 Premium se ofrece como suscripción semanal, mensual o anual. El pago se carga en tu ID de Apple. La suscripción se renueva automáticamente salvo que la canceles al menos 24 horas antes de que termine el periodo actual. Puedes gestionarla o cancelarla en los ajustes de tu cuenta del App Store.
 
-CardWallet no es una app bancaria. No hace pagos, no mueve dinero y no se conecta con tu banco.
+Deckard no es una app bancaria. No hace pagos, no mueve dinero y no se conecta con tu banco.
 
 Cuando añades una tarjeta de fidelidad a Apple Wallet, su nombre, su número y su nota se envían a nuestro servicio de firma para crear el pase. Ningún otro dato de tus tarjetas sale de tu dispositivo.
 
@@ -762,7 +762,7 @@ Política de privacidad: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Tarjetas fidelidad
+Deckard: Tarjetas fidelidad
 ```
 
 #### Google Play — Short description (≤80)
@@ -774,7 +774,7 @@ Tarjetas de fidelidad y códigos de barras. Sin cuenta, sin anuncios, offline.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet guarda tus tarjetas de fidelidad y de socio en una cartera privada en tu móvil. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
+Deckard guarda tus tarjetas de fidelidad y de socio en una cartera privada en tu móvil. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
 
 En caja, abre la tarjeta: la pantalla sube el brillo sola y el lector lee el código de barras a la primera. Pon tu tarjeta favorita en la pantalla de inicio con un widget o ábrela desde un icono de Ajustes rápidos.
 
@@ -813,7 +813,7 @@ La versión gratuita incluye 3 tarjetas de fidelidad, 1 tarjeta de crédito y 1 
 
 Premium se ofrece como suscripción semanal, mensual o anual con renovación automática. Puedes cancelarla cuando quieras en Google Play › Pagos y suscripciones.
 
-CardWallet no es una app bancaria. No hace pagos, no mueve dinero y no se conecta con tu banco.
+Deckard no es una app bancaria. No hace pagos, no mueve dinero y no se conecta con tu banco.
 
 Cuando guardas una tarjeta de fidelidad en Google Wallet, su nombre, su número y su nota se envían a nuestro servicio de firma para crear el pase. Ningún otro dato de tus tarjetas sale de tu dispositivo.
 
@@ -828,7 +828,7 @@ Condiciones de uso: https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Cartão Fidelidade
+Deckard: Cartão Fidelidade
 ```
 
 #### App Store — Subtitle (≤30)
@@ -852,7 +852,7 @@ Novo visual. Uma câmera para qualquer cartão, “A seguir” mostra o certo pr
 #### App Store — Description (≤4000)
 
 ```text
-O CardWallet guarda seus cartões fidelidade e de sócio em uma carteira privada no seu iPhone. Não precisa criar conta, não tem anúncios e funciona sem internet.
+O Deckard guarda seus cartões fidelidade e de sócio em uma carteira privada no seu iPhone. Não precisa criar conta, não tem anúncios e funciona sem internet.
 
 No caixa, abra o cartão: a tela fica mais clara sozinha e o leitor pega o código de barras de primeira. Seus cartões também ficam no Apple Watch e em um widget da tela de início.
 
@@ -891,7 +891,7 @@ A versão gratuita inclui 3 cartões fidelidade, 1 cartão de crédito e 1 IBAN.
 
 O Premium é oferecido como assinatura semanal, mensal ou anual. O pagamento é cobrado no seu ID Apple. A assinatura é renovada automaticamente, a menos que seja cancelada pelo menos 24 horas antes do fim do período atual. Você pode gerenciar ou cancelar nos ajustes da sua conta da App Store.
 
-O CardWallet não é um app de banco. Ele não faz pagamentos, não transfere dinheiro e não se conecta ao seu banco.
+O Deckard não é um app de banco. Ele não faz pagamentos, não transfere dinheiro e não se conecta ao seu banco.
 
 Quando você adiciona um cartão fidelidade à Apple Wallet, o nome, o número e a observação desse cartão são enviados ao nosso serviço de assinatura digital para criar o passe. Nenhum outro dado dos seus cartões sai do aparelho.
 
@@ -904,7 +904,7 @@ Política de privacidade: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Cartão Fidelidade
+Deckard: Cartão Fidelidade
 ```
 
 #### Google Play — Short description (≤80)
@@ -916,7 +916,7 @@ Cartões fidelidade e códigos de barras, sem conta, sem anúncios e offline.
 #### Google Play — Full description (≤4000)
 
 ```text
-O CardWallet guarda seus cartões fidelidade e de sócio em uma carteira privada no seu celular. Não precisa criar conta, não tem anúncios e funciona sem internet.
+O Deckard guarda seus cartões fidelidade e de sócio em uma carteira privada no seu celular. Não precisa criar conta, não tem anúncios e funciona sem internet.
 
 No caixa, abra o cartão: a tela fica mais clara sozinha e o leitor pega o código de barras de primeira. Coloque seu cartão favorito na tela inicial com um widget ou abra pelo bloco de Configurações rápidas.
 
@@ -955,7 +955,7 @@ A versão gratuita inclui 3 cartões fidelidade, 1 cartão de crédito e 1 IBAN.
 
 O Premium é oferecido como assinatura semanal, mensal ou anual com renovação automática. Você pode cancelar quando quiser em Google Play › Pagamentos e assinaturas.
 
-O CardWallet não é um app de banco. Ele não faz pagamentos, não transfere dinheiro e não se conecta ao seu banco.
+O Deckard não é um app de banco. Ele não faz pagamentos, não transfere dinheiro e não se conecta ao seu banco.
 
 Quando você salva um cartão fidelidade na Google Wallet, o nome, o número e a observação desse cartão são enviados ao nosso serviço de assinatura digital para criar o passe. Nenhum outro dado dos seus cartões sai do aparelho.
 
@@ -970,7 +970,7 @@ Termos de uso: https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Carte fedeltà
+Deckard: Carte fedeltà
 ```
 
 #### App Store — Subtitle (≤30)
@@ -994,7 +994,7 @@ Nuovo look. Una fotocamera per ogni carta, «Prossima» mette prima quella giust
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet tiene le tue carte fedeltà e le tessere in un portafoglio privato sul tuo iPhone. Non serve creare un account, non ci sono pubblicità e funziona anche senza connessione.
+Deckard tiene le tue carte fedeltà e le tessere in un portafoglio privato sul tuo iPhone. Non serve creare un account, non ci sono pubblicità e funziona anche senza connessione.
 
 Alla cassa apri la carta: lo schermo si illumina da solo e il lettore legge il codice a barre al primo colpo. Le tue carte sono anche sull'Apple Watch e in un widget della schermata Home.
 
@@ -1033,7 +1033,7 @@ La versione gratuita include 3 carte fedeltà, 1 carta di credito e 1 IBAN. Prem
 
 Premium è disponibile come abbonamento settimanale, mensile o annuale. Il pagamento viene addebitato sul tuo ID Apple. L'abbonamento si rinnova automaticamente se non viene disdetto almeno 24 ore prima della fine del periodo in corso. Puoi gestirlo o disdirlo nelle impostazioni del tuo account App Store.
 
-CardWallet non è un'app bancaria. Non effettua pagamenti, non trasferisce denaro e non si collega alla tua banca.
+Deckard non è un'app bancaria. Non effettua pagamenti, non trasferisce denaro e non si collega alla tua banca.
 
 Quando aggiungi una carta fedeltà ad Apple Wallet, il nome, il numero e la nota di quella carta vengono inviati al nostro servizio di firma per creare il pass. Nessun altro dato delle carte lascia il tuo dispositivo.
 
@@ -1046,7 +1046,7 @@ Informativa sulla privacy: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Carte fedeltà
+Deckard: Carte fedeltà
 ```
 
 #### Google Play — Short description (≤80)
@@ -1058,7 +1058,7 @@ Carte fedeltà e codici a barre, offline e senza account né pubblicità.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet tiene le tue carte fedeltà e le tessere in un portafoglio privato sul tuo telefono. Non serve creare un account, non ci sono pubblicità e funziona anche senza connessione.
+Deckard tiene le tue carte fedeltà e le tessere in un portafoglio privato sul tuo telefono. Non serve creare un account, non ci sono pubblicità e funziona anche senza connessione.
 
 Alla cassa apri la carta: lo schermo si illumina da solo e il lettore legge il codice a barre al primo colpo. Metti la tua carta preferita nella schermata Home con un widget o aprila da un riquadro delle Impostazioni rapide.
 
@@ -1097,7 +1097,7 @@ La versione gratuita include 3 carte fedeltà, 1 carta di credito e 1 IBAN. Prem
 
 Premium è disponibile come abbonamento settimanale, mensile o annuale con rinnovo automatico. Puoi disdirlo quando vuoi in Google Play › Pagamenti e abbonamenti.
 
-CardWallet non è un'app bancaria. Non effettua pagamenti, non trasferisce denaro e non si collega alla tua banca.
+Deckard non è un'app bancaria. Non effettua pagamenti, non trasferisce denaro e non si collega alla tua banca.
 
 Quando salvi una carta fedeltà in Google Wallet, il nome, il numero e la nota di quella carta vengono inviati al nostro servizio di firma per creare il pass. Nessun altro dato delle carte lascia il tuo dispositivo.
 
@@ -1112,7 +1112,7 @@ Termini di utilizzo: https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Klantenkaarten
+Deckard: Klantenkaarten
 ```
 
 #### App Store — Subtitle (≤30)
@@ -1136,7 +1136,7 @@ Nieuw ontwerp. Eén camera voor elke kaart, ‘Volgende’ zet de juiste bovenaa
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet bewaart je klantenkaarten en ledenpassen in een privé wallet op je iPhone. Je hoeft geen account te maken, er is geen reclame en de app werkt ook zonder internet.
+Deckard bewaart je klantenkaarten en ledenpassen in een privé wallet op je iPhone. Je hoeft geen account te maken, er is geen reclame en de app werkt ook zonder internet.
 
 Open bij de kassa je kaart: het scherm wordt vanzelf fel en de scanner leest je barcode in één keer. Je kaarten staan ook op je Apple Watch en in een widget op je beginscherm.
 
@@ -1175,7 +1175,7 @@ De gratis versie bevat 3 klantenkaarten, 1 creditcard en 1 IBAN. Premium voegt t
 
 Premium is er als week-, maand- of jaarabonnement. De betaling loopt via je Apple ID. Het abonnement wordt automatisch verlengd, tenzij je het minstens 24 uur voor het einde van de lopende periode opzegt. Beheren of opzeggen doe je in de instellingen van je App Store-account.
 
-CardWallet is geen bankapp. De app doet geen betalingen, maakt geen geld over en maakt geen verbinding met je bank.
+Deckard is geen bankapp. De app doet geen betalingen, maakt geen geld over en maakt geen verbinding met je bank.
 
 Voeg je een klantenkaart toe aan Apple Wallet, dan worden de naam, het nummer en de notitie van die kaart naar onze ondertekeningsdienst gestuurd om de pas te maken. Geen andere kaartgegevens verlaten je apparaat.
 
@@ -1188,7 +1188,7 @@ Privacybeleid: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Klantenkaarten
+Deckard: Klantenkaarten
 ```
 
 #### Google Play — Short description (≤80)
@@ -1200,7 +1200,7 @@ Klantenkaarten en barcodes in een privé wallet. Zonder account, zonder reclame.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet bewaart je klantenkaarten en ledenpassen in een privé wallet op je telefoon. Je hoeft geen account te maken, er is geen reclame en de app werkt ook zonder internet.
+Deckard bewaart je klantenkaarten en ledenpassen in een privé wallet op je telefoon. Je hoeft geen account te maken, er is geen reclame en de app werkt ook zonder internet.
 
 Open bij de kassa je kaart: het scherm wordt vanzelf fel en de scanner leest je barcode in één keer. Zet je favoriete kaart met een widget op je startscherm of open hem via een tegel in Snelle instellingen.
 
@@ -1239,7 +1239,7 @@ De gratis versie bevat 3 klantenkaarten, 1 creditcard en 1 IBAN. Premium voegt t
 
 Premium is er als week-, maand- of jaarabonnement dat automatisch wordt verlengd. Opzeggen kan altijd via Google Play › Betalingen en abonnementen.
 
-CardWallet is geen bankapp. De app doet geen betalingen, maakt geen geld over en maakt geen verbinding met je bank.
+Deckard is geen bankapp. De app doet geen betalingen, maakt geen geld over en maakt geen verbinding met je bank.
 
 Sla je een klantenkaart op in Google Wallet, dan worden de naam, het nummer en de notitie van die kaart naar onze ondertekeningsdienst gestuurd om de pas te maken. Geen andere kaartgegevens verlaten je apparaat.
 
@@ -1254,7 +1254,7 @@ Gebruiksvoorwaarden: https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Portfel na karty
+Deckard: Portfel na karty
 ```
 
 #### App Store — Subtitle (≤30)
@@ -1278,7 +1278,7 @@ Nowy wygląd. Jeden aparat do każdej karty, „Następna” pokazuje właściw�
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet trzyma Twoje karty lojalnościowe i członkowskie w prywatnym portfelu na iPhonie. Nie musisz zakładać konta, nie ma reklam, a aplikacja działa też bez internetu.
+Deckard trzyma Twoje karty lojalnościowe i członkowskie w prywatnym portfelu na iPhonie. Nie musisz zakładać konta, nie ma reklam, a aplikacja działa też bez internetu.
 
 Przy kasie otwierasz kartę, ekran sam się rozjaśnia, a czytnik odczytuje kod kreskowy za pierwszym razem. Karty masz też na Apple Watch i w widżecie na ekranie początkowym.
 
@@ -1317,7 +1317,7 @@ Wersja bezpłatna obejmuje 3 karty lojalnościowe, 1 kartę kredytową i 1 numer
 
 Premium jest dostępne jako subskrypcja tygodniowa, miesięczna lub roczna. Opłata jest pobierana z Twojego Apple ID. Subskrypcja odnawia się automatycznie, jeśli nie zostanie anulowana co najmniej 24 godziny przed końcem bieżącego okresu. Możesz nią zarządzać lub ją anulować w ustawieniach konta App Store.
 
-CardWallet nie jest aplikacją bankową. Nie wykonuje płatności, nie przelewa pieniędzy i nie łączy się z Twoim bankiem.
+Deckard nie jest aplikacją bankową. Nie wykonuje płatności, nie przelewa pieniędzy i nie łączy się z Twoim bankiem.
 
 Gdy dodajesz kartę lojalnościową do Apple Wallet, jej nazwa, numer i notatka są wysyłane do naszej usługi podpisywania, żeby utworzyć kartę w Wallet. Żadne inne dane kart nie opuszczają urządzenia.
 
@@ -1330,7 +1330,7 @@ Polityka prywatności: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Portfel na karty
+Deckard: Portfel na karty
 ```
 
 #### Google Play — Short description (≤80)
@@ -1342,7 +1342,7 @@ Karty lojalnościowe i kody kreskowe w prywatnym portfelu. Bez konta i reklam.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet trzyma Twoje karty lojalnościowe i członkowskie w prywatnym portfelu na telefonie. Nie musisz zakładać konta, nie ma reklam, a aplikacja działa też bez internetu.
+Deckard trzyma Twoje karty lojalnościowe i członkowskie w prywatnym portfelu na telefonie. Nie musisz zakładać konta, nie ma reklam, a aplikacja działa też bez internetu.
 
 Przy kasie otwierasz kartę, ekran sam się rozjaśnia, a czytnik odczytuje kod kreskowy za pierwszym razem. Ulubioną kartę możesz przypiąć widżetem do ekranu głównego albo otworzyć kafelkiem w Szybkich ustawieniach.
 
@@ -1381,7 +1381,7 @@ Wersja bezpłatna obejmuje 3 karty lojalnościowe, 1 kartę kredytową i 1 numer
 
 Premium jest dostępne jako subskrypcja tygodniowa, miesięczna lub roczna, odnawiana automatycznie. Możesz ją anulować w dowolnej chwili w Google Play › Płatności i subskrypcje.
 
-CardWallet nie jest aplikacją bankową. Nie wykonuje płatności, nie przelewa pieniędzy i nie łączy się z Twoim bankiem.
+Deckard nie jest aplikacją bankową. Nie wykonuje płatności, nie przelewa pieniędzy i nie łączy się z Twoim bankiem.
 
 Gdy zapisujesz kartę lojalnościową w Google Wallet, jej nazwa, numer i notatka są wysyłane do naszej usługi podpisywania, żeby utworzyć kartę w Wallet. Żadne inne dane kart nie opuszczają urządzenia.
 

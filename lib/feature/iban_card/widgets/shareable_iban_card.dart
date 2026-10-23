@@ -10,7 +10,7 @@ import 'package:wallet_app/core/utils/locale_upper.dart';
 import 'package:wallet_app/core/widgets/bank_logo.dart';
 
 /// IBAN card laid out for sharing as a PNG: holder, bank + logo, the IBAN in
-/// groups of four, SWIFT when present and a small "CardWallet" mark. Premium
+/// groups of four, SWIFT when present and a small "Deckard" mark. Premium
 /// users also get the payment QR ([qrData]); free users get the same card
 /// without it.
 ///
@@ -267,7 +267,7 @@ class _Label extends StatelessWidget {
   }
 }
 
-/// Small, quiet wordmark: "Card" regular + "Wallet" bold.
+/// Small, quiet wordmark.
 class _Brand extends StatelessWidget {
   const _Brand();
 
@@ -286,23 +286,13 @@ class _Brand extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Text.rich(
-          TextSpan(
-            children: [
-              const TextSpan(
-                text: 'Card',
-                style: TextStyle(fontWeight: FontWeight.w400),
-              ),
-              const TextSpan(
-                text: 'Wallet',
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
-            ],
-            style: TextStyle(
-              fontSize: 16,
-              letterSpacing: 0.4,
-              color: color,
-            ),
+        Text(
+          'Deckard',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.4,
+            color: color,
           ),
         ),
       ],

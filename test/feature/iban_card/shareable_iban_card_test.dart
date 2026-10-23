@@ -84,9 +84,7 @@ void main() {
     expect(find.textContaining('Ayşe Gülşen'), findsOneWidget);
     expect(find.text('SWIFT'), findsNothing);
     expect(find.byType(QrImageView), findsNothing);
-    expect(find.text('Wallet'), findsNothing); // inside a Text.rich span
-    expect(find.textContaining('CardWallet', findRichText: true),
-        findsOneWidget);
+    expect(find.text('Deckard'), findsOneWidget);
   });
 
   testWidgets('premium image carries the QR and SWIFT', (tester) async {

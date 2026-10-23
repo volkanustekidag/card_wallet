@@ -1,4 +1,4 @@
-# Card Wallet
+# Deckard
 
 Flutter app for storing credit cards, IBANs and loyalty cards on the device.
 Card data lives in AES-encrypted Hive boxes whose keys sit in the
@@ -113,7 +113,7 @@ chmod 600 .dart_defines/wallet.local.env
 Run from VS Code with:
 
 ```text
-Card Wallet (Wallet API)
+Deckard (Wallet API)
 ```
 
 or from terminal:

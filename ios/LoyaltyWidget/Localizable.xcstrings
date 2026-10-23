@@ -469,54 +469,54 @@
         }
       }
     },
-    "Card Wallet": {
+    "Deckard": {
       "localizations": {
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Card Wallet"
+            "value": "Deckard"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Card Wallet"
+            "value": "Deckard"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Card Wallet"
+            "value": "Deckard"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Card Wallet"
+            "value": "Deckard"
           }
         },
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Card Wallet"
+            "value": "Deckard"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Card Wallet"
+            "value": "Deckard"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Card Wallet"
+            "value": "Deckard"
           }
         },
         "pl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Card Wallet"
+            "value": "Deckard"
           }
         }
       }

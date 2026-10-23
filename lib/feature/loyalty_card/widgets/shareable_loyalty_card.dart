@@ -214,7 +214,7 @@ class ShareableLoyaltyCard extends StatelessWidget {
                 ),
               ),
               Text(
-                'Card Wallet',
+                'Deckard',
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,

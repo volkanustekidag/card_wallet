@@ -1,4 +1,4 @@
-# Card Wallet 2.2.0 (45) — Gizlilik beyanları
+# Deckard 2.2.0 (45) — Gizlilik beyanları
 
 Bu doküman kodu okuyarak hazırlandı (`origin/main` 0d92076 + PR #8; PR #9 sonrası b4e27e1'de yeni olaylar için tekrar kontrol edildi). Her cevabın yanında hangi dosyadan çıkarıldığı yazıyor. SDK davranışı için Google'ın resmi açıklama sayfaları kullanıldı (en altta). Konsolda cevap verirken bu tabloları kullan. Kod değişirse burayı da güncelle.
 
@@ -153,7 +153,7 @@ Mevcut metin (Last updated: April 5, 2026, 2026-10-21'de okundu) şunu söylüyo
   ## Information Collection and Use
 - CardWallet does not collect, store, or share any personal information. The app
 - is designed to respect your privacy and operates entirely on your device.
-+ CardWallet has no accounts and shows no ads. The cards you add (credit cards,
++ Deckard has no accounts and shows no ads. The cards you add (credit cards,
 + IBANs, loyalty cards, card holder names, CVVs, notes) and your PIN are stored
 + only on your device. We never receive them, with one exception you trigger
 + yourself: Wallet export (see below).
@@ -236,7 +236,7 @@ Mevcut metin (Last updated: April 5, 2026, 2026-10-21'de okundu) şunu söylüyo
 
   ## Children's Privacy
 - CardWallet does not knowingly collect any personal information from children under 13.
-+ CardWallet is not directed to children under 13 and does not knowingly
++ Deckard is not directed to children under 13 and does not knowingly
 + collect personal information from them.
 
   ## Contact Us

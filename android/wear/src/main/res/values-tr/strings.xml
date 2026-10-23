@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Card Wallet</string>
+    <string name="app_name">Deckard</string>
     <string name="list_title">Sadakat kartları</string>
     <string name="empty_title">Kartları telefonundan ekle</string>
     <string name="empty_body">Buraya otomatik olarak eşitlenir.</string>
