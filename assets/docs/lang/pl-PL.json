@@ -832,10 +832,10 @@
     "cwTagAppleWallet": "Apple Wallet",
     "cwTagGoogleWallet": "Google Wallet",
     "cwTagQr": "Kody QR IBAN",
-    "cwFeatLineUnlimited": "Wszystkie karty lojalnościowe, bankowe i IBAN-y.",
-    "cwFeatLineBackup": "Nowy telefon? Cały portfel przenosisz ze sobą.",
-    "cwFeatLineMetal": "Nadaj kartom wykończenie z metalu lub tytanu.",
-    "cwFeatLineAppleWallet": "Dodaj karty lojalnościowe do Apple Wallet jednym dotknięciem.",
-    "cwFeatLineGoogleWallet": "Dodaj karty lojalnościowe do Google Wallet jednym dotknięciem.",
-    "cwFeatLineQr": "Udostępnij IBAN jako kod QR do zapłaty."
+    "cwFeatLineUnlimited": "Bez limitu kart i IBAN-ów.",
+    "cwFeatLineBackup": "Nowy telefon? Wszystko z tobą.",
+    "cwFeatLineMetal": "Wykończenia z metalu i tytanu.",
+    "cwFeatLineAppleWallet": "Karty lojalnościowe jednym dotknięciem.",
+    "cwFeatLineGoogleWallet": "Karty lojalnościowe jednym dotknięciem.",
+    "cwFeatLineQr": "Odbierz płatność jednym skanem."
 }

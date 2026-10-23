@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -488,63 +489,62 @@ class _CardFan extends StatelessWidget {
   }
 }
 
-/// Cards at the top, the headline right under them, then the feature
-/// carousel, whose boxes grow into the height that's left.
+/// Cards on top; the headline with the feature row under it. Spare
+/// height is shared evenly between them (never one big gap), and on small
+/// phones the cards shrink first.
 class _Hero extends StatelessWidget {
   final Widget headline;
   final String? highlight;
   const _Hero({required this.headline, required this.highlight});
 
+  static const _rowHeight = 150.0;
+
   @override
   Widget build(BuildContext context) => LayoutBuilder(builder: (context, box) {
-        final fanMax = box.maxHeight * 0.42;
-        final fanW = math.min(
-          math.min(MediaQuery.sizeOf(context).width * 0.5, 210.0),
-          (fanMax - 44) * kCardAspect,
-        );
-        final fanH = fanW < 120 ? 0.0 : fanW / kCardAspect + 44;
-        // headline ≈ 48, gaps + dots ≈ 56
-        final boxH = (box.maxHeight - fanH - 48 - 56).clamp(96.0, 240.0);
-        // Top-aligned: the cards sit right under the close button.
-        return Align(
-          alignment: Alignment.topCenter,
-          child: SingleChildScrollView(
-            physics: const NeverScrollableScrollPhysics(),
-            child: Column(
+        // headline ≈ 40 + gap 14 + row + breathing room 32
+        final fanMax = box.maxHeight - 40 - 14 - _rowHeight - 32;
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _CardFan(maxHeight: math.min(fanMax, 220)),
+            Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(height: 6),
-                _CardFan(maxHeight: fanMax),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 14, 24, 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: headline,
                 ),
-                _FeatureCarousel(highlight: highlight, height: boxH),
+                const SizedBox(height: 14),
+                SizedBox(
+                  height: _rowHeight,
+                  child: _FeatureRow(highlight: highlight),
+                ),
               ],
             ),
-          ),
+          ],
         );
       });
 }
 
-/// What Premium adds, one big box per feature, sliding on its own every
-/// few seconds (and swipeable). The feature that opened the paywall comes
-/// first and is lit.
-class _FeatureCarousel extends StatefulWidget {
+/// What Premium adds: a row of feature tiles drifting sideways on its own
+/// (swipeable, pauses while touched, still with reduced motion). The
+/// feature that opened the paywall comes first, lit.
+class _FeatureRow extends StatefulWidget {
   final String? highlight;
-  final double height;
-  const _FeatureCarousel({required this.highlight, required this.height});
+  const _FeatureRow({required this.highlight});
 
   @override
-  State<_FeatureCarousel> createState() => _FeatureCarouselState();
+  State<_FeatureRow> createState() => _FeatureRowState();
 }
 
-class _FeatureCarouselState extends State<_FeatureCarousel> {
-  /// Starts far into an endless list so it can be swiped both ways.
-  static const _start = 5000;
-  final _pages = PageController(viewportFraction: 0.74, initialPage: _start);
-  Timer? _auto;
-  int _page = _start;
+class _FeatureRowState extends State<_FeatureRow>
+    with SingleTickerProviderStateMixin {
+  static const _speed = 22.0; // logical px per second
+  final _scroll = ScrollController();
+  late final Ticker _ticker = createTicker(_tick);
+  Duration _last = Duration.zero;
+  bool _held = false;
+  Timer? _resume;
 
   /// (feature arg that lights it, icon, title key, line key)
   static List<(String, CwIcons, String, String)> _features(bool apple) => [
@@ -568,28 +568,38 @@ class _FeatureCarouselState extends State<_FeatureCarousel> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _auto?.cancel();
-    if (!MediaQuery.disableAnimationsOf(context)) _schedule();
+    final still = MediaQuery.disableAnimationsOf(context);
+    if (still && _ticker.isActive) _ticker.stop();
+    if (!still && !_ticker.isActive) _ticker.start();
   }
 
-  void _schedule() {
-    _auto?.cancel();
-    _auto = Timer.periodic(const Duration(milliseconds: 3200), (_) {
-      if (!_pages.hasClients) return;
-      _pages.nextPage(duration: CwMotion.slow, curve: CwMotion.standard);
-    });
+  void _tick(Duration now) {
+    final dt = (now - _last).inMicroseconds / 1e6;
+    _last = now;
+    if (_held || !_scroll.hasClients || dt <= 0 || dt > 0.1) return;
+    _scroll.jumpTo(_scroll.offset + _speed * dt);
+  }
+
+  void _hold() {
+    _resume?.cancel();
+    _held = true;
+  }
+
+  void _release() {
+    _resume?.cancel();
+    _resume = Timer(const Duration(seconds: 2), () => _held = false);
   }
 
   @override
   void dispose() {
-    _auto?.cancel();
-    _pages.dispose();
+    _resume?.cancel();
+    _ticker.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final c = CwColors.of(context);
     final apple = defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.macOS;
     final all = _features(apple);
@@ -597,64 +607,39 @@ class _FeatureCarouselState extends State<_FeatureCarousel> {
       ...all.where((f) => f.$1 == widget.highlight),
       ...all.where((f) => f.$1 != widget.highlight),
     ];
-    final active = _page % features.length;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          height: widget.height,
-          // A touch stops the auto-slide; it resumes after the swipe.
-          child: Listener(
-            onPointerDown: (_) => _auto?.cancel(),
-            onPointerUp: (_) {
-              if (!MediaQuery.disableAnimationsOf(context)) _schedule();
-            },
-            child: PageView.builder(
-              controller: _pages,
-              onPageChanged: (i) => setState(() => _page = i),
-              itemBuilder: (_, i) {
-                final f = features[i % features.length];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: _FeatureBox(
-                    icon: f.$2,
-                    title: f.$3.tr(),
-                    line: f.$4.tr(),
-                    lit: f.$1 == widget.highlight,
-                  ),
-                );
-              },
+    return Listener(
+      onPointerDown: (_) => _hold(),
+      onPointerUp: (_) => _release(),
+      onPointerCancel: (_) => _release(),
+      child: ListView.builder(
+        controller: _scroll,
+        scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.none,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        // Endless: the row repeats as it drifts.
+        itemBuilder: (_, i) {
+          final f = features[i % features.length];
+          return Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: _FeatureTile(
+              icon: f.$2,
+              title: f.$3.tr(),
+              line: f.$4.tr(),
+              lit: f.$1 == widget.highlight,
             ),
-          ),
-        ),
-        const SizedBox(height: 10),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (var i = 0; i < features.length; i++)
-              AnimatedContainer(
-                duration: CwMotion.fast,
-                margin: const EdgeInsets.symmetric(horizontal: 3),
-                width: i == active ? 16 : 6,
-                height: 6,
-                decoration: BoxDecoration(
-                  color: i == active ? c.ink : c.ink.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              ),
-          ],
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
 }
 
-class _FeatureBox extends StatelessWidget {
+class _FeatureTile extends StatelessWidget {
   final CwIcons icon;
   final String title;
   final String line;
   final bool lit;
-  const _FeatureBox({
+  const _FeatureTile({
     required this.icon,
     required this.title,
     required this.line,
@@ -665,60 +650,43 @@ class _FeatureBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = CwColors.of(context);
     final fg = lit ? Colors.white : c.ink;
-    final iconTile = Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        color: lit
-            ? Colors.white.withValues(alpha: 0.18)
-            : c.ink.withValues(alpha: 0.06),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      alignment: Alignment.center,
-      child: CwIcon(icon, size: 20, color: fg),
-    );
-    final text = Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: CwType.headline
-                .copyWith(color: fg, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 2),
-        Text(line,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: CwType.footnote.copyWith(
-                color: lit ? Colors.white.withValues(alpha: 0.85) : c.mute,
-                height: 1.35)),
-      ],
-    );
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+      width: 168,
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: lit ? c.accent : c.surface,
         borderRadius: BorderRadius.circular(CwRadius.l),
         border:
-            Border.all(color: lit ? c.accent : c.ink.withValues(alpha: 0.08)),
+            Border.all(color: lit ? c.accent : c.ink.withValues(alpha: 0.06)),
         boxShadow: CwElevation.e1(context),
       ),
-      // Tall box: icon above the text; short one: icon beside it.
-      child: LayoutBuilder(
-        builder: (context, box) => box.maxHeight >= 112
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [iconTile, const SizedBox(height: 12), text],
-              )
-            : Row(
-                children: [
-                  iconTile,
-                  const SizedBox(width: 14),
-                  Expanded(child: text),
-                ],
-              ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: lit ? Colors.white.withValues(alpha: 0.2) : c.accentSoft,
+              borderRadius: BorderRadius.circular(13),
+            ),
+            alignment: Alignment.center,
+            child: CwIcon(icon, size: 22, color: lit ? Colors.white : c.accent),
+          ),
+          const Spacer(),
+          Text(title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: CwType.callout
+                  .copyWith(color: fg, fontWeight: FontWeight.w700)),
+          const SizedBox(height: 2),
+          Text(line,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: CwType.caption.copyWith(
+                  color: lit ? Colors.white.withValues(alpha: 0.85) : c.mute,
+                  height: 1.3)),
+        ],
       ),
     );
   }

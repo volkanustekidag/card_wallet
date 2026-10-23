@@ -818,10 +818,10 @@
     "cwTagAppleWallet": "Apple Wallet",
     "cwTagGoogleWallet": "Google Wallet",
     "cwTagQr": "Códigos QR de IBAN",
-    "cwFeatLineUnlimited": "Todas tus tarjetas de fidelidad, bancarias e IBAN.",
-    "cwFeatLineBackup": "¿Móvil nuevo? Toda tu cartera viene contigo.",
-    "cwFeatLineMetal": "Dale a tus tarjetas un acabado de metal o titanio.",
-    "cwFeatLineAppleWallet": "Añade tarjetas de fidelidad a Apple Wallet con un toque.",
-    "cwFeatLineGoogleWallet": "Añade tarjetas de fidelidad a Google Wallet con un toque.",
-    "cwFeatLineQr": "Comparte tu IBAN como código QR para que te paguen."
+    "cwFeatLineUnlimited": "Tarjetas e IBAN sin límite.",
+    "cwFeatLineBackup": "¿Móvil nuevo? Todo contigo.",
+    "cwFeatLineMetal": "Acabados de metal y titanio.",
+    "cwFeatLineAppleWallet": "Tarjetas de fidelidad en un toque.",
+    "cwFeatLineGoogleWallet": "Tarjetas de fidelidad en un toque.",
+    "cwFeatLineQr": "Cobra con un escaneo."
 }

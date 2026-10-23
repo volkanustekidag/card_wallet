@@ -818,10 +818,10 @@
     "cwTagAppleWallet": "Apple Wallet",
     "cwTagGoogleWallet": "Google Wallet",
     "cwTagQr": "IBAN-QR-codes",
-    "cwFeatLineUnlimited": "Al je klantenkaarten, bankkaarten en IBAN's.",
-    "cwFeatLineBackup": "Nieuwe telefoon? Je hele portemonnee gaat mee.",
-    "cwFeatLineMetal": "Geef je kaarten een geborsteld metaal- of titaniumlook.",
-    "cwFeatLineAppleWallet": "Klantenkaarten met één tik in Apple Wallet.",
-    "cwFeatLineGoogleWallet": "Klantenkaarten met één tik in Google Wallet.",
-    "cwFeatLineQr": "Deel je IBAN als QR-code om te laten betalen."
+    "cwFeatLineUnlimited": "Geen limiet op kaarten of IBAN's.",
+    "cwFeatLineBackup": "Nieuwe telefoon? Alles gaat mee.",
+    "cwFeatLineMetal": "Geborsteld metaal en titanium.",
+    "cwFeatLineAppleWallet": "Klantenkaarten met één tik.",
+    "cwFeatLineGoogleWallet": "Klantenkaarten met één tik.",
+    "cwFeatLineQr": "Betaald worden met één scan."
 }

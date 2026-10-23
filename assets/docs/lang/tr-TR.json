@@ -818,10 +818,10 @@
     "cwTagAppleWallet": "Apple Wallet",
     "cwTagGoogleWallet": "Google Wallet",
     "cwTagQr": "IBAN QR kodu",
-    "cwFeatLineUnlimited": "Taşıdığın her sadakat kartı, banka kartı ve IBAN.",
-    "cwFeatLineBackup": "Yeni telefon mu? Tüm cüzdanın seninle gelir.",
-    "cwFeatLineMetal": "Kartlarına fırçalanmış metal ya da titanyum görünüm ver.",
-    "cwFeatLineAppleWallet": "Sadakat kartlarını tek dokunuşla Apple Wallet'a ekle.",
-    "cwFeatLineGoogleWallet": "Sadakat kartlarını tek dokunuşla Google Wallet'a ekle.",
-    "cwFeatLineQr": "IBAN'ını herkesin okutup ödeme yapabileceği QR kod olarak paylaş."
+    "cwFeatLineUnlimited": "Kart ve IBAN sınırı yok.",
+    "cwFeatLineBackup": "Yeni telefona her şey gelir.",
+    "cwFeatLineMetal": "Fırçalanmış metal ve titanyum kartlar.",
+    "cwFeatLineAppleWallet": "Sadakat kartları tek dokunuşla.",
+    "cwFeatLineGoogleWallet": "Sadakat kartları tek dokunuşla.",
+    "cwFeatLineQr": "Tek okutmayla ödeme al."
 }

@@ -818,10 +818,10 @@
     "cwTagAppleWallet": "Apple Wallet",
     "cwTagGoogleWallet": "Google Wallet",
     "cwTagQr": "IBAN QR codes",
-    "cwFeatLineUnlimited": "Every loyalty card, bank card and IBAN you carry.",
-    "cwFeatLineBackup": "New phone? Your whole wallet comes with you.",
-    "cwFeatLineMetal": "Give your cards a brushed metal or titanium finish.",
-    "cwFeatLineAppleWallet": "Add loyalty cards to Apple Wallet in one tap.",
-    "cwFeatLineGoogleWallet": "Add loyalty cards to Google Wallet in one tap.",
-    "cwFeatLineQr": "Share an IBAN as a QR code anyone can scan to pay."
+    "cwFeatLineUnlimited": "No limit on cards or IBANs.",
+    "cwFeatLineBackup": "New phone? Bring it all.",
+    "cwFeatLineMetal": "Brushed metal and titanium finishes.",
+    "cwFeatLineAppleWallet": "Loyalty cards in one tap.",
+    "cwFeatLineGoogleWallet": "Loyalty cards in one tap.",
+    "cwFeatLineQr": "Get paid with one scan."
 }
