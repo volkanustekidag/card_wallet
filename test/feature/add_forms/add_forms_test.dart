@@ -115,7 +115,7 @@ void main() {
     });
 
     testWidgets('at the free limit: paywall, nothing saved', (tester) async {
-      premium.loyaltyLimit = 0;
+      premium.creditLimit = 0;
       await open(
         tester,
         const AddCreditCardPage(

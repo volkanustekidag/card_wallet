@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
+import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/core/router/getx_bindings.dart';
 import 'package:wallet_app/feature/add_credit_card/add_credit_card_page.dart';
 import 'package:wallet_app/feature/add_iban_card/add_iban_card_page.dart';
@@ -54,9 +56,31 @@ Future<bool> handleScanHit(BuildContext context, ScanHit hit) async {
   }
 }
 
+/// "1 of 3 free" under a card type on the free plan, so the limit is never
+/// a surprise; null on Premium or when the counts aren't known.
+String? freeSlotsLine(CardLimitType type) {
+  if (!Get.isRegistered<PremiumController>() ||
+      !Get.isRegistered<HomeController>()) {
+    return null;
+  }
+  final premium = Get.find<PremiumController>();
+  if (premium.isPremium) return null;
+  final home = Get.find<HomeController>();
+  final used = switch (type) {
+    CardLimitType.loyalty => home.loyaltyCards.length,
+    CardLimitType.credit => home.creditCards.length,
+    CardLimitType.iban => home.ibanCards.length,
+  };
+  final limit = premium.freeLimitFor(type);
+  return used >= limit
+      ? 'cwFreeFull'.tr()
+      : 'cwFreeCount'.tr(args: ['$used', '$limit']);
+}
+
 /// "Type it in": choose what to add, then the manual form (limit gate in
 /// [goToAddCard]). With [replace] the caller (scanner) closes first.
-Future<void> pickManualEntry(BuildContext context, {bool replace = false}) async {
+Future<void> pickManualEntry(BuildContext context,
+    {bool replace = false}) async {
   final type = await showCwSheet<CardLimitType>(
     context,
     builder: (sheet) {
@@ -78,18 +102,22 @@ Future<void> pickManualEntry(BuildContext context, {bool replace = false}) async
                 CwRow(
                   leading: CwIconTile(CwIcons.barcode, color: c.ok),
                   title: 'cwLoyaltyCard'.tr(),
+                  subtitle: freeSlotsLine(CardLimitType.loyalty),
                   chevron: true,
                   onTap: () => Navigator.pop(sheet, CardLimitType.loyalty),
                 ),
                 CwRow(
                   leading: CwIconTile(CwIcons.card, color: c.ink),
                   title: 'cwBankCard'.tr(),
+                  subtitle: freeSlotsLine(CardLimitType.credit),
                   chevron: true,
                   onTap: () => Navigator.pop(sheet, CardLimitType.credit),
                 ),
                 CwRow(
-                  leading: CwIconTile(CwIcons.bank, color: const Color(0xFF2E6385)),
+                  leading:
+                      CwIconTile(CwIcons.bank, color: const Color(0xFF2E6385)),
                   title: 'cwIbanAccount'.tr(),
+                  subtitle: freeSlotsLine(CardLimitType.iban),
                   chevron: true,
                   onTap: () => Navigator.pop(sheet, CardLimitType.iban),
                 ),

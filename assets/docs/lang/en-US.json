@@ -815,8 +815,8 @@
     "cwPerkQr": "Get paid with a single scan",
     "cwPayTrust": "Encrypted on your phone · No account · No ads",
     "cwPayCtxLoyalty": "You've used all {} free loyalty cards",
-    "cwPayCtxCredit": "You've used both free bank card slots",
-    "cwPayCtxIban": "You've used both free IBAN slots",
+    "cwPayCtxCredit": "You've used your free bank card",
+    "cwPayCtxIban": "You've used your free IBAN",
     "cwPayCtxBackup": "Encrypted backup is part of Premium",
     "cwPayCtxWallet": "Wallet passes are part of Premium",
     "cwPayCtxQr": "Payment QR codes are part of Premium",
@@ -897,5 +897,8 @@
     "cwSrcPhotosSub": "Many at once: screenshots from another app or photos of your cards",
     "cwReadingPhotos": "Reading {} of {}…",
     "cwImportPhotoOnly": "No barcode found, the photo becomes the card",
-    "cwCardN": "Card {}"
+    "cwCardN": "Card {}",
+    "cwFreeCount": "{} of {} free",
+    "cwFreeFull": "Free limit reached · Premium for more",
+    "cwImportOverLimit": "The free plan holds {} loyalty cards. Premium brings the rest."
 }

@@ -6,7 +6,7 @@ Başlangıç noktası Mayıs taslakları (`toronto/app_store_metadata_2026-05-26
 |---|---|---|
 | Konumlandırma (TR) | Banka kartları başta | Kart + IBAN + sadakat kartı tek güvenli cüzdanda; IBAN QR, hatırlatıcılar, PIN + Face ID |
 | Konumlandırma (EN ve AB dilleri) | "Bank cards" başta | Sadakat kartı önce: hesap yok, internet gerekmez, reklam yok, şifreli. Ardından Apple Watch + widget ve Wallet'a ekleme. Kredi kartı ve IBAN ikinci planda |
-| Premium | "Premium sınırsız kart + gelişmiş özellikler" | Ücretsiz sınırlar (5 sadakat / 2 kredi / 2 IBAN) ve Premium'a bağlı özellikler açıkça yazıldı. Yedekleme, Wallet'a ekleme ve IBAN QR kod Premium'a bağlı; Face ID / Touch ID / parmak izi ve IBAN tarama ücretsiz |
+| Premium | "Premium sınırsız kart + gelişmiş özellikler" | Ücretsiz sınırlar (3 sadakat / 1 kredi / 1 IBAN) ve Premium'a bağlı özellikler açıkça yazıldı. Yedekleme, Wallet'a ekleme ve IBAN QR kod Premium'a bağlı; Face ID / Touch ID / parmak izi ve IBAN tarama ücretsiz |
 | Play metinleri | Apple Watch ve Apple Wallet geçiyordu | Android'de olanlar yazıldı: Google Wallet, widget, Hızlı Ayarlar kutucuğu, parmak izi / yüz tanıma |
 | App Store dilleri | TR, EN, FR, DE, IT, PT-PT, ES | 9 dil. **nl-NL, pl-PL ve pt-BR App Store Connect'te yeni dil olarak eklenmeli** (bkz. release_checklist) |
 | Veri cümlesi | "Kart verileri cihazdan çıkmaz" | "Wallet'a eklerken yalnızca o sadakat kartının adı, numarası ve notu imzalama servisine gider." Kod tam olarak bunu gönderiyor (`wallet_pass_export_service.dart` `_payload`) |
@@ -164,7 +164,7 @@ CREDIT CARDS AND IBANS TOO
 • Available in 9 languages
 
 PREMIUM
-The free version includes 5 loyalty cards, 2 credit cards and 2 IBANs. Premium adds:
+The free version includes 3 loyalty cards, 1 credit card and 1 IBAN. Premium adds:
 • Unlimited cards
 • Add loyalty cards to Apple Wallet
 • Encrypted backup and restore, for example when you move to a new phone
@@ -228,7 +228,7 @@ Credit cards and IBANs too
 • Available in 9 languages
 
 Premium
-The free version includes 5 loyalty cards, 2 credit cards and 2 IBANs. Premium adds:
+The free version includes 3 loyalty cards, 1 credit card and 1 IBAN. Premium adds:
 • Unlimited cards
 • Save loyalty cards to Google Wallet
 • Encrypted backup and restore, for example when you move to a new phone
@@ -310,7 +310,7 @@ SADAKAT KARTLARI
 • Kartı görsel olarak paylaş
 
 PREMIUM
-Ücretsiz sürümde 2 kredi kartı, 2 IBAN ve 5 sadakat kartı saklayabilirsin. Premium ile:
+Ücretsiz sürümde 1 kredi kartı, 1 IBAN ve 3 sadakat kartı saklayabilirsin. Premium ile:
 • Sınırsız kart
 • Şifreli yedekleme ve geri yükleme (yeni telefona geçerken de)
 • Sadakat kartlarını Apple Cüzdan'a ekleme
@@ -378,7 +378,7 @@ Sadakat kartları
 • Kartı görsel olarak paylaş
 
 Premium
-Ücretsiz sürümde 2 kredi kartı, 2 IBAN ve 5 sadakat kartı saklayabilirsin. Premium ile:
+Ücretsiz sürümde 1 kredi kartı, 1 IBAN ve 3 sadakat kartı saklayabilirsin. Premium ile:
 • Sınırsız kart
 • Şifreli yedekleme ve geri yükleme (yeni telefona geçerken de)
 • Sadakat kartlarını Google Cüzdan'a ekleme
@@ -456,7 +456,7 @@ AUCH FÜR KREDITKARTEN UND IBANS
 • In 9 Sprachen verfügbar
 
 PREMIUM
-Die kostenlose Version umfasst 5 Kundenkarten, 2 Kreditkarten und 2 IBANs. Mit Premium bekommst du:
+Die kostenlose Version umfasst 3 Kundenkarten, 1 Kreditkarte und 1 IBAN. Mit Premium bekommst du:
 • Unbegrenzt viele Karten
 • Kundenkarten zu Apple Wallet hinzufügen
 • Verschlüsselte Sicherung und Wiederherstellung, zum Beispiel beim Umzug auf ein neues Telefon
@@ -520,7 +520,7 @@ Auch für Kreditkarten und IBANs
 • In 9 Sprachen verfügbar
 
 Premium
-Die kostenlose Version umfasst 5 Kundenkarten, 2 Kreditkarten und 2 IBANs. Mit Premium bekommst du:
+Die kostenlose Version umfasst 3 Kundenkarten, 1 Kreditkarte und 1 IBAN. Mit Premium bekommst du:
 • Unbegrenzt viele Karten
 • Kundenkarten in Google Wallet speichern
 • Verschlüsselte Sicherung und Wiederherstellung, zum Beispiel beim Umzug auf ein neues Telefon
@@ -598,7 +598,7 @@ AUSSI POUR LES CARTES BANCAIRES ET LES IBAN
 • Disponible en 9 langues
 
 PREMIUM
-La version gratuite comprend 5 cartes de fidélité, 2 cartes bancaires et 2 IBAN. Premium ajoute :
+La version gratuite comprend 3 cartes de fidélité, 1 carte bancaire et 1 IBAN. Premium ajoute :
 • Cartes illimitées
 • Ajout des cartes de fidélité à Apple Wallet
 • Sauvegarde et restauration chiffrées, par exemple pour passer à un nouveau téléphone
@@ -662,7 +662,7 @@ Aussi pour les cartes bancaires et les IBAN
 • Disponible en 9 langues
 
 Premium
-La version gratuite comprend 5 cartes de fidélité, 2 cartes bancaires et 2 IBAN. Premium ajoute :
+La version gratuite comprend 3 cartes de fidélité, 1 carte bancaire et 1 IBAN. Premium ajoute :
 • Cartes illimitées
 • Enregistrement des cartes de fidélité dans Google Wallet
 • Sauvegarde et restauration chiffrées, par exemple pour passer à un nouveau téléphone
@@ -740,7 +740,7 @@ TAMBIÉN TARJETAS BANCARIAS E IBAN
 • Disponible en 9 idiomas
 
 PREMIUM
-La versión gratuita incluye 5 tarjetas de fidelidad, 2 tarjetas de crédito y 2 IBAN. Premium añade:
+La versión gratuita incluye 3 tarjetas de fidelidad, 1 tarjeta de crédito y 1 IBAN. Premium añade:
 • Tarjetas ilimitadas
 • Añadir tarjetas de fidelidad a Apple Wallet
 • Copia de seguridad cifrada y restauración, por ejemplo al cambiar de teléfono
@@ -804,7 +804,7 @@ También tarjetas bancarias e IBAN
 • Disponible en 9 idiomas
 
 Premium
-La versión gratuita incluye 5 tarjetas de fidelidad, 2 tarjetas de crédito y 2 IBAN. Premium añade:
+La versión gratuita incluye 3 tarjetas de fidelidad, 1 tarjeta de crédito y 1 IBAN. Premium añade:
 • Tarjetas ilimitadas
 • Guardar tarjetas de fidelidad en Google Wallet
 • Copia de seguridad cifrada y restauración, por ejemplo al cambiar de teléfono
@@ -882,7 +882,7 @@ TAMBÉM CARTÕES DE CRÉDITO E IBAN
 • Disponível em 9 idiomas
 
 PREMIUM
-A versão gratuita inclui 5 cartões fidelidade, 2 cartões de crédito e 2 IBANs. O Premium adiciona:
+A versão gratuita inclui 3 cartões fidelidade, 1 cartão de crédito e 1 IBAN. O Premium adiciona:
 • Cartões ilimitados
 • Adicionar cartões fidelidade à Apple Wallet
 • Backup criptografado e restauração, por exemplo ao trocar de celular
@@ -946,7 +946,7 @@ Também cartões de crédito e IBAN
 • Disponível em 9 idiomas
 
 Premium
-A versão gratuita inclui 5 cartões fidelidade, 2 cartões de crédito e 2 IBANs. O Premium adiciona:
+A versão gratuita inclui 3 cartões fidelidade, 1 cartão de crédito e 1 IBAN. O Premium adiciona:
 • Cartões ilimitados
 • Salvar cartões fidelidade na Google Wallet
 • Backup criptografado e restauração, por exemplo ao trocar de celular
@@ -1024,7 +1024,7 @@ ANCHE CARTE DI CREDITO E IBAN
 • Disponibile in 9 lingue
 
 PREMIUM
-La versione gratuita include 5 carte fedeltà, 2 carte di credito e 2 IBAN. Premium aggiunge:
+La versione gratuita include 3 carte fedeltà, 1 carta di credito e 1 IBAN. Premium aggiunge:
 • Carte illimitate
 • Aggiunta delle carte fedeltà ad Apple Wallet
 • Backup cifrato e ripristino, per esempio quando cambi telefono
@@ -1088,7 +1088,7 @@ Anche carte di credito e IBAN
 • Disponibile in 9 lingue
 
 Premium
-La versione gratuita include 5 carte fedeltà, 2 carte di credito e 2 IBAN. Premium aggiunge:
+La versione gratuita include 3 carte fedeltà, 1 carta di credito e 1 IBAN. Premium aggiunge:
 • Carte illimitate
 • Salvataggio delle carte fedeltà in Google Wallet
 • Backup cifrato e ripristino, per esempio quando cambi telefono
@@ -1166,7 +1166,7 @@ OOK VOOR CREDITCARDS EN IBAN'S
 • Beschikbaar in 9 talen
 
 PREMIUM
-De gratis versie bevat 5 klantenkaarten, 2 creditcards en 2 IBAN's. Premium voegt toe:
+De gratis versie bevat 3 klantenkaarten, 1 creditcard en 1 IBAN. Premium voegt toe:
 • Onbeperkt kaarten
 • Klantenkaarten toevoegen aan Apple Wallet
 • Versleutelde back-up en herstel, bijvoorbeeld als je overstapt naar een nieuwe telefoon
@@ -1230,7 +1230,7 @@ Ook voor creditcards en IBAN's
 • Beschikbaar in 9 talen
 
 Premium
-De gratis versie bevat 5 klantenkaarten, 2 creditcards en 2 IBAN's. Premium voegt toe:
+De gratis versie bevat 3 klantenkaarten, 1 creditcard en 1 IBAN. Premium voegt toe:
 • Onbeperkt kaarten
 • Klantenkaarten opslaan in Google Wallet
 • Versleutelde back-up en herstel, bijvoorbeeld als je overstapt naar een nieuwe telefoon
@@ -1308,7 +1308,7 @@ TAKŻE KARTY PŁATNICZE I IBAN
 • Dostępna w 9 językach
 
 PREMIUM
-Wersja bezpłatna obejmuje 5 kart lojalnościowych, 2 karty kredytowe i 2 numery IBAN. Premium dodaje:
+Wersja bezpłatna obejmuje 3 karty lojalnościowe, 1 kartę kredytową i 1 numer IBAN. Premium dodaje:
 • Nieograniczoną liczbę kart
 • Dodawanie kart lojalnościowych do Apple Wallet
 • Szyfrowaną kopię zapasową i przywracanie, np. przy zmianie telefonu
@@ -1372,7 +1372,7 @@ Także karty płatnicze i IBAN
 • Dostępna w 9 językach
 
 Premium
-Wersja bezpłatna obejmuje 5 kart lojalnościowych, 2 karty kredytowe i 2 numery IBAN. Premium dodaje:
+Wersja bezpłatna obejmuje 3 karty lojalnościowe, 1 kartę kredytową i 1 numer IBAN. Premium dodaje:
 • Nieograniczoną liczbę kart
 • Zapisywanie kart lojalnościowych w Google Wallet
 • Szyfrowaną kopię zapasową i przywracanie, np. przy zmianie telefonu

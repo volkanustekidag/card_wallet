@@ -815,8 +815,8 @@
     "cwPerkQr": "Soyez payé en un seul scan",
     "cwPayTrust": "Chiffré sur votre téléphone · Sans compte · Sans pub",
     "cwPayCtxLoyalty": "Vous avez utilisé vos {} cartes de fidélité gratuites",
-    "cwPayCtxCredit": "Vous avez utilisé vos deux cartes bancaires gratuites",
-    "cwPayCtxIban": "Vous avez utilisé vos deux IBAN gratuits",
+    "cwPayCtxCredit": "Vous utilisez déjà votre carte bancaire gratuite",
+    "cwPayCtxIban": "Vous utilisez déjà votre IBAN gratuit",
     "cwPayCtxBackup": "La sauvegarde chiffrée fait partie de Premium",
     "cwPayCtxWallet": "Les cartes Wallet font partie de Premium",
     "cwPayCtxQr": "Les QR codes de paiement font partie de Premium",
@@ -897,5 +897,8 @@
     "cwSrcPhotosSub": "Plusieurs à la fois : captures d'une autre app ou photos de vos cartes",
     "cwReadingPhotos": "Lecture {} sur {}…",
     "cwImportPhotoOnly": "Aucun code-barres, la photo devient la carte",
-    "cwCardN": "Carte {}"
+    "cwCardN": "Carte {}",
+    "cwFreeCount": "{} sur {} gratuits",
+    "cwFreeFull": "Limite gratuite atteinte · plus avec Premium",
+    "cwImportOverLimit": "L'offre gratuite inclut {} cartes de fidélité. Premium importe le reste."
 }

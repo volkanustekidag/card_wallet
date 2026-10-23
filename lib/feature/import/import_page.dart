@@ -18,6 +18,7 @@ import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/feature/home/controller/home_controller.dart';
 import 'package:wallet_app/core/data/storage/card_photo_store.dart';
+import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/feature/import/importers.dart';
 import 'package:wallet_app/feature/import/photo_import.dart';
 import 'package:wallet_app/ui/components/cw_button.dart';
@@ -84,6 +85,18 @@ class _ImportPageState extends State<ImportPage> {
             duration: CwMotion.base, curve: CwMotion.standard);
       }
     });
+  }
+
+  /// The chosen cards won't all fit the free plan: say so before the
+  /// paywall does.
+  bool _overFreeLimit() {
+    if (!Get.isRegistered<PremiumController>()) return false;
+    final premium = Get.find<PremiumController>();
+    if (premium.isPremium) return false;
+    final have = Get.isRegistered<HomeController>()
+        ? Get.find<HomeController>().loyaltyCards.length
+        : 0;
+    return !premium.canAddMoreLoyaltyCards(have + _on.length - 1);
   }
 
   Future<void> _rename(int i) async {
@@ -408,6 +421,17 @@ class _ImportPageState extends State<ImportPage> {
                   ),
                 ),
               ),
+              if (r != null && _overFreeLimit())
+                Padding(
+                  key: const ValueKey('importOverLimit'),
+                  padding: const EdgeInsets.fromLTRB(22, 8, 22, 0),
+                  child: Text(
+                    'cwImportOverLimit'
+                        .tr(args: ['${PremiumService.maxLoyaltyCardsForFree}']),
+                    textAlign: TextAlign.center,
+                    style: CwType.footnote.copyWith(color: c.mute),
+                  ),
+                ),
               if (r != null)
                 Padding(
                   padding: const EdgeInsets.fromLTRB(18, 6, 18, 12),

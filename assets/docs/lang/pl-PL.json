@@ -829,8 +829,8 @@
     "cwPerkQr": "Odbierz płatność jednym skanem",
     "cwPayTrust": "Szyfrowane na telefonie · Bez konta · Bez reklam",
     "cwPayCtxLoyalty": "Wykorzystano wszystkie {} darmowe karty lojalnościowe",
-    "cwPayCtxCredit": "Wykorzystano oba darmowe miejsca na karty bankowe",
-    "cwPayCtxIban": "Wykorzystano oba darmowe miejsca na IBAN",
+    "cwPayCtxCredit": "Wykorzystano darmową kartę bankową",
+    "cwPayCtxIban": "Wykorzystano darmowy IBAN",
     "cwPayCtxBackup": "Szyfrowana kopia jest częścią Premium",
     "cwPayCtxWallet": "Karty Wallet są częścią Premium",
     "cwPayCtxQr": "Kody QR płatności są częścią Premium",
@@ -911,5 +911,8 @@
     "cwSrcPhotosSub": "Wiele naraz: zrzuty z innej aplikacji lub zdjęcia kart",
     "cwReadingPhotos": "Odczyt {} z {}…",
     "cwImportPhotoOnly": "Brak kodu, zdjęcie stanie się kartą",
-    "cwCardN": "Karta {}"
+    "cwCardN": "Karta {}",
+    "cwFreeCount": "{} z {} za darmo",
+    "cwFreeFull": "Limit darmowy wyczerpany · więcej w Premium",
+    "cwImportOverLimit": "Darmowy plan obejmuje {} karty lojalnościowe. Premium przeniesie resztę."
 }

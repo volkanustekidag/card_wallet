@@ -8,6 +8,7 @@ import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
+import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/premium_entitlement_cache.dart';
 
@@ -253,17 +254,27 @@ class PremiumService {
     }
   }
 
-  static const int maxCardsForFree = 2;
-  static const int maxLoyaltyCardsForFree = 5;
+  /// Free plan: enough to see the wallet work (stack, Up Next) with
+  /// loyalty cards, one of each of the things other wallets don't do.
+  /// Cards already saved never lock; only adding past the limit asks.
+  static const int maxLoyaltyCardsForFree = 3;
+  static const int maxCreditCardsForFree = 1;
+  static const int maxIbanCardsForFree = 1;
+
+  static int freeLimitFor(CardLimitType type) => switch (type) {
+        CardLimitType.loyalty => maxLoyaltyCardsForFree,
+        CardLimitType.credit => maxCreditCardsForFree,
+        CardLimitType.iban => maxIbanCardsForFree,
+      };
 
   static bool canAddMoreCreditCards(int currentCount) {
     if (isPremium) return true;
-    return currentCount < maxCardsForFree;
+    return currentCount < maxCreditCardsForFree;
   }
 
   static bool canAddMoreIbanCards(int currentCount) {
     if (isPremium) return true;
-    return currentCount < maxCardsForFree;
+    return currentCount < maxIbanCardsForFree;
   }
 
   static bool canAddMoreLoyaltyCards(int currentCount) {
@@ -379,8 +390,9 @@ class PremiumService {
           // has bought before). Outside the programmatic restore window any
           // event — purchased or restored — is the result of an active buy
           // attempt, so the paywall is waiting for a result either way.
-          final isActiveBuyResult = details.status == PurchaseStatus.purchased ||
-              !_isInsideRefreshWindow();
+          final isActiveBuyResult =
+              details.status == PurchaseStatus.purchased ||
+                  !_isInsideRefreshWindow();
           if (!_hasUsableVerificationData(details)) {
             debugPrint('[Premium] rejecting ${details.productID}: '
                 'empty receipt verification data');

@@ -815,8 +815,8 @@
     "cwPerkQr": "Tek okutmayla ödeme al",
     "cwPayTrust": "Telefonunda şifreli · Hesap yok · Reklam yok",
     "cwPayCtxLoyalty": "{} ücretsiz sadakat kartının hepsini kullandın",
-    "cwPayCtxCredit": "2 ücretsiz banka kartı hakkını da kullandın",
-    "cwPayCtxIban": "2 ücretsiz IBAN hakkını da kullandın",
+    "cwPayCtxCredit": "Ücretsiz banka kartı hakkını kullandın",
+    "cwPayCtxIban": "Ücretsiz IBAN hakkını kullandın",
     "cwPayCtxBackup": "Şifreli yedek Premium'a dahil",
     "cwPayCtxWallet": "Wallet kartları Premium'a dahil",
     "cwPayCtxQr": "Ödeme QR kodları Premium'a dahil",
@@ -897,5 +897,8 @@
     "cwSrcPhotosSub": "Tek seferde çok sayıda: başka uygulamanın ekran görüntüleri ya da kart fotoğrafları",
     "cwReadingPhotos": "{} / {} okunuyor…",
     "cwImportPhotoOnly": "Barkod bulunamadı, fotoğraf kart olarak eklenecek",
-    "cwCardN": "Kart {}"
+    "cwCardN": "Kart {}",
+    "cwFreeCount": "{} / {} ücretsiz",
+    "cwFreeFull": "Ücretsiz sınır doldu · Fazlası Premium'da",
+    "cwImportOverLimit": "Ücretsiz planda {} sadakat kartı var. Kalanlar Premium ile gelir."
 }

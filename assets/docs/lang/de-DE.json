@@ -815,8 +815,8 @@
     "cwPerkQr": "Mit einem Scan bezahlt werden",
     "cwPayTrust": "Verschlüsselt auf deinem Handy · Kein Konto · Keine Werbung",
     "cwPayCtxLoyalty": "Du hast alle {} kostenlosen Kundenkarten genutzt",
-    "cwPayCtxCredit": "Du hast beide kostenlosen Bankkarten-Plätze genutzt",
-    "cwPayCtxIban": "Du hast beide kostenlosen IBAN-Plätze genutzt",
+    "cwPayCtxCredit": "Du nutzt deine kostenlose Bankkarte schon",
+    "cwPayCtxIban": "Du nutzt deine kostenlose IBAN schon",
     "cwPayCtxBackup": "Verschlüsseltes Backup ist Teil von Premium",
     "cwPayCtxWallet": "Wallet-Karten sind Teil von Premium",
     "cwPayCtxQr": "Zahlungs-QR-Codes sind Teil von Premium",
@@ -897,5 +897,8 @@
     "cwSrcPhotosSub": "Viele auf einmal: Screenshots aus einer anderen App oder Fotos deiner Karten",
     "cwReadingPhotos": "Lese {} von {} …",
     "cwImportPhotoOnly": "Kein Barcode gefunden, das Foto wird zur Karte",
-    "cwCardN": "Karte {}"
+    "cwCardN": "Karte {}",
+    "cwFreeCount": "{} von {} kostenlos",
+    "cwFreeFull": "Gratis-Limit erreicht · mehr mit Premium",
+    "cwImportOverLimit": "Der Gratis-Plan umfasst {} Kundenkarten. Mit Premium kommen alle mit."
 }

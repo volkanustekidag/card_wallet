@@ -12,6 +12,7 @@ import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wallet_app/core/constants/app_locales.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
+import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
@@ -189,11 +190,16 @@ class FakePremium extends PremiumController {
   bool get premium => _premium.value;
   set premium(bool v) => _premium.value = v;
   int loyaltyLimit;
+  int creditLimit;
+  int ibanLimit;
   int storedLoyalty;
 
+  /// Defaults are the real free plan (PremiumService).
   FakePremium({
     bool premium = false,
-    this.loyaltyLimit = 5,
+    this.loyaltyLimit = PremiumService.maxLoyaltyCardsForFree,
+    this.creditLimit = PremiumService.maxCreditCardsForFree,
+    this.ibanLimit = PremiumService.maxIbanCardsForFree,
     this.storedLoyalty = 0,
   }) : _premium = premium.obs;
 
@@ -210,11 +216,11 @@ class FakePremium extends PremiumController {
 
   @override
   bool canAddMoreCreditCards(int currentCount) =>
-      premium || currentCount < loyaltyLimit;
+      premium || currentCount < creditLimit;
 
   @override
   bool canAddMoreIbanCards(int currentCount) =>
-      premium || currentCount < loyaltyLimit;
+      premium || currentCount < ibanLimit;
 
   @override
   Future<int> getStoredCardCount(CardLimitType type) async => storedLoyalty;

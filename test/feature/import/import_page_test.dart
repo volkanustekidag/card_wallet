@@ -17,6 +17,7 @@ import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/feature/import/import_page.dart';
 import 'package:wallet_app/ui/components/cw_button.dart';
+import 'package:wallet_app/ui/components/cw_list.dart';
 
 import '../../helpers/harness.dart';
 
@@ -187,6 +188,25 @@ void main() {
       expect(find.text('cwImportPhotoOnly'.tr()), findsOneWidget);
       // Both preselected: the photo stands in for the barcode.
       expect(find.text('cwImportN'.plural(2)), findsOneWidget);
+    });
+
+    testWidgets('more than the free plan holds: said up front', (tester) async {
+      premium.loyaltyLimit = 3;
+      PhotoImport.debugRead = (files) async => [
+            for (var i = 0; i < 4; i++)
+              ImportedCard(
+                  name: 'Card $i',
+                  barcode: '400638133393$i',
+                  format: 'CODE_128'),
+          ];
+      await openPage(tester);
+      await tester.ensureVisible(find.byKey(const ValueKey('importPhotos')));
+      await tapIo(tester, find.byKey(const ValueKey('importPhotos')));
+      expect(find.byKey(const ValueKey('importOverLimit')), findsOneWidget);
+      // Down to three: it fits, the note goes.
+      await tester.tap(find.byType(CwSwitch).last);
+      await tester.pump();
+      expect(find.byKey(const ValueKey('importOverLimit')), findsNothing);
     });
 
     testWidgets('names can be fixed before importing', (tester) async {

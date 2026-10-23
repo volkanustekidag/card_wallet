@@ -815,8 +815,8 @@
     "cwPerkQr": "Betaald worden met één scan",
     "cwPayTrust": "Versleuteld op je telefoon · Geen account · Geen advertenties",
     "cwPayCtxLoyalty": "Je hebt alle {} gratis klantenkaarten gebruikt",
-    "cwPayCtxCredit": "Je hebt beide gratis bankkaartplekken gebruikt",
-    "cwPayCtxIban": "Je hebt beide gratis IBAN-plekken gebruikt",
+    "cwPayCtxCredit": "Je gebruikt je gratis bankpas al",
+    "cwPayCtxIban": "Je gebruikt je gratis IBAN al",
     "cwPayCtxBackup": "Versleutelde back-up hoort bij Premium",
     "cwPayCtxWallet": "Wallet-passen horen bij Premium",
     "cwPayCtxQr": "Betaal-QR-codes horen bij Premium",
@@ -897,5 +897,8 @@
     "cwSrcPhotosSub": "Veel tegelijk: screenshots uit een andere app of foto's van je kaarten",
     "cwReadingPhotos": "{} van {} lezen…",
     "cwImportPhotoOnly": "Geen barcode gevonden, de foto wordt de kaart",
-    "cwCardN": "Kaart {}"
+    "cwCardN": "Kaart {}",
+    "cwFreeCount": "{} van {} gratis",
+    "cwFreeFull": "Gratis limiet bereikt · meer met Premium",
+    "cwImportOverLimit": "Het gratis plan heeft {} klantenkaarten. Premium neemt de rest mee."
 }

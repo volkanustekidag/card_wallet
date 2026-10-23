@@ -145,8 +145,8 @@ class PremiumController extends GetxController {
     return PremiumService.canAddMoreLoyaltyCards(currentCount);
   }
 
-  int get maxCardsForFree => PremiumService.maxCardsForFree;
   int get maxLoyaltyCardsForFree => PremiumService.maxLoyaltyCardsForFree;
+  int freeLimitFor(CardLimitType type) => PremiumService.freeLimitFor(type);
 
   Future<int> getStoredCardCount(CardLimitType type) async {
     switch (type) {
