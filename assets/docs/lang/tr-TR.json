@@ -902,5 +902,8 @@
     "cwFreeFull": "Ücretsiz sınır doldu · Fazlası Premium'da",
     "cwImportOverLimit": "Ücretsiz planda {} sadakat kartı var. Kalanlar Premium ile gelir.",
     "cwViewHintTitle": "Cüzdanını iki şekilde gör",
-    "cwViewHintBody": "Kart destesi ile ızgara arasında buradan geçiş yap."
+    "cwViewHintBody": "Kart destesi ile ızgara arasında buradan geçiş yap.",
+    "cwOneTime": "tek sefer",
+    "cwLifetimeTerms": "Tek seferlik {}. Abonelik yok, yenilenmez.",
+    "cwLifetimeCancelSub": "Ömür boyu artık senin. Eski aboneliğin yenilenmesin diye buradan iptal et."
 }

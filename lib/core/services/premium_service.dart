@@ -29,8 +29,12 @@ enum PremiumRestoreResult { restored, notFound, failed }
 /// cleared.
 ///
 /// Flags:
-///   * [_hasLifetime] — grandfathered v1 lifetime non-consumable
-///     (`_legacyLifetimeProductId`). No new sales; honoured on restore.
+///   * [_hasLifetime] — the lifetime non-consumable ([lifetimeProductId]),
+///     or the grandfathered v1 one (`_legacyLifetimeProductId`, no new
+///     sales; honoured on restore).
+///
+/// On sale: monthly, yearly and lifetime. Weekly is no longer offered but
+/// stays recognised so existing weekly subscribers keep premium.
 ///   * [_hasActiveSubscription] — set from purchase stream events, cleared
 ///     if a refresh window closes with no active receipt.
 class PremiumService {
@@ -46,6 +50,8 @@ class PremiumService {
   static const String _iosYearlyId = 'com.volkan.walletapp.yearly_premium';
   static const String _androidYearlyId = 'com.volkan.walletapp.yearly';
 
+  static const String _lifetimeId = 'com.volkan.walletapp.lifetime_premium';
+
   static const String _legacyLifetimeProductId = 'premium';
 
   static String get weeklyProductId =>
@@ -53,6 +59,7 @@ class PremiumService {
   static String get monthlyProductId => _monthlyId;
   static String get yearlyProductId =>
       Platform.isIOS ? _iosYearlyId : _androidYearlyId;
+  static String get lifetimeProductId => _lifetimeId;
   static String get legacyLifetimeProductId => _legacyLifetimeProductId;
 
   static Set<String> get _subscriptionProductIds => {
@@ -62,13 +69,14 @@ class PremiumService {
       };
 
   static Set<String> get _lifetimeProductIds => {
+        _lifetimeId,
         _legacyLifetimeProductId,
       };
 
   static Set<String> get _productIdsToOffer => {
-        weeklyProductId,
         monthlyProductId,
         yearlyProductId,
+        _lifetimeId,
       };
 
   static Set<String> get _allRecognisedProductIds => {

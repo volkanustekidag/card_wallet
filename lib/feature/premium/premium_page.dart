@@ -104,17 +104,16 @@ class _PremiumPageState extends State<PremiumPage> {
           final isPremium = _premiumController.isPremium;
           final currentPlanId = _premiumController.currentPlanId;
           final showPicker = !isPremium || _changingPlan;
-          final weekly = _premiumController.weeklyProduct;
           final monthly = _premiumController.monthlyProduct;
           final yearly = _premiumController.yearlyProduct;
+          final lifetime = _premiumController.lifetimeProduct;
 
-          // Weekly → monthly → yearly. Yearly sits on the right as the
-          // BEST VALUE anchor (still the default selection). When changing
-          // plan, the current one is left out so it can't be bought twice.
+          // Yearly (the default), monthly, lifetime. When changing plan,
+          // the current one is left out so it can't be bought twice.
           final orderedPlans = <ProductDetails>[
-            if (weekly != null) weekly,
-            if (monthly != null) monthly,
             if (yearly != null) yearly,
+            if (monthly != null) monthly,
+            if (lifetime != null) lifetime,
           ].where((p) => !isPremium || p.id != currentPlanId).toList();
           final selected = _selectedProduct != null &&
                   orderedPlans.any((p) => p.id == _selectedProduct!.id)
@@ -162,9 +161,11 @@ class _PremiumPageState extends State<PremiumPage> {
                               onManage: PremiumService.hasActiveSubscription
                                   ? _openManageSubscription
                                   : null,
-                              onChangePlan: PremiumService.hasActiveSubscription
-                                  ? _startPlanChange
-                                  : null,
+                              onChangePlan:
+                                  PremiumService.hasActiveSubscription &&
+                                          !PremiumService.hasLifetime
+                                      ? _startPlanChange
+                                      : null,
                             )
                           : Column(
                               children: [
@@ -173,7 +174,7 @@ class _PremiumPageState extends State<PremiumPage> {
                                 else
                                   _PlanList(
                                     plans: orderedPlans,
-                                    weeklyId: weekly?.id,
+                                    lifetimeId: lifetime?.id,
                                     monthly: monthly,
                                     yearlyId: yearly?.id,
                                     selected: selected,
@@ -193,7 +194,7 @@ class _PremiumPageState extends State<PremiumPage> {
                     ),
                     _Legal(
                       renews: showPicker && selected != null
-                          ? _renewsLine(selected, weekly?.id, yearly?.id)
+                          ? _termsLine(selected, yearly?.id, lifetime?.id)
                           : null,
                     ),
                   ],
@@ -239,12 +240,13 @@ class _PremiumPageState extends State<PremiumPage> {
     return null;
   }
 
-  /// "€29.99 per year, renews automatically. Cancel anytime."
-  String _renewsLine(ProductDetails p, String? weeklyId, String? yearlyId) {
-    final key = p.id == yearlyId
-        ? 'cwRenewsYear'
-        : p.id == weeklyId
-            ? 'cwRenewsWeek'
+  /// "€14.99 per year, renews automatically. Cancel anytime." /
+  /// "€29.99 once. No subscription, nothing renews."
+  String _termsLine(ProductDetails p, String? yearlyId, String? lifetimeId) {
+    final key = p.id == lifetimeId
+        ? 'cwLifetimeTerms'
+        : p.id == yearlyId
+            ? 'cwRenewsYear'
             : 'cwRenewsMonth';
     return key.tr(args: [p.price]);
   }
@@ -309,6 +311,10 @@ class _PremiumPageState extends State<PremiumPage> {
     switch (result) {
       case PremiumPurchaseResult.success:
         _purchased = true;
+        // Lifetime bought on top of a subscription: the store keeps
+        // renewing that until the user cancels it there.
+        final cancelOld = product.id == PremiumService.lifetimeProductId &&
+            PremiumService.hasActiveSubscription;
         unawaited(
           AnalyticsService.instance.logPurchaseSuccess(
             productId: product.id,
@@ -317,7 +323,13 @@ class _PremiumPageState extends State<PremiumPage> {
           ),
         );
         HapticFeedback.mediumImpact();
-        (Get.context ?? context).showSuccessSnackBar('premiumActivated');
+        if (cancelOld) {
+          await _openManageSubscription();
+          if (!mounted) return;
+          (Get.context ?? context).showInfoSnackBar('cwLifetimeCancelSub');
+        } else {
+          (Get.context ?? context).showSuccessSnackBar('premiumActivated');
+        }
         // Let the snackbar animate in before tearing the page down so the
         // user gets visible confirmation that the purchase landed.
         await Future.delayed(const Duration(milliseconds: 900));
@@ -352,7 +364,7 @@ class _PremiumPageState extends State<PremiumPage> {
     if (_premiumController.isPremium) return;
     final candidate = _premiumController.yearlyProduct ??
         _premiumController.monthlyProduct ??
-        _premiumController.weeklyProduct;
+        _premiumController.lifetimeProduct;
     if (candidate != null && mounted) {
       unawaited(
         AnalyticsService.instance.logPaywallPlanSelected(
@@ -694,10 +706,10 @@ class _Trust extends StatelessWidget {
 }
 
 /// The store's plans as rows: yearly first (with its monthly equivalent
-/// and the saving against monthly), then monthly, then weekly.
+/// and the saving against monthly), then monthly, then lifetime.
 class _PlanList extends StatelessWidget {
   final List<ProductDetails> plans;
-  final String? weeklyId;
+  final String? lifetimeId;
   final ProductDetails? monthly;
   final String? yearlyId;
   final ProductDetails? selected;
@@ -705,7 +717,7 @@ class _PlanList extends StatelessWidget {
 
   const _PlanList({
     required this.plans,
-    required this.weeklyId,
+    required this.lifetimeId,
     required this.monthly,
     required this.yearlyId,
     required this.selected,
@@ -714,13 +726,13 @@ class _PlanList extends StatelessWidget {
 
   String _title(ProductDetails p) {
     if (p.id == yearlyId) return 'yearlyPlanTitle'.tr();
-    if (p.id == weeklyId) return 'weeklyPlanTitle'.tr();
+    if (p.id == lifetimeId) return 'lifetimePlanTitle'.tr();
     return 'monthlyPlanTitle'.tr();
   }
 
   String _period(ProductDetails p) {
     if (p.id == yearlyId) return 'perYear'.tr();
-    if (p.id == weeklyId) return 'perWeek'.tr();
+    if (p.id == lifetimeId) return 'cwOneTime'.tr();
     return 'perMonth'.tr();
   }
 
@@ -748,7 +760,7 @@ class _PlanList extends StatelessWidget {
     final c = CwColors.of(context);
     final locale = context.locale;
     int rank(ProductDetails p) =>
-        p.id == yearlyId ? 0 : (p.id == weeklyId ? 2 : 1);
+        p.id == yearlyId ? 0 : (p.id == lifetimeId ? 2 : 1);
     final ordered = [...plans]..sort((a, b) => rank(a).compareTo(rank(b)));
     return Column(
       children: [

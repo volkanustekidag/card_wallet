@@ -26,9 +26,9 @@ void main() {
     await h.setUp();
     final premium = FakePremium();
     premium.availableProductsRx.assignAll([
-      _product(PremiumService.weeklyProductId, 1.99),
-      _product(PremiumService.monthlyProductId, 4.99),
-      _product(PremiumService.yearlyProductId, 29.99),
+      _product(PremiumService.monthlyProductId, 3.99),
+      _product(PremiumService.yearlyProductId, 14.99),
+      _product(PremiumService.lifetimeProductId, 29.99),
     ]);
     Get.put<PremiumController>(premium);
   });
@@ -49,14 +49,17 @@ void main() {
         final buy = find.byType(FilledButton);
         expect(buy, findsOneWidget);
         expect(tester.getRect(buy).bottom, lessThanOrEqualTo(size.height));
-        expect(find.text('€29.99'), findsOneWidget);
+        // All three plans, the last one (lifetime) above the button.
+        for (final price in ['€14.99', '€3.99', '€29.99']) {
+          expect(find.text(price), findsOneWidget);
+        }
         expect(tester.getRect(find.text('€29.99')).bottom,
             lessThan(tester.getRect(buy).top));
         expect(find.text('cwTerms'.tr()), findsOneWidget);
         expect(tester.getRect(find.text('cwTerms'.tr())).bottom,
             lessThanOrEqualTo(size.height));
         // The renewal terms of the selected plan sit under the button.
-        expect(find.text('cwRenewsYear'.tr(args: ['€29.99'])), findsOneWidget);
+        expect(find.text('cwRenewsYear'.tr(args: ['€14.99'])), findsOneWidget);
       });
     }
   }
@@ -65,12 +68,14 @@ void main() {
     await phoneSurface(tester);
     await pumpApp(tester, const PremiumPage());
     await tester.pump(const Duration(milliseconds: 800));
-    await tester.tap(find.text('€4.99'));
+    await tester.tap(find.text('€3.99'));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('cwRenewsMonth'.tr(args: ['€4.99'])), findsOneWidget);
-    await tester.tap(find.text('€1.99'));
+    expect(find.text('cwRenewsMonth'.tr(args: ['€3.99'])), findsOneWidget);
+    await tester.tap(find.text('€29.99'));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.text('cwRenewsWeek'.tr(args: ['€1.99'])), findsOneWidget);
+    expect(find.text('cwLifetimeTerms'.tr(args: ['€29.99'])), findsOneWidget);
+    expect(find.text('cwOneTime'.tr()), findsOneWidget);
+    expect(find.text('weeklyPlanTitle'.tr()), findsNothing);
   });
 
   testWidgets('yearly shows its monthly price and the real saving',
@@ -78,9 +83,9 @@ void main() {
     await phoneSurface(tester);
     await pumpApp(tester, const PremiumPage());
     await tester.pump(const Duration(milliseconds: 800));
-    // 29.99 vs 12 x 4.99 = 59.88 -> 50 %.
-    expect(find.text('cwSaveBadge'.tr(args: ['50'])), findsOneWidget);
-    expect(find.textContaining('2.50'), findsOneWidget);
+    // 14.99 vs 12 x 3.99 = 47.88 -> 69 %.
+    expect(find.text('cwSaveBadge'.tr(args: ['69'])), findsOneWidget);
+    expect(find.textContaining('1.25'), findsOneWidget);
   });
 
   testWidgets('opened at the loyalty limit: says so instead of the tagline',
@@ -104,14 +109,14 @@ void main() {
     await tester.pump(const Duration(milliseconds: 800));
     final button = find.byType(FilledButton).last;
     final before = tester.getRect(button);
-    final plansBefore = tester.getRect(find.text('€1.99'));
+    final plansBefore = tester.getRect(find.text('€29.99'));
     final headline = find.text('cwPayTitle2'.tr());
     final headlineBefore = tester.getRect(headline);
-    for (final price in ['€4.99', '€1.99', '€29.99']) {
+    for (final price in ['€3.99', '€29.99', '€14.99']) {
       await tester.tap(find.text(price));
       await tester.pump(const Duration(milliseconds: 800));
       expect(tester.getRect(button), before);
-      expect(tester.getRect(find.text('€1.99')), plansBefore);
+      expect(tester.getRect(find.text('€29.99')), plansBefore);
       expect(tester.getRect(headline), headlineBefore);
     }
   });

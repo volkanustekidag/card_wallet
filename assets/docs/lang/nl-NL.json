@@ -902,5 +902,8 @@
     "cwFreeFull": "Gratis limiet bereikt · meer met Premium",
     "cwImportOverLimit": "Het gratis plan heeft {} klantenkaarten. Premium neemt de rest mee.",
     "cwViewHintTitle": "Twee manieren om je portemonnee te zien",
-    "cwViewHintBody": "Wissel hier tussen de kaartenstapel en een raster."
+    "cwViewHintBody": "Wissel hier tussen de kaartenstapel en een raster.",
+    "cwOneTime": "eenmalig",
+    "cwLifetimeTerms": "Eenmalig {}. Geen abonnement, niets wordt verlengd.",
+    "cwLifetimeCancelSub": "Levenslang is van jou. Zeg hier je oude abonnement op zodat het niet verlengt."
 }

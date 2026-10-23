@@ -902,5 +902,8 @@
     "cwFreeFull": "Límite gratuito alcanzado · más con Premium",
     "cwImportOverLimit": "El plan gratuito incluye {} tarjetas de fidelidad. Premium trae el resto.",
     "cwViewHintTitle": "Dos formas de ver tu cartera",
-    "cwViewHintBody": "Cambia aquí entre la pila de tarjetas y la cuadrícula."
+    "cwViewHintBody": "Cambia aquí entre la pila de tarjetas y la cuadrícula.",
+    "cwOneTime": "pago único",
+    "cwLifetimeTerms": "{} una sola vez. Sin suscripción, nada se renueva.",
+    "cwLifetimeCancelSub": "De por vida es tuyo. Cancela aquí tu suscripción anterior para que no se renueve."
 }

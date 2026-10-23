@@ -15,6 +15,14 @@ class FakeInAppPurchase implements InAppPurchase {
   List<PurchaseDetails> restoreResult = [];
   final bought = <PurchaseParam>[];
   final completed = <PurchaseDetails>[];
+  Set<String>? queried;
+
+  @override
+  Future<ProductDetailsResponse> queryProductDetails(
+      Set<String> identifiers) async {
+    queried = identifiers;
+    return ProductDetailsResponse(productDetails: [], notFoundIDs: []);
+  }
 
   @override
   Stream<List<PurchaseDetails>> get purchaseStream => controller.stream;
@@ -332,6 +340,59 @@ void main() {
       await PremiumService.purchaseProduct(
         _product(PremiumService.yearlyProductId),
       );
+      expect(iap.bought.single, isNot(isA<GooglePlayPurchaseParam>()));
+    });
+  });
+
+  group('lifetime', () {
+    test('the paywall offers monthly, yearly and lifetime, not weekly',
+        () async {
+      await PremiumService.initialize();
+      await PremiumService.getPremiumProductDetails();
+      expect(iap.queried, {
+        PremiumService.monthlyProductId,
+        PremiumService.yearlyProductId,
+        PremiumService.lifetimeProductId,
+      });
+    });
+
+    test('buying lifetime unlocks premium for good', () async {
+      await PremiumService.initialize();
+      iap.controller.add([
+        _purchase(PremiumService.lifetimeProductId, PurchaseStatus.purchased),
+      ]);
+      await _settle();
+
+      expect(PremiumService.hasLifetime, isTrue);
+      expect(PremiumService.isPremium, isTrue);
+      expect(PremiumService.hasActiveSubscription, isFalse);
+      expect(cache.value?.productId, PremiumService.lifetimeProductId);
+    });
+
+    test('restore brings lifetime back', () async {
+      await PremiumService.initialize();
+      iap.restoreResult = [
+        _purchase(PremiumService.lifetimeProductId, PurchaseStatus.restored),
+      ];
+
+      expect(await PremiumService.restorePurchases(),
+          PremiumRestoreResult.restored);
+      expect(PremiumService.hasLifetime, isTrue);
+    });
+
+    test('lifetime on top of a subscription is a plain buy, not a switch',
+        () async {
+      configure(isAndroid: true);
+      await PremiumService.initialize();
+      iap.controller.add([
+        _purchase(PremiumService.monthlyProductId, PurchaseStatus.purchased),
+      ]);
+      await _settle();
+
+      final ok = await PremiumService.purchaseProduct(
+        _product(PremiumService.lifetimeProductId),
+      );
+      expect(ok, isTrue);
       expect(iap.bought.single, isNot(isA<GooglePlayPurchaseParam>()));
     });
   });

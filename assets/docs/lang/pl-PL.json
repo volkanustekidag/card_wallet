@@ -916,5 +916,8 @@
     "cwFreeFull": "Limit darmowy wyczerpany · więcej w Premium",
     "cwImportOverLimit": "Darmowy plan obejmuje {} karty lojalnościowe. Premium przeniesie resztę.",
     "cwViewHintTitle": "Dwa widoki portfela",
-    "cwViewHintBody": "Tutaj przełączysz między stosem kart a siatką."
+    "cwViewHintBody": "Tutaj przełączysz między stosem kart a siatką.",
+    "cwOneTime": "jednorazowo",
+    "cwLifetimeTerms": "Jednorazowo {}. Bez subskrypcji, nic się nie odnawia.",
+    "cwLifetimeCancelSub": "Dożywotni dostęp jest Twój. Anuluj tu starą subskrypcję, żeby się nie odnowiła."
 }

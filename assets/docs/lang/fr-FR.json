@@ -902,5 +902,8 @@
     "cwFreeFull": "Limite gratuite atteinte · plus avec Premium",
     "cwImportOverLimit": "L'offre gratuite inclut {} cartes de fidélité. Premium importe le reste.",
     "cwViewHintTitle": "Deux façons de voir votre portefeuille",
-    "cwViewHintBody": "Passez ici de la pile de cartes à la grille."
+    "cwViewHintBody": "Passez ici de la pile de cartes à la grille.",
+    "cwOneTime": "une fois",
+    "cwLifetimeTerms": "{} une seule fois. Pas d’abonnement, rien ne se renouvelle.",
+    "cwLifetimeCancelSub": "L’accès à vie est à vous. Résiliez ici votre ancien abonnement pour qu’il ne se renouvelle pas."
 }

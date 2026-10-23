@@ -902,5 +902,8 @@
     "cwFreeFull": "Gratis-Limit erreicht · mehr mit Premium",
     "cwImportOverLimit": "Der Gratis-Plan umfasst {} Kundenkarten. Mit Premium kommen alle mit.",
     "cwViewHintTitle": "Zwei Ansichten für deine Wallet",
-    "cwViewHintBody": "Wechsle hier zwischen Kartenstapel und Raster."
+    "cwViewHintBody": "Wechsle hier zwischen Kartenstapel und Raster.",
+    "cwOneTime": "einmalig",
+    "cwLifetimeTerms": "Einmalig {}. Kein Abo, nichts verlängert sich.",
+    "cwLifetimeCancelSub": "Lifetime gehört dir. Kündige hier dein altes Abo, damit es sich nicht verlängert."
 }

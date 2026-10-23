@@ -902,5 +902,8 @@
     "cwFreeFull": "Free limit reached · Premium for more",
     "cwImportOverLimit": "The free plan holds {} loyalty cards. Premium brings the rest.",
     "cwViewHintTitle": "Two ways to see your wallet",
-    "cwViewHintBody": "Switch between the card stack and a grid here."
+    "cwViewHintBody": "Switch between the card stack and a grid here.",
+    "cwOneTime": "one-time",
+    "cwLifetimeTerms": "{} once. No subscription, nothing renews.",
+    "cwLifetimeCancelSub": "Lifetime is yours. Cancel your old subscription here so it doesn't renew."
 }
