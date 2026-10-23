@@ -33,12 +33,16 @@ class CwLargeTitleBar extends StatelessWidget {
   final List<Widget> actions;
   final bool inline;
 
+  /// Size of the title at rest; defaults to [CwType.display]'s.
+  final double? titleSize;
+
   const CwLargeTitleBar({
     super.key,
     required this.title,
     this.leading,
     this.actions = const [],
     this.inline = false,
+    this.titleSize,
   });
 
   @override
@@ -50,6 +54,7 @@ class CwLargeTitleBar extends StatelessWidget {
         leading: leading,
         actions: actions,
         inline: inline,
+        titleSize: titleSize ?? CwType.display.fontSize!,
         top: MediaQuery.paddingOf(context).top,
         colors: CwColors.of(context),
         textScaler: MediaQuery.textScalerOf(context)
@@ -65,6 +70,7 @@ class _LargeTitleDelegate extends SliverPersistentHeaderDelegate {
   final Widget? leading;
   final List<Widget> actions;
   final bool inline;
+  final double titleSize;
   final double top;
   final CwColors colors;
   final TextScaler textScaler;
@@ -75,6 +81,7 @@ class _LargeTitleDelegate extends SliverPersistentHeaderDelegate {
     required this.leading,
     required this.actions,
     required this.inline,
+    required this.titleSize,
     required this.top,
     required this.colors,
     required this.textScaler,
@@ -107,7 +114,8 @@ class _LargeTitleDelegate extends SliverPersistentHeaderDelegate {
       final under =
           ((shrinkOffset - (maxExtent - minExtent)) / 14).clamp(0.0, 1.0);
 
-      final style = CwType.display.copyWith(color: colors.ink);
+      final style =
+          CwType.display.copyWith(color: colors.ink, fontSize: titleSize);
       final actionsWidth =
           actions.isEmpty ? 0.0 : actions.length * 48.0 - 10 + 18;
       final maxTitle = inline ? width - 22 - actionsWidth - 8 : width - 44;
@@ -122,7 +130,7 @@ class _LargeTitleDelegate extends SliverPersistentHeaderDelegate {
       final titleHeight = painter.height;
       painter.dispose();
 
-      final small = _smallSize / CwType.display.fontSize!;
+      final small = _smallSize / titleSize;
       final grow = 1 + math.min(stretch / 500, 0.1);
       final scale = lerpDouble(1, small, t)! * grow;
       final restX = 22.0;
@@ -204,6 +212,7 @@ class _LargeTitleDelegate extends SliverPersistentHeaderDelegate {
       old.leading != leading ||
       old.actions != actions ||
       old.inline != inline ||
+      old.titleSize != titleSize ||
       old.top != top ||
       old.colors != colors ||
       old.textScaler != textScaler ||

@@ -100,6 +100,7 @@ class _WalletHomeState extends State<WalletHome> {
               slivers: [
                 CwLargeTitleBar(
                   title: 'cwWalletTitle'.tr(),
+                  titleSize: 28,
                   inline: true,
                   actions: [
                     CwCircleButton(
