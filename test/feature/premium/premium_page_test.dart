@@ -44,7 +44,7 @@ void main() {
         await tester.binding.setSurfaceSize(size);
         addTearDown(() => tester.binding.setSurfaceSize(null));
         await pumpApp(tester, const PremiumPage(), locale: locale);
-        await tester.pumpAndSettle();
+        await tester.pump(const Duration(milliseconds: 800));
         expect(tester.takeException(), isNull);
 
         final buy = find.byType(CwButton).evaluate().isNotEmpty
@@ -65,9 +65,9 @@ void main() {
   testWidgets('subscription details open in a sheet', (tester) async {
     await phoneSurface(tester);
     await pumpApp(tester, const PremiumPage());
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 800));
     await tester.tap(find.text('cwSubscriptionDetails'.tr()));
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 800));
     expect(find.text('premiumLegalDisclosureAndroid'.tr()), findsOneWidget);
   });
 }
