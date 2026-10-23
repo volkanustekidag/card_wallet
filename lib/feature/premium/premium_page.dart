@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -16,20 +14,14 @@ import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/utils/locale_format.dart';
-import 'package:wallet_app/feature/home/controller/home_controller.dart';
-import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
-import 'package:wallet_app/ui/card/card_face.dart';
-import 'package:wallet_app/ui/card/card_material.dart';
-import 'package:wallet_app/ui/card/wallet_card_faces.dart';
-import 'package:wallet_app/ui/components/cw_misc.dart';
 import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/tokens.dart';
 import 'package:wallet_app/ui/typography.dart';
 
-/// Paywall v2: the user's own cards fanned out on a stage in the app's theme, one line
-/// on why it opened (trigger), what Premium adds, the store's three plans
-/// (yearly default + best-value badge + per-month equivalent) and one CTA.
-/// Pricing, plans and gating are unchanged — this is presentation only.
+/// Paywall: a titanium Premium card next to the name, one line on why it
+/// opened, what Premium adds (five plain rows), a trust line, the store's
+/// plans (yearly first, per-month and saving shown), one button and the
+/// renewal terms under it. Pricing, plans and gating are unchanged.
 class PremiumPage extends StatefulWidget {
   const PremiumPage({Key? key}) : super(key: key);
 
@@ -49,6 +41,9 @@ class _PremiumPageState extends State<PremiumPage> {
   // For paywall_dismissed: how the user got here and whether they bought.
   String? _trigger;
   String? _featureArg;
+
+  /// `loyalty` / `credit` / `iban` when the free card limit opened this.
+  String? _cardType;
   bool _purchased = false;
 
   @override
@@ -72,6 +67,7 @@ class _PremiumPageState extends State<PremiumPage> {
     }
     _trigger = triggerArg ?? (featureArg == null ? 'direct' : 'feature_gate');
     _featureArg = featureArg;
+    _cardType = cardTypeArg;
     unawaited(
       AnalyticsService.instance.logPaywallViewed(
         trigger: _trigger,
@@ -124,11 +120,9 @@ class _PremiumPageState extends State<PremiumPage> {
                   orderedPlans.any((p) => p.id == _selectedProduct!.id)
               ? _selectedProduct
               : null;
-          final bestValueId = _bestValueProductId(weekly, monthly, yearly);
 
           return Stack(
             children: [
-              const Positioned.fill(child: _Backdrop()),
               SafeArea(
                 child: Column(
                   children: [
@@ -136,22 +130,32 @@ class _PremiumPageState extends State<PremiumPage> {
                       onClose: () => Get.back(),
                       onRestore: _handleRestore,
                     ),
-                    // Cards on top, the headline, then the features sliding.
+                    // The pitch. Short of room (small phone, big text) the
+                    // perks drop their second line; it scrolls only if even
+                    // that doesn't fit.
                     Expanded(
-                      child: _Hero(
-                        highlight: _featureArg,
-                        headline: Text(
-                          'cwPayHeadline'.tr(),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          style: CwType.display.copyWith(
-                              color: c.ink, fontSize: 28, height: 1.1),
-                        ),
+                      child: LayoutBuilder(
+                        builder: (context, box) {
+                          final short = box.maxHeight < 440;
+                          return SingleChildScrollView(
+                            padding: const EdgeInsets.fromLTRB(28, 6, 28, 12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _Header(context: _contextLine()),
+                                SizedBox(height: short ? 10 : 14),
+                                _Perks(compact: short),
+                                const SizedBox(height: 8),
+                                const _Trust(),
+                              ],
+                            ),
+                          );
+                        },
                       ),
                     ),
                     // Always on screen: plans, the button, the terms.
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                       child: !showPicker
                           ? _PremiumActiveCard(
                               planLabel: _planLabel(currentPlanId),
@@ -167,11 +171,11 @@ class _PremiumPageState extends State<PremiumPage> {
                                 if (orderedPlans.isEmpty)
                                   const _ProductsUnavailable()
                                 else
-                                  _PlanRow(
+                                  _PlanList(
                                     plans: orderedPlans,
                                     weeklyId: weekly?.id,
+                                    monthly: monthly,
                                     yearlyId: yearly?.id,
-                                    bestValueId: bestValueId,
                                     selected: selected,
                                     onSelected: _onPlanSelected,
                                   ),
@@ -179,7 +183,7 @@ class _PremiumPageState extends State<PremiumPage> {
                                 _ContinueButton(
                                   label: isPremium
                                       ? 'switchPlanCta'.tr()
-                                      : _ctaLabel(selected),
+                                      : 'cwContinue'.tr(),
                                   onPressed: selected == null
                                       ? null
                                       : () => _handlePurchase(selected),
@@ -187,7 +191,11 @@ class _PremiumPageState extends State<PremiumPage> {
                               ],
                             ),
                     ),
-                    const _Legal(),
+                    _Legal(
+                      renews: showPicker && selected != null
+                          ? _renewsLine(selected, weekly?.id, yearly?.id)
+                          : null,
+                    ),
                   ],
                 ),
               ),
@@ -207,14 +215,38 @@ class _PremiumPageState extends State<PremiumPage> {
     );
   }
 
-  String _ctaLabel(ProductDetails? p) {
-    if (p == null) return 'getPremium'.tr();
-    if (p.id == PremiumService.yearlyProductId) return 'premiumCtaYearly'.tr();
-    if (p.id == PremiumService.monthlyProductId) {
-      return 'premiumCtaMonthly'.tr();
+  /// Why the paywall opened, in one line (null when opened directly).
+  _ContextLine? _contextLine() {
+    switch (_featureArg) {
+      case 'unlimitedCards':
+        return switch (_cardType) {
+          'credit' => _ContextLine('cwPayCtxCredit'.tr(), limit: true),
+          'iban' => _ContextLine('cwPayCtxIban'.tr(), limit: true),
+          _ => _ContextLine(
+              'cwPayCtxLoyalty'
+                  .tr(args: ['${PremiumService.maxLoyaltyCardsForFree}']),
+              limit: true),
+        };
+      case 'backupRestore':
+        return _ContextLine('cwPayCtxBackup'.tr());
+      case 'walletExport':
+        return _ContextLine('cwPayCtxWallet'.tr());
+      case 'qrCreate':
+        return _ContextLine('cwPayCtxQr'.tr());
+      case 'premiumColors':
+        return _ContextLine('cwPayCtxMetal'.tr());
     }
-    if (p.id == PremiumService.weeklyProductId) return 'premiumCtaWeekly'.tr();
-    return 'getPremium'.tr();
+    return null;
+  }
+
+  /// "€29.99 per year, renews automatically. Cancel anytime."
+  String _renewsLine(ProductDetails p, String? weeklyId, String? yearlyId) {
+    final key = p.id == yearlyId
+        ? 'cwRenewsYear'
+        : p.id == weeklyId
+            ? 'cwRenewsWeek'
+            : 'cwRenewsMonth';
+    return key.tr(args: [p.price]);
   }
 
   Future<void> _handleRestore() async {
@@ -345,70 +377,11 @@ class _PremiumPageState extends State<PremiumPage> {
     );
     setState(() => _selectedProduct = product);
   }
-
-  /// The cheapest plan on a per-month basis. Weekly is normalised by
-  /// ×52/12 ≈ 4.33 so all three plans share the same yardstick.
-  String? _bestValueProductId(
-    ProductDetails? weekly,
-    ProductDetails? monthly,
-    ProductDetails? yearly,
-  ) {
-    final candidates = <String, double>{};
-    if (yearly != null && yearly.rawPrice > 0) {
-      candidates[yearly.id] = yearly.rawPrice / 12;
-    }
-    if (monthly != null && monthly.rawPrice > 0) {
-      candidates[monthly.id] = monthly.rawPrice;
-    }
-    if (weekly != null && weekly.rawPrice > 0) {
-      candidates[weekly.id] = weekly.rawPrice * (52 / 12);
-    }
-    if (candidates.isEmpty) return null;
-    final sorted = candidates.entries.toList()
-      ..sort((a, b) => a.value.compareTo(b.value));
-    return sorted.first.key;
-  }
 }
 
 // ---------------------------------------------------------------------------
 // Presentation
 // ---------------------------------------------------------------------------
-
-class _Backdrop extends StatelessWidget {
-  const _Backdrop();
-
-  @override
-  Widget build(BuildContext context) {
-    final c = CwColors.of(context);
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: RadialGradient(
-          center: const Alignment(-0.6, -0.95),
-          radius: 1.2,
-          colors: [
-            Color.alphaBlend(
-                c.accent.withValues(alpha: dark ? 0.25 : 0.10), c.bg),
-            c.bg,
-          ],
-          stops: const [0, 0.7],
-        ),
-      ),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: const Alignment(0.9, -0.6),
-            radius: 0.9,
-            colors: [
-              c.ok.withValues(alpha: dark ? 0.25 : 0.10),
-              c.ok.withValues(alpha: 0),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class _TopBar extends StatelessWidget {
   final VoidCallback onClose;
@@ -439,272 +412,300 @@ class _TopBar extends StatelessWidget {
   }
 }
 
-/// Up to three of the user's own cards, fanned; materials when the wallet
-/// is empty. Seeing *their* cards is the point of the page.
-/// Up to three of the user's own cards, fanned; materials when the wallet
-/// is empty. Seeing *their* cards is the point of the page.
-class _CardFan extends StatelessWidget {
-  /// Height available for the fan; it shrinks (or hides) to fit.
-  final double maxHeight;
-  const _CardFan({required this.maxHeight});
+class _ContextLine {
+  final String text;
 
-  @override
-  Widget build(BuildContext context) {
-    final items = Get.isRegistered<HomeController>()
-        ? Get.find<HomeController>().walletItems.take(3).toList()
-        : <WalletItem>[];
-    final w = math.min(
-      math.min(MediaQuery.sizeOf(context).width * 0.5, 210.0),
-      (maxHeight - 44) * kCardAspect,
-    );
-    if (w < 120) return const SizedBox.shrink();
-    Widget face(int i) {
-      if (i < items.length) return WalletCardFace(item: items[i], width: w);
-      const ids = [10, 11, 14];
-      return CardFace(
-        material: CardMaterial.of(ids[i]),
-        width: w,
-        height: w / kCardAspect,
-      );
-    }
-
-    return SizedBox(
-      height: w / kCardAspect + 44,
-      child: Stack(
-        alignment: Alignment.center,
-        clipBehavior: Clip.none,
-        children: [
-          Transform.translate(
-            offset: Offset(-w * 0.32, 14),
-            child: Transform.rotate(angle: -0.16, child: face(1)),
-          ),
-          Transform.translate(
-            offset: Offset(w * 0.32, 14),
-            child: Transform.rotate(angle: 0.16, child: face(2)),
-          ),
-          face(0),
-        ],
-      ),
-    );
-  }
+  /// The free card limit (warning colour) rather than a feature gate.
+  final bool limit;
+  const _ContextLine(this.text, {this.limit = false});
 }
 
-/// Cards on top; the headline with the feature row under it. Spare
-/// height is shared evenly between them (never one big gap), and on small
-/// phones the cards shrink first.
-class _Hero extends StatelessWidget {
-  final Widget headline;
-  final String? highlight;
-  const _Hero({required this.headline, required this.highlight});
-
-  static const _rowHeight = 150.0;
+/// Name on the left, the titanium Premium card on the right; under them
+/// either the tagline or why the paywall opened.
+class _Header extends StatelessWidget {
+  final _ContextLine? context;
+  const _Header({required this.context});
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(builder: (context, box) {
-        // headline ≈ 40 + gap 14 + row + breathing room 32
-        final fanMax = box.maxHeight - 40 - 14 - _rowHeight - 32;
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  Widget build(BuildContext ctx) {
+    final c = CwColors.of(ctx);
+    final line = context;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            _CardFan(maxHeight: math.min(fanMax, 220)),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: headline,
-                ),
-                const SizedBox(height: 14),
-                SizedBox(
-                  height: _rowHeight,
-                  child: _FeatureRow(highlight: highlight),
-                ),
-              ],
+            Expanded(
+              child: Text(
+                'cwPayTitle2'.tr(),
+                style: CwType.display.copyWith(
+                    color: c.ink,
+                    fontSize: 30,
+                    height: 1.05,
+                    letterSpacing: -0.8),
+              ),
             ),
+            const SizedBox(width: 12),
+            const _TitaniumCard(),
           ],
-        );
-      });
-}
-
-/// What Premium adds: a row of feature tiles drifting sideways on its own
-/// (swipeable, pauses while touched, still with reduced motion). The
-/// feature that opened the paywall comes first, lit.
-class _FeatureRow extends StatefulWidget {
-  final String? highlight;
-  const _FeatureRow({required this.highlight});
-
-  @override
-  State<_FeatureRow> createState() => _FeatureRowState();
-}
-
-class _FeatureRowState extends State<_FeatureRow>
-    with SingleTickerProviderStateMixin {
-  static const _speed = 22.0; // logical px per second
-  final _scroll = ScrollController();
-  late final Ticker _ticker = createTicker(_tick);
-  Duration _last = Duration.zero;
-  bool _held = false;
-  Timer? _resume;
-
-  /// (feature arg that lights it, icon, title key, line key)
-  static List<(String, CwIcons, String, String)> _features(bool apple) => [
-        (
-          'unlimitedCards',
-          CwIcons.infinity,
-          'cwTagUnlimited',
-          'cwFeatLineUnlimited'
         ),
-        ('backupRestore', CwIcons.cloudUp, 'cwTagBackup', 'cwFeatLineBackup'),
-        ('premiumColors', CwIcons.sparkle, 'cwTagMetal', 'cwFeatLineMetal'),
-        (
-          'walletExport',
-          CwIcons.walletPass,
-          apple ? 'cwTagAppleWallet' : 'cwTagGoogleWallet',
-          apple ? 'cwFeatLineAppleWallet' : 'cwFeatLineGoogleWallet'
-        ),
-        ('qrCreate', CwIcons.qr, 'cwTagQr', 'cwFeatLineQr'),
-      ];
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final still = MediaQuery.disableAnimationsOf(context);
-    if (still && _ticker.isActive) _ticker.stop();
-    if (!still && !_ticker.isActive) _ticker.start();
-  }
-
-  void _tick(Duration now) {
-    final dt = (now - _last).inMicroseconds / 1e6;
-    _last = now;
-    if (_held || !_scroll.hasClients || dt <= 0 || dt > 0.1) return;
-    _scroll.jumpTo(_scroll.offset + _speed * dt);
-  }
-
-  void _hold() {
-    _resume?.cancel();
-    _held = true;
-  }
-
-  void _release() {
-    _resume?.cancel();
-    _resume = Timer(const Duration(seconds: 2), () => _held = false);
-  }
-
-  @override
-  void dispose() {
-    _resume?.cancel();
-    _ticker.dispose();
-    _scroll.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final apple = defaultTargetPlatform == TargetPlatform.iOS ||
-        defaultTargetPlatform == TargetPlatform.macOS;
-    final all = _features(apple);
-    final features = [
-      ...all.where((f) => f.$1 == widget.highlight),
-      ...all.where((f) => f.$1 != widget.highlight),
-    ];
-    return Listener(
-      onPointerDown: (_) => _hold(),
-      onPointerUp: (_) => _release(),
-      onPointerCancel: (_) => _release(),
-      child: ListView.builder(
-        controller: _scroll,
-        scrollDirection: Axis.horizontal,
-        clipBehavior: Clip.none,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        // Endless: the row repeats as it drifts.
-        itemBuilder: (_, i) {
-          final f = features[i % features.length];
-          return Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: _FeatureTile(
-              icon: f.$2,
-              title: f.$3.tr(),
-              line: f.$4.tr(),
-              lit: f.$1 == widget.highlight,
-            ),
-          );
-        },
-      ),
+        const SizedBox(height: 8),
+        if (line == null)
+          Text('cwPaySub'.tr(),
+              style: CwType.callout.copyWith(color: c.mute, height: 1.4))
+        else
+          _ContextPill(line: line),
+      ],
     );
   }
 }
 
-class _FeatureTile extends StatelessWidget {
-  final CwIcons icon;
-  final String title;
-  final String line;
-  final bool lit;
-  const _FeatureTile({
-    required this.icon,
-    required this.title,
-    required this.line,
-    required this.lit,
-  });
+class _ContextPill extends StatelessWidget {
+  final _ContextLine line;
+  const _ContextPill({required this.line});
 
   @override
   Widget build(BuildContext context) {
     final c = CwColors.of(context);
-    final fg = lit ? Colors.white : c.ink;
+    final fg = line.limit ? c.warn : c.accent;
     return Container(
-      width: 168,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.fromLTRB(10, 6, 12, 6),
       decoration: BoxDecoration(
-        color: lit ? c.accent : c.surface,
-        borderRadius: BorderRadius.circular(CwRadius.l),
-        border:
-            Border.all(color: lit ? c.accent : c.ink.withValues(alpha: 0.06)),
-        boxShadow: CwElevation.e1(context),
+        color: line.limit ? c.warnSoft : c.accentSoft,
+        borderRadius: BorderRadius.circular(999),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: lit ? Colors.white.withValues(alpha: 0.2) : c.accentSoft,
-              borderRadius: BorderRadius.circular(13),
-            ),
-            alignment: Alignment.center,
-            child: CwIcon(icon, size: 22, color: lit ? Colors.white : c.accent),
+          CwIcon(line.limit ? CwIcons.lock : CwIcons.sparkle,
+              size: 14, color: fg),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(line.text,
+                style: CwType.footnote
+                    .copyWith(color: fg, fontWeight: FontWeight.w600)),
           ),
-          const Spacer(),
-          Text(title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: CwType.callout
-                  .copyWith(color: fg, fontWeight: FontWeight.w700)),
-          const SizedBox(height: 2),
-          Text(line,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: CwType.caption.copyWith(
-                  color: lit ? Colors.white.withValues(alpha: 0.85) : c.mute,
-                  height: 1.3)),
         ],
       ),
     );
   }
 }
 
-class _PlanRow extends StatelessWidget {
+/// A small brushed-titanium Premium card: the product, shown as one.
+class _TitaniumCard extends StatelessWidget {
+  const _TitaniumCard();
+
+  @override
+  Widget build(BuildContext context) => Transform.rotate(
+        angle: -0.1,
+        child: Container(
+          width: 112,
+          height: 71,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: const LinearGradient(
+              begin: Alignment(-1, -0.6),
+              end: Alignment(1, 0.6),
+              colors: [
+                Color(0xFF5C6067),
+                Color(0xFFC9CCD1),
+                Color(0xFF8A8E95),
+                Color(0xFFECEEF1),
+                Color(0xFF8F939A),
+                Color(0xFFC4C7CC),
+                Color(0xFF62666D),
+              ],
+              stops: [0, 0.24, 0.4, 0.54, 0.68, 0.84, 1],
+            ),
+            boxShadow: const [
+              BoxShadow(
+                  color: Color(0x2E000000),
+                  blurRadius: 24,
+                  offset: Offset(0, 10)),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Brushed grain.
+              Positioned.fill(
+                child: CustomPaint(painter: _BrushedPainter()),
+              ),
+              // Light sweep.
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: const Alignment(-1, -1),
+                      end: const Alignment(1, 1),
+                      colors: [
+                        Colors.white.withValues(alpha: 0),
+                        Colors.white.withValues(alpha: 0.45),
+                        Colors.white.withValues(alpha: 0),
+                      ],
+                      stops: const [0.38, 0.5, 0.62],
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 11,
+                top: 15,
+                child: Container(
+                  width: 18,
+                  height: 13,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(3),
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFFEFE0A8),
+                        Color(0xFFB8994D),
+                        Color(0xFFDCC684),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 9,
+                top: 9,
+                child: Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border:
+                        Border.all(color: const Color(0x8C1E2024), width: 1.5),
+                  ),
+                ),
+              ),
+              const Positioned(
+                left: 11,
+                bottom: 9,
+                child: Text(
+                  'PREMIUM',
+                  style: TextStyle(
+                    fontSize: 7.5,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.6,
+                    color: Color(0xBF1E2024),
+                    shadows: [
+                      Shadow(color: Color(0x99FFFFFF), offset: Offset(0, .5)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+}
+
+class _BrushedPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = Paint()
+      ..color = const Color(0x08FFFFFF)
+      ..strokeWidth = 0.6;
+    for (var x = 0.0; x < size.width; x += 2) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), p);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_BrushedPainter old) => false;
+}
+
+/// What Premium adds: one plain line icon, a title and a short line each.
+class _Perks extends StatelessWidget {
+  /// Titles only (short screens).
+  final bool compact;
+  const _Perks({required this.compact});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    final apple = defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.macOS;
+    final perks = [
+      (CwIcons.infinity, 'cwTagUnlimited', 'cwPerkUnlimited'),
+      (CwIcons.cloudUp, 'cwTagBackup', 'cwPerkBackup'),
+      (CwIcons.sparkle, 'cwTagMetal', 'cwPerkMetal'),
+      (
+        CwIcons.walletPass,
+        apple ? 'cwTagAppleWallet' : 'cwTagGoogleWallet',
+        'cwPerkWallet'
+      ),
+      (CwIcons.qr, 'cwTagQr', 'cwPerkQr'),
+    ];
+    return Column(
+      children: [
+        for (final p in perks)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: compact ? 5 : 7),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 1),
+                  child: CwIcon(p.$1, size: 22, color: c.ink),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(p.$2.tr(),
+                          style: CwType.callout.copyWith(
+                              color: c.ink, fontWeight: FontWeight.w600)),
+                      if (!compact)
+                        Text(p.$3.tr(),
+                            style: CwType.footnote.copyWith(color: c.mute)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _Trust extends StatelessWidget {
+  const _Trust();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    return Row(
+      children: [
+        CwIcon(CwIcons.shield, size: 14, color: c.mute),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text('cwPayTrust'.tr(),
+              style: CwType.caption.copyWith(color: c.mute)),
+        ),
+      ],
+    );
+  }
+}
+
+/// The store's plans as rows: yearly first (with its monthly equivalent
+/// and the saving against monthly), then monthly, then weekly.
+class _PlanList extends StatelessWidget {
   final List<ProductDetails> plans;
   final String? weeklyId;
+  final ProductDetails? monthly;
   final String? yearlyId;
-  final String? bestValueId;
   final ProductDetails? selected;
   final ValueChanged<ProductDetails> onSelected;
 
-  const _PlanRow({
+  const _PlanList({
     required this.plans,
     required this.weeklyId,
+    required this.monthly,
     required this.yearlyId,
-    required this.bestValueId,
     required this.selected,
     required this.onSelected,
   });
@@ -721,122 +722,122 @@ class _PlanRow extends StatelessWidget {
     return 'perMonth'.tr();
   }
 
-  /// Per-month equivalent for yearly / weekly so plans compare fairly.
+  /// "€2.50 / month" under yearly.
   String? _perMonth(ProductDetails p, Locale locale) {
-    double? amount;
-    if (p.id == yearlyId) amount = p.rawPrice / 12;
-    if (p.id == weeklyId) amount = p.rawPrice * 4.345;
-    if (amount == null || amount <= 0) return null;
+    if (p.id != yearlyId || p.rawPrice <= 0) return null;
     final symbol = RegExp(r'[^\d\s.,]+').firstMatch(p.price.trim())?.group(0) ??
         p.currencyCode;
     final value =
         LocaleFormat.currency(locale, symbol: symbol, decimalDigits: 2)
-            .format(amount);
+            .format(p.rawPrice / 12);
     return '$value ${'perMonth'.tr()}';
+  }
+
+  /// Yearly vs twelve months of monthly, from the store's own prices.
+  int? _saving(ProductDetails p) {
+    final m = monthly;
+    if (p.id != yearlyId || m == null || m.rawPrice <= 0) return null;
+    final pct = ((1 - p.rawPrice / (m.rawPrice * 12)) * 100).round();
+    return pct >= 5 ? pct : null;
   }
 
   @override
   Widget build(BuildContext context) {
     final c = CwColors.of(context);
     final locale = context.locale;
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < plans.length; i++) ...[
-            if (i > 0) const SizedBox(width: 8),
-            Expanded(
-              child: Builder(builder: (context) {
-                final p = plans[i];
-                final on = p.id == selected?.id;
-                final perMonth = _perMonth(p, locale);
-                return Semantics(
-                  button: true,
-                  selected: on,
-                  child: GestureDetector(
-                    onTap: () => onSelected(p),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        AnimatedContainer(
-                          duration: CwMotion.fast,
-                          width: double.infinity,
-                          padding: const EdgeInsets.fromLTRB(8, 14, 8, 10),
-                          decoration: BoxDecoration(
-                            color: on
-                                ? c.ink.withValues(alpha: 0.10)
-                                : c.ink.withValues(alpha: 0.04),
-                            borderRadius: BorderRadius.circular(16),
-                            // Same width selected or not: a thicker border
-                            // grew the tile and shifted the whole screen.
-                            border: Border.all(
-                              color: on ? c.ink : c.ink.withValues(alpha: 0.16),
-                              width: 2,
-                            ),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(_title(p),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: CwType.footnote.copyWith(
-                                      color: c.ink2,
-                                      fontWeight: FontWeight.w600)),
-                              const SizedBox(height: 4),
-                              FittedBox(
-                                fit: BoxFit.scaleDown,
-                                child: Text(p.price,
-                                    style: CwType.headline.copyWith(
-                                        color: c.ink,
-                                        fontWeight: FontWeight.w800)),
-                              ),
-                              Text(_period(p),
-                                  style:
-                                      CwType.caption.copyWith(color: c.mute)),
-                              if (perMonth != null) ...[
-                                const SizedBox(height: 4),
-                                FittedBox(
-                                  fit: BoxFit.scaleDown,
-                                  child: Text(perMonth,
-                                      style: CwType.caption.copyWith(
-                                          color: c.ink2,
-                                          fontWeight: FontWeight.w700)),
-                                ),
-                              ],
-                            ],
+    int rank(ProductDetails p) =>
+        p.id == yearlyId ? 0 : (p.id == weeklyId ? 2 : 1);
+    final ordered = [...plans]..sort((a, b) => rank(a).compareTo(rank(b)));
+    return Column(
+      children: [
+        for (final p in ordered) ...[
+          if (p != ordered.first) const SizedBox(height: 8),
+          Builder(builder: (context) {
+            final on = p.id == selected?.id;
+            final perMonth = _perMonth(p, locale);
+            final saving = _saving(p);
+            return Semantics(
+              button: true,
+              selected: on,
+              child: GestureDetector(
+                onTap: () => onSelected(p),
+                child: AnimatedContainer(
+                  duration: CwMotion.fast,
+                  height: 54,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: c.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    // Same width selected or not: only the colour changes,
+                    // so picking a plan never shifts the screen.
+                    border: Border.all(
+                        color: on ? c.ink : c.ink.withValues(alpha: 0.06),
+                        width: 2),
+                  ),
+                  child: Row(
+                    children: [
+                      AnimatedContainer(
+                        duration: CwMotion.fast,
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: on ? c.ink : c.mute.withValues(alpha: 0.6),
+                            width: on ? 6 : 2,
                           ),
                         ),
-                        if (p.id == bestValueId)
-                          Positioned(
-                            top: -10,
-                            left: 0,
-                            right: 0,
-                            child: Center(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: c.ink,
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
-                                child: Text(
-                                  'cwBestValue'.tr().toUpperCase(),
-                                  style: CwType.overline
-                                      .copyWith(color: c.bg, fontSize: 9.5),
-                                ),
-                              ),
-                            ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(_title(p),
+                                style: CwType.callout.copyWith(
+                                    color: c.ink, fontWeight: FontWeight.w700)),
+                            if (perMonth != null)
+                              Text(perMonth,
+                                  style:
+                                      CwType.caption.copyWith(color: c.mute)),
+                          ],
+                        ),
+                      ),
+                      if (saving != null) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(color: c.ok, width: 1.5),
                           ),
+                          child: Text('cwSaveBadge'.tr(args: ['$saving']),
+                              style: CwType.overline
+                                  .copyWith(color: c.ok, fontSize: 9.5)),
+                        ),
+                        const SizedBox(width: 10),
                       ],
-                    ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(p.price,
+                              style: CwType.callout.copyWith(
+                                  color: c.ink, fontWeight: FontWeight.w800)),
+                          Text(_period(p),
+                              style: CwType.caption
+                                  .copyWith(color: c.mute, fontSize: 11)),
+                        ],
+                      ),
+                    ],
                   ),
-                );
-              }),
-            ),
-          ],
+                ),
+              ),
+            );
+          }),
         ],
-      ),
+      ],
     );
   }
 }
@@ -967,42 +968,11 @@ class _PremiumActiveCard extends StatelessWidget {
   }
 }
 
-/// The store's full auto-renew wording. Price, period and "auto-renews"
-/// sit next to the button; this is one tap away under it.
-Future<void> _showSubscriptionDetails(BuildContext context) =>
-    showCwSheet<void>(
-      context,
-      builder: (sheet) {
-        final c = CwColors.of(sheet);
-        return SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(22, 4, 22, 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('cwSubscriptionDetails'.tr(),
-                    style: CwType.title.copyWith(color: c.ink, fontSize: 20)),
-                const SizedBox(height: 10),
-                Text(
-                  (Theme.of(sheet).platform == TargetPlatform.android
-                          ? 'premiumLegalDisclosureAndroid'
-                          : 'premiumLegalDisclosureIos')
-                      .tr(),
-                  style: CwType.footnote.copyWith(color: c.ink2, height: 1.45),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-
-/// "Cancel anytime · Auto-renews", subscription details and the terms /
-/// privacy links, under the button.
+/// The renewal terms for the selected plan right under the button, then
+/// the terms and privacy links.
 class _Legal extends StatelessWidget {
-  const _Legal();
+  final String? renews;
+  const _Legal({required this.renews});
 
   Future<void> _open(BuildContext context, String url) async {
     final ok = await AppLockService.guard(
@@ -1013,33 +983,27 @@ class _Legal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = CwColors.of(context);
-    final small = CwType.caption.copyWith(color: c.mute);
-    final link = CwType.caption.copyWith(color: c.ink2);
-    Widget dot() => Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Text('·', style: small),
-        );
+    final small = CwType.caption.copyWith(color: c.mute, height: 1.5);
+    final link = small.copyWith(color: c.ink2, fontWeight: FontWeight.w600);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        crossAxisAlignment: WrapCrossAlignment.center,
+      padding: const EdgeInsets.fromLTRB(20, 9, 20, 10),
+      child: Column(
         children: [
-          Text('premiumCancelAnytime'.tr(), style: small),
-          dot(),
-          InkWell(
-            onTap: () => _showSubscriptionDetails(context),
-            child: Text('cwSubscriptionDetails'.tr(), style: link),
-          ),
-          dot(),
-          InkWell(
-            onTap: () => _open(context, LegalUrls.termsOfUse),
-            child: Text('termsOfUse'.tr(), style: link),
-          ),
-          dot(),
-          InkWell(
-            onTap: () => _open(context, LegalUrls.privacyPolicy),
-            child: Text('privacyPolicy'.tr(), style: link),
+          if (renews != null)
+            Text(renews!, textAlign: TextAlign.center, style: small),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              InkWell(
+                onTap: () => _open(context, LegalUrls.termsOfUse),
+                child: Text('cwTerms'.tr(), style: link),
+              ),
+              Text('  ·  ', style: small),
+              InkWell(
+                onTap: () => _open(context, LegalUrls.privacyPolicy),
+                child: Text('cwPrivacy'.tr(), style: link),
+              ),
+            ],
           ),
         ],
       ),
