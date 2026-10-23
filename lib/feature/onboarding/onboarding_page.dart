@@ -386,9 +386,10 @@ class _Welcome extends StatelessWidget {
           _Primary(label: 'cwGetStarted'.tr(), onPressed: onNext),
           const SizedBox(height: 14),
           Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 14,
-            runSpacing: 6,
+            alignment: WrapAlignment.spaceEvenly,
+            runAlignment: WrapAlignment.center,
+            spacing: 6,
+            runSpacing: 2,
             children: [
               _TrustItem(CwIcons.lock, 'cwTrustOnDevice'.tr()),
               _TrustItem(CwIcons.offline, 'cwTrustOffline'.tr()),
