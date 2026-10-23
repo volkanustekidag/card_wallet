@@ -452,6 +452,10 @@ Future<void> loadRealFonts() async {
         bytes('assets/fonts/jetbrains_mono/JetBrainsMono-$w.ttf')));
   }
   await mono.load();
+  final brand = FontLoader('InstrumentSans')
+    ..addFont(Future.value(
+        bytes('assets/fonts/instrument_sans/InstrumentSans-Bold.ttf')));
+  await brand.load();
 }
 
 /// Feeds one accelerometer reading (m/s², portrait upright is y ≈ 9.8).

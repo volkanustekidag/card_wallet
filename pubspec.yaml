@@ -140,6 +140,10 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   fonts:
+    - family: InstrumentSans
+      fonts:
+        - asset: assets/fonts/instrument_sans/InstrumentSans-Bold.ttf
+          weight: 700
     - family: JetBrainsMono
       fonts:
         - asset: assets/fonts/jetbrains_mono/JetBrainsMono-Medium.ttf

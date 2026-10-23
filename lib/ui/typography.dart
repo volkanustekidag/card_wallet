@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 
 /// Type scale. The UI uses the platform font (SF Pro on iOS, Roboto on
-/// Android) — the app should feel native, not like a template. Numbers that
+/// Android) — the app should feel native, not like a template. The big
+/// titles ([display]) are the brand's face: Instrument Sans. Numbers that
 /// users read or copy (card numbers, IBANs, barcodes) use [CwType.mono].
 class CwType {
   CwType._();
 
   static const String monoFamily = 'JetBrainsMono';
+  static const String brandFamily = 'InstrumentSans';
 
   static const TextStyle display = TextStyle(
+    fontFamily: brandFamily,
     fontSize: 34,
     height: 1.08,
-    fontWeight: FontWeight.w800,
-    letterSpacing: -0.9,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.7,
   );
 
   static const TextStyle title = TextStyle(
