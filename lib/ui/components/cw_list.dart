@@ -238,7 +238,7 @@ class CwSwitch extends StatelessWidget {
     if (isApple) {
       return CupertinoSwitch(
         value: value,
-        activeTrackColor: c.ok,
+        activeTrackColor: c.brand,
         onChanged: onChanged == null
             ? null
             : (v) {
@@ -251,12 +251,12 @@ class CwSwitch extends StatelessWidget {
     // light and night surfaces.
     return Switch(
       value: value,
-      activeTrackColor: c.ok,
+      activeTrackColor: c.brand,
       activeThumbColor: Colors.white,
       inactiveTrackColor: c.surface2,
       inactiveThumbColor: c.mute,
       trackOutlineColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected) ? c.ok : c.mute),
+          (s) => s.contains(WidgetState.selected) ? c.brand : c.mute),
       onChanged: onChanged == null
           ? null
           : (v) {

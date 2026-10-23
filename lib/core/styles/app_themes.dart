@@ -7,14 +7,14 @@ import 'package:wallet_app/ui/typography.dart';
 /// Material themes built from the v2 design tokens ([CwColors], [CwType]).
 ///
 /// The app uses the platform font (SF Pro / Roboto) — no custom UI font.
-/// Colour lives in the cards; the chrome is neutral (ink accent).
+/// Colour lives in the cards; the chrome is neutral plus one brand colour.
 class AppThemes {
   AppThemes._();
 
   // Kept for call sites that need a semantic colour without a theme lookup.
-  static const Color lightPrimary = Color(0xFF0E0F12);
-  static const Color darkPrimary = Color(0xFFF2F3F5);
-  static const Color lightWarning = Color(0xFFDC6803);
+  static const Color lightPrimary = Color(0xFFFF5A1F);
+  static const Color darkPrimary = Color(0xFFFF5A1F);
+  static const Color lightWarning = Color(0xFF9C5D00);
   static const Color darkWarning = Color(0xFFFBBF24);
   static const Color lightSuccess = Color(0xFF12B76A);
   static const Color darkSuccess = Color(0xFF34D399);
@@ -23,7 +23,7 @@ class AppThemes {
 
   static Color success(BuildContext context) => CwColors.of(context).ok;
   static Color warning(BuildContext context) => CwColors.of(context).warn;
-  static Color info(BuildContext context) => CwColors.of(context).accent;
+  static Color info(BuildContext context) => CwColors.of(context).ink;
 
   static ThemeData lightTheme = _build(CwColors.light, Brightness.light);
   static ThemeData darkTheme = _build(CwColors.dark, Brightness.dark);
@@ -32,8 +32,8 @@ class AppThemes {
     final isDark = b == Brightness.dark;
     final scheme = ColorScheme(
       brightness: b,
-      primary: c.accent,
-      onPrimary: c.bg,
+      primary: c.brand,
+      onPrimary: c.onBrand,
       secondary: c.ink,
       onSecondary: c.bg,
       tertiary: c.ok,
@@ -99,8 +99,8 @@ class AppThemes {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: c.ink,
-          foregroundColor: c.bg,
+          backgroundColor: c.brand,
+          foregroundColor: c.onBrand,
           minimumSize: const Size.fromHeight(54),
           textStyle: CwType.headline,
           shape: RoundedRectangleBorder(
@@ -110,8 +110,8 @@ class AppThemes {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: c.ink,
-          foregroundColor: c.bg,
+          backgroundColor: c.brand,
+          foregroundColor: c.onBrand,
           elevation: 0,
           minimumSize: const Size(64, 48),
           textStyle: CwType.callout.copyWith(fontWeight: FontWeight.w600),
@@ -180,8 +180,8 @@ class AppThemes {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: c.ink,
-        foregroundColor: c.bg,
+        backgroundColor: c.brand,
+        foregroundColor: c.onBrand,
         elevation: 6,
         shape: const CircleBorder(),
       ),
@@ -190,7 +190,7 @@ class AppThemes {
           (s) => s.contains(WidgetState.selected) ? Colors.white : null,
         ),
         trackColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected) ? c.ok : null,
+          (s) => s.contains(WidgetState.selected) ? c.brand : null,
         ),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: c.ink),

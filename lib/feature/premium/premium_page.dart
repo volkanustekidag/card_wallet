@@ -857,9 +857,9 @@ class _ContinueButton extends StatelessWidget {
       height: 56,
       child: FilledButton(
         style: FilledButton.styleFrom(
-          backgroundColor: c.ink,
-          foregroundColor: c.bg,
-          disabledBackgroundColor: c.ink.withValues(alpha: 0.3),
+          backgroundColor: c.brand,
+          foregroundColor: c.onBrand,
+          disabledBackgroundColor: c.brand.withValues(alpha: 0.3),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(CwRadius.l),
           ),
@@ -872,7 +872,7 @@ class _ContinueButton extends StatelessWidget {
               },
         child: Text(label,
             style: CwType.headline
-                .copyWith(color: c.bg, fontWeight: FontWeight.w700)),
+                .copyWith(color: c.onBrand, fontWeight: FontWeight.w700)),
       ),
     );
   }

@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 
 /// CardWallet v2 design tokens.
 ///
-/// One accent colour; everything else is neutral. Colour in the product
-/// comes from the cards, never from the chrome. Use [CwColors.of] to read
-/// the palette for the current brightness instead of hard-coding colours.
+/// One brand colour (tangerine), used sparingly and always in the same
+/// places: the add button, primary buttons, switches that are on, links and
+/// the Up Next label. Everything else is neutral; the cards carry the rest
+/// of the colour. Use [CwColors.of] to read the palette for the current
+/// brightness instead of hard-coding colours.
 class CwColors {
   final Color bg;
   final Color surface;
@@ -14,6 +16,13 @@ class CwColors {
   final Color ink2;
   final Color mute;
   final Color line;
+
+  /// Brand fill: buttons, the add button, switches. Text on it is [onBrand].
+  final Color brand;
+  final Color onBrand;
+
+  /// Brand tone for text and icons on [bg] / [surface]: darker than [brand]
+  /// in light mode so small text stays readable (WCAG AA).
   final Color accent;
   final Color accentSoft;
   final Color ok;
@@ -31,6 +40,8 @@ class CwColors {
     required this.ink2,
     required this.mute,
     required this.line,
+    required this.brand,
+    required this.onBrand,
     required this.accent,
     required this.accentSoft,
     required this.ok,
@@ -49,12 +60,14 @@ class CwColors {
     ink2: Color(0xFF3B3E46),
     mute: Color(0xFF74777F),
     line: Color(0x140E0F12),
-    // No brand hue: the cards carry the colour, the chrome stays ink.
-    accent: Color(0xFF0E0F12),
-    accentSoft: Color(0x0F0E0F12),
+    brand: Color(0xFFFF5A1F),
+    onBrand: Color(0xFFFFFFFF),
+    accent: Color(0xFFC93F0C),
+    accentSoft: Color(0x1FFF5A1F),
     ok: Color(0xFF12B76A),
     okSoft: Color(0xFFDCFCE7),
-    warn: Color(0xFFDC6803),
+    // Amber, kept clear of the brand tangerine.
+    warn: Color(0xFF9C5D00),
     warnSoft: Color(0xFFFEF0C7),
     danger: Color(0xFFE5484D),
     dangerSoft: Color(0xFFFDE8E8),
@@ -68,8 +81,10 @@ class CwColors {
     ink2: Color(0xFFC9CBD1),
     mute: Color(0xFF8B8F99),
     line: Color(0x14FFFFFF),
-    accent: Color(0xFFF2F3F5),
-    accentSoft: Color(0x1AF2F3F5),
+    brand: Color(0xFFFF5A1F),
+    onBrand: Color(0xFFFFFFFF),
+    accent: Color(0xFFFF7A45),
+    accentSoft: Color(0x29FF5A1F),
     ok: Color(0xFF34D399),
     okSoft: Color(0x2634D399),
     warn: Color(0xFFFBBF24),

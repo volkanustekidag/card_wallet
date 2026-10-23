@@ -374,7 +374,7 @@ class _UpNextBanner extends StatelessWidget {
                     children: [
                       Text(
                         'cwUpNext'.tr().toUpperCase(),
-                        style: CwType.overline.copyWith(color: c.ink2),
+                        style: CwType.overline.copyWith(color: c.accent),
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -411,7 +411,7 @@ class _ShowPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = CwColors.of(context);
     return Material(
-      color: c.ink,
+      color: c.brand,
       shape: const StadiumBorder(),
       child: InkWell(
         customBorder: const StadiumBorder(),
@@ -421,7 +421,7 @@ class _ShowPill extends StatelessWidget {
           child: Text(
             'cwShow'.tr(),
             style: CwType.footnote.copyWith(
-              color: c.bg,
+              color: c.onBrand,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -638,7 +638,7 @@ class _AddFab extends StatelessWidget {
       excludeSemantics: true,
       child: Material(
         key: const ValueKey('homeAddFab'),
-        color: c.ink,
+        color: c.brand,
         shape: const CircleBorder(),
         elevation: 0,
         child: InkWell(
@@ -655,7 +655,7 @@ class _AddFab extends StatelessWidget {
               boxShadow: CwElevation.e2,
             ),
             alignment: Alignment.center,
-            child: CwIcon(CwIcons.plus, size: CwIconSize.xl, color: c.bg),
+            child: CwIcon(CwIcons.plus, size: CwIconSize.xl, color: c.onBrand),
           ),
         ),
       ),

@@ -7,7 +7,7 @@ import 'package:wallet_app/ui/typography.dart';
 
 enum CwButtonKind { primary, secondary, ghost, destructive, inverse }
 
-/// The one button. Primary = ink fill, secondary = surface, ghost = text,
+/// The one button. Primary = brand fill, secondary = surface, ghost = text,
 /// inverse = white on dark stage screens (onboarding, paywall, checkout).
 class CwButton extends StatefulWidget {
   final String label;
@@ -66,8 +66,8 @@ class _CwButtonState extends State<CwButton> {
     List<BoxShadow> shadow = const [];
     switch (widget.kind) {
       case CwButtonKind.primary:
-        bg = c.ink;
-        fg = c.bg;
+        bg = c.brand;
+        fg = c.onBrand;
         break;
       case CwButtonKind.inverse:
         bg = Colors.white;
