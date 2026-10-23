@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:wallet_app/feature/auth/pin_action_page.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/ui/components/cw_button.dart';
@@ -8,13 +9,11 @@ import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/tokens.dart';
 import 'package:wallet_app/ui/typography.dart';
 
-/// Offers biometric unlock after the user has fat-fingered the PIN past the
-/// first lockout threshold. "Continue" runs the recovery flow on
-/// [AuthController] which, on success, navigates to /home and queues a PIN
-/// reset prompt there.
+/// "Forgot your PIN?": the phone's own screen lock (passcode, pattern or
+/// biometrics) confirms it's the owner, then a new PIN is set right away.
+/// Backing out of the new PIN still unlocks; home nudges to set one.
 Future<void> showForgotPinSheet(BuildContext context) async {
   final controller = Get.find<AuthController>();
-  final name = controller.getBiometricDisplayName();
   final go = await showCwSheet<bool>(
     context,
     builder: (sheet) {
@@ -27,18 +26,18 @@ Future<void> showForgotPinSheet(BuildContext context) async {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              CwIcon(CwIcons.fingerprint, size: 40, color: c.accent),
+              CwIcon(CwIcons.unlock, size: 40, color: c.accent),
               const SizedBox(height: 14),
               Text('forgotPinTitle'.tr(),
                   textAlign: TextAlign.center,
                   style: CwType.title.copyWith(color: c.ink, fontSize: 20)),
               const SizedBox(height: 8),
-              Text('forgotPinMessage'.tr(args: [name]),
+              Text('cwForgotBody'.tr(),
                   textAlign: TextAlign.center,
                   style: CwType.callout.copyWith(color: c.ink2, height: 1.4)),
               const SizedBox(height: 22),
-              CwButton('useBiometric'.tr(args: [name]),
-                  icon: CwIcons.fingerprint,
+              CwButton('cwForgotUseLock'.tr(),
+                  icon: CwIcons.lock,
                   onPressed: () => Navigator.pop(sheet, true)),
               const SizedBox(height: 6),
               CwButton.ghost('cancel'.tr(),
@@ -49,5 +48,11 @@ Future<void> showForgotPinSheet(BuildContext context) async {
       );
     },
   );
-  if (go == true) await controller.recoverWithBiometric();
+  if (go != true) return;
+  if (!await controller.verifyDeviceOwner()) return;
+  final created = await Get.to<bool>(
+    () => const PinActionPage(),
+    arguments: PinAction.create,
+  );
+  await controller.completeRecovery(newPin: created == true);
 }

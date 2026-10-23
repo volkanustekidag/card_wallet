@@ -213,12 +213,9 @@
     "errorDuringAuthentication": "Wystąpił błąd podczas uwierzytelniania",
     "errorDuringRegistration": "Wystąpił błąd podczas rejestracji",
     "biometricAuthReason": "Uwierzytelnij się, aby uzyskać dostęp do swojego portfela kart",
-    "biometricRecoveryReason": "Potwierdź swoją tożsamość, aby odzyskać dostęp",
     "forgotPinTitle": "Zapomniałeś PIN-u?",
-    "forgotPinMessage": "Wygląda na to, że nie pamiętasz swojego PIN-u. Możesz kontynuować za pomocą {}.",
-    "useBiometric": "Użyj {}",
     "resetPinTitle": "Zresetuj PIN",
-    "resetPinSubtitle": "Użyj biometrii, aby ustawić nowy PIN",
+    "resetPinSubtitle": "Blokadą ekranu telefonu",
     "resetPinSuccess": "PIN został pomyślnie zresetowany",
     "resetPinPrompt": "Czy chcesz ustawić nowy PIN?",
     "resetPinNow": "Zresetuj",
@@ -843,5 +840,9 @@
     "cwRenewsMonth": "{} miesięcznie, odnawia się automatycznie. Anuluj w dowolnym momencie.",
     "cwRenewsWeek": "{} tygodniowo, odnawia się automatycznie. Anuluj w dowolnym momencie.",
     "cwTerms": "Regulamin",
-    "cwPrivacy": "Prywatność"
+    "cwPrivacy": "Prywatność",
+    "cwForgotBody": "Potwierdź, że to ty, blokadą ekranu telefonu (kodem, wzorem, odciskiem palca lub twarzą), a potem ustaw nowy PIN. Twoje karty pozostaną bez zmian.",
+    "cwForgotUseLock": "Użyj blokady ekranu",
+    "cwForgotReason": "Potwierdź, że to ty, aby ustawić nowy PIN",
+    "cwForgotNoLock": "Ten telefon nie ma blokady ekranu, więc nie można w ten sposób zresetować PIN-u."
 }

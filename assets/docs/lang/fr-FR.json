@@ -213,12 +213,9 @@
     "errorDuringAuthentication": "Une erreur s'est produite lors de l'authentification",
     "errorDuringRegistration": "Une erreur s'est produite lors de l'inscription",
     "biometricAuthReason": "Authentifiez-vous pour accéder à votre portefeuille de cartes",
-    "biometricRecoveryReason": "Confirmez votre identité pour récupérer l'accès",
     "forgotPinTitle": "Code PIN oublié ?",
-    "forgotPinMessage": "Il semble que vous ne vous souveniez pas de votre code PIN. Vous pouvez continuer avec {}.",
-    "useBiometric": "Utiliser {}",
     "resetPinTitle": "Réinitialiser le PIN",
-    "resetPinSubtitle": "Utilisez la biométrie pour définir un nouveau PIN",
+    "resetPinSubtitle": "Avec le verrouillage de votre téléphone",
     "resetPinSuccess": "PIN réinitialisé avec succès",
     "resetPinPrompt": "Voulez-vous définir un nouveau PIN ?",
     "resetPinNow": "Réinitialiser",
@@ -829,5 +826,9 @@
     "cwRenewsMonth": "{} par mois, renouvelé automatiquement. Annulable à tout moment.",
     "cwRenewsWeek": "{} par semaine, renouvelé automatiquement. Annulable à tout moment.",
     "cwTerms": "Conditions",
-    "cwPrivacy": "Confidentialité"
+    "cwPrivacy": "Confidentialité",
+    "cwForgotBody": "Confirmez votre identité avec le verrouillage de l'écran du téléphone (code, schéma, empreinte ou visage), puis choisissez un nouveau code PIN. Vos cartes restent intactes.",
+    "cwForgotUseLock": "Utiliser le verrouillage",
+    "cwForgotReason": "Confirmez votre identité pour choisir un nouveau code PIN",
+    "cwForgotNoLock": "Ce téléphone n'a pas de verrouillage d'écran : le code PIN ne peut pas être réinitialisé ainsi."
 }

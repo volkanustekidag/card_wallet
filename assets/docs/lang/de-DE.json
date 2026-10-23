@@ -212,12 +212,9 @@
     "errorDuringAuthentication": "Fehler bei der Authentifizierung",
     "errorDuringRegistration": "Fehler bei der Registrierung",
     "biometricAuthReason": "Authentifizieren Sie sich, um auf Ihre Kartenbrieftasche zuzugreifen",
-    "biometricRecoveryReason": "Bestätige deine Identität, um den Zugriff wiederherzustellen",
     "forgotPinTitle": "PIN vergessen?",
-    "forgotPinMessage": "Anscheinend erinnerst du dich nicht an deine PIN. Du kannst mit {} fortfahren.",
-    "useBiometric": "{} verwenden",
     "resetPinTitle": "PIN zurücksetzen",
-    "resetPinSubtitle": "Mit Biometrie neue PIN festlegen",
+    "resetPinSubtitle": "Mit der Displaysperre deines Handys",
     "resetPinSuccess": "PIN erfolgreich zurückgesetzt",
     "resetPinPrompt": "Möchtest du eine neue PIN festlegen?",
     "resetPinNow": "Zurücksetzen",
@@ -829,5 +826,9 @@
     "cwRenewsMonth": "{} pro Monat, verlängert sich automatisch. Jederzeit kündbar.",
     "cwRenewsWeek": "{} pro Woche, verlängert sich automatisch. Jederzeit kündbar.",
     "cwTerms": "AGB",
-    "cwPrivacy": "Datenschutz"
+    "cwPrivacy": "Datenschutz",
+    "cwForgotBody": "Bestätige mit der Displaysperre deines Handys – Code, Muster, Fingerabdruck oder Gesicht –, dass du es bist, und lege eine neue PIN fest. Deine Karten bleiben, wie sie sind.",
+    "cwForgotUseLock": "Displaysperre verwenden",
+    "cwForgotReason": "Bestätige, dass du es bist, um eine neue PIN festzulegen",
+    "cwForgotNoLock": "Dieses Handy hat keine Displaysperre, daher lässt sich die PIN so nicht zurücksetzen."
 }

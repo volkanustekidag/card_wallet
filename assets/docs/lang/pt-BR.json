@@ -213,12 +213,9 @@
     "errorDuringAuthentication": "Ocorreu um erro durante a autenticação",
     "errorDuringRegistration": "Ocorreu um erro durante o cadastro",
     "biometricAuthReason": "Autentique-se para acessar sua carteira de cartões",
-    "biometricRecoveryReason": "Confirme sua identidade para recuperar o acesso",
     "forgotPinTitle": "Esqueceu o PIN?",
-    "forgotPinMessage": "Parece que você não se lembra do seu PIN. Você pode continuar com {}.",
-    "useBiometric": "Usar {}",
     "resetPinTitle": "Redefinir PIN",
-    "resetPinSubtitle": "Use a biometria para definir um novo PIN",
+    "resetPinSubtitle": "Com o bloqueio de tela do celular",
     "resetPinSuccess": "PIN redefinido com sucesso",
     "resetPinPrompt": "Quer definir um novo PIN?",
     "resetPinNow": "Redefinir",
@@ -829,5 +826,9 @@
     "cwRenewsMonth": "{} por mês, renova automaticamente. Cancele quando quiser.",
     "cwRenewsWeek": "{} por semana, renova automaticamente. Cancele quando quiser.",
     "cwTerms": "Termos",
-    "cwPrivacy": "Privacidade"
+    "cwPrivacy": "Privacidade",
+    "cwForgotBody": "Confirme que é você com o bloqueio de tela do celular (senha, padrão, digital ou rosto) e defina um novo PIN. Seus cartões continuam iguais.",
+    "cwForgotUseLock": "Usar bloqueio de tela",
+    "cwForgotReason": "Confirme que é você para definir um novo PIN",
+    "cwForgotNoLock": "Este celular não tem bloqueio de tela, então o PIN não pode ser redefinido assim."
 }

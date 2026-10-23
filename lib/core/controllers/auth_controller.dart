@@ -65,12 +65,14 @@ class AuthController extends GetxController {
   /// keep popping back up on every subsequent retry.
   final showRecoveryPrompt = false.obs;
 
-  /// Whether the device has biometric enrollment, regardless of the app's
-  /// own biometric toggle. Drives the "forgot PIN" affordance — we accept
-  /// device biometric as proof of ownership for recovery even if the user
-  /// never opted into biometric login.
-  bool get isBiometricRecoveryAvailable =>
-      isBiometricAvailable.value && hasPassword.value;
+  /// The phone has a screen lock or biometrics the system can check.
+  final isDeviceLockAvailable = false.obs;
+
+  /// "Forgot PIN?" is offered when the phone's own lock can stand in for
+  /// the PIN (see [BiometricService.authenticateForRecovery]).
+  bool get isPinRecoveryAvailable =>
+      (isDeviceLockAvailable.value || isBiometricAvailable.value) &&
+      hasPassword.value;
 
   @override
   void onInit() {
@@ -128,6 +130,8 @@ class AuthController extends GetxController {
       final available = await _biometricService.isBiometricAvailable();
       final biometrics = await _biometricService.getAvailableBiometrics();
       final enabled = await _biometricService.isBiometricEnabled();
+      isDeviceLockAvailable.value =
+          await _biometricService.isDeviceLockAvailable();
       isBiometricAvailable.value = available;
       availableBiometrics.value = biometrics;
       isBiometricEnabled.value = enabled;
@@ -451,7 +455,7 @@ class AuthController extends GetxController {
     // signal so the lock screen can offer biometric unlock. Restricted to
     // the equality check (not >=) so user-driven dismissals stay sticky
     // for the rest of the session.
-    if (pinFailureCount.value == 3 && isBiometricRecoveryAvailable) {
+    if (pinFailureCount.value == 3 && isPinRecoveryAvailable) {
       showRecoveryPrompt.value = true;
     }
   }
@@ -477,51 +481,32 @@ class AuthController extends GetxController {
   /// proof of ownership for recovery. On success, clears rate-limit state,
   /// marks the home page to nudge a PIN reset, and navigates to /home.
   /// Returns true on successful biometric unlock, false otherwise.
-  Future<bool> recoverWithBiometric() async {
-    isLoading.value = true;
+  /// "Forgot PIN?": the phone's screen lock (or biometrics) proves it's the
+  /// owner. Doesn't navigate; see [completeRecovery].
+  Future<bool> verifyDeviceOwner() async {
     try {
-      final success = await _biometricService.authenticateForRecovery(
-        localizedReason: 'biometricRecoveryReason'.tr(),
+      // The system's lock screen is its own activity on Android: don't let
+      // leaving for it re-lock the app.
+      return await AppLockService.guard(
+        () => _biometricService.authenticateForRecovery(
+          localizedReason: 'cwForgotReason'.tr(),
+        ),
       );
-      if (!success) {
-        _flashAuthFailure();
-        return false;
-      }
-      await _resetRateLimitState();
-      recoveryPromptPending.value = true;
-      _completeAuthentication();
-      return true;
     } on BiometricException catch (e) {
       Get.context?.showErrorSnackBar(e.message);
-      _flashAuthFailure();
       return false;
     } catch (_) {
       Get.context?.showErrorSnackBar('biometricAuthError'.tr());
-      _flashAuthFailure();
       return false;
-    } finally {
-      if (!authenticationSuccess.value) {
-        isLoading.value = false;
-      }
     }
   }
 
-  /// Settings-side counterpart to [recoverWithBiometric]: verifies the user
-  /// owns the device via biometric, but does not navigate or mark anything.
-  /// The caller is responsible for pushing the PIN creation flow. Returns
-  /// true if the user passed the biometric challenge.
-  Future<bool> verifyBiometricForReset() async {
-    try {
-      return await _biometricService.authenticateForRecovery(
-        localizedReason: 'biometricRecoveryReason'.tr(),
-      );
-    } on BiometricException catch (e) {
-      Get.context?.showErrorSnackBar(e.message);
-      return false;
-    } catch (_) {
-      Get.context?.showErrorSnackBar('biometricAuthError'.tr());
-      return false;
-    }
+  /// Unlocks after a passed [verifyDeviceOwner]. Without a [newPin] (the
+  /// user backed out of setting one) home nudges them to set it.
+  Future<void> completeRecovery({required bool newPin}) async {
+    await _resetRateLimitState();
+    if (!newPin) recoveryPromptPending.value = true;
+    _completeAuthentication();
   }
 
   /// Read-once accessor for the post-recovery PIN reset nudge. The home

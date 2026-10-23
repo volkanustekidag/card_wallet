@@ -213,12 +213,9 @@
     "errorDuringAuthentication": "An error occurred during authentication",
     "errorDuringRegistration": "An error occurred during registration",
     "biometricAuthReason": "Authenticate to access your card wallet",
-    "biometricRecoveryReason": "Confirm your identity to recover access",
     "forgotPinTitle": "Forgot your PIN?",
-    "forgotPinMessage": "Looks like you don't remember your PIN. You can continue with {}.",
-    "useBiometric": "Use {}",
     "resetPinTitle": "Reset PIN",
-    "resetPinSubtitle": "Use biometrics to set a new PIN",
+    "resetPinSubtitle": "With your phone's screen lock",
     "resetPinSuccess": "PIN reset successfully",
     "resetPinPrompt": "Would you like to set a new PIN?",
     "resetPinNow": "Reset",
@@ -829,5 +826,9 @@
     "cwRenewsMonth": "{} per month, renews automatically. Cancel anytime.",
     "cwRenewsWeek": "{} per week, renews automatically. Cancel anytime.",
     "cwTerms": "Terms",
-    "cwPrivacy": "Privacy"
+    "cwPrivacy": "Privacy",
+    "cwForgotBody": "Confirm it's you with your phone's screen lock — passcode, pattern, fingerprint or face — then set a new PIN. Your cards stay as they are.",
+    "cwForgotUseLock": "Use screen lock",
+    "cwForgotReason": "Confirm it's you to set a new PIN",
+    "cwForgotNoLock": "This phone has no screen lock, so the PIN can't be reset this way."
 }

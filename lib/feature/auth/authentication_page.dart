@@ -43,8 +43,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeAutoTriggerBiometric();
     });
-    _autoBiometricWorker =
-        ever<bool>(_authController.showBiometricButton, (_) {
+    _autoBiometricWorker = ever<bool>(_authController.showBiometricButton, (_) {
       _maybeAutoTriggerBiometric();
     });
     _recoveryPromptWorker =
@@ -119,12 +118,11 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             autoFocus: autoFocus,
             onCompleted: _handlePinCompleted,
             lockScreen: !isRegistering,
-            onBiometric: !isRegistering &&
-                    _authController.showBiometricButton.value
-                ? _authController.authenticateWithBiometric
-                : null,
-            onForgot: !isRegistering &&
-                    _authController.isBiometricRecoveryAvailable
+            onBiometric:
+                !isRegistering && _authController.showBiometricButton.value
+                    ? _authController.authenticateWithBiometric
+                    : null,
+            onForgot: !isRegistering && _authController.isPinRecoveryAvailable
                 ? () => showForgotPinSheet(context)
                 : null,
           );

@@ -213,12 +213,9 @@
     "errorDuringAuthentication": "Se produjo un error durante la autenticación",
     "errorDuringRegistration": "Se produjo un error durante el registro",
     "biometricAuthReason": "Autentícate para acceder a tu cartera de tarjetas",
-    "biometricRecoveryReason": "Confirma tu identidad para recuperar el acceso",
     "forgotPinTitle": "¿Olvidaste tu PIN?",
-    "forgotPinMessage": "Parece que no recuerdas tu PIN. Puedes continuar con {}.",
-    "useBiometric": "Usar {}",
     "resetPinTitle": "Restablecer PIN",
-    "resetPinSubtitle": "Usa la biometría para establecer un nuevo PIN",
+    "resetPinSubtitle": "Con el bloqueo de pantalla del móvil",
     "resetPinSuccess": "PIN restablecido correctamente",
     "resetPinPrompt": "¿Quieres establecer un nuevo PIN?",
     "resetPinNow": "Restablecer",
@@ -829,5 +826,9 @@
     "cwRenewsMonth": "{} al mes, se renueva automáticamente. Cancela cuando quieras.",
     "cwRenewsWeek": "{} a la semana, se renueva automáticamente. Cancela cuando quieras.",
     "cwTerms": "Términos",
-    "cwPrivacy": "Privacidad"
+    "cwPrivacy": "Privacidad",
+    "cwForgotBody": "Confirma que eres tú con el bloqueo de pantalla del móvil (código, patrón, huella o cara) y elige un PIN nuevo. Tus tarjetas no cambian.",
+    "cwForgotUseLock": "Usar bloqueo de pantalla",
+    "cwForgotReason": "Confirma que eres tú para elegir un PIN nuevo",
+    "cwForgotNoLock": "Este móvil no tiene bloqueo de pantalla, así que el PIN no se puede restablecer así."
 }

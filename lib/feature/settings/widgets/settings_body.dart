@@ -157,7 +157,7 @@ class _SettingsBodyState extends State<SettingsBody>
                 chevron: true,
                 onTap: () => Get.toNamed('/changePin'),
               ),
-            if (auth.isBiometricRecoveryAvailable)
+            if (auth.isPinRecoveryAvailable)
               CwRow(
                 leading: CwIconTile(CwIcons.restore, color: c.warn),
                 title: 'resetPinTitle'.tr(),
@@ -409,7 +409,7 @@ class _SettingsBodyState extends State<SettingsBody>
     AuthController authController,
   ) async {
     HapticFeedback.lightImpact();
-    final passed = await authController.verifyBiometricForReset();
+    final passed = await authController.verifyDeviceOwner();
     if (!passed || !mounted) return;
     final created = await Get.to<bool>(
       () => const PinActionPage(),

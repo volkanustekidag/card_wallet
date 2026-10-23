@@ -213,12 +213,9 @@
     "errorDuringAuthentication": "Kimlik doğrulama sırasında bir hata oluştu",
     "errorDuringRegistration": "Kayıt sırasında bir hata oluştu",
     "biometricAuthReason": "Kart cüzdanınıza erişmek için kimlik doğrulaması yapın",
-    "biometricRecoveryReason": "Erişimi geri kazanmak için kimliğini doğrula",
     "forgotPinTitle": "PIN'i unuttun mu?",
-    "forgotPinMessage": "PIN'ini hatırlayamıyorsun gibi. {} ile devam edebilirsin.",
-    "useBiometric": "{} ile aç",
     "resetPinTitle": "PIN'i Sıfırla",
-    "resetPinSubtitle": "Biyometrik ile yeni PIN belirle",
+    "resetPinSubtitle": "Telefonunun ekran kilidiyle",
     "resetPinSuccess": "PIN başarıyla sıfırlandı",
     "resetPinPrompt": "Yeni bir PIN belirlemek ister misin?",
     "resetPinNow": "Sıfırla",
@@ -829,5 +826,9 @@
     "cwRenewsMonth": "Aylık {}, otomatik yenilenir. İstediğin zaman iptal et.",
     "cwRenewsWeek": "Haftalık {}, otomatik yenilenir. İstediğin zaman iptal et.",
     "cwTerms": "Koşullar",
-    "cwPrivacy": "Gizlilik"
+    "cwPrivacy": "Gizlilik",
+    "cwForgotBody": "Telefonunun ekran kilidiyle (şifre, desen, parmak izi ya da yüz) kendini doğrula, sonra yeni bir PIN belirle. Kartların olduğu gibi kalır.",
+    "cwForgotUseLock": "Ekran kilidini kullan",
+    "cwForgotReason": "Yeni PIN belirlemek için kendini doğrula",
+    "cwForgotNoLock": "Bu telefonda ekran kilidi yok; PIN bu yolla sıfırlanamaz."
 }

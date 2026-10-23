@@ -92,10 +92,10 @@ class BiometricService {
           useErrorDialogs: useErrorDialogs,
           stickyAuth: stickyAuth,
           biometricOnly: true, // Only use biometric authentication
-          sensitiveTransaction: false, // Don't require device credential fallback
+          sensitiveTransaction:
+              false, // Don't require device credential fallback
         ),
       );
-
 
       return didAuthenticate;
     } on PlatformException catch (e, st) {
@@ -109,22 +109,32 @@ class BiometricService {
     }
   }
 
-  /// Biometric prompt that ignores the app-level "biometric enabled" toggle.
-  /// Used by PIN recovery: the user forgot their PIN, so we accept device
-  /// biometric enrollment as proof of ownership regardless of whether they
-  /// previously turned biometric login on in the app's settings.
+  /// Whether the phone has a screen lock (passcode, pattern, PIN) or
+  /// biometrics the system can check: what PIN recovery relies on.
+  Future<bool> isDeviceLockAvailable() async {
+    try {
+      return await _localAuth.isDeviceSupported();
+    } catch (e) {
+      debugPrint('Error checking device lock: $e');
+      return false;
+    }
+  }
+
+  /// PIN recovery: the phone's own screen lock proves ownership — its
+  /// passcode / pattern / PIN or fingerprint / face, whichever the system
+  /// offers (banking-app style). Ignores the app's biometric toggle: the
+  /// user forgot their PIN, the phone's lock is the fallback.
   Future<bool> authenticateForRecovery({String? localizedReason}) async {
     try {
-      final bool isAvailable = await isBiometricAvailable();
-      if (!isAvailable) {
-        throw BiometricException('biometricNotSupported'.tr());
+      if (!await isDeviceLockAvailable()) {
+        throw BiometricException('cwForgotNoLock'.tr());
       }
       final bool didAuthenticate = await _localAuth.authenticate(
         localizedReason: localizedReason ?? 'biometricAuthenticateReason'.tr(),
         options: const AuthenticationOptions(
           useErrorDialogs: true,
           stickyAuth: true,
-          biometricOnly: true,
+          biometricOnly: false,
           sensitiveTransaction: false,
         ),
       );

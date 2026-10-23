@@ -213,12 +213,9 @@
     "errorDuringAuthentication": "Er is een fout opgetreden tijdens de authenticatie",
     "errorDuringRegistration": "Er is een fout opgetreden tijdens de registratie",
     "biometricAuthReason": "Authenticeer om toegang te krijgen tot je kaartportemonnee",
-    "biometricRecoveryReason": "Bevestig je identiteit om toegang te herstellen",
     "forgotPinTitle": "PIN vergeten?",
-    "forgotPinMessage": "Het lijkt erop dat je je PIN niet meer weet. Je kunt doorgaan met {}.",
-    "useBiometric": "{} gebruiken",
     "resetPinTitle": "PIN opnieuw instellen",
-    "resetPinSubtitle": "Stel met biometrie een nieuwe PIN in",
+    "resetPinSubtitle": "Met de schermvergrendeling van je telefoon",
     "resetPinSuccess": "PIN succesvol opnieuw ingesteld",
     "resetPinPrompt": "Wil je een nieuwe PIN instellen?",
     "resetPinNow": "Opnieuw instellen",
@@ -829,5 +826,9 @@
     "cwRenewsMonth": "{} per maand, wordt automatisch verlengd. Altijd opzegbaar.",
     "cwRenewsWeek": "{} per week, wordt automatisch verlengd. Altijd opzegbaar.",
     "cwTerms": "Voorwaarden",
-    "cwPrivacy": "Privacy"
+    "cwPrivacy": "Privacy",
+    "cwForgotBody": "Bevestig met de schermvergrendeling van je telefoon (code, patroon, vingerafdruk of gezicht) dat jij het bent en stel een nieuwe pincode in. Je kaarten blijven zoals ze zijn.",
+    "cwForgotUseLock": "Schermvergrendeling gebruiken",
+    "cwForgotReason": "Bevestig dat jij het bent om een nieuwe pincode in te stellen",
+    "cwForgotNoLock": "Deze telefoon heeft geen schermvergrendeling, dus de pincode kan zo niet worden gereset."
 }
