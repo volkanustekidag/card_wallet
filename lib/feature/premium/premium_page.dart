@@ -444,9 +444,19 @@ class _TopBar extends StatelessWidget {
 
 /// Up to three of the user's own cards, fanned; materials when the wallet
 /// is empty. Seeing *their* cards is the point of the page.
+/// Up to three of the user's own cards, cascading upward (materials when
+/// the wallet is empty). Seeing *their* cards is the point of the page.
 class _CardFan extends StatelessWidget {
   final double width;
-  const _CardFan({required this.width});
+
+  /// How far the back cards rise, in front-card heights (more on tall
+  /// phones so the stack fills the space).
+  final double spread;
+  const _CardFan({required this.width, this.spread = 0.42});
+
+  /// Total height for a front card [w] wide at [spread].
+  static double heightFor(double w, [double spread = 0.42]) =>
+      w / kCardAspect * (1 + spread) + 12;
 
   @override
   Widget build(BuildContext context) {
@@ -454,30 +464,27 @@ class _CardFan extends StatelessWidget {
         ? Get.find<HomeController>().walletItems.take(3).toList()
         : <WalletItem>[];
     final w = width;
+    final h = w / kCardAspect;
     Widget face(int i) {
       if (i < items.length) return WalletCardFace(item: items[i], width: w);
       const ids = [10, 11, 14];
-      return CardFace(
-        material: CardMaterial.of(ids[i]),
-        width: w,
-        height: w / kCardAspect,
-      );
+      return CardFace(material: CardMaterial.of(ids[i]), width: w, height: h);
     }
 
     return SizedBox(
       width: w,
-      height: w / kCardAspect + 20,
+      height: heightFor(w, spread),
       child: Stack(
-        alignment: Alignment.center,
+        alignment: Alignment.bottomCenter,
         clipBehavior: Clip.none,
         children: [
           Transform.translate(
-            offset: Offset(-w * 0.32, 10),
-            child: Transform.rotate(angle: -0.16, child: face(1)),
+            offset: Offset(-w * 0.12, -h * spread * 0.95),
+            child: Transform.rotate(angle: -0.09, child: face(1)),
           ),
           Transform.translate(
-            offset: Offset(w * 0.32, 10),
-            child: Transform.rotate(angle: 0.16, child: face(2)),
+            offset: Offset(w * 0.12, -h * spread * 0.5),
+            child: Transform.rotate(angle: 0.07, child: face(2)),
           ),
           face(0),
         ],
@@ -486,38 +493,42 @@ class _CardFan extends StatelessWidget {
   }
 }
 
-/// The card fan with the headline and the feature row right under it.
-/// The fan shrinks to leave them room; the group sits low so spare
-/// height opens under the close button, not above the plans.
+/// The card fan, then the headline and the feature row right above the
+/// plans. The fan grows into all the height that's left, so there's no
+/// empty band on tall phones; on small ones it shrinks (or hides).
 class _Hero extends StatelessWidget {
   final Widget headline;
   final Widget features;
   const _Hero({required this.headline, required this.features});
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(builder: (context, box) {
-        final w = math.min(
-          math.min((box.maxWidth - 28) / 1.75, 240.0),
-          (box.maxHeight - 170) * kCardAspect,
-        );
-        return Align(
-          alignment: const Alignment(0, 0.8),
-          child: SingleChildScrollView(
-            physics: const NeverScrollableScrollPhysics(),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (w >= 110) _CardFan(width: w),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 30, 24, 14),
-                  child: headline,
-                ),
-                features,
-              ],
-            ),
+  Widget build(BuildContext context) => Column(
+        children: [
+          Expanded(
+            child: LayoutBuilder(builder: (context, box) {
+              final w = math.min(
+                math.min(box.maxWidth * 0.78, 380.0),
+                (box.maxHeight - 16 - 12) * kCardAspect / 1.42,
+              );
+              if (w < 110) return const SizedBox.shrink();
+              final h = w / kCardAspect;
+              final spread =
+                  ((box.maxHeight - 28 - h) / h).clamp(0.42, 1.15).toDouble();
+              // Sits right on the headline; any height left goes on top.
+              return Align(
+                alignment: Alignment.bottomCenter,
+                child: _CardFan(width: w, spread: spread),
+              );
+            }),
           ),
-        );
-      });
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 22, 24, 12),
+            child: headline,
+          ),
+          features,
+          const SizedBox(height: 14),
+        ],
+      );
 }
 
 /// What Premium adds, side by side in one row that slides by itself (and
