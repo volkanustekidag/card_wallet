@@ -95,7 +95,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: CwColors.night.bg,
+        backgroundColor: CwColors.of(context).bg,
         resizeToAvoidBottomInset: true,
         body: Obx(() {
           final isRegistering = _authController.isRegistering.value;

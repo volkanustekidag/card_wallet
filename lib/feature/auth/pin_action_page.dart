@@ -128,17 +128,17 @@ class _PinActionPageState extends State<PinActionPage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: CwColors.night.bg,
+        backgroundColor: CwColors.of(context).bg,
         extendBodyBehindAppBar: true,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           surfaceTintColor: Colors.transparent,
           scrolledUnderElevation: 0,
           elevation: 0,
-          systemOverlayStyle: SystemUiOverlayStyle.light,
+          systemOverlayStyle: cwOverlayStyle(context),
           leading: IconButton(
             tooltip: MaterialLocalizations.of(context).closeButtonLabel,
-            icon: const CwIcon(CwIcons.close, color: Colors.white),
+            icon: CwIcon(CwIcons.close, color: CwColors.of(context).ink),
             onPressed: () => Get.back<bool>(result: false),
           ),
         ),

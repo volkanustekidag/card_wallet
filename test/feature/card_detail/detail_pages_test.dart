@@ -11,6 +11,7 @@ import 'package:wallet_app/feature/card_detail/bank_card_page.dart';
 import 'package:wallet_app/feature/card_detail/iban_page.dart';
 import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
+import 'package:wallet_app/ui/components/cw_button.dart';
 import 'package:wallet_app/ui/components/cw_list.dart';
 
 import '../../helpers/harness.dart';
@@ -149,6 +150,18 @@ void main() {
           matching: find.byType(CwRow));
       await tapIo(tester, row);
       expect(bankCard.expiryReminderEnabled, isTrue);
+    });
+
+    testWidgets('edit returns to the card, showing the change', (tester) async {
+      Get.put(CreditCardController());
+      await pushPage(tester, BankCardPage(card: bankCard));
+      await tester.tap(find.text('cwEdit'.tr()));
+      await tester.pumpAndSettle();
+      await tester.enterText(fieldLabelled('cwBank'.tr()), 'Monzo');
+      await tester.pump();
+      await tapIo(tester, find.widgetWithText(CwButton, 'cwSave'.tr()));
+      expect(find.byType(BankCardPage), findsOneWidget);
+      expect(find.text('Monzo'), findsWidgets);
     });
 
     testWidgets('delete confirmed: card removed and page closed',

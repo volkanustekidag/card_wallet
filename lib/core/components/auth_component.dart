@@ -10,7 +10,7 @@ import 'package:wallet_app/ui/tokens.dart';
 import 'package:wallet_app/ui/typography.dart';
 
 /// PIN entry used by the lock screen, PIN creation/verification and PIN
-/// change: night stage, four dots and an in-app keypad (no system keyboard
+/// change: themed stage, four dots and an in-app keypad (no system keyboard
 /// popping up under a Face ID prompt). Wrong PINs shake the dots.
 class AuthViews extends StatefulWidget {
   /// Translation key for the title (`enterPin`, `createPin`, `confirmPin`…).
@@ -105,21 +105,27 @@ class _AuthViewsState extends State<AuthViews>
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     final isLock = widget.lockScreen;
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: cwOverlayStyle(context),
       child: ColoredBox(
-        color: night.bg,
+        color: c.bg,
         child: Stack(
           children: [
-            const Positioned.fill(
+            Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   gradient: RadialGradient(
-                    center: Alignment(0, -0.55),
+                    center: const Alignment(0, -0.55),
                     radius: 0.9,
-                    colors: [Color(0xFF1E1E5A), Color(0x000B0C0F)],
+                    colors: [
+                      c.accent.withValues(
+                          alpha: Theme.of(context).brightness == Brightness.dark
+                              ? 0.30
+                              : 0.10),
+                      c.accent.withValues(alpha: 0),
+                    ],
                   ),
                 ),
               ),
@@ -138,14 +144,14 @@ class _AuthViewsState extends State<AuthViews>
                         width: 64,
                         height: 64,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.07),
+                          color: c.ink.withValues(alpha: 0.07),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         alignment: Alignment.center,
                         child: CwIcon(
                           isLock ? CwIcons.lock : CwIcons.shield,
                           size: 28,
-                          color: night.ink,
+                          color: c.ink,
                         ),
                       ),
                       const SizedBox(height: 18),
@@ -154,7 +160,7 @@ class _AuthViewsState extends State<AuthViews>
                         child: Text(
                           isLock ? 'cwLocked'.tr() : widget.text.tr(),
                           textAlign: TextAlign.center,
-                          style: CwType.title.copyWith(color: night.ink),
+                          style: CwType.title.copyWith(color: c.ink),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -176,8 +182,8 @@ class _AuthViewsState extends State<AuthViews>
                             textAlign: TextAlign.center,
                             style: CwType.footnote.copyWith(
                                 color: locked || error || _wrong
-                                    ? night.danger
-                                    : night.mute),
+                                    ? c.danger
+                                    : c.mute),
                           ),
                         ),
                       ),
@@ -205,12 +211,12 @@ class _AuthViewsState extends State<AuthViews>
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: i < _pin.length
-                                      ? (error ? night.danger : night.ink)
+                                      ? (error ? c.danger : c.ink)
                                       : Colors.transparent,
                                   border: Border.all(
                                     color: error
-                                        ? night.danger
-                                        : night.ink.withValues(alpha: 0.6),
+                                        ? c.danger
+                                        : c.ink.withValues(alpha: 0.6),
                                     width: 1.6,
                                   ),
                                 ),
@@ -221,12 +227,12 @@ class _AuthViewsState extends State<AuthViews>
                       SizedBox(
                         height: 40,
                         child: busy
-                            ? const Center(
+                            ? Center(
                                 child: SizedBox(
                                   width: 18,
                                   height: 18,
                                   child: CircularProgressIndicator(
-                                      strokeWidth: 2, color: Colors.white),
+                                      strokeWidth: 2, color: c.ink),
                                 ),
                               )
                             : null,
@@ -272,12 +278,12 @@ class _Keypad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     Widget key(String d) => _Key(
           onTap: enabled ? () => onDigit(d) : null,
           child: Text(d,
               style: CwType.display.copyWith(
-                  color: night.ink, fontSize: 30, fontWeight: FontWeight.w400)),
+                  color: c.ink, fontSize: 30, fontWeight: FontWeight.w400)),
         );
     Widget row(List<Widget> keys) => Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -288,7 +294,7 @@ class _Keypad extends StatelessWidget {
             plain: true,
             semantic: 'biometricAuthReason'.tr(),
             onTap: enabled ? onBiometric : null,
-            child: const CwIcon(CwIcons.faceId, size: 30, color: Colors.white),
+            child: CwIcon(CwIcons.faceId, size: 30, color: c.ink),
           )
         : const SizedBox(width: _Key.size, height: _Key.size);
     final right = showBack
@@ -296,15 +302,14 @@ class _Keypad extends StatelessWidget {
             plain: true,
             semantic: MaterialLocalizations.of(context).deleteButtonTooltip,
             onTap: onBack,
-            child:
-                const CwIcon(CwIcons.backspace, size: 26, color: Colors.white),
+            child: CwIcon(CwIcons.backspace, size: 26, color: c.ink),
           )
         : onForgot != null
             ? _Key(
                 plain: true,
                 onTap: onForgot,
                 child: Text('cwForgot'.tr(),
-                    style: CwType.callout.copyWith(color: night.ink2)),
+                    style: CwType.callout.copyWith(color: c.ink2)),
               )
             : const SizedBox(width: _Key.size, height: _Key.size);
     return Padding(
@@ -343,8 +348,9 @@ class _Key extends StatelessWidget {
         button: true,
         label: semantic,
         child: Material(
-          color:
-              plain ? Colors.transparent : Colors.white.withValues(alpha: 0.07),
+          color: plain
+              ? Colors.transparent
+              : CwColors.of(context).ink.withValues(alpha: 0.07),
           shape: const CircleBorder(),
           child: InkWell(
             customBorder: const CircleBorder(),

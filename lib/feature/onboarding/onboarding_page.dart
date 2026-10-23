@@ -27,7 +27,7 @@ import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/tokens.dart';
 import 'package:wallet_app/ui/typography.dart';
 
-/// First launch, four steps on one night stage: welcome → what do you
+/// First launch, four steps on one stage (in the app's theme): welcome → what do you
 /// carry → add the first card → lock & reminders. Every step can be left
 /// and finished later; nothing here is required to use the app.
 class OnboardingPage extends StatefulWidget {
@@ -163,18 +163,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: cwOverlayStyle(context),
       child: Theme(
-        data: Theme.of(context).copyWith(brightness: Brightness.dark),
+        data: Theme.of(context),
         child: PopScope(
           canPop: _step == 0,
           onPopInvokedWithResult: (didPop, _) {
             if (!didPop && _step > 0) _go(_step - 1);
           },
           child: Scaffold(
-            backgroundColor: night.bg,
+            backgroundColor: c.bg,
             body: Stack(
               children: [
                 const Positioned.fill(child: _Stage()),
@@ -237,15 +237,23 @@ class _Stage extends StatelessWidget {
   const _Stage();
 
   @override
-  Widget build(BuildContext context) => const DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: Alignment(0, -0.6),
-            radius: 1.0,
-            colors: [Color(0xFF1C1C52), Color(0xFF0B0C0F)],
-          ),
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: const Alignment(0, -0.6),
+          radius: 1.0,
+          colors: [
+            Color.alphaBlend(
+                c.accent.withValues(alpha: dark ? 0.22 : 0.08), c.bg),
+            c.bg,
+          ],
         ),
-      );
+      ),
+    );
+  }
 }
 
 class _Progress extends StatelessWidget {
@@ -265,8 +273,8 @@ class _Progress extends StatelessWidget {
                   height: 4,
                   decoration: BoxDecoration(
                     color: i <= step
-                        ? Colors.white
-                        : Colors.white.withValues(alpha: 0.16),
+                        ? CwColors.of(context).ink
+                        : CwColors.of(context).ink.withValues(alpha: 0.16),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -284,23 +292,26 @@ class _Primary extends StatelessWidget {
   const _Primary({required this.label, required this.onPressed});
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-        width: double.infinity,
-        height: 56,
-        child: FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: const Color(0xFF0B0C0F),
-            disabledBackgroundColor: Colors.white.withValues(alpha: 0.25),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(CwRadius.l)),
-          ),
-          onPressed: onPressed,
-          child: Text(label,
-              style: CwType.headline.copyWith(
-                  color: const Color(0xFF0B0C0F), fontWeight: FontWeight.w700)),
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: FilledButton(
+        style: FilledButton.styleFrom(
+          backgroundColor: c.ink,
+          foregroundColor: c.bg,
+          disabledBackgroundColor: c.ink.withValues(alpha: 0.25),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(CwRadius.l)),
         ),
-      );
+        onPressed: onPressed,
+        child: Text(label,
+            style: CwType.headline
+                .copyWith(color: c.bg, fontWeight: FontWeight.w700)),
+      ),
+    );
+  }
 }
 
 class _Welcome extends StatelessWidget {
@@ -309,7 +320,7 @@ class _Welcome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     final w = MediaQuery.sizeOf(context).width * 0.66;
     Widget demo(int material, double angle, Offset at, Widget child) =>
         Transform.translate(
@@ -367,10 +378,10 @@ class _Welcome extends StatelessWidget {
             ),
           ),
           Text('cwObTitle'.tr(),
-              style: CwType.display.copyWith(color: night.ink, fontSize: 32)),
+              style: CwType.display.copyWith(color: c.ink, fontSize: 32)),
           const SizedBox(height: 12),
           Text('cwObBody'.tr(),
-              style: CwType.body.copyWith(color: night.ink2, height: 1.45)),
+              style: CwType.body.copyWith(color: c.ink2, height: 1.45)),
           const SizedBox(height: 28),
           _Primary(label: 'cwGetStarted'.tr(), onPressed: onNext),
           const SizedBox(height: 14),
@@ -397,13 +408,13 @@ class _TrustItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        CwIcon(icon, size: 13, color: night.mute),
+        CwIcon(icon, size: 13, color: c.mute),
         const SizedBox(width: 5),
-        Text(text, style: CwType.caption.copyWith(color: night.mute)),
+        Text(text, style: CwType.caption.copyWith(color: c.mute)),
       ],
     );
   }
@@ -431,17 +442,17 @@ class _Carry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text('cwCarryTitle'.tr(),
-              style: CwType.display.copyWith(color: night.ink, fontSize: 30)),
+              style: CwType.display.copyWith(color: c.ink, fontSize: 30)),
           const SizedBox(height: 6),
           Text('cwCarrySub'.tr(),
-              style: CwType.callout.copyWith(color: night.ink2)),
+              style: CwType.callout.copyWith(color: c.ink2)),
           const SizedBox(height: 20),
           Expanded(
             child: SingleChildScrollView(
@@ -471,7 +482,7 @@ class _Carry extends StatelessWidget {
                   ],
                   const SizedBox(height: 14),
                   Material(
-                    color: night.accentSoft,
+                    color: c.accentSoft,
                     borderRadius: BorderRadius.circular(CwRadius.m),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(CwRadius.m),
@@ -481,7 +492,7 @@ class _Carry extends StatelessWidget {
                         child: Row(
                           children: [
                             CwIcon(CwIcons.import,
-                                size: CwIconSize.m, color: night.ink),
+                                size: CwIconSize.m, color: c.ink),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
@@ -489,16 +500,16 @@ class _Carry extends StatelessWidget {
                                 children: [
                                   Text('cwCarryImport'.tr(),
                                       style: CwType.callout.copyWith(
-                                          color: night.ink,
+                                          color: c.ink,
                                           fontWeight: FontWeight.w700)),
                                   Text('cwCarryImportSub'.tr(),
                                       style: CwType.footnote
-                                          .copyWith(color: night.ink2)),
+                                          .copyWith(color: c.ink2)),
                                 ],
                               ),
                             ),
                             CwIcon(CwIcons.chevronRight,
-                                size: 18, color: night.ink2),
+                                size: 18, color: c.ink2),
                           ],
                         ),
                       ),
@@ -535,7 +546,7 @@ class _CarryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     return Semantics(
       button: true,
       selected: on,
@@ -549,11 +560,11 @@ class _CarryTile extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: on
-                ? Colors.white.withValues(alpha: 0.10)
-                : Colors.white.withValues(alpha: 0.04),
+                ? c.ink.withValues(alpha: 0.10)
+                : c.ink.withValues(alpha: 0.04),
             borderRadius: BorderRadius.circular(CwRadius.l),
             border: Border.all(
-              color: on ? Colors.white : Colors.white.withValues(alpha: 0.12),
+              color: on ? c.ink : c.ink.withValues(alpha: 0.12),
               width: on ? 2 : 1,
             ),
           ),
@@ -562,7 +573,7 @@ class _CarryTile extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  CwIcon(icon, size: CwIconSize.l, color: night.ink),
+                  CwIcon(icon, size: CwIconSize.l, color: c.ink),
                   const Spacer(),
                   AnimatedOpacity(
                     duration: CwMotion.fast,
@@ -570,19 +581,18 @@ class _CarryTile extends StatelessWidget {
                     child: Container(
                       width: 22,
                       height: 22,
-                      decoration: const BoxDecoration(
-                          color: Colors.white, shape: BoxShape.circle),
+                      decoration:
+                          BoxDecoration(color: c.ink, shape: BoxShape.circle),
                       alignment: Alignment.center,
-                      child: const CwIcon(CwIcons.check,
-                          size: 14, color: Color(0xFF0B0C0F)),
+                      child: CwIcon(CwIcons.check, size: 14, color: c.bg),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 14),
-              Text(title, style: CwType.headline.copyWith(color: night.ink)),
+              Text(title, style: CwType.headline.copyWith(color: c.ink)),
               const SizedBox(height: 2),
-              Text(sub, style: CwType.footnote.copyWith(color: night.mute)),
+              Text(sub, style: CwType.footnote.copyWith(color: c.mute)),
             ],
           ),
         ),
@@ -608,11 +618,11 @@ class _FirstCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     Widget secondary(CwIcons icon, String label, VoidCallback onTap) =>
         Expanded(
           child: Material(
-            color: Colors.white.withValues(alpha: 0.08),
+            color: c.ink.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(CwRadius.m),
             child: InkWell(
               borderRadius: BorderRadius.circular(CwRadius.m),
@@ -622,13 +632,13 @@ class _FirstCard extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CwIcon(icon, size: 18, color: night.ink),
+                    CwIcon(icon, size: 18, color: c.ink),
                     const SizedBox(width: 8),
                     Flexible(
                       child: Text(label,
                           overflow: TextOverflow.ellipsis,
                           style: CwType.callout.copyWith(
-                              color: night.ink, fontWeight: FontWeight.w600)),
+                              color: c.ink, fontWeight: FontWeight.w600)),
                     ),
                   ],
                 ),
@@ -642,10 +652,10 @@ class _FirstCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text('cwFirstTitle'.tr(),
-              style: CwType.display.copyWith(color: night.ink, fontSize: 30)),
+              style: CwType.display.copyWith(color: c.ink, fontSize: 30)),
           const SizedBox(height: 6),
           Text('cwFirstSub'.tr(),
-              style: CwType.callout.copyWith(color: night.ink2)),
+              style: CwType.callout.copyWith(color: c.ink2)),
           const SizedBox(height: 22),
           GestureDetector(
             onTap: onScan,
@@ -653,7 +663,7 @@ class _FirstCard extends StatelessWidget {
               aspectRatio: 1.45,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: c.ink.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(CwRadius.xl),
                 ),
                 padding: const EdgeInsets.all(22),
@@ -667,10 +677,10 @@ class _FirstCard extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const CwIcon(CwIcons.scan, size: 40, color: Colors.white),
+                      CwIcon(CwIcons.scan, size: 40, color: c.ink),
                       const SizedBox(height: 12),
                       Text('cwOpenCamera'.tr(),
-                          style: CwType.headline.copyWith(color: night.ink)),
+                          style: CwType.headline.copyWith(color: c.ink)),
                     ],
                   ),
                 ),
@@ -690,7 +700,7 @@ class _FirstCard extends StatelessWidget {
             onPressed: onLater,
             child: Text('cwLater'.tr(),
                 style: CwType.callout
-                    .copyWith(color: night.mute, fontWeight: FontWeight.w600)),
+                    .copyWith(color: c.mute, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -764,7 +774,7 @@ class _LockStepState extends State<_LockStep> {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     final auth = _auth;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
@@ -777,29 +787,28 @@ class _LockStepState extends State<_LockStep> {
               width: 84,
               height: 84,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
+                color: c.ink.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(26),
               ),
               alignment: Alignment.center,
-              child:
-                  const CwIcon(CwIcons.shield, size: 40, color: Colors.white),
+              child: CwIcon(CwIcons.shield, size: 40, color: c.ink),
             ),
           ),
           const SizedBox(height: 22),
           Text('cwLockTitle'.tr(),
               textAlign: TextAlign.center,
-              style: CwType.display.copyWith(color: night.ink, fontSize: 28)),
+              style: CwType.display.copyWith(color: c.ink, fontSize: 28)),
           const SizedBox(height: 10),
           Text('cwLockSub'.tr(),
               textAlign: TextAlign.center,
-              style: CwType.callout.copyWith(color: night.ink2, height: 1.4)),
+              style: CwType.callout.copyWith(color: c.ink2, height: 1.4)),
           const SizedBox(height: 24),
           Obx(() {
             final hasPin = auth.hasPassword.value;
             final bio = auth.isBiometricAvailable.value;
             return Container(
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.06),
+                color: c.ink.withValues(alpha: 0.06),
                 borderRadius: BorderRadius.circular(CwRadius.l),
               ),
               child: Column(
@@ -815,7 +824,7 @@ class _LockStepState extends State<_LockStep> {
                   Divider(
                       height: 1,
                       indent: 60,
-                      color: Colors.white.withValues(alpha: 0.08)),
+                      color: c.ink.withValues(alpha: 0.08)),
                   _NightRow(
                     icon: CwIcons.bell,
                     title: 'cwRemindExpire'.tr(),
@@ -850,7 +859,7 @@ class _NightRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     // Like CwRow: tapping anywhere on a switch row flips the switch.
     final t = trailing;
     final onTap = t is CwSwitch && t.onChanged != null
@@ -867,11 +876,11 @@ class _NightRow extends StatelessWidget {
               width: 34,
               height: 34,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.08),
+                color: c.ink.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
               ),
               alignment: Alignment.center,
-              child: CwIcon(icon, size: 18, color: night.ink),
+              child: CwIcon(icon, size: 18, color: c.ink),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -879,9 +888,9 @@ class _NightRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title,
-                      style: CwType.callout.copyWith(
-                          color: night.ink, fontWeight: FontWeight.w600)),
-                  Text(sub, style: CwType.footnote.copyWith(color: night.mute)),
+                      style: CwType.callout
+                          .copyWith(color: c.ink, fontWeight: FontWeight.w600)),
+                  Text(sub, style: CwType.footnote.copyWith(color: c.mute)),
                 ],
               ),
             ),

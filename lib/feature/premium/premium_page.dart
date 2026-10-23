@@ -24,7 +24,7 @@ import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/tokens.dart';
 import 'package:wallet_app/ui/typography.dart';
 
-/// Paywall v2: the user's own cards fanned out on a night stage, one line
+/// Paywall v2: the user's own cards fanned out on a stage in the app's theme, one line
 /// on why it opened (trigger), what Premium adds, the store's three plans
 /// (yearly default + best-value badge + per-month equivalent) and one CTA.
 /// Pricing, plans and gating are unchanged — this is presentation only.
@@ -105,11 +105,11 @@ class _PremiumPageState extends State<PremiumPage> {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
+      value: cwOverlayStyle(context),
       child: Scaffold(
-        backgroundColor: night.bg,
+        backgroundColor: c.bg,
         body: Obx(() {
           final isLoading = _premiumController.isLoading;
           final isPremium = _premiumController.isPremium;
@@ -137,7 +137,7 @@ class _PremiumPageState extends State<PremiumPage> {
 
           return Stack(
             children: [
-              const Positioned.fill(child: _NightBackdrop()),
+              const Positioned.fill(child: _Backdrop()),
               SafeArea(
                 child: CustomScrollView(
                   physics: const BouncingScrollPhysics(),
@@ -158,14 +158,14 @@ class _PremiumPageState extends State<PremiumPage> {
                               'cwPayTitle'.tr(),
                               textAlign: TextAlign.center,
                               style: CwType.display
-                                  .copyWith(color: night.ink, fontSize: 30),
+                                  .copyWith(color: c.ink, fontSize: 30),
                             ),
                             const SizedBox(height: 10),
                             Text(
                               subtitleKey.tr(),
                               textAlign: TextAlign.center,
                               style: CwType.callout
-                                  .copyWith(color: night.ink2, height: 1.45),
+                                  .copyWith(color: c.ink2, height: 1.45),
                             ),
                           ],
                         ),
@@ -211,8 +211,8 @@ class _PremiumPageState extends State<PremiumPage> {
                                   const SizedBox(height: 8),
                                   Text(
                                     'premiumCancelAnytime'.tr(),
-                                    style: CwType.caption
-                                        .copyWith(color: night.mute),
+                                    style:
+                                        CwType.caption.copyWith(color: c.mute),
                                   ),
                                 ],
                               ),
@@ -225,9 +225,9 @@ class _PremiumPageState extends State<PremiumPage> {
               if (isLoading)
                 Positioned.fill(
                   child: ColoredBox(
-                    color: night.bg.withValues(alpha: 0.6),
-                    child: const Center(
-                      child: CircularProgressIndicator(color: Colors.white),
+                    color: c.bg.withValues(alpha: 0.6),
+                    child: Center(
+                      child: CircularProgressIndicator(color: c.ink),
                     ),
                   ),
                 ),
@@ -405,29 +405,40 @@ class _PremiumPageState extends State<PremiumPage> {
 // Presentation
 // ---------------------------------------------------------------------------
 
-class _NightBackdrop extends StatelessWidget {
-  const _NightBackdrop();
+class _Backdrop extends StatelessWidget {
+  const _Backdrop();
 
   @override
-  Widget build(BuildContext context) => const DecoratedBox(
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: RadialGradient(
+          center: const Alignment(-0.6, -0.95),
+          radius: 1.2,
+          colors: [
+            Color.alphaBlend(
+                c.accent.withValues(alpha: dark ? 0.25 : 0.10), c.bg),
+            c.bg,
+          ],
+          stops: const [0, 0.7],
+        ),
+      ),
+      child: DecoratedBox(
         decoration: BoxDecoration(
           gradient: RadialGradient(
-            center: Alignment(-0.6, -0.95),
-            radius: 1.2,
-            colors: [Color(0xFF26245E), Color(0xFF0B0C0F)],
-            stops: [0, 0.7],
+            center: const Alignment(0.9, -0.6),
+            radius: 0.9,
+            colors: [
+              c.ok.withValues(alpha: dark ? 0.25 : 0.10),
+              c.ok.withValues(alpha: 0),
+            ],
           ),
         ),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: RadialGradient(
-              center: Alignment(0.9, -0.6),
-              radius: 0.9,
-              colors: [Color(0x401A8A62), Color(0x000B0C0F)],
-            ),
-          ),
-        ),
-      );
+      ),
+    );
+  }
 }
 
 class _TopBar extends StatelessWidget {
@@ -437,7 +448,7 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
       child: Row(
@@ -445,13 +456,13 @@ class _TopBar extends StatelessWidget {
           IconButton(
             tooltip: MaterialLocalizations.of(context).closeButtonLabel,
             onPressed: onClose,
-            icon: CwIcon(CwIcons.close, color: night.ink2),
+            icon: CwIcon(CwIcons.close, color: c.ink2),
           ),
           const Spacer(),
           TextButton(
             onPressed: onRestore,
             child: Text('restorePurchases'.tr(),
-                style: CwType.callout.copyWith(color: night.ink2)),
+                style: CwType.callout.copyWith(color: c.ink2)),
           ),
         ],
       ),
@@ -523,7 +534,7 @@ class _FeatureList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
       child: Column(
@@ -537,11 +548,11 @@ class _FeatureList extends StatelessWidget {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.08),
+                      color: c.ink.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     alignment: Alignment.center,
-                    child: CwIcon(r.$1, size: 18, color: night.ink),
+                    child: CwIcon(r.$1, size: 18, color: c.ink),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -550,9 +561,9 @@ class _FeatureList extends StatelessWidget {
                       children: [
                         Text(r.$2.tr(),
                             style: CwType.callout.copyWith(
-                                color: night.ink, fontWeight: FontWeight.w700)),
+                                color: c.ink, fontWeight: FontWeight.w700)),
                         Text(_forPlatform(r.$3).tr(),
-                            style: CwType.footnote.copyWith(color: night.mute)),
+                            style: CwType.footnote.copyWith(color: c.mute)),
                       ],
                     ),
                   ),
@@ -610,7 +621,7 @@ class _PlanRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     final locale = context.locale;
     return IntrinsicHeight(
       child: Row(
@@ -636,13 +647,11 @@ class _PlanRow extends StatelessWidget {
                           padding: const EdgeInsets.fromLTRB(8, 16, 8, 12),
                           decoration: BoxDecoration(
                             color: on
-                                ? Colors.white.withValues(alpha: 0.10)
-                                : Colors.white.withValues(alpha: 0.04),
+                                ? c.ink.withValues(alpha: 0.10)
+                                : c.ink.withValues(alpha: 0.04),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: on
-                                  ? Colors.white
-                                  : Colors.white.withValues(alpha: 0.16),
+                              color: on ? c.ink : c.ink.withValues(alpha: 0.16),
                               width: on ? 2 : 1,
                             ),
                           ),
@@ -653,26 +662,26 @@ class _PlanRow extends StatelessWidget {
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   style: CwType.footnote.copyWith(
-                                      color: night.ink2,
+                                      color: c.ink2,
                                       fontWeight: FontWeight.w600)),
                               const SizedBox(height: 4),
                               FittedBox(
                                 fit: BoxFit.scaleDown,
                                 child: Text(p.price,
                                     style: CwType.headline.copyWith(
-                                        color: night.ink,
+                                        color: c.ink,
                                         fontWeight: FontWeight.w800)),
                               ),
                               Text(_period(p),
-                                  style: CwType.caption
-                                      .copyWith(color: night.mute)),
+                                  style:
+                                      CwType.caption.copyWith(color: c.mute)),
                               if (perMonth != null) ...[
                                 const SizedBox(height: 4),
                                 FittedBox(
                                   fit: BoxFit.scaleDown,
                                   child: Text(perMonth,
                                       style: CwType.caption.copyWith(
-                                          color: night.ink2,
+                                          color: c.ink2,
                                           fontWeight: FontWeight.w700)),
                                 ),
                               ],
@@ -689,14 +698,13 @@ class _PlanRow extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 3),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: c.ink,
                                   borderRadius: BorderRadius.circular(999),
                                 ),
                                 child: Text(
                                   'cwBestValue'.tr().toUpperCase(),
-                                  style: CwType.overline.copyWith(
-                                      color: const Color(0xFF0B0C0F),
-                                      fontSize: 9.5),
+                                  style: CwType.overline
+                                      .copyWith(color: c.bg, fontSize: 9.5),
                                 ),
                               ),
                             ),
@@ -720,29 +728,32 @@ class _ContinueButton extends StatelessWidget {
   const _ContinueButton({required this.label, required this.onPressed});
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-        width: double.infinity,
-        height: 56,
-        child: FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: const Color(0xFF0B0C0F),
-            disabledBackgroundColor: Colors.white.withValues(alpha: 0.3),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(CwRadius.l),
-            ),
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: FilledButton(
+        style: FilledButton.styleFrom(
+          backgroundColor: c.ink,
+          foregroundColor: c.bg,
+          disabledBackgroundColor: c.ink.withValues(alpha: 0.3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(CwRadius.l),
           ),
-          onPressed: onPressed == null
-              ? null
-              : () {
-                  HapticFeedback.mediumImpact();
-                  onPressed!();
-                },
-          child: Text(label,
-              style: CwType.headline.copyWith(
-                  color: const Color(0xFF0B0C0F), fontWeight: FontWeight.w700)),
         ),
-      );
+        onPressed: onPressed == null
+            ? null
+            : () {
+                HapticFeedback.mediumImpact();
+                onPressed!();
+              },
+        child: Text(label,
+            style: CwType.headline
+                .copyWith(color: c.bg, fontWeight: FontWeight.w700)),
+      ),
+    );
+  }
 }
 
 class _ProductsUnavailable extends StatelessWidget {
@@ -754,7 +765,7 @@ class _ProductsUnavailable extends StatelessWidget {
         child: Text(
           'premiumProductsUnavailable'.tr(),
           textAlign: TextAlign.center,
-          style: CwType.callout.copyWith(color: CwColors.night.warn),
+          style: CwType.callout.copyWith(color: CwColors.of(context).warn),
         ),
       );
 }
@@ -774,30 +785,30 @@ class _PremiumActiveCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
+    final c = CwColors.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.06),
+        color: c.ink.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(CwRadius.l),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
+        border: Border.all(color: c.ink.withValues(alpha: 0.14)),
       ),
       child: Column(
         children: [
-          CwIcon(CwIcons.gem, size: 30, color: night.accent),
+          CwIcon(CwIcons.gem, size: 30, color: c.accent),
           const SizedBox(height: 10),
           Text('premiumActiveTitle'.tr(),
               textAlign: TextAlign.center,
-              style: CwType.title.copyWith(color: night.ink, fontSize: 20)),
+              style: CwType.title.copyWith(color: c.ink, fontSize: 20)),
           const SizedBox(height: 4),
           Text('premiumActiveSubtitle'.tr(),
               textAlign: TextAlign.center,
-              style: CwType.footnote.copyWith(color: night.ink2)),
+              style: CwType.footnote.copyWith(color: c.ink2)),
           const SizedBox(height: 8),
           Text('premiumCurrentPlan'.tr(args: [planLabel]),
               style: CwType.footnote
-                  .copyWith(color: night.ink, fontWeight: FontWeight.w700)),
+                  .copyWith(color: c.ink, fontWeight: FontWeight.w700)),
           if (onManage != null || onChangePlan != null) ...[
             const SizedBox(height: 16),
             Row(
@@ -806,9 +817,8 @@ class _PremiumActiveCard extends StatelessWidget {
                   Expanded(
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: night.ink,
-                        side: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.3)),
+                        foregroundColor: c.ink,
+                        side: BorderSide(color: c.ink.withValues(alpha: 0.3)),
                       ),
                       onPressed: onManage,
                       child: Text('manageSubscription'.tr(),
@@ -821,8 +831,8 @@ class _PremiumActiveCard extends StatelessWidget {
                   Expanded(
                     child: FilledButton(
                       style: FilledButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF0B0C0F),
+                        backgroundColor: c.ink,
+                        foregroundColor: c.bg,
                       ),
                       onPressed: onChangePlan,
                       child:
@@ -849,8 +859,8 @@ class _Legal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const night = CwColors.night;
-    final link = CwType.caption.copyWith(color: night.ink2);
+    final c = CwColors.of(context);
+    final link = CwType.caption.copyWith(color: c.ink2);
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 18, 24, 28),
       child: Column(
@@ -862,7 +872,7 @@ class _Legal extends StatelessWidget {
                 .tr(),
             textAlign: TextAlign.center,
             style: CwType.caption.copyWith(
-                color: night.mute,
+                color: c.mute,
                 fontWeight: FontWeight.w400,
                 fontSize: 10.5,
                 height: 1.45),

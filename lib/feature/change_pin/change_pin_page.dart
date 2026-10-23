@@ -41,7 +41,7 @@ class _ChangePinPageState extends State<ChangePinPage> {
     final controller = Get.find<ChangePinController>();
 
     return Scaffold(
-      backgroundColor: CwColors.night.bg,
+      backgroundColor: CwColors.of(context).bg,
       extendBodyBehindAppBar: true,
       appBar: const ChangePinAppBar(),
       body: Obx(() {

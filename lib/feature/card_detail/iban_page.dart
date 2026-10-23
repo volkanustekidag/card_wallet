@@ -20,6 +20,7 @@ import 'package:wallet_app/ui/components/cw_misc.dart';
 import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/tokens.dart';
 import 'package:wallet_app/ui/typography.dart';
+import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 
 /// IBAN detail: the account card, each field one tap from the clipboard,
 /// and sharing as image or text.
@@ -33,7 +34,9 @@ class IbanPage extends StatefulWidget {
 }
 
 class _IbanPageState extends State<IbanPage> {
-  IbanCard get card => widget.card;
+  /// Re-read after an edit: saving stores a new object under the card's id.
+  late IbanCard _card = widget.card;
+  IbanCard get card => _card;
 
   @override
   Widget build(BuildContext context) {
@@ -173,10 +176,7 @@ class _IbanPageState extends State<IbanPage> {
               title: 'cwEdit'.tr(),
               onTap: () {
                 Navigator.pop(sheet);
-                Get.off(
-                  () => AddIbanCardPage(ibanCard: card),
-                  binding: AddIbanCardBindings(),
-                );
+                _edit();
               },
             ),
             CwRow(
@@ -192,6 +192,17 @@ class _IbanPageState extends State<IbanPage> {
         ),
       ),
     );
+  }
+
+  /// Edits on top of this page and comes back to it, updated.
+  Future<void> _edit() async {
+    await Get.to<void>(
+      () => AddIbanCardPage(ibanCard: card),
+      binding: AddIbanCardBindings(),
+    );
+    final cards = await IbanCardService().getAllIbanCards();
+    final fresh = cards.where((c) => c.id == card.id).firstOrNull;
+    if (fresh != null && mounted) setState(() => _card = fresh);
   }
 
   Future<void> _delete() async {

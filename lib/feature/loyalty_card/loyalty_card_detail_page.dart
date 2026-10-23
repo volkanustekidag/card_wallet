@@ -57,7 +57,9 @@ class LoyaltyCardDetailPage extends StatefulWidget {
 }
 
 class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
-  LoyaltyCard get card => widget.card;
+  /// Re-read after an edit: saving stores a new object under the card's id.
+  late LoyaltyCard _card = widget.card;
+  LoyaltyCard get card => _card;
   bool get readOnly => widget.readOnly;
 
   StreamSubscription<AccelerometerEvent>? _accel;
@@ -333,11 +335,15 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
     if (!popped) Get.offAllNamed(AppRoutes.auth);
   }
 
-  void _onEdit() {
-    Get.off(
+  /// Edits on top of this page and comes back to it, updated.
+  Future<void> _onEdit() async {
+    await Get.to<void>(
       () => AddLoyaltyCardPage(card: card),
       binding: AddLoyaltyCardBindings(),
     );
+    final cards = await LoyaltyCardService().getAllLoyaltyCards();
+    final fresh = cards.where((c) => c.id == card.id).firstOrNull;
+    if (fresh != null && mounted) setState(() => _card = fresh);
   }
 
   Future<void> _onDelete(BuildContext context) async {

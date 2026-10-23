@@ -27,6 +27,7 @@ import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/tokens.dart';
 import 'package:wallet_app/ui/typography.dart';
 import 'package:wallet_app/core/utils/credit_card_label.dart';
+import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 
 /// How long a revealed card number stays on screen.
 const int kRevealSeconds = 30;
@@ -43,7 +44,9 @@ class BankCardPage extends StatefulWidget {
 }
 
 class _BankCardPageState extends State<BankCardPage> {
-  CreditCard get card => widget.card;
+  /// Re-read after an edit: saving stores a new object under the card's id.
+  late CreditCard _card = widget.card;
+  CreditCard get card => _card;
 
   Timer? _ticker;
   int _secondsLeft = 0;
@@ -251,11 +254,15 @@ class _BankCardPageState extends State<BankCardPage> {
     await shareText(text, origin: shareOriginFromContext(context));
   }
 
-  void _edit() {
-    Get.off(
+  /// Edits on top of this page and comes back to it, updated.
+  Future<void> _edit() async {
+    await Get.to<void>(
       () => AddCreditCardPage(creditCard: card),
       binding: AddCreditCardBindings(),
     );
+    final cards = await CreditCardService().getAllCreditCards();
+    final fresh = cards.where((c) => c.id == card.id).firstOrNull;
+    if (fresh != null && mounted) setState(() => _card = fresh);
   }
 
   Future<void> _openMore() async {
