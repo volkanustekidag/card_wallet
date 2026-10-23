@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
@@ -132,7 +133,7 @@ class _PremiumPageState extends State<PremiumPage> {
               : null;
           final bestValueId = _bestValueProductId(weekly, monthly, yearly);
           final subtitleKey =
-              _triggerSubtitles[_featureArg] ?? 'cwPaySubDefault';
+              _forPlatform(_triggerSubtitles[_featureArg] ?? 'cwPaySubDefault');
 
           return Stack(
             children: [
@@ -500,6 +501,16 @@ class _CardFan extends StatelessWidget {
   }
 }
 
+/// Strings naming the phone's own wallet app: Apple Wallet on iOS, Google
+/// Wallet elsewhere (`…Ios` / `…Android` variants of [key]).
+String _forPlatform(String key) {
+  const perPlatform = {'cwPaySubWallet', 'cwFeatMaterialsSub'};
+  if (!perPlatform.contains(key)) return key;
+  final apple = defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.macOS;
+  return '$key${apple ? 'Ios' : 'Android'}';
+}
+
 class _FeatureList extends StatelessWidget {
   const _FeatureList();
 
@@ -540,7 +551,7 @@ class _FeatureList extends StatelessWidget {
                         Text(r.$2.tr(),
                             style: CwType.callout.copyWith(
                                 color: night.ink, fontWeight: FontWeight.w700)),
-                        Text(r.$3.tr(),
+                        Text(_forPlatform(r.$3).tr(),
                             style: CwType.footnote.copyWith(color: night.mute)),
                       ],
                     ),

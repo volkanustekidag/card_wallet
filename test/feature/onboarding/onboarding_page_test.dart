@@ -65,6 +65,25 @@ void main() {
     expect(h.analytics.containsKey('first_card_picker_skipped'), isTrue);
   });
 
+  testWidgets('"remind me" turns expiry reminders on for cards and new ones',
+      (tester) async {
+    final card = credit('c1', bank: 'Chase');
+    await tester.runAsync(() => CreditCardService().addToCreditCard(card));
+    await open(tester);
+    await next(tester, 'cwGetStarted');
+    await next(tester, 'cwContinue');
+    await next(tester, 'cwLater');
+    expect(card.expiryReminderEnabled, isFalse);
+
+    await tapIo(tester, find.text('cwRemindExpire'.tr()));
+    expect(UiPrefs.instance.remindByDefault.value, isTrue);
+    expect(card.expiryReminderEnabled, isTrue);
+
+    await tapIo(tester, find.text('cwRemindExpire'.tr()));
+    expect(UiPrefs.instance.remindByDefault.value, isFalse);
+    expect(card.expiryReminderEnabled, isFalse);
+  });
+
   testWidgets('nothing picked on "what do you carry": cannot continue',
       (tester) async {
     await open(tester);

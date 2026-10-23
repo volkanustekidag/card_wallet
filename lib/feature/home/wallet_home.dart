@@ -27,6 +27,7 @@ import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/navigation/open_wallet_item.dart';
 import 'package:wallet_app/ui/tokens.dart';
 import 'package:wallet_app/ui/typography.dart';
+import 'package:wallet_app/core/utils/credit_card_label.dart';
 
 /// Visible height of each card in the stack before the next one covers it.
 const double _kStripHeight = 58;
@@ -222,10 +223,10 @@ class _WalletSlivers extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final stack = stackOrder(items, filter);
-    final upNext = showUpNext &&
-            (filter == HomeFilter.all || filter == HomeFilter.loyalty)
-        ? _upNext(now)
-        : null;
+    final upNext =
+        showUpNext && (filter == HomeFilter.all || filter == HomeFilter.loyalty)
+            ? _upNext(now)
+            : null;
     final notice = (filter == HomeFilter.all || filter == HomeFilter.credit)
         ? _topNotice()
         : null;
@@ -490,7 +491,7 @@ class _CountLine extends StatelessWidget {
       final card = n.date.card;
       final name = card.bankName.trim().isNotEmpty
           ? card.bankName.trim()
-          : '•• ${last4Of(card.creditCardNumber)}';
+          : '${creditCardLabel(card)} •• ${last4Of(card.creditCardNumber)}';
       final text = (n.kind == CardReminderKind.payment
               ? 'cwNoticePayment'
               : 'cwNoticeExpiry')
@@ -771,38 +772,58 @@ class _EmptyWallet extends StatelessWidget {
           ),
         ),
         CwSectionHeader('cwQuickStart'.tr()),
-        CwGroup(
-          children: [
-            CwRow(
-              leading: CwIconTile(CwIcons.barcode, color: c.ok),
-              title: 'cwQsLoyalty'.tr(),
-              subtitle: 'cwQsLoyaltySub'.tr(),
-              chevron: true,
-              onTap: () => openScanner(mode: ScanMode.barcode),
+        // What the user said they carry (onboarding) comes first.
+        Obx(() {
+          final carry = UiPrefs.instance.carry;
+          final rows = <(String, Widget)>[
+            (
+              'loyalty',
+              CwRow(
+                leading: CwIconTile(CwIcons.barcode, color: c.ok),
+                title: 'cwQsLoyalty'.tr(),
+                subtitle: 'cwQsLoyaltySub'.tr(),
+                chevron: true,
+                onTap: () => openScanner(mode: ScanMode.barcode),
+              ),
             ),
-            CwRow(
-              leading: CwIconTile(CwIcons.card, color: c.ink),
-              title: 'cwQsCard'.tr(),
-              subtitle: 'cwQsCardSub'.tr(),
-              chevron: true,
-              onTap: () => openScanner(mode: ScanMode.card),
+            (
+              'cards',
+              CwRow(
+                leading: CwIconTile(CwIcons.card, color: c.ink),
+                title: 'cwQsCard'.tr(),
+                subtitle: 'cwQsCardSub'.tr(),
+                chevron: true,
+                onTap: () => openScanner(mode: ScanMode.card),
+              ),
             ),
-            CwRow(
-              leading: CwIconTile(CwIcons.bank, color: c.accent),
-              title: 'cwQsIban'.tr(),
-              subtitle: 'cwQsIbanSub'.tr(),
-              chevron: true,
-              onTap: () => openScanner(mode: ScanMode.iban),
+            (
+              'iban',
+              CwRow(
+                leading: CwIconTile(CwIcons.bank, color: c.accent),
+                title: 'cwQsIban'.tr(),
+                subtitle: 'cwQsIbanSub'.tr(),
+                chevron: true,
+                onTap: () => openScanner(mode: ScanMode.iban),
+              ),
             ),
-            CwRow(
-              leading: CwIconTile(CwIcons.import, color: c.warn),
-              title: 'cwQsImport'.tr(),
-              subtitle: 'cwQsImportSub'.tr(),
-              chevron: true,
-              onTap: () => openImport(context),
-            ),
-          ],
-        ),
+          ];
+          bool carried(String kind) =>
+              carry.contains(kind) ||
+              (kind == 'loyalty' && carry.contains('members'));
+          return CwGroup(
+            children: [
+              for (final r in rows.where((r) => carried(r.$1))) r.$2,
+              for (final r in rows.where((r) => !carried(r.$1))) r.$2,
+              CwRow(
+                leading: CwIconTile(CwIcons.import, color: c.warn),
+                title: 'cwQsImport'.tr(),
+                subtitle: 'cwQsImportSub'.tr(),
+                chevron: true,
+                onTap: () => openImport(context),
+              ),
+            ],
+          );
+        }),
       ],
     );
   }

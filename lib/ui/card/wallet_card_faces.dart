@@ -14,6 +14,7 @@ import 'package:wallet_app/ui/card/card_face.dart';
 import 'package:wallet_app/ui/card/card_material.dart';
 import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/typography.dart';
+import 'package:wallet_app/core/utils/credit_card_label.dart';
 
 /// Standard card proportions (ISO/IEC 7810 ID-1).
 const double kCardAspect = 1.586;
@@ -56,10 +57,7 @@ String typeLabelFor(WalletItemKind kind) {
 String titleForItem(WalletItem item) {
   switch (item.kind) {
     case WalletItemKind.credit:
-      final c = item.card as CreditCard;
-      return c.bankName.trim().isNotEmpty
-          ? c.bankName.trim()
-          : 'cwTypeCard'.tr();
+      return creditCardLabel(item.card as CreditCard);
     case WalletItemKind.iban:
       final c = item.card as IbanCard;
       return c.bankName.trim().isNotEmpty

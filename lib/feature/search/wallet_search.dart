@@ -4,6 +4,7 @@ import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.da
 import 'package:wallet_app/core/utils/search_normalize.dart';
 import 'package:wallet_app/core/utils/tag_index.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
+import 'package:wallet_app/core/utils/credit_card_label.dart';
 
 /// Searchable text per card kind:
 ///  * credit: holder, bank, tags, last 4 digits
@@ -18,7 +19,7 @@ List<String> walletSearchFields(WalletItem item) {
       final c = item.card as CreditCard;
       return [
         c.cardHolder,
-        c.bankName,
+        creditCardLabel(c),
         ..._userTags(c.tags),
         last4(c.creditCardNumber),
       ];

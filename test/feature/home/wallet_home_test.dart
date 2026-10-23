@@ -91,6 +91,17 @@ void main() {
     expect(find.byKey(const ValueKey('homeUpNext')), findsNothing);
   });
 
+  testWidgets('quick start leads with what the user said they carry',
+      (tester) async {
+    UiPrefs.instance.carry.assignAll(['iban', 'cards']);
+    addTearDown(UiPrefs.instance.carry.clear);
+    await pumpHome(tester, FakeHome());
+    double y(String key) => tester.getTopLeft(find.text(key.tr())).dy;
+    expect(y('cwQsCard'), lessThan(y('cwQsLoyalty')));
+    expect(y('cwQsIban'), lessThan(y('cwQsLoyalty')));
+    expect(y('cwQsLoyalty'), lessThan(y('cwQsImport')));
+  });
+
   testWidgets('Up Next shows the card used at this hour', (tester) async {
     await pumpHome(
       tester,

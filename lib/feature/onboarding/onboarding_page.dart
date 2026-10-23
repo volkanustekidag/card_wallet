@@ -13,6 +13,7 @@ import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/l
 import 'package:wallet_app/core/router/getx_routes.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
 import 'package:wallet_app/core/services/ui_prefs.dart';
 import 'package:wallet_app/core/utils/secure_storage_provider.dart';
 import 'package:wallet_app/core/utils/session_prompt_gate.dart';
@@ -193,12 +194,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             _Welcome(onNext: () => _go(1)),
                             _Carry(
                               selected: _carry,
-                              onToggle: (k) => setState(() =>
-                                  _carry.contains(k)
-                                      ? _carry.remove(k)
-                                      : _carry.add(k)),
-                              onImport: () => _afterAdd(
-                                  () => openImport(context)),
+                              onToggle: (k) => setState(() => _carry.contains(k)
+                                  ? _carry.remove(k)
+                                  : _carry.add(k)),
+                              onImport: () =>
+                                  _afterAdd(() => openImport(context)),
                               onNext: () {
                                 UiPrefs.instance.setCarry(_carry.toList());
                                 _go(2);
@@ -208,10 +208,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                               added: _cardsAdded,
                               onScan: () => _afterAdd(
                                   () => openScanner(mode: _preferredMode)),
-                              onImport: () => _afterAdd(
-                                  () => openImport(context)),
-                              onType: () => _afterAdd(
-                                  () => pickManualEntry(context)),
+                              onImport: () =>
+                                  _afterAdd(() => openImport(context)),
+                              onType: () =>
+                                  _afterAdd(() => pickManualEntry(context)),
                               onLater: () => _go(3),
                             ),
                             _LockStep(
@@ -327,8 +327,8 @@ class _Welcome extends StatelessWidget {
     Widget label(String t) => Align(
           alignment: Alignment.topLeft,
           child: Text(t,
-              style: CwType.overline.copyWith(
-                  color: Colors.white.withValues(alpha: 0.75))),
+              style: CwType.overline
+                  .copyWith(color: Colors.white.withValues(alpha: 0.75))),
         );
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
@@ -345,8 +345,7 @@ class _Welcome extends StatelessWidget {
                   children: [
                     demo(10, -0.12, const Offset(-26, -56),
                         label('cwTypeLoyalty'.tr().toUpperCase())),
-                    demo(0, 0.08, const Offset(30, -8),
-                        label('IBAN')),
+                    demo(0, 0.08, const Offset(30, -8), label('IBAN')),
                     demo(
                       11,
                       -0.03,
@@ -357,7 +356,8 @@ class _Welcome extends StatelessWidget {
                           label('cwTypeCard'.tr().toUpperCase()),
                           const Spacer(),
                           Text('••••  ••••  ••••  4242',
-                              style: CwType.mono(size: 15, color: Colors.white)),
+                              style:
+                                  CwType.mono(size: 15, color: Colors.white)),
                         ],
                       ),
                     ),
@@ -580,8 +580,7 @@ class _CarryTile extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 14),
-              Text(title,
-                  style: CwType.headline.copyWith(color: night.ink)),
+              Text(title, style: CwType.headline.copyWith(color: night.ink)),
               const SizedBox(height: 2),
               Text(sub, style: CwType.footnote.copyWith(color: night.mute)),
             ],
@@ -661,8 +660,8 @@ class _FirstCard extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                        color: const Color(0xFF34D399), width: 2.5),
+                    border:
+                        Border.all(color: const Color(0xFF34D399), width: 2.5),
                   ),
                   alignment: Alignment.center,
                   child: Column(
@@ -690,8 +689,8 @@ class _FirstCard extends StatelessWidget {
           TextButton(
             onPressed: onLater,
             child: Text('cwLater'.tr(),
-                style: CwType.callout.copyWith(
-                    color: night.mute, fontWeight: FontWeight.w600)),
+                style: CwType.callout
+                    .copyWith(color: night.mute, fontWeight: FontWeight.w600)),
           ),
         ],
       ),
@@ -718,9 +717,7 @@ class _LockStepState extends State<_LockStep> {
   @override
   void initState() {
     super.initState();
-    CardReminderService().notificationsEnabled().then((v) {
-      if (mounted) setState(() => _reminders = v);
-    }).catchError((_) {});
+    _reminders = UiPrefs.instance.remindByDefault.value;
   }
 
   Future<void> _toggleLock(bool on) async {
@@ -743,14 +740,26 @@ class _LockStepState extends State<_LockStep> {
     if (mounted) setState(() {});
   }
 
+  /// On: expiry reminders for the cards added so far and every new one
+  /// (asks for the notification permission first). Off: undoes that.
   Future<void> _toggleReminders(bool on) async {
-    if (!on) {
-      // The OS owns this permission; send the user there to turn it off.
-      await CardReminderService().openNotificationSettings();
-      return;
+    if (on && !await CardReminderService().requestPermission()) return;
+    if (mounted) setState(() => _reminders = on);
+    await UiPrefs.instance.setRemindByDefault(on);
+    try {
+      final service = CreditCardService();
+      for (final card in await service.getAllCreditCards()) {
+        if (card.expiryReminderEnabled == on) continue;
+        card.expiryReminderEnabled = on;
+        await card.save();
+        await CardReminderService.guarded(
+          'onboarding.reminders',
+          () => CardReminderService().scheduleForCard(card),
+        );
+      }
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'onboarding.reminders');
     }
-    final granted = await CardReminderService().requestPermission();
-    if (mounted) setState(() => _reminders = granted);
   }
 
   @override
@@ -772,7 +781,8 @@ class _LockStepState extends State<_LockStep> {
                 borderRadius: BorderRadius.circular(26),
               ),
               alignment: Alignment.center,
-              child: const CwIcon(CwIcons.shield, size: 40, color: Colors.white),
+              child:
+                  const CwIcon(CwIcons.shield, size: 40, color: Colors.white),
             ),
           ),
           const SizedBox(height: 22),
@@ -810,8 +820,8 @@ class _LockStepState extends State<_LockStep> {
                     icon: CwIcons.bell,
                     title: 'cwRemindExpire'.tr(),
                     sub: 'cwRemindExpireSub'.tr(),
-                    trailing:
-                        CwSwitch(value: _reminders, onChanged: _toggleReminders),
+                    trailing: CwSwitch(
+                        value: _reminders, onChanged: _toggleReminders),
                   ),
                 ],
               ),
@@ -841,35 +851,43 @@ class _NightRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const night = CwColors.night;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
-      child: Row(
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
+    // Like CwRow: tapping anywhere on a switch row flips the switch.
+    final t = trailing;
+    final onTap = t is CwSwitch && t.onChanged != null
+        ? () => t.onChanged!(!t.value)
+        : null;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(CwRadius.l),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+        child: Row(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              alignment: Alignment.center,
+              child: CwIcon(icon, size: 18, color: night.ink),
             ),
-            alignment: Alignment.center,
-            child: CwIcon(icon, size: 18, color: night.ink),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title,
-                    style: CwType.callout.copyWith(
-                        color: night.ink, fontWeight: FontWeight.w600)),
-                Text(sub,
-                    style: CwType.footnote.copyWith(color: night.mute)),
-              ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: CwType.callout.copyWith(
+                          color: night.ink, fontWeight: FontWeight.w600)),
+                  Text(sub, style: CwType.footnote.copyWith(color: night.mute)),
+                ],
+              ),
             ),
-          ),
-          trailing,
-        ],
+            trailing,
+          ],
+        ),
       ),
     );
   }

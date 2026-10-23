@@ -26,6 +26,7 @@ import 'package:wallet_app/ui/components/cw_misc.dart';
 import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/tokens.dart';
 import 'package:wallet_app/ui/typography.dart';
+import 'package:wallet_app/core/utils/credit_card_label.dart';
 
 /// How long a revealed card number stays on screen.
 const int kRevealSeconds = 30;
@@ -242,10 +243,10 @@ class _BankCardPageState extends State<BankCardPage> {
       masked: choice == CardShareChoice.masked,
     );
     final text = choice == CardShareChoice.masked
-        ? [card.bankName, '•••• $last4', card.cardHolder]
+        ? [creditCardLabel(card), '•••• $last4', card.cardHolder]
             .where((part) => part.trim().isNotEmpty)
             .join(' • ')
-        : '${card.bankName} • ${CardNumberLayout.format(card.creditCardNumber)}'
+        : '${creditCardLabel(card)} • ${CardNumberLayout.format(card.creditCardNumber)}'
             ' • ${card.cardHolder} • ${card.expirationDate}';
     await shareText(text, origin: shareOriginFromContext(context));
   }

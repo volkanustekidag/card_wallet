@@ -163,12 +163,16 @@ class _AuthViewsState extends State<AuthViews>
                                     AuthController.formatLockRemaining(
                                         auth.pinLockRemaining),
                                   ])
-                                : isLock
-                                    ? 'enterPin'.tr()
-                                    : '',
+                                : error
+                                    ? 'cwWrongPin'.tr()
+                                    : isLock
+                                        ? 'enterPin'.tr()
+                                        : '',
                             textAlign: TextAlign.center,
                             style: CwType.footnote.copyWith(
-                                color: locked ? night.danger : night.mute),
+                                color: locked || error
+                                    ? night.danger
+                                    : night.mute),
                           ),
                         ),
                       ),
@@ -287,7 +291,8 @@ class _Keypad extends StatelessWidget {
             plain: true,
             semantic: MaterialLocalizations.of(context).deleteButtonTooltip,
             onTap: onBack,
-            child: const CwIcon(CwIcons.backspace, size: 26, color: Colors.white),
+            child:
+                const CwIcon(CwIcons.backspace, size: 26, color: Colors.white),
           )
         : onForgot != null
             ? _Key(
@@ -333,7 +338,8 @@ class _Key extends StatelessWidget {
         button: true,
         label: semantic,
         child: Material(
-          color: plain ? Colors.transparent : Colors.white.withValues(alpha: 0.07),
+          color:
+              plain ? Colors.transparent : Colors.white.withValues(alpha: 0.07),
           shape: const CircleBorder(),
           child: InkWell(
             customBorder: const CircleBorder(),

@@ -278,7 +278,7 @@ class _ImportPageState extends State<ImportPage> {
                             'cwSrcCatima', 'cwSrcCatimaSub', _pick),
                         _source(CwIcons.gift, const Color(0xFFD6336C),
                             'cwSrcFidme', 'cwSrcFidmeSub', _pick),
-                        _source(CwIcons.walletPass, const Color(0xFF111215),
+                        _source(CwIcons.walletPass, c.ink,
                             'cwSrcPkpass', 'cwSrcPkpassSub', _pick),
                         _source(CwIcons.document, c.accent, 'cwSrcCsv',
                             'cwSrcCsvSub', _pick),

@@ -54,6 +54,14 @@ class CwGroup extends StatelessWidget {
     final c = CwColors.of(context);
     final visible = children.where((w) => w is! SizedBox).toList();
     if (visible.isEmpty) return const SizedBox.shrink();
+    // Dividers start where the text does: after the icon when the group's
+    // rows have one, at the row padding otherwise.
+    final iconRows = visible.any((w) => w is CwRow && w.leading != null);
+    final indent = iconRows
+        ? 58.0
+        : visible.every((w) => w is CwRow)
+            ? 14.0
+            : 16.0;
     return Container(
       margin: margin,
       decoration: BoxDecoration(
@@ -70,7 +78,7 @@ class CwGroup extends StatelessWidget {
           for (var i = 0; i < visible.length; i++) ...[
             if (i > 0)
               Padding(
-                padding: const EdgeInsets.only(left: 58),
+                padding: EdgeInsets.only(left: indent),
                 child: Divider(height: 1, thickness: 1, color: c.line),
               ),
             visible[i],

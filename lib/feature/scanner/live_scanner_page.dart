@@ -55,6 +55,9 @@ class _LiveScannerPageState extends State<LiveScannerPage>
   final BarcodeScanner _barcodes = BarcodeScanner();
   final TextRecognizer _text = TextRecognizer();
   bool _busy = false;
+
+  /// A picked photo is being read (ML Kit takes a few seconds on it).
+  bool _readingPhoto = false;
   bool _handling = false;
   int _frame = 0;
   DateTime _lastRun = DateTime.fromMillisecondsSinceEpoch(0);
@@ -65,8 +68,8 @@ class _LiveScannerPageState extends State<LiveScannerPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    AnalyticsService.instance.logScanStarted(
-        type: 'any', method: AnalyticsScanMethod.camera);
+    AnalyticsService.instance
+        .logScanStarted(type: 'any', method: AnalyticsScanMethod.camera);
     _start();
   }
 
@@ -107,7 +110,8 @@ class _LiveScannerPageState extends State<LiveScannerPage>
   }
 
   Future<void> _startCamera() async {
-    final status = await AppLockService.guard(() => Permission.camera.request());
+    final status =
+        await AppLockService.guard(() => Permission.camera.request());
     if (!mounted) return;
     if (!status.isGranted && !status.isLimited) {
       setState(() => _state = _CamState.denied);
@@ -129,7 +133,10 @@ class _LiveScannerPageState extends State<LiveScannerPage>
     );
     // 720p reads card numbers well; fall back for devices that can't
     // stream that alongside the preview.
-    for (final preset in const [ResolutionPreset.high, ResolutionPreset.medium]) {
+    for (final preset in const [
+      ResolutionPreset.high,
+      ResolutionPreset.medium
+    ]) {
       final controller = CameraController(
         back,
         preset,
@@ -309,6 +316,7 @@ class _LiveScannerPageState extends State<LiveScannerPage>
       photo = await AppLockService.guard(() => ImagePicker()
           .pickImage(source: ImageSource.gallery, imageQuality: 100));
       if (photo == null || !mounted) return;
+      setState(() => _readingPhoto = true);
       final input = InputImage.fromFilePath(photo.path);
       ScanHit? hit;
       if (_mode != ScanMode.card) {
@@ -325,8 +333,8 @@ class _LiveScannerPageState extends State<LiveScannerPage>
       }
       if (!mounted) return;
       if (hit == null) {
-        AnalyticsService.instance.logScanFailed(
-            type: 'any', method: AnalyticsScanMethod.gallery);
+        AnalyticsService.instance
+            .logScanFailed(type: 'any', method: AnalyticsScanMethod.gallery);
         context.showInfoSnackBar('cwNothingInPhoto');
         return;
       }
@@ -349,6 +357,7 @@ class _LiveScannerPageState extends State<LiveScannerPage>
       debugPrint('Photo scan error: $e');
       if (mounted) context.showInfoSnackBar('cwNothingInPhoto');
     } finally {
+      if (mounted && _readingPhoto) setState(() => _readingPhoto = false);
       await deleteScanPhoto(photo, fromCamera: false);
       if (mounted && _camera != null) _handling = false;
     }
@@ -394,15 +403,15 @@ class _LiveScannerPageState extends State<LiveScannerPage>
             // Dim everything outside the frame.
             if (live || _state == _CamState.starting)
               IgnorePointer(
-              child: CustomPaint(
-                painter: _FramePainter(
-                  frame: Size(frameW, frameH),
-                  centerY: size.height * 0.44,
-                  active: detecting,
-                  dim: live ? 0.62 : 0,
+                child: CustomPaint(
+                  painter: _FramePainter(
+                    frame: Size(frameW, frameH),
+                    centerY: size.height * 0.44,
+                    active: detecting,
+                    dim: live ? 0.62 : 0,
+                  ),
                 ),
               ),
-            ),
             SafeArea(
               child: Column(
                 children: [
@@ -467,10 +476,18 @@ class _LiveScannerPageState extends State<LiveScannerPage>
                   AnimatedSwitcher(
                     duration: CwMotion.fast,
                     child: _StatusPill(
-                      key: ValueKey(_status ?? 'idle'),
-                      text: _status ??
-                          (live ? 'cwScanLooking'.tr() : null),
-                      active: detecting,
+                      key: ValueKey(_readingPhoto
+                          ? 'photo'
+                          : _status ?? (live ? 'idle' : _state.name)),
+                      text: _readingPhoto
+                          ? 'cwReadingPhoto'.tr()
+                          : _status ??
+                              (live
+                                  ? 'cwScanLooking'.tr()
+                                  : _state == _CamState.starting
+                                      ? 'cwCameraStarting'.tr()
+                                      : null),
+                      active: detecting || _readingPhoto,
                     ),
                   ),
                   SizedBox(height: size.height * 0.06),
@@ -483,25 +500,26 @@ class _LiveScannerPageState extends State<LiveScannerPage>
                             onTap: _fromPhotos,
                           )
                         : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        _BottomAction(
-                          icon: CwIcons.photos,
-                          label: 'cwFromPhotos'.tr(),
-                          onTap: _fromPhotos,
-                        ),
-                        _BottomAction(
-                          icon: CwIcons.import,
-                          label: 'cwImport'.tr(),
-                          onTap: () => openImport(context, replace: true),
-                        ),
-                        _BottomAction(
-                          icon: CwIcons.keyboard,
-                          label: 'cwTypeIt'.tr(),
-                          onTap: () => pickManualEntry(context, replace: true),
-                        ),
-                      ],
-                    ),
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _BottomAction(
+                                icon: CwIcons.photos,
+                                label: 'cwFromPhotos'.tr(),
+                                onTap: _fromPhotos,
+                              ),
+                              _BottomAction(
+                                icon: CwIcons.import,
+                                label: 'cwImport'.tr(),
+                                onTap: () => openImport(context, replace: true),
+                              ),
+                              _BottomAction(
+                                icon: CwIcons.keyboard,
+                                label: 'cwTypeIt'.tr(),
+                                onTap: () =>
+                                    pickManualEntry(context, replace: true),
+                              ),
+                            ],
+                          ),
                   ),
                 ],
               ),
@@ -689,8 +707,7 @@ class _BottomAction extends StatelessWidget {
                 child: CwIcon(icon, size: 22, color: Colors.white),
               ),
               const SizedBox(height: 6),
-              Text(label,
-                  style: CwType.caption.copyWith(color: Colors.white)),
+              Text(label, style: CwType.caption.copyWith(color: Colors.white)),
             ],
           ),
         ),

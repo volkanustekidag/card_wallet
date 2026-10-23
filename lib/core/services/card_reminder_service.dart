@@ -18,6 +18,7 @@ import 'package:wallet_app/core/utils/card_reminder_rules.dart';
 import 'package:wallet_app/core/utils/locale_format.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
+import 'package:wallet_app/core/utils/credit_card_label.dart';
 
 class CardReminderService {
   CardReminderService._internal();
@@ -228,9 +229,15 @@ class CardReminderService {
     return AppLockService.guard(() => openAppSettings());
   }
 
+  /// Tests: the answer the OS would give (no platform plugin runs there).
+  @visibleForTesting
+  static bool? debugNotificationsAllowed;
+
   Future<bool> _notificationsAllowed({
     required bool promptForPermissions,
   }) async {
+    final override = debugNotificationsAllowed;
+    if (override != null) return override;
     if (kIsWeb) return false;
 
     if (Platform.isAndroid) {
@@ -424,9 +431,9 @@ class CardReminderService {
 
     final digits = card.creditCardNumber.replaceAll(RegExp(r'\D'), '');
     if (digits.length >= 4) {
-      return '•••• ${digits.substring(digits.length - 4)}';
+      return '${creditCardLabel(card)} •••• ${digits.substring(digits.length - 4)}';
     }
-    return 'creditCard'.tr();
+    return creditCardLabel(card);
   }
 
   int _notificationId(CreditCard card, String purpose) {

@@ -3,7 +3,8 @@ import 'package:hive/hive.dart';
 
 /// Small, non-sensitive UI preferences kept in the plain `app_state` box
 /// (same box as the onboarding flag): Up Next on/off, when the last backup
-/// was made, and what the user said they carry during onboarding.
+/// was made, what the user said they carry during onboarding and whether
+/// new bank cards start with their expiry reminder on.
 class UiPrefs {
   UiPrefs._();
   static final UiPrefs instance = UiPrefs._();
@@ -12,10 +13,12 @@ class UiPrefs {
   static const _kUpNext = 'up_next_enabled';
   static const _kLastBackup = 'last_backup_at';
   static const _kCarry = 'carry_kinds';
+  static const _kRemindDefault = 'remind_by_default';
 
   final RxBool upNext = true.obs;
   final Rxn<DateTime> lastBackup = Rxn<DateTime>();
   final RxList<String> carry = <String>[].obs;
+  final RxBool remindByDefault = false.obs;
 
   Future<Box<dynamic>> _open() async {
     if (Hive.isBoxOpen(_box)) return Hive.box<dynamic>(_box);
@@ -31,6 +34,7 @@ class UiPrefs {
           ms is int ? DateTime.fromMillisecondsSinceEpoch(ms) : null;
       final kinds = b.get(_kCarry);
       carry.assignAll(kinds is List ? kinds.cast<String>() : const []);
+      remindByDefault.value = b.get(_kRemindDefault) == true;
     } catch (_) {
       // Defaults stand; nothing here is critical.
     }
@@ -48,6 +52,13 @@ class UiPrefs {
     lastBackup.value = t;
     try {
       await (await _open()).put(_kLastBackup, t.millisecondsSinceEpoch);
+    } catch (_) {}
+  }
+
+  Future<void> setRemindByDefault(bool v) async {
+    remindByDefault.value = v;
+    try {
+      await (await _open()).put(_kRemindDefault, v);
     } catch (_) {}
   }
 

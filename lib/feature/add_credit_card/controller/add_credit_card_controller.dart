@@ -16,10 +16,10 @@ import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/utils/session_prompt_gate.dart';
 import 'package:wallet_app/core/utils/card_number_layout.dart';
 import 'package:wallet_app/core/utils/validators.dart';
-import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
+import 'package:wallet_app/core/services/ui_prefs.dart';
 
 class AddCreditCardController extends GetxController {
   final CreditCardService _creditCardService = CreditCardService();
@@ -83,6 +83,8 @@ class AddCreditCardController extends GetxController {
       cardHolder: "",
       expirationDate: "",
       cardColorId: 1,
+      // On when the user asked for reminders during onboarding.
+      expiryReminderEnabled: UiPrefs.instance.remindByDefault.value,
     );
     isEditMode.value = false;
 
@@ -160,13 +162,6 @@ class AddCreditCardController extends GetxController {
       }
 
       await _creditCardService.openBox();
-      if (currentCard.value.bankName.trim().isEmpty) {
-        final network =
-            CardBankDetector.networkFor(currentCard.value.creditCardNumber);
-        currentCard.value.bankName =
-            network == CardNetwork.unknown ? 'cwTypeCard'.tr() : network.label;
-      }
-
       // Premium kontrolü sadece yeni kart eklerken
       if (!wasEditMode) {
         final premiumController = Get.find<PremiumController>();

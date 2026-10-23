@@ -23,8 +23,7 @@ class NotificationPermissionBanner extends StatefulWidget {
 }
 
 class _NotificationPermissionBannerState
-    extends State<NotificationPermissionBanner>
-    with WidgetsBindingObserver {
+    extends State<NotificationPermissionBanner> with WidgetsBindingObserver {
   bool? _enabled;
 
   @override
@@ -77,8 +76,8 @@ class _NotificationPermissionBannerState
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('notificationsDisabledBannerTitle'.tr(),
-                      style: CwType.callout.copyWith(
-                          color: c.ink, fontWeight: FontWeight.w700)),
+                      style: CwType.callout
+                          .copyWith(color: c.ink, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 2),
                   Text('notificationsDisabledBannerBody'.tr(),
                       style: CwType.footnote.copyWith(color: c.ink2)),
@@ -86,10 +85,15 @@ class _NotificationPermissionBannerState
               ),
             ),
             TextButton(
-              onPressed: () => CardReminderService().openNotificationSettings(),
-              child: Text('openSettings'.tr(),
-                  style: CwType.footnote.copyWith(
-                      color: c.accent, fontWeight: FontWeight.w700)),
+              // Asks first (a fresh install was never asked); once the OS
+              // won't ask again this offers the system settings instead.
+              onPressed: () async {
+                await CardReminderService().requestPermission();
+                await _refresh();
+              },
+              child: Text('cwTurnOn'.tr(),
+                  style: CwType.footnote
+                      .copyWith(color: c.accent, fontWeight: FontWeight.w700)),
             ),
           ],
         ),

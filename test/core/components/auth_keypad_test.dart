@@ -91,6 +91,7 @@ void main() {
     auth.authenticationFailed.value = true;
     await tester.pump();
     expect(ctrl.text, isEmpty);
+    expect(find.text('cwWrongPin'.tr()), findsOneWidget);
     await tester.pumpAndSettle();
   });
 

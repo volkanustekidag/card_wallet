@@ -6,6 +6,8 @@ import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
+import 'package:wallet_app/core/services/ui_prefs.dart';
+import 'package:wallet_app/core/utils/credit_card_label.dart';
 import 'package:wallet_app/core/utils/session_prompt_gate.dart';
 import 'package:wallet_app/feature/add_credit_card/add_credit_card_page.dart';
 import 'package:wallet_app/feature/add_credit_card/controller/add_credit_card_controller.dart';
@@ -62,6 +64,19 @@ void main() {
       expect(submit(tester).onPressed, isNull);
     });
 
+    testWidgets('expiry reminder starts on when asked for in onboarding',
+        (tester) async {
+      UiPrefs.instance.remindByDefault.value = true;
+      addTearDown(() => UiPrefs.instance.remindByDefault.value = false);
+      await open(tester, const AddCreditCardPage());
+      expect(
+          Get.find<AddCreditCardController>()
+              .currentCard
+              .value
+              .expiryReminderEnabled,
+          isTrue);
+    });
+
     testWidgets('scanner prefill fills number, expiry and name',
         (tester) async {
       await open(
@@ -77,7 +92,7 @@ void main() {
       expect(submit(tester).onPressed, isNotNull);
     });
 
-    testWidgets('saves without a bank name, using the network instead',
+    testWidgets('saves without a bank name; shown under its network',
         (tester) async {
       await open(
         tester,
@@ -91,7 +106,10 @@ void main() {
       final saved =
           (await tester.runAsync(CreditCardService().getAllCreditCards))!;
       expect(saved, hasLength(1));
-      expect(saved.single.bankName, 'Visa');
+      // The bank stays empty (editing shows an empty field); the card is
+      // called by its network everywhere it's shown.
+      expect(saved.single.bankName, isEmpty);
+      expect(creditCardLabel(saved.single), 'Visa');
       expect(saved.single.creditCardNumber.replaceAll(' ', ''),
           '4111111111111111');
     });

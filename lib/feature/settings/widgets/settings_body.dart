@@ -503,7 +503,9 @@ class _SettingsBodyState extends State<SettingsBody>
   Future<void> showDialogDeleteData(BuildContext context) async {
     final confirmed = await showConfirmActionSheet(
       context: context,
-      title: 'areUSure'.tr(),
+      title: 'cwDeleteAllTitle'.tr(),
+      content: 'cwDeleteAllBody'.tr(),
+      confirmText: 'cwDeleteEverything'.tr(),
       cancelText: 'cancel'.tr(),
     );
     if (!confirmed || !mounted) return;

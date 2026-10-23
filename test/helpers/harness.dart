@@ -72,6 +72,7 @@ class Harness {
       });
     }
     BankLogo.cacheManager = _NoNetworkCache();
+    CardReminderService.debugNotificationsAllowed = true;
     // A singleton caching its init future: started inside one test's
     // fake-async zone it would never complete for the next test.
     try {
@@ -106,6 +107,7 @@ class Harness {
         case 'initialize':
         case 'areNotificationsEnabled':
         case 'requestNotificationsPermission':
+        case 'requestPermissions':
           return true;
         case 'pendingNotificationRequests':
         case 'getActiveNotifications':
@@ -129,6 +131,7 @@ class Harness {
   }
 
   Future<void> tearDown() async {
+    CardReminderService.debugNotificationsAllowed = null;
     Get.reset();
     AnalyticsService.debugSink = null;
     _messenger.setMockMethodCallHandler(SystemChannels.platform, null);
