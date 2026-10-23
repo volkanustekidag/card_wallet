@@ -13,6 +13,7 @@ import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
 import 'package:wallet_app/feature/search/wallet_search.dart';
 import 'package:wallet_app/ui/card/wallet_card_faces.dart';
 import 'package:wallet_app/ui/components/cw_list.dart';
+import 'package:wallet_app/ui/components/cw_top_bar.dart';
 import 'package:wallet_app/ui/components/cw_misc.dart';
 import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/navigation/open_wallet_item.dart';
@@ -93,56 +94,52 @@ class _WalletSearchPageState extends State<WalletSearchPage> {
       child: Scaffold(
         backgroundColor: c.bg,
         body: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 8, 4),
-                child: Row(
-                  children: [
-                    Expanded(
-                        child: _SearchField(
-                            controller: _query,
-                            onChanged: () => setState(() {}))),
-                    TextButton(
-                      onPressed: () => Navigator.of(context).maybePop(),
-                      child: Text(
-                        'cwCancel'.tr(),
-                        style: CwType.callout.copyWith(
-                          color: c.accent,
-                          fontWeight: FontWeight.w600,
-                        ),
+          child: CwScrollEdge(
+            bar: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 8, 4),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: _SearchField(
+                          controller: _query,
+                          onChanged: () => setState(() {}))),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).maybePop(),
+                    child: Text(
+                      'cwCancel'.tr(),
+                      style: CwType.callout.copyWith(
+                        color: c.accent,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              Expanded(
-                child: Obx(() {
-                  // Read the Rx first: Obx needs a subscription even while
-                  // idle, and results follow edits made from a detail page.
-                  final items = controller.walletItems.toList();
-                  final query = _query.text;
-                  if (query.trim().isEmpty) {
-                    final suggested = _suggestions(items);
-                    if (suggested.isEmpty) return const SizedBox.shrink();
-                    return _list(context, 'cwSuggested'.tr(), suggested, '');
-                  }
-                  final results = searchWallet(items, query);
-                  _lastResultsCount = results.length;
-                  if (results.isEmpty) {
-                    return Align(
-                      alignment: const Alignment(0, -0.4),
-                      child: CwEmptyState(
-                        icon: CwIcons.search,
-                        title: 'cwNoResults'.tr(),
-                        message: 'cwNoResultsHint'.tr(),
-                      ),
-                    );
-                  }
-                  return _list(context, 'cwResults'.tr(), results, query);
-                }),
-              ),
-            ],
+            ),
+            body: Obx(() {
+              // Read the Rx first: Obx needs a subscription even while
+              // idle, and results follow edits made from a detail page.
+              final items = controller.walletItems.toList();
+              final query = _query.text;
+              if (query.trim().isEmpty) {
+                final suggested = _suggestions(items);
+                if (suggested.isEmpty) return const SizedBox.shrink();
+                return _list(context, 'cwSuggested'.tr(), suggested, '');
+              }
+              final results = searchWallet(items, query);
+              _lastResultsCount = results.length;
+              if (results.isEmpty) {
+                return Align(
+                  alignment: const Alignment(0, -0.4),
+                  child: CwEmptyState(
+                    icon: CwIcons.search,
+                    title: 'cwNoResults'.tr(),
+                    message: 'cwNoResultsHint'.tr(),
+                  ),
+                );
+              }
+              return _list(context, 'cwResults'.tr(), results, query);
+            }),
           ),
         ),
       ),
@@ -291,7 +288,8 @@ class _ResultRow extends StatelessWidget {
                     query: query,
                     style: CwType.callout
                         .copyWith(color: c.ink, fontWeight: FontWeight.w600),
-                    highlight: TextStyle(color: c.ink, fontWeight: FontWeight.w800),
+                    highlight:
+                        TextStyle(color: c.ink, fontWeight: FontWeight.w800),
                   ),
                   const SizedBox(height: 2),
                   Text(

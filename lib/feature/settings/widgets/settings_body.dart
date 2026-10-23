@@ -36,6 +36,8 @@ import 'package:wallet_app/ui/card/card_face.dart';
 import 'package:wallet_app/ui/card/card_material.dart';
 import 'package:wallet_app/ui/components/cw_list.dart';
 import 'package:wallet_app/ui/components/cw_misc.dart';
+import 'package:wallet_app/ui/components/cw_button.dart';
+import 'package:wallet_app/ui/components/cw_top_bar.dart';
 import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/tokens.dart';
 import 'package:wallet_app/ui/typography.dart';
@@ -108,204 +110,215 @@ class _SettingsBodyState extends State<SettingsBody>
         : Get.put(AuthController());
     final c = CwColors.of(context);
 
-    return ListView(
-      padding: EdgeInsets.only(bottom: 24 + MediaQuery.paddingOf(context).bottom),
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(22, 4, 22, 6),
-          child: Text('settings'.tr(),
-              style: CwType.display.copyWith(color: c.ink)),
-        ),
-        _premiumRow(context),
-        CwSectionHeader('cwSecSecurity'.tr()),
-        Obx(() {
-          final hasPin = auth.hasPassword.value;
-          return CwGroup(children: [
-            CwRow(
-              leading: CwIconTile(CwIcons.lock, color: c.ink),
-              title: 'cwLockApp'.tr(),
-              subtitle: 'lockAppSubtitle'.tr(),
-              trailing: CwSwitch(
-                value: hasPin,
-                onChanged: (v) => _handleAppLockToggle(context, auth, v),
-              ),
-            ),
-            if (auth.isBiometricAvailable.value)
-              CwRow(
-                leading: CwIconTile(CwIcons.faceId, color: c.ok),
-                title: auth.getBiometricDisplayName(),
-                trailing: CwSwitch(
-                  value: auth.isBiometricEnabled.value,
-                  onChanged: (v) => handleBiometricToggle(auth, v),
-                ),
-              ),
-            if (hasPin)
-              Obx(() {
-                final lock = Get.find<AppLockService>();
-                return CwRow(
-                  leading: CwIconTile(CwIcons.clock, color: c.ink2),
-                  title: 'autoLock'.tr(),
-                  value: AutoLockTime.label(lock.autoLockSeconds.value),
-                  chevron: true,
-                  onTap: () => showAutoLockBottomSheet(context),
-                );
-              }),
-            if (hasPin)
-              CwRow(
-                leading: CwIconTile(CwIcons.hash, color: c.ink2),
-                title: 'chanPIN'.tr(),
-                chevron: true,
-                onTap: () => Get.toNamed('/changePin'),
-              ),
-            if (auth.isPinRecoveryAvailable)
-              CwRow(
-                leading: CwIconTile(CwIcons.restore, color: c.warn),
-                title: 'resetPinTitle'.tr(),
-                subtitle: 'resetPinSubtitle'.tr(),
-                chevron: true,
-                onTap: () => _handleBiometricPinReset(context, auth),
-              ),
-          ]);
-        }),
-        CwSectionHeader('cwSecCheckout'.tr()),
-        Obx(() {
-          final boost = BarcodeDisplayBoost.instance;
-          final upNext = UiPrefs.instance.upNext.value;
-          return CwGroup(children: [
-            CwRow(
-              leading: CwIconTile(CwIcons.sun, color: c.warn),
-              title: 'barcodeBrightnessTitle'.tr(),
-              subtitle: 'barcodeBrightnessSubtitle'.tr(),
-              trailing: CwSwitch(
-                value: boost.enabled.value,
-                onChanged: boost.setEnabled,
-              ),
-            ),
-            CwRow(
-              leading: CwIconTile(CwIcons.sparkle, color: c.ok),
-              title: 'cwUpNextSetting'.tr(),
-              subtitle: 'cwUpNextSettingSub'.tr(),
-              trailing: CwSwitch(
-                value: upNext,
-                onChanged: UiPrefs.instance.setUpNext,
-              ),
-            ),
-          ]);
-        }),
-        CwSectionHeader('cwSecNotifications'.tr()),
-        CwGroup(children: [
-          CwRow(
-            leading: CwIconTile(CwIcons.bell,
-                color: _notificationsEnabled == false ? c.danger : c.accent),
-            title: 'notificationsRowTitle'.tr(),
-            subtitle: _notificationsEnabled == null
-                ? null
-                : (_notificationsEnabled!
-                    ? 'notificationsStatusEnabled'.tr()
-                    : 'notificationsStatusDisabled'.tr()),
-            subtitleColor: _notificationsEnabled == false ? c.danger : null,
-            trailing: CwIcon(CwIcons.external, size: 16, color: c.mute),
-            onTap: () => CardReminderService().openNotificationSettings(),
+    return CustomScrollView(
+      physics:
+          const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      slivers: [
+        CwLargeTitleBar(
+          title: 'settings'.tr(),
+          leading: CwCircleButton(
+            CwIcons.back,
+            onPressed: () => Navigator.of(context).maybePop(),
+            semanticLabel: MaterialLocalizations.of(context).backButtonTooltip,
           ),
-        ]),
-        CwSectionHeader('cwSecData'.tr()),
-        Obx(() {
-          final premium = Get.find<PremiumController>().isPremium;
-          final last = UiPrefs.instance.lastBackup.value;
-          final lastText = last == null
-              ? 'cwNever'.tr()
-              : LocaleFormat.yearMonthDay(context.locale).format(last);
-          return CwGroup(children: [
-            CwRow(
-              leading: CwIconTile(CwIcons.cloudUp, color: c.ink2),
-              title: 'cwBackupRestore'.tr(),
-              subtitle: 'cwLastBackup'.tr(args: [lastText]),
-              trailing: premium
-                  ? null
-                  : CwPill.accent(context, 'cwPremium'.tr(),
-                      icon: CwIcons.gem),
-              chevron: premium,
-              onTap: premium
-                  ? () => _backupSheet(context)
-                  : () => openPremiumGate('backupRestore'),
+        ),
+        SliverPadding(
+          padding: EdgeInsets.only(
+              top: 6, bottom: 24 + MediaQuery.paddingOf(context).bottom),
+          sliver: SliverList.list(children: [
+            _premiumRow(context),
+            CwSectionHeader('cwSecSecurity'.tr()),
+            Obx(() {
+              final hasPin = auth.hasPassword.value;
+              return CwGroup(children: [
+                CwRow(
+                  leading: CwIconTile(CwIcons.lock, color: c.ink),
+                  title: 'cwLockApp'.tr(),
+                  subtitle: 'lockAppSubtitle'.tr(),
+                  trailing: CwSwitch(
+                    value: hasPin,
+                    onChanged: (v) => _handleAppLockToggle(context, auth, v),
+                  ),
+                ),
+                if (auth.isBiometricAvailable.value)
+                  CwRow(
+                    leading: CwIconTile(CwIcons.faceId, color: c.ok),
+                    title: auth.getBiometricDisplayName(),
+                    trailing: CwSwitch(
+                      value: auth.isBiometricEnabled.value,
+                      onChanged: (v) => handleBiometricToggle(auth, v),
+                    ),
+                  ),
+                if (hasPin)
+                  Obx(() {
+                    final lock = Get.find<AppLockService>();
+                    return CwRow(
+                      leading: CwIconTile(CwIcons.clock, color: c.ink2),
+                      title: 'autoLock'.tr(),
+                      value: AutoLockTime.label(lock.autoLockSeconds.value),
+                      chevron: true,
+                      onTap: () => showAutoLockBottomSheet(context),
+                    );
+                  }),
+                if (hasPin)
+                  CwRow(
+                    leading: CwIconTile(CwIcons.hash, color: c.ink2),
+                    title: 'chanPIN'.tr(),
+                    chevron: true,
+                    onTap: () => Get.toNamed('/changePin'),
+                  ),
+                if (auth.isPinRecoveryAvailable)
+                  CwRow(
+                    leading: CwIconTile(CwIcons.restore, color: c.warn),
+                    title: 'resetPinTitle'.tr(),
+                    subtitle: 'resetPinSubtitle'.tr(),
+                    chevron: true,
+                    onTap: () => _handleBiometricPinReset(context, auth),
+                  ),
+              ]);
+            }),
+            CwSectionHeader('cwSecCheckout'.tr()),
+            Obx(() {
+              final boost = BarcodeDisplayBoost.instance;
+              final upNext = UiPrefs.instance.upNext.value;
+              return CwGroup(children: [
+                CwRow(
+                  leading: CwIconTile(CwIcons.sun, color: c.warn),
+                  title: 'barcodeBrightnessTitle'.tr(),
+                  subtitle: 'barcodeBrightnessSubtitle'.tr(),
+                  trailing: CwSwitch(
+                    value: boost.enabled.value,
+                    onChanged: boost.setEnabled,
+                  ),
+                ),
+                CwRow(
+                  leading: CwIconTile(CwIcons.sparkle, color: c.ok),
+                  title: 'cwUpNextSetting'.tr(),
+                  subtitle: 'cwUpNextSettingSub'.tr(),
+                  trailing: CwSwitch(
+                    value: upNext,
+                    onChanged: UiPrefs.instance.setUpNext,
+                  ),
+                ),
+              ]);
+            }),
+            CwSectionHeader('cwSecNotifications'.tr()),
+            CwGroup(children: [
+              CwRow(
+                leading: CwIconTile(CwIcons.bell,
+                    color:
+                        _notificationsEnabled == false ? c.danger : c.accent),
+                title: 'notificationsRowTitle'.tr(),
+                subtitle: _notificationsEnabled == null
+                    ? null
+                    : (_notificationsEnabled!
+                        ? 'notificationsStatusEnabled'.tr()
+                        : 'notificationsStatusDisabled'.tr()),
+                subtitleColor: _notificationsEnabled == false ? c.danger : null,
+                trailing: CwIcon(CwIcons.external, size: 16, color: c.mute),
+                onTap: () => CardReminderService().openNotificationSettings(),
+              ),
+            ]),
+            CwSectionHeader('cwSecData'.tr()),
+            Obx(() {
+              final premium = Get.find<PremiumController>().isPremium;
+              final last = UiPrefs.instance.lastBackup.value;
+              final lastText = last == null
+                  ? 'cwNever'.tr()
+                  : LocaleFormat.yearMonthDay(context.locale).format(last);
+              return CwGroup(children: [
+                CwRow(
+                  leading: CwIconTile(CwIcons.cloudUp, color: c.ink2),
+                  title: 'cwBackupRestore'.tr(),
+                  subtitle: 'cwLastBackup'.tr(args: [lastText]),
+                  trailing: premium
+                      ? null
+                      : CwPill.accent(context, 'cwPremium'.tr(),
+                          icon: CwIcons.gem),
+                  chevron: premium,
+                  onTap: premium
+                      ? () => _backupSheet(context)
+                      : () => openPremiumGate('backupRestore'),
+                ),
+                CwRow(
+                  leading: CwIconTile(CwIcons.import, color: c.ok),
+                  title: 'cwImportRow'.tr(),
+                  chevron: true,
+                  onTap: () => Get.to<void>(() => const ImportPage()),
+                ),
+                CwRow(
+                  leading: CwIconTile(CwIcons.trash, color: c.danger),
+                  title: 'cwDeleteAll'.tr(),
+                  titleColor: c.danger,
+                  onTap: () => showDialogDeleteData(context),
+                ),
+              ]);
+            }),
+            CwSectionHeader('cwSecGeneral'.tr()),
+            GetX<ThemeController>(
+              builder: (theme) => CwGroup(children: [
+                CwRow(
+                  leading: CwIconTile(CwIcons.globe, color: c.ink2),
+                  title: 'cwLanguage'.tr(),
+                  value: languageName(context.locale.languageCode),
+                  chevron: true,
+                  onTap: () async {
+                    final changed = await showLangChoseeBottomSheet(context);
+                    if (changed == true && mounted) setState(() {});
+                  },
+                ),
+                CwRow(
+                  leading: CwIconTile(CwIcons.theme, color: c.ink2),
+                  title: 'cwAppearance'.tr(),
+                  value: _themeLabel(theme.appThemeMode),
+                  chevron: true,
+                  onTap: () => showThemeBottomSheet(context),
+                ),
+              ]),
             ),
-            CwRow(
-              leading: CwIconTile(CwIcons.import, color: c.ok),
-              title: 'cwImportRow'.tr(),
-              chevron: true,
-              onTap: () => Get.to<void>(() => const ImportPage()),
-            ),
-            CwRow(
-              leading: CwIconTile(CwIcons.trash, color: c.danger),
-              title: 'cwDeleteAll'.tr(),
-              titleColor: c.danger,
-              onTap: () => showDialogDeleteData(context),
-            ),
-          ]);
-        }),
-        CwSectionHeader('cwSecGeneral'.tr()),
-        GetX<ThemeController>(
-          builder: (theme) => CwGroup(children: [
-            CwRow(
-              leading: CwIconTile(CwIcons.globe, color: c.ink2),
-              title: 'cwLanguage'.tr(),
-              value: languageName(context.locale.languageCode),
-              chevron: true,
-              onTap: () async {
-                final changed = await showLangChoseeBottomSheet(context);
-                if (changed == true && mounted) setState(() {});
-              },
-            ),
-            CwRow(
-              leading: CwIconTile(CwIcons.theme, color: c.ink2),
-              title: 'cwAppearance'.tr(),
-              value: _themeLabel(theme.appThemeMode),
-              chevron: true,
-              onTap: () => showThemeBottomSheet(context),
-            ),
+            CwSectionHeader('cwSecAbout'.tr()),
+            Obx(() {
+              final premium = Get.find<PremiumController>().isPremium;
+              return CwGroup(children: [
+                // Apple 3.1.2(a): a path back to the store-managed subscription.
+                if (premium && PremiumService.hasActiveSubscription)
+                  CwRow(
+                    leading: CwIconTile(CwIcons.gem, color: c.ink2),
+                    title: 'manageSubscription'.tr(),
+                    trailing: CwIcon(CwIcons.external, size: 16, color: c.mute),
+                    onTap: _openManageSubscription,
+                  ),
+                CwRow(
+                  leading: CwIconTile(CwIcons.star, color: c.warn),
+                  title: 'rateApp'.tr(),
+                  chevron: true,
+                  onTap: () => RateAppService.instance.openStoreListing(),
+                ),
+                CwRow(
+                  leading: CwIconTile(CwIcons.shield, color: c.ink2),
+                  title: 'PP'.tr(),
+                  trailing: CwIcon(CwIcons.external, size: 16, color: c.mute),
+                  onTap: () => _launch(LegalUrls.privacyPolicy),
+                ),
+                CwRow(
+                  leading: CwIconTile(CwIcons.document, color: c.ink2),
+                  title: 'termsOfUse'.tr(),
+                  trailing: CwIcon(CwIcons.external, size: 16, color: c.mute),
+                  onTap: () => _launch(LegalUrls.termsOfUse),
+                ),
+              ]);
+            }),
+            if (_version != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 18),
+                child: Text('cwVersion'.tr(args: [_version!]),
+                    textAlign: TextAlign.center,
+                    style: CwType.caption.copyWith(color: c.mute)),
+              ),
+            const SizedBox(height: 8),
+            CwTrustLine('cwEncryptedLocal'.tr()),
           ]),
         ),
-        CwSectionHeader('cwSecAbout'.tr()),
-        Obx(() {
-          final premium = Get.find<PremiumController>().isPremium;
-          return CwGroup(children: [
-            // Apple 3.1.2(a): a path back to the store-managed subscription.
-            if (premium && PremiumService.hasActiveSubscription)
-              CwRow(
-                leading: CwIconTile(CwIcons.gem, color: c.ink2),
-                title: 'manageSubscription'.tr(),
-                trailing: CwIcon(CwIcons.external, size: 16, color: c.mute),
-                onTap: _openManageSubscription,
-              ),
-            CwRow(
-              leading: CwIconTile(CwIcons.star, color: c.warn),
-              title: 'rateApp'.tr(),
-              chevron: true,
-              onTap: () => RateAppService.instance.openStoreListing(),
-            ),
-            CwRow(
-              leading: CwIconTile(CwIcons.shield, color: c.ink2),
-              title: 'PP'.tr(),
-              trailing: CwIcon(CwIcons.external, size: 16, color: c.mute),
-              onTap: () => _launch(LegalUrls.privacyPolicy),
-            ),
-            CwRow(
-              leading: CwIconTile(CwIcons.document, color: c.ink2),
-              title: 'termsOfUse'.tr(),
-              trailing: CwIcon(CwIcons.external, size: 16, color: c.mute),
-              onTap: () => _launch(LegalUrls.termsOfUse),
-            ),
-          ]);
-        }),
-        if (_version != null)
-          Padding(
-            padding: const EdgeInsets.only(top: 18),
-            child: Text('cwVersion'.tr(args: [_version!]),
-                textAlign: TextAlign.center,
-                style: CwType.caption.copyWith(color: c.mute)),
-          ),
-        const SizedBox(height: 8),
-        CwTrustLine('cwEncryptedLocal'.tr()),
       ],
     );
   }
@@ -323,8 +336,7 @@ class _SettingsBodyState extends State<SettingsBody>
             borderRadius: BorderRadius.circular(CwRadius.l),
             onTap: () => premium
                 ? Get.toNamed('/premium')
-                : Get.toNamed('/premium',
-                    arguments: {'trigger': 'settings'}),
+                : Get.toNamed('/premium', arguments: {'trigger': 'settings'}),
             child: Padding(
               padding: const EdgeInsets.all(14),
               child: Row(
@@ -399,8 +411,8 @@ class _SettingsBodyState extends State<SettingsBody>
   }
 
   Future<void> _launch(String url) async {
-    final ok = await AppLockService.guard(() =>
-        launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication));
+    final ok = await AppLockService.guard(
+        () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication));
     if (!ok && mounted) context.showErrorSnackBar('couldNotLaunchUrl');
   }
 

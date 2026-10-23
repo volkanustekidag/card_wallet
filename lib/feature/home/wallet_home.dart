@@ -23,6 +23,7 @@ import 'package:wallet_app/ui/card/wallet_card_faces.dart';
 import 'package:wallet_app/ui/components/cw_button.dart';
 import 'package:wallet_app/ui/components/cw_list.dart';
 import 'package:wallet_app/ui/components/cw_misc.dart';
+import 'package:wallet_app/ui/components/cw_top_bar.dart';
 import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/navigation/open_wallet_item.dart';
 import 'package:wallet_app/ui/tokens.dart';
@@ -92,14 +93,23 @@ class _WalletHomeState extends State<WalletHome> {
                 parent: AlwaysScrollableScrollPhysics(),
               ),
               slivers: [
-                SliverSafeArea(
-                  bottom: false,
-                  sliver: SliverToBoxAdapter(
-                    child: _Header(
-                      onSearch: openWalletSearch,
-                      onSettings: _openSettings,
+                CwLargeTitleBar(
+                  title: 'cwWalletTitle'.tr(),
+                  inline: true,
+                  actions: [
+                    CwCircleButton(
+                      CwIcons.search,
+                      key: const ValueKey('homeSearchButton'),
+                      onPressed: openWalletSearch,
+                      semanticLabel: 'cwSearch'.tr(),
                     ),
-                  ),
+                    CwCircleButton(
+                      CwIcons.settings,
+                      key: const ValueKey('homeSettingsButton'),
+                      onPressed: _openSettings,
+                      semanticLabel: 'settings'.tr(),
+                    ),
+                  ],
                 ),
                 Obx(() {
                   final items = _c.walletItems.toList();
@@ -122,59 +132,10 @@ class _WalletHomeState extends State<WalletHome> {
               ],
             ),
           ),
-          // Keeps scrolled cards from running under the status bar.
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: MediaQuery.paddingOf(context).top,
-            child: ColoredBox(color: c.bg.withValues(alpha: 0.94)),
-          ),
           Positioned(
             right: 20,
             bottom: 20 + bottomInset,
             child: _AddFab(onTap: () => openScanner()),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  final VoidCallback onSearch;
-  final VoidCallback onSettings;
-
-  const _Header({required this.onSearch, required this.onSettings});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = CwColors.of(context);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(22, 14, 18, 0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Expanded(
-            child: Text(
-              'cwWalletTitle'.tr(),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: CwType.display.copyWith(color: c.ink),
-            ),
-          ),
-          CwCircleButton(
-            CwIcons.search,
-            key: const ValueKey('homeSearchButton'),
-            onPressed: onSearch,
-            semanticLabel: 'cwSearch'.tr(),
-          ),
-          const SizedBox(width: 10),
-          CwCircleButton(
-            CwIcons.settings,
-            key: const ValueKey('homeSettingsButton'),
-            onPressed: onSettings,
-            semanticLabel: 'settings'.tr(),
           ),
         ],
       ),
@@ -799,7 +760,8 @@ class _EmptyWallet extends StatelessWidget {
             (
               'iban',
               CwRow(
-                leading: CwIconTile(CwIcons.bank, color: const Color(0xFF2E6385)),
+                leading:
+                    CwIconTile(CwIcons.bank, color: const Color(0xFF2E6385)),
                 title: 'cwQsIban'.tr(),
                 subtitle: 'cwQsIbanSub'.tr(),
                 chevron: true,

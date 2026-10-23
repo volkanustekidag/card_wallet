@@ -51,10 +51,8 @@ Iterable<String> _userTags(List<String>? tags) =>
 /// [normalizeForSearch] (Turkish- and accent-insensitive). Keeps the input
 /// order (home's newest-first timeline). An empty query returns nothing.
 List<WalletItem> searchWallet(Iterable<WalletItem> items, String query) {
-  final tokens = normalizeForSearch(query)
-      .split(' ')
-      .where((t) => t.isNotEmpty)
-      .toList();
+  final tokens =
+      normalizeForSearch(query).split(' ').where((t) => t.isNotEmpty).toList();
   if (tokens.isEmpty) return const [];
   return items.where((item) {
     // \u0001 keeps a token from matching across two fields.

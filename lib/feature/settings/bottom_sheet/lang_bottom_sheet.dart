@@ -25,8 +25,8 @@ Future<bool?> showLangChoseeBottomSheet(BuildContext context) async {
   final picked = await showCwChoiceSheet<int>(
     context,
     title: 'cwLanguage'.tr(),
-    selected: kAppLocales
-        .indexWhere((l) => l.languageCode == current.languageCode),
+    selected:
+        kAppLocales.indexWhere((l) => l.languageCode == current.languageCode),
     options: [
       for (var i = 0; i < kAppLocales.length; i++)
         CwChoice(i, _displayNames[i]),

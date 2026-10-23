@@ -21,6 +21,7 @@ import 'package:wallet_app/feature/import/importers.dart';
 import 'package:wallet_app/ui/components/cw_button.dart';
 import 'package:wallet_app/ui/components/cw_field.dart';
 import 'package:wallet_app/ui/components/cw_list.dart';
+import 'package:wallet_app/ui/components/cw_top_bar.dart';
 import 'package:wallet_app/ui/components/cw_misc.dart';
 import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/tokens.dart';
@@ -232,75 +233,77 @@ class _ImportPageState extends State<ImportPage> {
         body: SafeArea(
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(14, 6, 14, 6),
-                child: Row(
-                  children: [
-                    CwCircleButton(
-                      CwIcons.back,
-                      onPressed: () => Navigator.of(context).maybePop(),
-                      semanticLabel:
-                          MaterialLocalizations.of(context).backButtonTooltip,
-                    ),
-                    Expanded(
-                      child: Text('cwImportTitle'.tr(),
-                          textAlign: TextAlign.center,
-                          style: CwType.headline.copyWith(color: c.ink)),
-                    ),
-                    const SizedBox(width: 38),
-                  ],
-                ),
-              ),
               Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.only(bottom: 24),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(22, 12, 22, 4),
-                      child: Text('cwImportHero'.tr(),
-                          style: CwType.display
-                              .copyWith(color: c.ink, fontSize: 28)),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(22, 4, 22, 14),
-                      child: Text('cwImportSub'.tr(),
-                          style: CwType.callout.copyWith(color: c.mute)),
-                    ),
-                    CwGroup(
+                child: CwScrollEdge(
+                  bar: Padding(
+                    padding: const EdgeInsets.fromLTRB(14, 6, 14, 6),
+                    child: Row(
                       children: [
-                        _source(
-                            CwIcons.wallet,
-                            const Color(0xFF1F3A93),
-                            'cwSrcStocard',
-                            'cwSrcStocardSub',
-                            () => _pick(stocardGuide: true)),
-                        _source(CwIcons.stack, const Color(0xFF0E7C66),
-                            'cwSrcCatima', 'cwSrcCatimaSub', _pick),
-                        _source(CwIcons.gift, const Color(0xFFD6336C),
-                            'cwSrcFidme', 'cwSrcFidmeSub', _pick),
-                        _source(CwIcons.walletPass, c.ink,
-                            'cwSrcPkpass', 'cwSrcPkpassSub', _pick),
-                        _source(CwIcons.document, c.ink2, 'cwSrcCsv',
-                            'cwSrcCsvSub', _pick),
+                        CwCircleButton(
+                          CwIcons.back,
+                          onPressed: () => Navigator.of(context).maybePop(),
+                          semanticLabel: MaterialLocalizations.of(context)
+                              .backButtonTooltip,
+                        ),
+                        Expanded(
+                          child: Text('cwImportTitle'.tr(),
+                              textAlign: TextAlign.center,
+                              style: CwType.headline.copyWith(color: c.ink)),
+                        ),
+                        const SizedBox(width: 38),
                       ],
                     ),
-                    if (r != null) ...[
-                      CwSectionHeader('cwFoundInFile'.tr()),
+                  ),
+                  body: ListView(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(22, 12, 22, 4),
+                        child: Text('cwImportHero'.tr(),
+                            style: CwType.display
+                                .copyWith(color: c.ink, fontSize: 28)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(22, 4, 22, 14),
+                        child: Text('cwImportSub'.tr(),
+                            style: CwType.callout.copyWith(color: c.mute)),
+                      ),
                       CwGroup(
                         children: [
-                          for (var i = 0; i < r.cards.length; i++)
-                            _FoundRow(
-                              card: r.cards[i],
-                              on: _on.contains(i),
-                              onChanged: (v) => setState(
-                                  () => v ? _on.add(i) : _on.remove(i)),
-                            ),
+                          _source(
+                              CwIcons.wallet,
+                              const Color(0xFF1F3A93),
+                              'cwSrcStocard',
+                              'cwSrcStocardSub',
+                              () => _pick(stocardGuide: true)),
+                          _source(CwIcons.stack, const Color(0xFF0E7C66),
+                              'cwSrcCatima', 'cwSrcCatimaSub', _pick),
+                          _source(CwIcons.gift, const Color(0xFFD6336C),
+                              'cwSrcFidme', 'cwSrcFidmeSub', _pick),
+                          _source(CwIcons.walletPass, c.ink, 'cwSrcPkpass',
+                              'cwSrcPkpassSub', _pick),
+                          _source(CwIcons.document, c.ink2, 'cwSrcCsv',
+                              'cwSrcCsvSub', _pick),
                         ],
                       ),
+                      if (r != null) ...[
+                        CwSectionHeader('cwFoundInFile'.tr()),
+                        CwGroup(
+                          children: [
+                            for (var i = 0; i < r.cards.length; i++)
+                              _FoundRow(
+                                card: r.cards[i],
+                                on: _on.contains(i),
+                                onChanged: (v) => setState(
+                                    () => v ? _on.add(i) : _on.remove(i)),
+                              ),
+                          ],
+                        ),
+                      ],
+                      const SizedBox(height: 18),
+                      CwTrustLine('cwEncryptedLocal'.tr()),
                     ],
-                    const SizedBox(height: 18),
-                    CwTrustLine('cwEncryptedLocal'.tr()),
-                  ],
+                  ),
                 ),
               ),
               if (r != null)

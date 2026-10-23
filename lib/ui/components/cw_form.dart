@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wallet_app/ui/components/cw_button.dart';
+import 'package:wallet_app/ui/components/cw_top_bar.dart';
 import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/tokens.dart';
 import 'package:wallet_app/ui/typography.dart';
@@ -36,48 +37,53 @@ class CwFormScaffold extends StatelessWidget {
             onTap: () => FocusScope.of(context).unfocus(),
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 6, 14, 6),
-                  child: Row(
-                    children: [
-                      CwCircleButton(
-                        CwIcons.close,
-                        onPressed: () => Navigator.of(context).maybePop(),
-                        semanticLabel:
-                            MaterialLocalizations.of(context).closeButtonLabel,
-                      ),
-                      Expanded(
-                        child: Text(
-                          title,
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: CwType.headline.copyWith(color: c.ink),
-                        ),
-                      ),
-                      action ?? const SizedBox(width: 38),
-                    ],
-                  ),
-                ),
                 Expanded(
-                  child: ListView(
-                    keyboardDismissBehavior:
-                        ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: const EdgeInsets.fromLTRB(
-                        CwSpace.gutter, 8, CwSpace.gutter, 24),
-                    children: [
-                      if (preview != null) ...[
-                        preview!,
-                        const SizedBox(height: 16),
+                  child: CwScrollEdge(
+                    bar: Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 6, 14, 6),
+                      child: Row(
+                        children: [
+                          CwCircleButton(
+                            CwIcons.close,
+                            onPressed: () => Navigator.of(context).maybePop(),
+                            semanticLabel: MaterialLocalizations.of(context)
+                                .closeButtonLabel,
+                          ),
+                          Expanded(
+                            child: Text(
+                              title,
+                              textAlign: TextAlign.center,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: CwType.headline.copyWith(color: c.ink),
+                            ),
+                          ),
+                          action ?? const SizedBox(width: 38),
+                        ],
+                      ),
+                    ),
+                    body: ListView(
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
+                      padding: const EdgeInsets.fromLTRB(
+                          CwSpace.gutter, 8, CwSpace.gutter, 24),
+                      children: [
+                        if (preview != null) ...[
+                          preview!,
+                          const SizedBox(height: 16),
+                        ],
+                        ...children,
                       ],
-                      ...children,
-                    ],
+                    ),
                   ),
                 ),
                 Container(
                   color: c.bg,
-                  padding: EdgeInsets.fromLTRB(CwSpace.gutter, 8,
-                      CwSpace.gutter, 12 + MediaQuery.paddingOf(context).bottom),
+                  padding: EdgeInsets.fromLTRB(
+                      CwSpace.gutter,
+                      8,
+                      CwSpace.gutter,
+                      12 + MediaQuery.paddingOf(context).bottom),
                   child: button,
                 ),
               ],
@@ -119,8 +125,8 @@ class CwHeaderAction extends StatelessWidget {
               CwIcon(icon, size: 16, color: c.accent),
               const SizedBox(width: 6),
               Text(label,
-                  style: CwType.footnote.copyWith(
-                      color: c.accent, fontWeight: FontWeight.w700)),
+                  style: CwType.footnote
+                      .copyWith(color: c.accent, fontWeight: FontWeight.w700)),
             ],
           ),
         ),

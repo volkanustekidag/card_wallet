@@ -101,7 +101,7 @@ void main() {
   for (final locale in const [Locale('de', 'DE'), Locale('tr', 'TR')]) {
     testWidgets('no overflow in ${locale.languageCode}', (tester) async {
       await open(tester, locale: locale);
-      await tester.drag(find.byType(ListView), const Offset(0, -3000));
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -3000));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
     });

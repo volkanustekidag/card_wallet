@@ -16,6 +16,7 @@ import 'package:wallet_app/feature/iban_card/utils/iban_share_flow.dart';
 import 'package:wallet_app/ui/card/wallet_card_faces.dart';
 import 'package:wallet_app/ui/components/cw_button.dart';
 import 'package:wallet_app/ui/components/cw_list.dart';
+import 'package:wallet_app/ui/components/cw_top_bar.dart';
 import 'package:wallet_app/ui/components/cw_misc.dart';
 import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/tokens.dart';
@@ -49,101 +50,97 @@ class _IbanPageState extends State<IbanPage> {
         backgroundColor: c.bg,
         body: SafeArea(
           bottom: false,
-          child: Column(
-            children: [
-              DetailTopBar(title: titleForItem(item), onMore: _openMore),
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.fromLTRB(
-                    CwSpace.gutter,
-                    8,
-                    CwSpace.gutter,
-                    24 + MediaQuery.paddingOf(context).bottom,
-                  ),
+          child: CwScrollEdge(
+            bar: DetailTopBar(title: titleForItem(item), onMore: _openMore),
+            body: ListView(
+              padding: EdgeInsets.fromLTRB(
+                CwSpace.gutter,
+                8,
+                CwSpace.gutter,
+                24 + MediaQuery.paddingOf(context).bottom,
+              ),
+              children: [
+                Hero(
+                  tag: item.heroTag,
+                  child: WalletCardFace(item: item, interactive: true),
+                ),
+                const SizedBox(height: 14),
+                CwGroup(
+                  margin: EdgeInsets.zero,
                   children: [
-                    Hero(
-                      tag: item.heroTag,
-                      child: WalletCardFace(item: item, interactive: true),
+                    _FieldRow(
+                      label: 'IBAN',
+                      value: formatIban(card.iban),
+                      copy: card.iban.replaceAll(' ', '').toUpperCase(),
+                      mono: true,
                     ),
-                    const SizedBox(height: 14),
-                    CwGroup(
-                      margin: EdgeInsets.zero,
-                      children: [
-                        _FieldRow(
-                          label: 'IBAN',
-                          value: formatIban(card.iban),
-                          copy: card.iban.replaceAll(' ', '').toUpperCase(),
-                          mono: true,
-                        ),
-                        if (swift.isNotEmpty)
-                          _FieldRow(
-                            label: 'BIC / SWIFT',
-                            value: swift,
-                            copy: swift,
-                            mono: true,
-                          ),
-                        if (card.cardHolder.trim().isNotEmpty)
-                          _FieldRow(
-                            label: 'cwAccountHolder'.tr(),
-                            value: card.cardHolder.trim(),
-                            copy: card.cardHolder.trim(),
-                          ),
-                        if (card.bankName.trim().isNotEmpty)
-                          _FieldRow(
-                            label: 'cwBank'.tr(),
-                            value: card.bankName.trim(),
-                            copy: card.bankName.trim(),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CwButton(
-                            'cwShareIban'.tr(),
-                            icon: CwIcons.share,
-                            height: 50,
-                            onPressed: () => shareIban(context, card),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        CwCircleButton(
-                          CwIcons.qr,
-                          size: 50,
-                          semanticLabel: 'qrCode'.tr(),
-                          onPressed: () => IbanCardUtils.showQRFullScreen(
-                            context,
-                            qrData: card.iban,
-                            beneficiaryName: card.cardHolder,
-                            card: card,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (notes.isNotEmpty) ...[
-                      CwSectionHeader(
-                        'cwNotes'.tr(),
-                        padding: const EdgeInsets.fromLTRB(4, 22, 4, 8),
+                    if (swift.isNotEmpty)
+                      _FieldRow(
+                        label: 'BIC / SWIFT',
+                        value: swift,
+                        copy: swift,
+                        mono: true,
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: c.surface,
-                          borderRadius: BorderRadius.circular(CwRadius.m),
-                        ),
-                        child: SelectableText(
-                          notes,
-                          style: CwType.body.copyWith(color: c.ink),
-                        ),
+                    if (card.cardHolder.trim().isNotEmpty)
+                      _FieldRow(
+                        label: 'cwAccountHolder'.tr(),
+                        value: card.cardHolder.trim(),
+                        copy: card.cardHolder.trim(),
                       ),
-                    ],
-                    const SizedBox(height: 22),
-                    CwTrustLine('cwEncryptedLocal'.tr()),
+                    if (card.bankName.trim().isNotEmpty)
+                      _FieldRow(
+                        label: 'cwBank'.tr(),
+                        value: card.bankName.trim(),
+                        copy: card.bankName.trim(),
+                      ),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Expanded(
+                      child: CwButton(
+                        'cwShareIban'.tr(),
+                        icon: CwIcons.share,
+                        height: 50,
+                        onPressed: () => shareIban(context, card),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    CwCircleButton(
+                      CwIcons.qr,
+                      size: 50,
+                      semanticLabel: 'qrCode'.tr(),
+                      onPressed: () => IbanCardUtils.showQRFullScreen(
+                        context,
+                        qrData: card.iban,
+                        beneficiaryName: card.cardHolder,
+                        card: card,
+                      ),
+                    ),
+                  ],
+                ),
+                if (notes.isNotEmpty) ...[
+                  CwSectionHeader(
+                    'cwNotes'.tr(),
+                    padding: const EdgeInsets.fromLTRB(4, 22, 4, 8),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: c.surface,
+                      borderRadius: BorderRadius.circular(CwRadius.m),
+                    ),
+                    child: SelectableText(
+                      notes,
+                      style: CwType.body.copyWith(color: c.ink),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 22),
+                CwTrustLine('cwEncryptedLocal'.tr()),
+              ],
+            ),
           ),
         ),
       ),

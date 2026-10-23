@@ -22,6 +22,7 @@ import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/card_share_choice_sheet.dart';
 import 'package:wallet_app/ui/card/wallet_card_faces.dart';
 import 'package:wallet_app/ui/components/cw_list.dart';
+import 'package:wallet_app/ui/components/cw_top_bar.dart';
 import 'package:wallet_app/ui/components/cw_misc.dart';
 import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/tokens.dart';
@@ -111,121 +112,117 @@ class _BankCardPageState extends State<BankCardPage> {
         backgroundColor: c.bg,
         body: SafeArea(
           bottom: false,
-          child: Column(
-            children: [
-              DetailTopBar(title: titleForItem(item), onMore: _openMore),
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.fromLTRB(
-                    CwSpace.gutter,
-                    8,
-                    CwSpace.gutter,
-                    24 + MediaQuery.paddingOf(context).bottom,
+          child: CwScrollEdge(
+            bar: DetailTopBar(title: titleForItem(item), onMore: _openMore),
+            body: ListView(
+              padding: EdgeInsets.fromLTRB(
+                CwSpace.gutter,
+                8,
+                CwSpace.gutter,
+                24 + MediaQuery.paddingOf(context).bottom,
+              ),
+              children: [
+                Hero(
+                  tag: item.heroTag,
+                  child: WalletCardFace(
+                    item: item,
+                    interactive: true,
+                    revealNumber: _revealed,
                   ),
+                ),
+                const SizedBox(height: 14),
+                CwGroup(
+                  margin: EdgeInsets.zero,
                   children: [
-                    Hero(
-                      tag: item.heroTag,
-                      child: WalletCardFace(
-                        item: item,
-                        interactive: true,
-                        revealNumber: _revealed,
+                    CwRow(
+                      leading: CwIcon(
+                        _revealed
+                            ? CwIcons.eyeOff
+                            : (_biometric ? CwIcons.faceId : CwIcons.eye),
+                        color: c.ink,
                       ),
+                      title: _revealed
+                          ? 'cwHideNumber'.tr()
+                          : (_biometric
+                              ? 'cwRevealBiometric'.tr()
+                              : 'cwRevealNumber'.tr()),
+                      value: _revealed
+                          ? 'cwHidesIn'.tr(args: ['$_secondsLeft'])
+                          : null,
+                      onTap: _toggleReveal,
                     ),
-                    const SizedBox(height: 14),
-                    CwGroup(
-                      margin: EdgeInsets.zero,
-                      children: [
-                        CwRow(
-                          leading: CwIcon(
-                            _revealed
-                                ? CwIcons.eyeOff
-                                : (_biometric ? CwIcons.faceId : CwIcons.eye),
-                            color: c.ink,
-                          ),
-                          title: _revealed
-                              ? 'cwHideNumber'.tr()
-                              : (_biometric
-                                  ? 'cwRevealBiometric'.tr()
-                                  : 'cwRevealNumber'.tr()),
-                          value: _revealed
-                              ? 'cwHidesIn'.tr(args: ['$_secondsLeft'])
-                              : null,
-                          onTap: _toggleReveal,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: QuickActionTile(
-                            icon: CwIcons.copy,
-                            label: 'cwCopyNumber'.tr(),
-                            onTap: () => copySensitive(
-                              context,
-                              CardNumberLayout.digitsOf(card.creditCardNumber),
-                              cardType: AnalyticsCardType.credit,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: QuickActionTile(
-                            icon: CwIcons.calendar,
-                            label: 'cwCopyExpiry'.tr(),
-                            onTap: () => copySensitive(
-                              context,
-                              card.expirationDate.replaceAll(' ', ''),
-                              cardType: AnalyticsCardType.credit,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: QuickActionTile(
-                            icon: CwIcons.share,
-                            label: 'cwShare'.tr(),
-                            onTap: _share,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: QuickActionTile(
-                            icon: CwIcons.edit,
-                            label: 'cwEdit'.tr(),
-                            onTap: _edit,
-                          ),
-                        ),
-                      ],
-                    ),
-                    CwSectionHeader(
-                      'cwReminders'.tr(),
-                      padding: const EdgeInsets.fromLTRB(4, 22, 4, 8),
-                    ),
-                    _Reminders(card: card, onChanged: () => setState(() {})),
-                    if (notes.isNotEmpty) ...[
-                      CwSectionHeader(
-                        'cwNotes'.tr(),
-                        padding: const EdgeInsets.fromLTRB(4, 22, 4, 8),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: c.surface,
-                          borderRadius: BorderRadius.circular(CwRadius.m),
-                        ),
-                        child: SelectableText(
-                          notes,
-                          style: CwType.body.copyWith(color: c.ink),
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 22),
-                    CwTrustLine('cwEncryptedLocal'.tr()),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: QuickActionTile(
+                        icon: CwIcons.copy,
+                        label: 'cwCopyNumber'.tr(),
+                        onTap: () => copySensitive(
+                          context,
+                          CardNumberLayout.digitsOf(card.creditCardNumber),
+                          cardType: AnalyticsCardType.credit,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: QuickActionTile(
+                        icon: CwIcons.calendar,
+                        label: 'cwCopyExpiry'.tr(),
+                        onTap: () => copySensitive(
+                          context,
+                          card.expirationDate.replaceAll(' ', ''),
+                          cardType: AnalyticsCardType.credit,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: QuickActionTile(
+                        icon: CwIcons.share,
+                        label: 'cwShare'.tr(),
+                        onTap: _share,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: QuickActionTile(
+                        icon: CwIcons.edit,
+                        label: 'cwEdit'.tr(),
+                        onTap: _edit,
+                      ),
+                    ),
+                  ],
+                ),
+                CwSectionHeader(
+                  'cwReminders'.tr(),
+                  padding: const EdgeInsets.fromLTRB(4, 22, 4, 8),
+                ),
+                _Reminders(card: card, onChanged: () => setState(() {})),
+                if (notes.isNotEmpty) ...[
+                  CwSectionHeader(
+                    'cwNotes'.tr(),
+                    padding: const EdgeInsets.fromLTRB(4, 22, 4, 8),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: c.surface,
+                      borderRadius: BorderRadius.circular(CwRadius.m),
+                    ),
+                    child: SelectableText(
+                      notes,
+                      style: CwType.body.copyWith(color: c.ink),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 22),
+                CwTrustLine('cwEncryptedLocal'.tr()),
+              ],
+            ),
           ),
         ),
       ),

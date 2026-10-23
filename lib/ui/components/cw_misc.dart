@@ -424,8 +424,8 @@ Future<T?> showCwChoiceSheet<T>(
                                 ],
                                 Expanded(
                                   child: Text(options[i].label,
-                                      style: CwType.body
-                                          .copyWith(color: c.ink)),
+                                      style:
+                                          CwType.body.copyWith(color: c.ink)),
                                 ),
                                 if (options[i].value == selected)
                                   CwIcon(CwIcons.check,
