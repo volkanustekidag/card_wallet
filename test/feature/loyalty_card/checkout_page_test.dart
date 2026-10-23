@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
@@ -13,6 +14,7 @@ void main() {
   final h = Harness();
   late LoyaltyCard card;
   late LoyaltyCardService service;
+  setUpAll(loadRealFonts);
 
   setUp(() async {
     await h.setUp();
@@ -23,9 +25,11 @@ void main() {
   });
   tearDown(h.tearDown);
 
-  Future<void> open(WidgetTester tester, {bool readOnly = false}) async {
+  Future<void> open(WidgetTester tester,
+      {bool readOnly = false, Locale? locale}) async {
     await phoneSurface(tester);
-    await pumpApp(tester, const Scaffold(body: SizedBox()));
+    await pumpApp(tester, const Scaffold(body: SizedBox()),
+        locale: locale ?? const Locale('en', 'US'));
     await pushIo(tester, LoyaltyCardDetailPage(card: card, readOnly: readOnly));
   }
 
@@ -66,6 +70,17 @@ void main() {
     expect(find.text('cwCopy'.tr()), findsNothing);
     expect(find.text('Locker 12'), findsNothing);
     expect(find.bySemanticsLabel('cwMore'.tr()), findsNothing);
+  });
+
+  testWidgets('Turkish: "verified" line is not cut short by the use count',
+      (tester) async {
+    card = loyalty('many', 'Kahve Dünyası');
+    await tester.runAsync(() => service.addLoyaltyCard(card));
+    await open(tester, locale: const Locale('tr', 'TR'));
+    final line = find.textContaining('cwVerified'.tr());
+    expect(line, findsOneWidget);
+    final paragraph = tester.renderObject<RenderParagraph>(line);
+    expect(paragraph.didExceedMaxLines, isFalse);
   });
 
   testWidgets('invalid barcode: no "verified" mark', (tester) async {

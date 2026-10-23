@@ -584,22 +584,30 @@ class _BarcodePanel extends StatelessWidget {
             const SizedBox(height: 12),
             Row(
               children: [
-                Flexible(
-                  child: Text(
-                    valid
-                        ? '${barcodeFormatLabel(card.barcodeFormat)} · ${'cwVerified'.tr()}'
-                        : barcodeFormatLabel(card.barcodeFormat),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: CwType.caption.copyWith(color: mute),
+                // All the room the use count leaves (a Flexible next to a
+                // Spacer only got half of it and cut "verified" short).
+                Expanded(
+                  child: Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          valid
+                              ? '${barcodeFormatLabel(card.barcodeFormat)} · ${'cwVerified'.tr()}'
+                              : barcodeFormatLabel(card.barcodeFormat),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: CwType.caption.copyWith(color: mute),
+                        ),
+                      ),
+                      if (valid) ...[
+                        const SizedBox(width: 4),
+                        const CwIcon(CwIcons.checkCircle,
+                            size: 14, color: Color(0xFF12B76A)),
+                      ],
+                    ],
                   ),
                 ),
-                if (valid) ...[
-                  const SizedBox(width: 4),
-                  const CwIcon(CwIcons.checkCircle,
-                      size: 14, color: Color(0xFF12B76A)),
-                ],
-                const Spacer(),
+                const SizedBox(width: 8),
                 Text(
                   'cwUsedTimes'.plural(uses),
                   style: CwType.caption.copyWith(color: mute),
