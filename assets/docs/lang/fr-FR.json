@@ -900,5 +900,7 @@
     "cwCardN": "Carte {}",
     "cwFreeCount": "{} sur {} gratuits",
     "cwFreeFull": "Limite gratuite atteinte · plus avec Premium",
-    "cwImportOverLimit": "L'offre gratuite inclut {} cartes de fidélité. Premium importe le reste."
+    "cwImportOverLimit": "L'offre gratuite inclut {} cartes de fidélité. Premium importe le reste.",
+    "cwViewHintTitle": "Deux façons de voir votre portefeuille",
+    "cwViewHintBody": "Passez ici de la pile de cartes à la grille."
 }

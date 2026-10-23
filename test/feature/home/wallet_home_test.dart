@@ -22,6 +22,7 @@ void main() {
     UiPrefs.instance.homeGrid.value = false;
     UiPrefs.instance.homeSort.value = 'smart';
     UiPrefs.instance.manualOrder.clear();
+    UiPrefs.instance.viewHintSeen.value = false;
   });
   tearDown(h.tearDown);
 
@@ -379,18 +380,68 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('sortEditOrder')));
       await tester.pumpAndSettle();
       expect(find.byType(ReorderCardsPage), findsOneWidget);
-      expect(UiPrefs.instance.homeSort.value, 'manual');
+      // Only looking: nothing changes yet.
+      expect(UiPrefs.instance.homeSort.value, 'smart');
+      expect(UiPrefs.instance.manualOrder, isEmpty);
 
-      final before = UiPrefs.instance.manualOrder.toList();
-      expect(before, hasLength(3));
+      final page =
+          tester.widget<ReorderCardsPage>(find.byType(ReorderCardsPage));
+      final first = stackOrder(page.items, HomeFilter.all).first.heroTag;
       final handle = find.descendant(
-          of: find.byKey(ValueKey(before.first)),
+          of: find.byKey(ValueKey(first)),
           matching: find.byType(ReorderableDragStartListener));
-      await tester.drag(handle, const Offset(0, 200));
-      await tester.pumpAndSettle();
+      // The drag saves: run it in the real zone so the write completes.
+      await tester.runAsync(() => tester.drag(handle, const Offset(0, 200)));
+      await settleIo(tester);
+      expect(UiPrefs.instance.homeSort.value, 'manual');
       final after = UiPrefs.instance.manualOrder.toList();
-      expect(after.first, isNot(before.first));
-      expect(after.toSet(), before.toSet());
+      expect(after, hasLength(3));
+      expect(after.first, isNot(first));
+    });
+  });
+
+  group('stack / grid hint', () {
+    FakeHome two() => FakeHome(loyalties: [
+          loyalty('a', 'Bakery'),
+          loyalty('b', 'Gym'),
+        ]);
+
+    testWidgets('shows once there are two cards; Got it puts it away for good',
+        (tester) async {
+      await pumpHome(tester, two());
+      expect(find.byKey(const ValueKey('homeViewHint')), findsOneWidget);
+      expect(find.text('cwViewHintBody'.tr()), findsOneWidget);
+
+      await tapIo(tester, find.byKey(const ValueKey('homeViewHint')));
+      expect(find.byKey(const ValueKey('homeViewHint')), findsNothing);
+      expect(UiPrefs.instance.viewHintSeen.value, isTrue);
+
+      UiPrefs.instance.viewHintSeen.value = false;
+      await tester.runAsync(UiPrefs.instance.load);
+      expect(UiPrefs.instance.viewHintSeen.value, isTrue);
+    });
+
+    testWidgets('using the switch counts as seen', (tester) async {
+      await pumpHome(tester, two());
+      await tapIo(tester, find.bySemanticsLabel('cwViewGrid'.tr()));
+      expect(find.byKey(const ValueKey('homeViewHint')), findsNothing);
+      expect(UiPrefs.instance.viewHintSeen.value, isTrue);
+    });
+
+    testWidgets('one card: nothing to switch between, no hint', (tester) async {
+      await pumpHome(tester, FakeHome(loyalties: [loyalty('a', 'Bakery')]));
+      expect(find.byKey(const ValueKey('homeViewHint')), findsNothing);
+    });
+
+    testWidgets('fits a small phone in German, dark', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(320, 640));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      final home = two();
+      Get.put<HomeController>(home);
+      await pumpApp(tester, Scaffold(body: WalletHome(controller: home)),
+          mode: ThemeMode.dark, locale: const Locale('de', 'DE'));
+      expect(find.byKey(const ValueKey('homeViewHint')), findsOneWidget);
+      expect(tester.takeException(), isNull);
     });
   });
 }

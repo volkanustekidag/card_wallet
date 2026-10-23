@@ -255,10 +255,18 @@ class _WalletSlivers extends StatelessWidget {
             count: stack.length,
             notice: notice,
             grid: grid,
-            onGrid: stack.isEmpty ? null : UiPrefs.instance.setHomeGrid,
+            onGrid: stack.isEmpty
+                ? null
+                : (v) {
+                    // Using the switch is the lesson; no hint needed after.
+                    UiPrefs.instance.markViewHintSeen();
+                    UiPrefs.instance.setHomeGrid(v);
+                  },
             onSort: stack.length < 2
                 ? null
                 : () => showHomeSortSheet(context, items: items),
+            // Once, the first time there's enough to show both ways.
+            hintViews: stack.length >= 2,
           ),
         ),
         if (stack.isEmpty)
@@ -567,12 +575,16 @@ class _CountLine extends StatelessWidget {
   /// Opens the order sheet; null hides the button.
   final VoidCallback? onSort;
 
+  /// May show the one-time "stack or grid" tooltip under the switch.
+  final bool hintViews;
+
   const _CountLine({
     required this.count,
     this.notice,
     this.grid = false,
     this.onGrid,
     this.onSort,
+    this.hintViews = false,
   });
 
   static String whenText(int days) {
@@ -644,12 +656,135 @@ class _CountLine extends StatelessWidget {
           ],
           if (onGrid != null) ...[
             const SizedBox(width: 10),
-            _ViewSwitch(grid: grid, onChanged: onGrid!),
+            Obx(() {
+              // Read first: Obx needs the subscription even when hidden.
+              final seen = UiPrefs.instance.viewHintSeen.value;
+              return _ViewHintAnchor(
+                show: hintViews && !seen,
+                onDismiss: UiPrefs.instance.markViewHintSeen,
+                child: _ViewSwitch(grid: grid, onChanged: onGrid!),
+              );
+            }),
           ],
         ],
       ),
     );
   }
+}
+
+/// One-time tooltip right under the stack / grid switch, floating above
+/// everything (it never pushes the cards down). Tap it to dismiss.
+class _ViewHintAnchor extends StatefulWidget {
+  final bool show;
+  final VoidCallback onDismiss;
+  final Widget child;
+
+  const _ViewHintAnchor({
+    required this.show,
+    required this.onDismiss,
+    required this.child,
+  });
+
+  @override
+  State<_ViewHintAnchor> createState() => _ViewHintAnchorState();
+}
+
+class _ViewHintAnchorState extends State<_ViewHintAnchor> {
+  final _link = LayerLink();
+  final _portal = OverlayPortalController();
+
+  @override
+  void initState() {
+    super.initState();
+    _sync();
+  }
+
+  @override
+  void didUpdateWidget(_ViewHintAnchor old) {
+    super.didUpdateWidget(old);
+    _sync();
+  }
+
+  /// Show / hide after the frame: the overlay can't change mid-build.
+  void _sync() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (widget.show && !_portal.isShowing) _portal.show();
+      if (!widget.show && _portal.isShowing) _portal.hide();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    return CompositedTransformTarget(
+      link: _link,
+      child: OverlayPortal(
+        controller: _portal,
+        overlayChildBuilder: (_) => Align(
+          alignment: Alignment.topLeft,
+          child: CompositedTransformFollower(
+            link: _link,
+            targetAnchor: Alignment.bottomRight,
+            followerAnchor: Alignment.topRight,
+            offset: const Offset(0, 6),
+            child: GestureDetector(
+              key: const ValueKey('homeViewHint'),
+              onTap: () {
+                HapticFeedback.selectionClick();
+                widget.onDismiss();
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Padding(
+                    // Under the middle of the switch (68 wide).
+                    padding: const EdgeInsets.only(right: 34 - 6),
+                    child: CustomPaint(
+                        size: const Size(12, 6), painter: _ArrowUp(c.ink)),
+                  ),
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 210),
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 9),
+                    decoration: BoxDecoration(
+                      color: c.ink,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: CwElevation.e2,
+                    ),
+                    child: Text(
+                      'cwViewHintBody'.tr(),
+                      style: CwType.footnote
+                          .copyWith(color: c.bg, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+class _ArrowUp extends CustomPainter {
+  final Color color;
+  _ArrowUp(this.color);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path()
+      ..moveTo(0, size.height)
+      ..lineTo(size.width / 2, 0)
+      ..lineTo(size.width, size.height)
+      ..close();
+    canvas.drawPath(path, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(_ArrowUp old) => old.color != color;
 }
 
 /// Two-icon switch between the stack and the grid.

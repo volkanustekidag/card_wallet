@@ -914,5 +914,7 @@
     "cwCardN": "Karta {}",
     "cwFreeCount": "{} z {} za darmo",
     "cwFreeFull": "Limit darmowy wyczerpany · więcej w Premium",
-    "cwImportOverLimit": "Darmowy plan obejmuje {} karty lojalnościowe. Premium przeniesie resztę."
+    "cwImportOverLimit": "Darmowy plan obejmuje {} karty lojalnościowe. Premium przeniesie resztę.",
+    "cwViewHintTitle": "Dwa widoki portfela",
+    "cwViewHintBody": "Tutaj przełączysz między stosem kart a siatką."
 }

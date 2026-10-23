@@ -900,5 +900,7 @@
     "cwCardN": "Card {}",
     "cwFreeCount": "{} of {} free",
     "cwFreeFull": "Free limit reached · Premium for more",
-    "cwImportOverLimit": "The free plan holds {} loyalty cards. Premium brings the rest."
+    "cwImportOverLimit": "The free plan holds {} loyalty cards. Premium brings the rest.",
+    "cwViewHintTitle": "Two ways to see your wallet",
+    "cwViewHintBody": "Switch between the card stack and a grid here."
 }

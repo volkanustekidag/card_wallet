@@ -199,8 +199,8 @@ Future<void> openReorderCards(BuildContext context,
   ));
 }
 
-/// Drag cards into the user's own order. Saves as it goes and switches
-/// Home to "My order".
+/// Drag cards into the user's own order. The first move switches Home to
+/// "My order"; each move is saved. Just looking changes nothing.
 class ReorderCardsPage extends StatefulWidget {
   final List<WalletItem> items;
   const ReorderCardsPage({super.key, required this.items});
@@ -226,16 +226,6 @@ class _ReorderCardsPageState extends State<ReorderCardsPage> {
     if (UiPrefs.instance.homeSort.value != HomeSort.manual.name) {
       UiPrefs.instance.setHomeSort(HomeSort.manual.name);
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // After the first frame: saving rebuilds Home, which can't happen
-    // while this page is being built.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _save();
-    });
   }
 
   @override

@@ -16,6 +16,7 @@ class UiPrefs {
   static const _kRemindDefault = 'remind_by_default';
   static const _kHomeGrid = 'home_grid';
   static const _kBrandCountry = 'brand_country';
+  static const _kViewHintSeen = 'view_hint_seen';
   static const _kHomeSort = 'home_sort';
   static const _kManualOrder = 'manual_order';
 
@@ -33,6 +34,9 @@ class UiPrefs {
 
   /// Country picked in the brand picker; null follows the phone.
   final Rxn<String> brandCountry = Rxn<String>();
+
+  /// The one-time "stack or grid" hint on Home was shown and dismissed.
+  final RxBool viewHintSeen = false.obs;
 
   Future<Box<dynamic>> _open() async {
     if (Hive.isBoxOpen(_box)) return Hive.box<dynamic>(_box);
@@ -54,6 +58,7 @@ class UiPrefs {
       homeSort.value = sort is String ? sort : 'smart';
       final order = b.get(_kManualOrder);
       manualOrder.assignAll(order is List ? order.cast<String>() : const []);
+      viewHintSeen.value = b.get(_kViewHintSeen) == true;
       final bc = b.get(_kBrandCountry);
       brandCountry.value = bc is String && bc.isNotEmpty ? bc : null;
     } catch (_) {
@@ -101,6 +106,14 @@ class UiPrefs {
     manualOrder.assignAll(heroTags);
     try {
       await (await _open()).put(_kManualOrder, heroTags);
+    } catch (_) {}
+  }
+
+  Future<void> markViewHintSeen() async {
+    if (viewHintSeen.value) return;
+    viewHintSeen.value = true;
+    try {
+      await (await _open()).put(_kViewHintSeen, true);
     } catch (_) {}
   }
 

@@ -900,5 +900,7 @@
     "cwCardN": "Tarjeta {}",
     "cwFreeCount": "{} de {} gratis",
     "cwFreeFull": "Límite gratuito alcanzado · más con Premium",
-    "cwImportOverLimit": "El plan gratuito incluye {} tarjetas de fidelidad. Premium trae el resto."
+    "cwImportOverLimit": "El plan gratuito incluye {} tarjetas de fidelidad. Premium trae el resto.",
+    "cwViewHintTitle": "Dos formas de ver tu cartera",
+    "cwViewHintBody": "Cambia aquí entre la pila de tarjetas y la cuadrícula."
 }

@@ -23,6 +23,7 @@ class HomeController extends GetxController {
   var creditCards = <CreditCard>[].obs;
   var ibanCards = <IbanCard>[].obs;
   var loyaltyCards = <LoyaltyCard>[].obs;
+
   /// True while any load is running. Background refreshes (resume, box
   /// watchers) flip it too, so the UI must not swap to a spinner on it.
   var isLoading = false.obs;
@@ -87,12 +88,12 @@ class HomeController extends GetxController {
   /// Idempotent, so a retry only attaches what is still missing.
   Future<void> _attachWatchers() async {
     try {
-      _ccSub ??= (await _creditCardService.watch())
-          .listen((_) => _scheduleRefresh());
+      _ccSub ??=
+          (await _creditCardService.watch()).listen((_) => _scheduleRefresh());
       _ibanSub ??=
           (await _ibanCardService.watch()).listen((_) => _scheduleRefresh());
-      _loyaltySub ??= (await _loyaltyCardService.watch())
-          .listen((_) => _scheduleRefresh());
+      _loyaltySub ??=
+          (await _loyaltyCardService.watch()).listen((_) => _scheduleRefresh());
     } catch (e, st) {
       ErrorReporter.report(e, st, reason: 'HomeController.watchers');
     }

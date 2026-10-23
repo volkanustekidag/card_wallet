@@ -900,5 +900,7 @@
     "cwCardN": "Karte {}",
     "cwFreeCount": "{} von {} kostenlos",
     "cwFreeFull": "Gratis-Limit erreicht · mehr mit Premium",
-    "cwImportOverLimit": "Der Gratis-Plan umfasst {} Kundenkarten. Mit Premium kommen alle mit."
+    "cwImportOverLimit": "Der Gratis-Plan umfasst {} Kundenkarten. Mit Premium kommen alle mit.",
+    "cwViewHintTitle": "Zwei Ansichten für deine Wallet",
+    "cwViewHintBody": "Wechsle hier zwischen Kartenstapel und Raster."
 }

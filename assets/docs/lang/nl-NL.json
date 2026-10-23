@@ -900,5 +900,7 @@
     "cwCardN": "Kaart {}",
     "cwFreeCount": "{} van {} gratis",
     "cwFreeFull": "Gratis limiet bereikt · meer met Premium",
-    "cwImportOverLimit": "Het gratis plan heeft {} klantenkaarten. Premium neemt de rest mee."
+    "cwImportOverLimit": "Het gratis plan heeft {} klantenkaarten. Premium neemt de rest mee.",
+    "cwViewHintTitle": "Twee manieren om je portemonnee te zien",
+    "cwViewHintBody": "Wissel hier tussen de kaartenstapel en een raster."
 }
