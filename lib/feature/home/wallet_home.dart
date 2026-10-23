@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -74,6 +76,10 @@ class _WalletHomeState extends State<WalletHome> {
       openWalletSearch();
     } else if (px >= 0) {
       _pullArmed = true;
+    }
+    // Scrolling the wallet is enough of a first look; the view hint goes.
+    if (n is ScrollUpdateNotification && n.dragDetails != null && px > 24) {
+      UiPrefs.instance.markViewHintSeen();
     }
     return false;
   }
@@ -674,7 +680,9 @@ class _CountLine extends StatelessWidget {
 }
 
 /// One-time tooltip right under the stack / grid switch, floating above
-/// everything (it never pushes the cards down). Tap it to dismiss.
+/// everything (it never pushes the cards down). Tap it to dismiss; it also
+/// goes by itself after a few seconds or once the wallet is scrolled, so it
+/// is never left waiting for a tap on later launches.
 class _ViewHintAnchor extends StatefulWidget {
   final bool show;
   final VoidCallback onDismiss;
@@ -693,6 +701,7 @@ class _ViewHintAnchor extends StatefulWidget {
 class _ViewHintAnchorState extends State<_ViewHintAnchor> {
   final _link = LayerLink();
   final _portal = OverlayPortalController();
+  Timer? _autoHide;
 
   @override
   void initState() {
@@ -710,9 +719,22 @@ class _ViewHintAnchorState extends State<_ViewHintAnchor> {
   void _sync() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (widget.show && !_portal.isShowing) _portal.show();
+      if (widget.show && !_portal.isShowing) {
+        _portal.show();
+        _autoHide ??= Timer(const Duration(seconds: 8), widget.onDismiss);
+      }
       if (!widget.show && _portal.isShowing) _portal.hide();
+      if (!widget.show) {
+        _autoHide?.cancel();
+        _autoHide = null;
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _autoHide?.cancel();
+    super.dispose();
   }
 
   @override

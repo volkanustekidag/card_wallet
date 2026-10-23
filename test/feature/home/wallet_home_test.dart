@@ -22,7 +22,9 @@ void main() {
     UiPrefs.instance.homeGrid.value = false;
     UiPrefs.instance.homeSort.value = 'smart';
     UiPrefs.instance.manualOrder.clear();
-    UiPrefs.instance.viewHintSeen.value = false;
+    // Off by default: the hint group turns it on. (Scrolling dismisses it
+    // with a Hive write, which hangs outside runAsync.)
+    UiPrefs.instance.viewHintSeen.value = true;
   });
   tearDown(h.tearDown);
 
@@ -401,6 +403,8 @@ void main() {
   });
 
   group('stack / grid hint', () {
+    setUp(() => UiPrefs.instance.viewHintSeen.value = false);
+
     FakeHome two() => FakeHome(loyalties: [
           loyalty('a', 'Bakery'),
           loyalty('b', 'Gym'),
@@ -424,6 +428,18 @@ void main() {
     testWidgets('using the switch counts as seen', (tester) async {
       await pumpHome(tester, two());
       await tapIo(tester, find.bySemanticsLabel('cwViewGrid'.tr()));
+      expect(find.byKey(const ValueKey('homeViewHint')), findsNothing);
+      expect(UiPrefs.instance.viewHintSeen.value, isTrue);
+    });
+
+    testWidgets('scrolling the wallet puts it away', (tester) async {
+      await pumpHome(tester, two());
+      expect(find.byKey(const ValueKey('homeViewHint')), findsOneWidget);
+      await tester.runAsync(() async {
+        await tester.drag(
+            find.byType(CustomScrollView).first, const Offset(0, -120));
+      });
+      await settleIo(tester);
       expect(find.byKey(const ValueKey('homeViewHint')), findsNothing);
       expect(UiPrefs.instance.viewHintSeen.value, isTrue);
     });
