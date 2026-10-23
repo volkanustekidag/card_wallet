@@ -10,7 +10,10 @@ import 'package:pointycastle/export.dart' as pc;
 /// free of plugins, so [BackupService] runs it through `compute()` to keep
 /// the UI thread responsive.
 
-const String kBackupVersion = '2.1';
+/// 2.2: GCM with its 128-bit authentication tag (PointyCastle). Backups up
+/// to 2.1 were written by the `encrypt` package, whose GCM output carries
+/// no tag; they still open, unauthenticated.
+const String kBackupVersion = '2.2';
 const int kBackupPbkdf2Iterations = 100000;
 const int _keyLengthBytes = 32;
 const int _saltLengthBytes = 16;
@@ -56,20 +59,20 @@ Map<String, dynamic> encryptBackupPayload(BackupEncryptRequest request) {
   final nonce = _randomBytes(_gcmNonceLengthBytes);
   final key = deriveBackupKey(request.password, salt, request.iterations);
 
-  final encrypter = enc.Encrypter(
-    enc.AES(enc.Key(key), mode: enc.AESMode.gcm, padding: null),
-  );
-  final encrypted = encrypter.encrypt(request.plaintext, iv: enc.IV(nonce));
+  final sealed = _gcm(
+      true, key, nonce, Uint8List.fromList(utf8.encode(request.plaintext)));
 
   return <String, dynamic>{
     'version': kBackupVersion,
     'encrypted': true,
     'algorithm': 'AES-256-GCM',
+    // Ciphertext followed by the tag; decryption checks it.
+    'tag': 128,
     'kdf': 'PBKDF2-HMAC-SHA256',
     'iterations': request.iterations,
     'salt': base64Encode(salt),
     'nonce': base64Encode(nonce),
-    'data': encrypted.base64,
+    'data': base64Encode(sealed),
     'timestamp': request.timestamp.toIso8601String(),
   };
 }
@@ -98,9 +101,19 @@ Map<String, dynamic> decryptBackupPayload(BackupDecryptRequest request) {
   }
 
   try {
+    if (algorithm == 'AES-256-GCM' && envelope['tag'] == 128) {
+      if (nonceStr is! String) {
+        throw const FormatException('Encrypted backup missing nonce');
+      }
+      // Throws on a wrong password or any modified byte.
+      final plain =
+          _gcm(false, key, base64Decode(nonceStr), base64Decode(dataStr));
+      return jsonDecode(utf8.decode(plain)) as Map<String, dynamic>;
+    }
     late final enc.Encrypter encrypter;
     late final enc.IV iv;
     if (algorithm == 'AES-256-GCM') {
+      // Up to 2.1: untagged GCM from the `encrypt` package.
       if (nonceStr is! String) {
         throw const FormatException('Encrypted backup missing nonce');
       }
@@ -129,6 +142,14 @@ Map<String, dynamic> decryptBackupPayload(BackupDecryptRequest request) {
       wrongPassword: true,
     );
   }
+}
+
+/// AES-256-GCM, tag appended on encrypt and verified on decrypt.
+Uint8List _gcm(bool encrypt, Uint8List key, Uint8List nonce, Uint8List input) {
+  final cipher = pc.GCMBlockCipher(pc.AESEngine())
+    ..init(encrypt,
+        pc.AEADParameters(pc.KeyParameter(key), 128, nonce, Uint8List(0)));
+  return cipher.process(input);
 }
 
 /// PBKDF2-HMAC-SHA256.
