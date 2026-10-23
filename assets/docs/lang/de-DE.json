@@ -813,7 +813,7 @@
     "cwLockWithPin": "App sperren",
     "cwLockWithPinSub": "Sperrt 30 Sekunden nach dem Verlassen · änderbar in den Einstellungen",
     "cwRemindExpire": "Vor Kartenablauf erinnern",
-    "cwRemindExpireSub": "Und vor fälligen Zahlungen",
+    "cwRemindExpireSub": "Für jede Bankkarte, die du hinzufügst",
     "cwDoneOpen": "Fertig – Wallet öffnen",
     "cwSkip": "Überspringen",
     "cwReadingPhoto": "Foto wird gelesen …",

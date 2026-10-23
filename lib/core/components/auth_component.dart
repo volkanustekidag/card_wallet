@@ -56,6 +56,9 @@ class _AuthViewsState extends State<AuthViews>
 
   String get _pin => widget.textEditingController.text;
 
+  /// "Wrong PIN" stays until the next digit (the red flash is 0.7 s).
+  bool _wrong = false;
+
   @override
   void initState() {
     super.initState();
@@ -68,6 +71,7 @@ class _AuthViewsState extends State<AuthViews>
         HapticFeedback.heavyImpact();
         _shake.forward(from: 0);
         widget.textEditingController.clear();
+        setState(() => _wrong = true);
       });
     }
   }
@@ -87,6 +91,7 @@ class _AuthViewsState extends State<AuthViews>
   void _tap(String d, bool enabled) {
     if (!enabled || _pin.length >= _length) return;
     HapticFeedback.selectionClick();
+    _wrong = false;
     final next = _pin + d;
     widget.textEditingController.text = next;
     if (next.length == _length) widget.onCompleted?.call(next);
@@ -163,14 +168,14 @@ class _AuthViewsState extends State<AuthViews>
                                     AuthController.formatLockRemaining(
                                         auth.pinLockRemaining),
                                   ])
-                                : error
+                                : error || _wrong
                                     ? 'cwWrongPin'.tr()
                                     : isLock
                                         ? 'enterPin'.tr()
                                         : '',
                             textAlign: TextAlign.center,
                             style: CwType.footnote.copyWith(
-                                color: locked || error
+                                color: locked || error || _wrong
                                     ? night.danger
                                     : night.mute),
                           ),

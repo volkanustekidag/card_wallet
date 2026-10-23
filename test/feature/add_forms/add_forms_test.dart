@@ -195,6 +195,18 @@ void main() {
       expect(submit(tester).onPressed, isNotNull);
     });
 
+    testWidgets('a typed EAN-13 number gets the EAN-13 format', (tester) async {
+      await open(tester, const AddLoyaltyCardPage());
+      final c = Get.find<AddLoyaltyCardController>();
+      await tester.enterText(
+          fieldLabelled('cwBarcodeNumber'.tr()), '4006381333931');
+      await tester.pump();
+      expect(c.currentCard.value.barcodeFormat, 'EAN_13');
+      await tester.enterText(fieldLabelled('cwBarcodeNumber'.tr()), 'GYM-77');
+      await tester.pump();
+      expect(c.currentCard.value.barcodeFormat, 'CODE_128');
+    });
+
     testWidgets('saves the card', (tester) async {
       await open(tester, const AddLoyaltyCardPage());
       await tester.enterText(fieldLabelled('cwName'.tr()), 'Corner Cafe');

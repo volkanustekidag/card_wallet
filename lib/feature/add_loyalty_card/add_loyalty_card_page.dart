@@ -38,6 +38,10 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
   final _barcode = TextEditingController();
   final _website = TextEditingController();
 
+  /// The format was set on purpose (picked, scanned or an existing card's):
+  /// typing the number no longer guesses it.
+  late bool _formatSet = widget.card != null;
+
   @override
   void initState() {
     super.initState();
@@ -107,6 +111,7 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
     _barcode.text = hit.raw;
     _c.updateField('barcode', hit.raw);
     _c.updateField('barcodeFormat', hit.format);
+    _formatSet = true;
     if (hit.brand != null && _c.currentCard.value.brand == null) {
       _applyBrand(hit.brand);
     }
@@ -126,8 +131,7 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
                 CwRow(
                   title: f.label,
                   trailing: f.code == current
-                      ? CwIcon(CwIcons.check,
-                          color: CwColors.of(sheet).accent)
+                      ? CwIcon(CwIcons.check, color: CwColors.of(sheet).accent)
                       : null,
                   onTap: () => Navigator.pop(sheet, f.code),
                 ),
@@ -136,7 +140,10 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
         ),
       ),
     );
-    if (picked != null) _c.updateField('barcodeFormat', picked);
+    if (picked != null) {
+      _formatSet = true;
+      _c.updateField('barcodeFormat', picked);
+    }
   }
 
   @override
@@ -168,6 +175,7 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
             controller: _name,
             label: 'cwName'.tr(),
             hint: 'cwCardNameHint'.tr(),
+            autofocus: !editing,
             textCapitalization: TextCapitalization.words,
             maxLength: 40,
             onChanged: (v) => _c.updateField('name', v),
@@ -183,7 +191,14 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
             label: 'cwBarcodeNumber'.tr(),
             mono: true,
             maxLength: 120,
-            onChanged: (v) => _c.updateField('barcode', v.trim()),
+            onChanged: (v) {
+              _c.updateField('barcode', v.trim());
+              // A valid EAN/UPC number is almost always printed as one.
+              if (!_formatSet) {
+                _c.updateField('barcodeFormat',
+                    LoyaltyBarcodeValidator.guessFormat(v.trim()));
+              }
+            },
           ),
           const SizedBox(height: 10),
           CwGroup(
@@ -285,15 +300,15 @@ class _BrandRow extends StatelessWidget {
                               : brand!,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: CwType.body.copyWith(
-                          color: brand == null ? c.mute : c.ink),
+                      style: CwType.body
+                          .copyWith(color: brand == null ? c.mute : c.ink),
                     ),
                   ],
                 ),
               ),
               Text('cwChange'.tr(),
-                  style: CwType.callout.copyWith(
-                      color: c.accent, fontWeight: FontWeight.w600)),
+                  style: CwType.callout
+                      .copyWith(color: c.accent, fontWeight: FontWeight.w600)),
             ],
           ),
         ),
@@ -327,8 +342,8 @@ class _InvalidNotice extends StatelessWidget {
             child: TextButton(
               onPressed: onUseSuggestion,
               child: Text(
-                'loyaltyBarcodeUseFormat'.tr(
-                    namedArgs: {'format': barcodeFormatLabel(suggestion!)}),
+                'loyaltyBarcodeUseFormat'
+                    .tr(namedArgs: {'format': barcodeFormatLabel(suggestion!)}),
                 style: CwType.callout
                     .copyWith(color: c.accent, fontWeight: FontWeight.w600),
               ),

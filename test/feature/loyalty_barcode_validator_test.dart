@@ -139,4 +139,12 @@ void rendererTests() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  test('guessFormat: check digit decides EAN/UPC, else Code 128', () {
+    expect(LoyaltyBarcodeValidator.guessFormat('4006381333931'), 'EAN_13');
+    expect(LoyaltyBarcodeValidator.guessFormat('96385074'), 'EAN_8');
+    expect(LoyaltyBarcodeValidator.guessFormat('036000291452'), 'UPC_A');
+    expect(LoyaltyBarcodeValidator.guessFormat('4006381333932'), 'CODE_128');
+    expect(LoyaltyBarcodeValidator.guessFormat('MEMBER-12'), 'CODE_128');
+  });
 }

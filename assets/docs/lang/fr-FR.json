@@ -813,7 +813,7 @@
     "cwLockWithPin": "Verrouiller l'app",
     "cwLockWithPinSub": "Se verrouille 30 secondes après avoir quitté l'app · modifiable dans Réglages",
     "cwRemindExpire": "Me rappeler avant l'expiration",
-    "cwRemindExpireSub": "Et avant les échéances",
+    "cwRemindExpireSub": "Pour chaque carte bancaire ajoutée",
     "cwDoneOpen": "Terminé — ouvrir mon portefeuille",
     "cwSkip": "Passer",
     "cwReadingPhoto": "Lecture de la photo…",

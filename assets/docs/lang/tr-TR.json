@@ -813,7 +813,7 @@
     "cwLockWithPin": "Uygulamayı kilitle",
     "cwLockWithPinSub": "Çıktıktan 30 saniye sonra kilitlenir · Ayarlar'dan değiştirebilirsin",
     "cwRemindExpire": "Kartların süresi dolmadan hatırlat",
-    "cwRemindExpireSub": "Ve ödeme günlerinden önce",
+    "cwRemindExpireSub": "Eklediğin her banka kartı için",
     "cwDoneOpen": "Tamam — cüzdanımı aç",
     "cwSkip": "Geç",
     "cwReadingPhoto": "Fotoğraf okunuyor…",

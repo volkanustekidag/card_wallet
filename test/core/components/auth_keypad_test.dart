@@ -92,7 +92,12 @@ void main() {
     await tester.pump();
     expect(ctrl.text, isEmpty);
     expect(find.text('cwWrongPin'.tr()), findsOneWidget);
+    // Still there after the red flash ends, gone once typing resumes.
+    auth.authenticationFailed.value = false;
     await tester.pumpAndSettle();
+    expect(find.text('cwWrongPin'.tr()), findsOneWidget);
+    await type(tester, '1');
+    expect(find.text('cwWrongPin'.tr()), findsNothing);
   });
 
   testWidgets('lock screen headline', (tester) async {

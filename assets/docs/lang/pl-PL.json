@@ -827,7 +827,7 @@
     "cwLockWithPin": "Zablokuj aplikację",
     "cwLockWithPinSub": "Blokuje się 30 sekund po wyjściu · zmienisz to w Ustawieniach",
     "cwRemindExpire": "Przypominaj przed wygaśnięciem kart",
-    "cwRemindExpireSub": "I przed terminami płatności",
+    "cwRemindExpireSub": "Dla każdej dodanej karty bankowej",
     "cwDoneOpen": "Gotowe – otwórz portfel",
     "cwSkip": "Pomiń",
     "cwReadingPhoto": "Odczytywanie zdjęcia…",

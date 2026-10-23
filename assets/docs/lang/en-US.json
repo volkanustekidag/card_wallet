@@ -813,7 +813,7 @@
     "cwLockWithPin": "Lock the app",
     "cwLockWithPinSub": "Locks 30 seconds after you leave · change it in Settings",
     "cwRemindExpire": "Remind me before cards expire",
-    "cwRemindExpireSub": "And before payments are due",
+    "cwRemindExpireSub": "For every bank card you add",
     "cwDoneOpen": "Done — open my wallet",
     "cwSkip": "Skip",
     "cwReadingPhoto": "Reading the photo…",

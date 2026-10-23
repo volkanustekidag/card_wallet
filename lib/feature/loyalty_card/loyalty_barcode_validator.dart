@@ -59,6 +59,15 @@ abstract final class LoyaltyBarcodeValidator {
     'QR_CODE',
   ];
 
+  /// Best format for a typed number: EAN-13 / EAN-8 / UPC-A when the check
+  /// digit says so, Code 128 for anything else.
+  static String guessFormat(String value) {
+    for (final f in const ['EAN_13', 'EAN_8', 'UPC_A']) {
+      if (validate(value, f).isValid) return f;
+    }
+    return 'CODE_128';
+  }
+
   static BarcodeCheck validate(String value, String format) {
     final data = value.trim();
     if (data.isEmpty) return const BarcodeCheck._(BarcodeIssue.empty);
