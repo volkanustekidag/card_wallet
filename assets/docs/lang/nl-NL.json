@@ -745,12 +745,9 @@
     "cwPaySubQr": "Voeg een betaal-QR-code toe aan de bankgegevens die je deelt.",
     "cwPaySubColors": "Metaal-, titanium- en goudafwerking voor je favoriete kaarten.",
     "cwFeatUnlimited": "Onbeperkt kaarten",
-    "cwFeatUnlimitedSub": "Klantenkaarten, bankpassen en IBAN's",
     "cwFeatBackup": "Versleutelde back-up",
-    "cwFeatBackupSub": "Nieuwe telefoon? Alles terugzetten",
     "cwFeatMaterials": "Premium afwerking & Wallet-passen",
     "cwFeatQr": "Betaal-QR-codes",
-    "cwFeatQrSub": "Op de IBAN-gegevens die je deelt",
     "cwBestValue": "Beste deal",
     "cwPremiumRow": "CardWallet Premium",
     "cwPremiumRowSub": "Onbeperkt kaarten · versleutelde back-up",
@@ -825,6 +822,5 @@
     "cwWrongPin": "Onjuiste pincode. Probeer het opnieuw.",
     "cwPaySubWalletIos": "Zet je klantenkaarten direct in Apple Wallet.",
     "cwPaySubWalletAndroid": "Zet je klantenkaarten direct in Google Wallet.",
-    "cwFeatMaterialsSubIos": "Metalen & titanium kaarten · Apple Wallet",
-    "cwFeatMaterialsSubAndroid": "Metalen & titanium kaarten · Google Wallet"
+    "cwSubscriptionDetails": "Abonnementsdetails"
 }

@@ -745,12 +745,9 @@
     "cwPaySubQr": "Add a payment QR code to the bank details you share.",
     "cwPaySubColors": "Metal, titanium and gold finishes for the cards you love.",
     "cwFeatUnlimited": "Unlimited cards",
-    "cwFeatUnlimitedSub": "Every loyalty card, bank card and IBAN",
     "cwFeatBackup": "Encrypted backup",
-    "cwFeatBackupSub": "New phone? Restore your whole wallet",
     "cwFeatMaterials": "Premium materials & Wallet passes",
     "cwFeatQr": "Payment QR codes",
-    "cwFeatQrSub": "On the IBAN details you share",
     "cwBestValue": "Best value",
     "cwPremiumRow": "CardWallet Premium",
     "cwPremiumRowSub": "Unlimited cards · encrypted backup",
@@ -825,6 +822,5 @@
     "cwWrongPin": "Wrong PIN. Try again.",
     "cwPaySubWalletIos": "Put your loyalty cards straight into Apple Wallet.",
     "cwPaySubWalletAndroid": "Put your loyalty cards straight into Google Wallet.",
-    "cwFeatMaterialsSubIos": "Metal & titanium cards · Apple Wallet",
-    "cwFeatMaterialsSubAndroid": "Metal & titanium cards · Google Wallet"
+    "cwSubscriptionDetails": "Subscription details"
 }

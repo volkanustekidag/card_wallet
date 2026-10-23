@@ -745,12 +745,9 @@
     "cwPaySubQr": "Aggiungi un QR code di pagamento alle coordinate che condividi.",
     "cwPaySubColors": "Finiture metallo, titanio e oro per le tue carte preferite.",
     "cwFeatUnlimited": "Carte illimitate",
-    "cwFeatUnlimitedSub": "Fedeltà, carte bancarie e IBAN",
     "cwFeatBackup": "Backup cifrato",
-    "cwFeatBackupSub": "Nuovo telefono? Ripristina tutto",
     "cwFeatMaterials": "Finiture premium e pass Wallet",
     "cwFeatQr": "QR code di pagamento",
-    "cwFeatQrSub": "Sugli IBAN che condividi",
     "cwBestValue": "Più conveniente",
     "cwPremiumRow": "CardWallet Premium",
     "cwPremiumRowSub": "Carte illimitate · backup cifrato",
@@ -825,6 +822,5 @@
     "cwWrongPin": "PIN errato. Riprova.",
     "cwPaySubWalletIos": "Aggiungi le carte fedeltà ad Apple Wallet.",
     "cwPaySubWalletAndroid": "Aggiungi le carte fedeltà a Google Wallet.",
-    "cwFeatMaterialsSubIos": "Carte metallo e titanio · Apple Wallet",
-    "cwFeatMaterialsSubAndroid": "Carte metallo e titanio · Google Wallet"
+    "cwSubscriptionDetails": "Dettagli abbonamento"
 }

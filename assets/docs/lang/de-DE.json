@@ -745,12 +745,9 @@
     "cwPaySubQr": "Füge geteilten Bankdaten einen Zahlungs-QR-Code hinzu.",
     "cwPaySubColors": "Metall-, Titan- und Gold-Finish für deine Lieblingskarten.",
     "cwFeatUnlimited": "Unbegrenzt Karten",
-    "cwFeatUnlimitedSub": "Jede Kunden-, Bankkarte und IBAN",
     "cwFeatBackup": "Verschlüsseltes Backup",
-    "cwFeatBackupSub": "Neues Telefon? Ganze Wallet wiederherstellen",
     "cwFeatMaterials": "Premium-Finish & Wallet-Pässe",
     "cwFeatQr": "Zahlungs-QR-Codes",
-    "cwFeatQrSub": "Auf geteilten IBAN-Daten",
     "cwBestValue": "Bester Wert",
     "cwPremiumRow": "CardWallet Premium",
     "cwPremiumRowSub": "Unbegrenzt Karten · verschlüsseltes Backup",
@@ -825,6 +822,5 @@
     "cwWrongPin": "Falsche PIN. Versuch es noch einmal.",
     "cwPaySubWalletIos": "Lege Kundenkarten direkt in Apple Wallet.",
     "cwPaySubWalletAndroid": "Lege Kundenkarten direkt in Google Wallet.",
-    "cwFeatMaterialsSubIos": "Metall- & Titankarten · Apple Wallet",
-    "cwFeatMaterialsSubAndroid": "Metall- & Titankarten · Google Wallet"
+    "cwSubscriptionDetails": "Abo-Details"
 }

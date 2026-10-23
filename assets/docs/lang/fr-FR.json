@@ -745,12 +745,9 @@
     "cwPaySubQr": "Ajoutez un QR code de paiement au RIB que vous partagez.",
     "cwPaySubColors": "Finitions métal, titane et or pour vos cartes préférées.",
     "cwFeatUnlimited": "Cartes illimitées",
-    "cwFeatUnlimitedSub": "Fidélité, cartes bancaires et IBAN",
     "cwFeatBackup": "Sauvegarde chiffrée",
-    "cwFeatBackupSub": "Nouveau téléphone ? Restaurez tout",
     "cwFeatMaterials": "Finitions premium & cartes Wallet",
     "cwFeatQr": "QR codes de paiement",
-    "cwFeatQrSub": "Sur les IBAN que vous partagez",
     "cwBestValue": "Meilleure offre",
     "cwPremiumRow": "CardWallet Premium",
     "cwPremiumRowSub": "Cartes illimitées · sauvegarde chiffrée",
@@ -825,6 +822,5 @@
     "cwWrongPin": "Code PIN incorrect. Réessayez.",
     "cwPaySubWalletIos": "Ajoutez vos cartes de fidélité directement dans Apple Wallet.",
     "cwPaySubWalletAndroid": "Ajoutez vos cartes de fidélité directement dans Google Wallet.",
-    "cwFeatMaterialsSubIos": "Cartes métal & titane · Apple Wallet",
-    "cwFeatMaterialsSubAndroid": "Cartes métal & titane · Google Wallet"
+    "cwSubscriptionDetails": "Détails de l'abonnement"
 }

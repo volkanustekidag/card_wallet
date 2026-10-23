@@ -759,12 +759,9 @@
     "cwPaySubQr": "Dodaj kod QR płatności do udostępnianych danych konta.",
     "cwPaySubColors": "Wykończenia metal, tytan i złoto dla ulubionych kart.",
     "cwFeatUnlimited": "Nielimitowane karty",
-    "cwFeatUnlimitedSub": "Karty lojalnościowe, bankowe i IBAN",
     "cwFeatBackup": "Szyfrowana kopia",
-    "cwFeatBackupSub": "Nowy telefon? Przywróć cały portfel",
     "cwFeatMaterials": "Premium wykończenia i karty Wallet",
     "cwFeatQr": "Kody QR płatności",
-    "cwFeatQrSub": "Na udostępnianych danych IBAN",
     "cwBestValue": "Najlepsza oferta",
     "cwPremiumRow": "CardWallet Premium",
     "cwPremiumRowSub": "Bez limitu kart · szyfrowana kopia",
@@ -839,6 +836,5 @@
     "cwWrongPin": "Nieprawidłowy PIN. Spróbuj ponownie.",
     "cwPaySubWalletIos": "Dodaj karty lojalnościowe prosto do Apple Wallet.",
     "cwPaySubWalletAndroid": "Dodaj karty lojalnościowe prosto do Google Wallet.",
-    "cwFeatMaterialsSubIos": "Karty metal i tytan · Apple Wallet",
-    "cwFeatMaterialsSubAndroid": "Karty metal i tytan · Google Wallet"
+    "cwSubscriptionDetails": "Szczegóły subskrypcji"
 }

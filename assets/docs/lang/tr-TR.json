@@ -745,12 +745,9 @@
     "cwPaySubQr": "Paylaştığın hesap bilgilerine ödeme QR kodu ekle.",
     "cwPaySubColors": "Sevdiğin kartlar için metal, titanyum ve altın yüzeyler.",
     "cwFeatUnlimited": "Sınırsız kart",
-    "cwFeatUnlimitedSub": "Her sadakat kartı, banka kartı ve IBAN",
     "cwFeatBackup": "Şifreli yedek",
-    "cwFeatBackupSub": "Yeni telefon mu? Tüm cüzdanını geri yükle",
     "cwFeatMaterials": "Premium yüzeyler ve Wallet kartları",
     "cwFeatQr": "Ödeme QR kodları",
-    "cwFeatQrSub": "Paylaştığın IBAN bilgilerinde",
     "cwBestValue": "En avantajlı",
     "cwPremiumRow": "CardWallet Premium",
     "cwPremiumRowSub": "Sınırsız kart · şifreli yedek",
@@ -825,6 +822,5 @@
     "cwWrongPin": "PIN yanlış. Tekrar dene.",
     "cwPaySubWalletIos": "Sadakat kartlarını doğrudan Apple Wallet'a ekle.",
     "cwPaySubWalletAndroid": "Sadakat kartlarını doğrudan Google Wallet'a ekle.",
-    "cwFeatMaterialsSubIos": "Metal ve titanyum kartlar · Apple Wallet",
-    "cwFeatMaterialsSubAndroid": "Metal ve titanyum kartlar · Google Wallet"
+    "cwSubscriptionDetails": "Abonelik ayrıntıları"
 }

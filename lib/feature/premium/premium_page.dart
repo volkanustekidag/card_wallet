@@ -20,6 +20,7 @@ import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
 import 'package:wallet_app/ui/card/card_face.dart';
 import 'package:wallet_app/ui/card/card_material.dart';
 import 'package:wallet_app/ui/card/wallet_card_faces.dart';
+import 'package:wallet_app/ui/components/cw_misc.dart';
 import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/tokens.dart';
 import 'package:wallet_app/ui/typography.dart';
@@ -139,86 +140,94 @@ class _PremiumPageState extends State<PremiumPage> {
             children: [
               const Positioned.fill(child: _Backdrop()),
               SafeArea(
-                child: CustomScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: _TopBar(
-                        onClose: () => Get.back(),
-                        onRestore: _handleRestore,
-                      ),
+                child: Column(
+                  children: [
+                    _TopBar(
+                      onClose: () => Get.back(),
+                      onRestore: _handleRestore,
                     ),
-                    const SliverToBoxAdapter(child: _CardFan()),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 18, 24, 0),
-                        child: Column(
-                          children: [
-                            Text(
-                              'cwPayTitle'.tr(),
-                              textAlign: TextAlign.center,
-                              style: CwType.display
-                                  .copyWith(color: c.ink, fontSize: 30),
+                    // The pitch takes what's left above the purchase block
+                    // and scrolls only on the smallest phones.
+                    Expanded(
+                      child: LayoutBuilder(
+                        builder: (context, box) => SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: ConstrainedBox(
+                            constraints:
+                                BoxConstraints(minHeight: box.maxHeight),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _CardFan(maxHeight: box.maxHeight * 0.32),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(24, 8, 24, 0),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        'cwPayTitle'.tr(),
+                                        textAlign: TextAlign.center,
+                                        style: CwType.display.copyWith(
+                                            color: c.ink,
+                                            fontSize:
+                                                box.maxHeight < 460 ? 22 : 26),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        subtitleKey.tr(),
+                                        textAlign: TextAlign.center,
+                                        style: CwType.footnote.copyWith(
+                                            color: c.ink2, height: 1.4),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const _FeatureList(),
+                              ],
                             ),
-                            const SizedBox(height: 10),
-                            Text(
-                              subtitleKey.tr(),
-                              textAlign: TextAlign.center,
-                              style: CwType.callout
-                                  .copyWith(color: c.ink2, height: 1.45),
-                            ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                    const SliverToBoxAdapter(child: _FeatureList()),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
-                        child: !showPicker
-                            ? _PremiumActiveCard(
-                                planLabel: _planLabel(currentPlanId),
-                                onManage: PremiumService.hasActiveSubscription
-                                    ? _openManageSubscription
-                                    : null,
-                                onChangePlan:
-                                    PremiumService.hasActiveSubscription
-                                        ? _startPlanChange
-                                        : null,
-                              )
-                            : Column(
-                                children: [
-                                  if (orderedPlans.isEmpty)
-                                    const _ProductsUnavailable()
-                                  else
-                                    _PlanRow(
-                                      plans: orderedPlans,
-                                      weeklyId: weekly?.id,
-                                      yearlyId: yearly?.id,
-                                      bestValueId: bestValueId,
-                                      selected: selected,
-                                      onSelected: _onPlanSelected,
-                                    ),
-                                  const SizedBox(height: 16),
-                                  _ContinueButton(
-                                    label: isPremium
-                                        ? 'switchPlanCta'.tr()
-                                        : _ctaLabel(selected),
-                                    onPressed: selected == null
-                                        ? null
-                                        : () => _handlePurchase(selected),
+                    // Always on screen: plans, the button, the terms.
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                      child: !showPicker
+                          ? _PremiumActiveCard(
+                              planLabel: _planLabel(currentPlanId),
+                              onManage: PremiumService.hasActiveSubscription
+                                  ? _openManageSubscription
+                                  : null,
+                              onChangePlan: PremiumService.hasActiveSubscription
+                                  ? _startPlanChange
+                                  : null,
+                            )
+                          : Column(
+                              children: [
+                                if (orderedPlans.isEmpty)
+                                  const _ProductsUnavailable()
+                                else
+                                  _PlanRow(
+                                    plans: orderedPlans,
+                                    weeklyId: weekly?.id,
+                                    yearlyId: yearly?.id,
+                                    bestValueId: bestValueId,
+                                    selected: selected,
+                                    onSelected: _onPlanSelected,
                                   ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'premiumCancelAnytime'.tr(),
-                                    style:
-                                        CwType.caption.copyWith(color: c.mute),
-                                  ),
-                                ],
-                              ),
-                      ),
+                                const SizedBox(height: 12),
+                                _ContinueButton(
+                                  label: isPremium
+                                      ? 'switchPlanCta'.tr()
+                                      : _ctaLabel(selected),
+                                  onPressed: selected == null
+                                      ? null
+                                      : () => _handlePurchase(selected),
+                                ),
+                              ],
+                            ),
                     ),
-                    const SliverToBoxAdapter(child: _Legal()),
+                    const _Legal(),
                   ],
                 ),
               ),
@@ -473,14 +482,20 @@ class _TopBar extends StatelessWidget {
 /// Up to three of the user's own cards, fanned; materials when the wallet
 /// is empty. Seeing *their* cards is the point of the page.
 class _CardFan extends StatelessWidget {
-  const _CardFan();
+  /// Height available for the fan; it shrinks (or hides) to fit.
+  final double maxHeight;
+  const _CardFan({required this.maxHeight});
 
   @override
   Widget build(BuildContext context) {
     final items = Get.isRegistered<HomeController>()
         ? Get.find<HomeController>().walletItems.take(3).toList()
         : <WalletItem>[];
-    final w = math.min(MediaQuery.sizeOf(context).width * 0.62, 280.0);
+    final w = math.min(
+      math.min(MediaQuery.sizeOf(context).width * 0.5, 210.0),
+      (maxHeight - 44) * kCardAspect,
+    );
+    if (w < 120) return const SizedBox.shrink();
     Widget face(int i) {
       if (i < items.length) return WalletCardFace(item: items[i], width: w);
       const ids = [10, 11, 14];
@@ -492,17 +507,17 @@ class _CardFan extends StatelessWidget {
     }
 
     return SizedBox(
-      height: w / kCardAspect + 40,
+      height: w / kCardAspect + 44,
       child: Stack(
         alignment: Alignment.center,
         clipBehavior: Clip.none,
         children: [
           Transform.translate(
-            offset: Offset(-w * 0.38, 18),
+            offset: Offset(-w * 0.32, 14),
             child: Transform.rotate(angle: -0.16, child: face(1)),
           ),
           Transform.translate(
-            offset: Offset(w * 0.38, 18),
+            offset: Offset(w * 0.32, 14),
             child: Transform.rotate(angle: 0.16, child: face(2)),
           ),
           face(0),
@@ -515,7 +530,7 @@ class _CardFan extends StatelessWidget {
 /// Strings naming the phone's own wallet app: Apple Wallet on iOS, Google
 /// Wallet elsewhere (`…Ios` / `…Android` variants of [key]).
 String _forPlatform(String key) {
-  const perPlatform = {'cwPaySubWallet', 'cwFeatMaterialsSub'};
+  const perPlatform = {'cwPaySubWallet'};
   if (!perPlatform.contains(key)) return key;
   final apple = defaultTargetPlatform == TargetPlatform.iOS ||
       defaultTargetPlatform == TargetPlatform.macOS;
@@ -526,46 +541,40 @@ class _FeatureList extends StatelessWidget {
   const _FeatureList();
 
   static const _rows = [
-    (CwIcons.infinity, 'cwFeatUnlimited', 'cwFeatUnlimitedSub'),
-    (CwIcons.cloudUp, 'cwFeatBackup', 'cwFeatBackupSub'),
-    (CwIcons.sparkle, 'cwFeatMaterials', 'cwFeatMaterialsSub'),
-    (CwIcons.qr, 'cwFeatQr', 'cwFeatQrSub'),
+    (CwIcons.infinity, 'cwFeatUnlimited'),
+    (CwIcons.cloudUp, 'cwFeatBackup'),
+    (CwIcons.sparkle, 'cwFeatMaterials'),
+    (CwIcons.qr, 'cwFeatQr'),
   ];
 
   @override
   Widget build(BuildContext context) {
     final c = CwColors.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+      padding: const EdgeInsets.fromLTRB(32, 12, 32, 4),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (final r in _rows)
             Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 children: [
                   Container(
-                    width: 36,
-                    height: 36,
+                    width: 28,
+                    height: 28,
                     decoration: BoxDecoration(
                       color: c.ink.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(9),
                     ),
                     alignment: Alignment.center,
-                    child: CwIcon(r.$1, size: 18, color: c.ink),
+                    child: CwIcon(r.$1, size: 16, color: c.ink),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(r.$2.tr(),
-                            style: CwType.callout.copyWith(
-                                color: c.ink, fontWeight: FontWeight.w700)),
-                        Text(_forPlatform(r.$3).tr(),
-                            style: CwType.footnote.copyWith(color: c.mute)),
-                      ],
-                    ),
+                    child: Text(r.$2.tr(),
+                        style: CwType.callout.copyWith(
+                            color: c.ink, fontWeight: FontWeight.w600)),
                   ),
                 ],
               ),
@@ -644,7 +653,8 @@ class _PlanRow extends StatelessWidget {
                       children: [
                         AnimatedContainer(
                           duration: CwMotion.fast,
-                          padding: const EdgeInsets.fromLTRB(8, 16, 8, 12),
+                          width: double.infinity,
+                          padding: const EdgeInsets.fromLTRB(8, 14, 8, 10),
                           decoration: BoxDecoration(
                             color: on
                                 ? c.ink.withValues(alpha: 0.10)
@@ -848,6 +858,40 @@ class _PremiumActiveCard extends StatelessWidget {
   }
 }
 
+/// The store's full auto-renew wording. Price, period and "auto-renews"
+/// sit next to the button; this is one tap away under it.
+Future<void> _showSubscriptionDetails(BuildContext context) =>
+    showCwSheet<void>(
+      context,
+      builder: (sheet) {
+        final c = CwColors.of(sheet);
+        return SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(22, 4, 22, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('cwSubscriptionDetails'.tr(),
+                    style: CwType.title.copyWith(color: c.ink, fontSize: 20)),
+                const SizedBox(height: 10),
+                Text(
+                  (Theme.of(sheet).platform == TargetPlatform.android
+                          ? 'premiumLegalDisclosureAndroid'
+                          : 'premiumLegalDisclosureIos')
+                      .tr(),
+                  style: CwType.footnote.copyWith(color: c.ink2, height: 1.45),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+/// "Cancel anytime · Auto-renews", subscription details and the terms /
+/// privacy links, under the button.
 class _Legal extends StatelessWidget {
   const _Legal();
 
@@ -860,40 +904,33 @@ class _Legal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = CwColors.of(context);
+    final small = CwType.caption.copyWith(color: c.mute);
     final link = CwType.caption.copyWith(color: c.ink2);
+    Widget dot() => Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Text('·', style: small),
+        );
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 18, 24, 28),
-      child: Column(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Text(
-            (Theme.of(context).platform == TargetPlatform.android
-                    ? 'premiumLegalDisclosureAndroid'
-                    : 'premiumLegalDisclosureIos')
-                .tr(),
-            textAlign: TextAlign.center,
-            style: CwType.caption.copyWith(
-                color: c.mute,
-                fontWeight: FontWeight.w400,
-                fontSize: 10.5,
-                height: 1.45),
+          Text('premiumCancelAnytime'.tr(), style: small),
+          dot(),
+          InkWell(
+            onTap: () => _showSubscriptionDetails(context),
+            child: Text('cwSubscriptionDetails'.tr(), style: link),
           ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              InkWell(
-                onTap: () => _open(context, LegalUrls.termsOfUse),
-                child: Text('termsOfUse'.tr(), style: link),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text('·', style: link),
-              ),
-              InkWell(
-                onTap: () => _open(context, LegalUrls.privacyPolicy),
-                child: Text('privacyPolicy'.tr(), style: link),
-              ),
-            ],
+          dot(),
+          InkWell(
+            onTap: () => _open(context, LegalUrls.termsOfUse),
+            child: Text('termsOfUse'.tr(), style: link),
+          ),
+          dot(),
+          InkWell(
+            onTap: () => _open(context, LegalUrls.privacyPolicy),
+            child: Text('privacyPolicy'.tr(), style: link),
           ),
         ],
       ),
