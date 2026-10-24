@@ -1,0 +1,4 @@
+# Store identifiers. Credentials come from the environment (see README.md),
+# never from this repo.
+app_identifier("com.volkan.walletapp")   # App Store
+package_name("com.volkan.wallet_app")     # Google Play

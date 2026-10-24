@@ -1,0 +1,9 @@
+• Zupełnie nowy wygląd: portfel jako stos prawdziwych kart
+• Jeden aparat doda wszystko: karty lojalnościowe, bankowe, IBAN
+• „Następna” pokazuje kartę, której zwykle używasz o tej porze
+• Widżet „Następna” na ekranie głównym
+• Przenieś karty ze starej aplikacji za jednym razem
+• Ponad 500 marek z logo i kolorami
+• Odcisk palca i twarz za darmo dla wszystkich
+• Wyszukiwanie we wszystkich kartach, IBAN jako obraz
+• 9 języków i wiele poprawek

@@ -1,0 +1,50 @@
+• Yepyeni Deckard
+Uygulamanın tamamı yeniden tasarlandı. Cüzdanın artık marka renkleri ve logolarıyla gerçek kartlara benzeyen bir deste. Açmak için herhangi bir karta dokun.
+
+• Her kart için tek kamera
++'ya dokun ve kameranı sadakat kartına, banka kartına ya da IBAN'a tut. Barkod anında, kart numarası ve IBAN saniyeler içinde okunur; kaydetmeden önce onaylarsın. Fotoğraftan da çalışır.
+
+• Sıradaki
+Deckard hangi kartı günün hangi saatinde kullandığını yalnızca iPhone'unda öğrenir ve onu ana ekranda ve ana/kilit ekranındaki yeni Sıradaki widget'ında öne alır.
+
+• Kartlarını taşı
+Başka bir uygulamadan mı geliyorsun? Dışa aktarma dosyasını, bir tabloyu ya da Apple Wallet kartını Ayarlar › Başka bir uygulamadan aktar'dan içe aktar.
+
+• Her ülkeden 500+ marka
+Kartlar logosu ve rengiyle otomatik eşleşir; istediğin mağaza için kendi adını da kullanabilirsin.
+
+• Face ID ve Touch ID herkese açık
+Face ID veya Touch ID ile açma artık ücretsiz. Ayarlar › Güvenlik'ten aç. Henüz PIN'in yoksa uygulama önce PIN oluşturmana yardım eder.
+
+• Tüm kartlarında ara
+Ana ekrandaki arama düğmesine dokun; kredi kartı, IBAN ya da sadakat kartını isim, banka, marka, etiket veya son 4 haneyle bul. "ı" ile "i", "ş" ile "s" fark etmez; büyük küçük harf de önemli değil.
+
+• IBAN'ı görsel olarak paylaş
+IBAN'ını hesap sahibi, banka ve IBAN'ın yer aldığı şık bir kart görseli olarak gönder. Premium'da görsele ödeme QR kodu da eklenir. Metin olarak paylaşım da yerinde duruyor.
+
+• Otomatik kilit
+PIN kullanıyorsan Deckard artık uygulamadan çıktığında kendini kilitliyor. Süreyi Ayarlar › Güvenlik › Otomatik kilit bölümünden seçebilirsin: hemen, 30 saniye, 1, 5 ya da 15 dakika sonra.
+
+• Uygulama geçişinde gizli
+Uygulamalar arasında geçiş yaparken kartların görünmez; kimse ekrana göz atıp kart bilgini göremez.
+
+• Kartların bu iPhone'da kalır
+Kart verilerin artık iCloud yedeğine dahil edilmiyor, yalnızca bu cihazda şifreli olarak duruyor. Yeni telefona geçerken kartlarını Ayarlar'daki şifreli yedekle taşıyabilirsin (Premium).
+
+• Barkodda tam parlaklık
+Bir barkodu açtığında ekran tam parlaklığa çıkar ve kapanmaz, kapattığında eski hâline döner. İstersen Ayarlar › Barkodda tam parlaklık bölümünden kapatabilirsin.
+
+• American Express ve Diners Club
+Amex ve Diners Club kart numaraları artık elle girerken de kamerayla tararken de tanınıyor ve kartın üzerindeki düzende gösteriliyor.
+
+• Ücretsiz IBAN tarama
+IBAN'ı kamerayla ya da QR koddan taramak herkes için ücretsiz.
+
+• 9 dil
+Uygulama, widget'lar, Apple Watch ve izin mesajları artık Türkçe, İngilizce, Almanca, Fransızca, İspanyolca, Portekizce, İtalyanca, Felemenkçe ve Lehçe olarak tamamen çevrildi.
+
+• Yeni iPhone'da açılış
+Yeni bir iPhone'a geçtikten ya da yedekten geri yükledikten sonra uygulamanın açılış ekranında takılı kalabildiği sorun giderildi.
+
+• Ve daha fazlası
+Kopyaladığın kart numaraları bir dakika sonra panodan kendiliğinden silinir, Premium durumun hemen görünür ve birçok küçük sorun düzeltildi.

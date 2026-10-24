@@ -1,0 +1,45 @@
+Deckard mette in cima la carta giusta prima che tu arrivi alla cassa: «Prossima» impara, solo sul tuo telefono, quando usi ogni carta fedeltà, e il codice a barre si apre alla massima luminosità. Le tue carte bancarie e gli IBAN sono subito accanto. Non serve creare un account, non ci sono pubblicità e funziona anche senza connessione.
+
+Alla cassa apri la carta: lo schermo si illumina da solo e il lettore legge il codice a barre al primo colpo. Metti la tua carta preferita nella schermata Home con un widget o aprila da un riquadro delle Impostazioni rapide.
+
+Privata fin dall'inizio
+• Nessuna registrazione, nessun account
+• Nessuna pubblicità
+• Funziona offline
+• Le carte sono salvate cifrate sul tuo dispositivo e non finiscono nei backup sul cloud
+• Blocco con PIN, impronta o volto e blocco automatico; le schermate delle carte non compaiono negli screenshot né nelle app recenti
+
+Carte fedeltà
+• Una fotocamera per tutto: codici fedeltà, carte bancarie e IBAN, anche da una foto, oppure digitali
+• «Prossima»: la carta che usi di solito a quest'ora viene prima, imparato sul telefono
+• Arrivi da un'altra app? Importa il suo file di esportazione o un file .pkpass in un colpo
+• Oltre 500 marchi riconosciuti con logo e colori, da ogni paese
+• Luminosità al massimo mentre il codice a barre è aperto
+• Cerca, filtra per etichetta e segna le preferite
+• Condividi una carta come immagine
+• Widget «Prossima» e riquadro delle Impostazioni rapide
+
+Anche carte di credito e IBAN
+• Tieni carte di credito e IBAN accanto alle carte fedeltà
+• Cerca in tutte le carte dalla home: nome, banca, etichetta o ultime 4 cifre
+• Copia un IBAN con un tocco o condividilo come testo o immagine
+• Promemoria per pagamenti e scadenze delle carte
+• Supporto per American Express e Diners Club
+• Disponibile in 9 lingue
+
+Premium
+La versione gratuita include 3 carte fedeltà, 1 carta di credito e 1 IBAN. Premium aggiunge:
+• Carte illimitate
+• Salvataggio delle carte fedeltà in Google Wallet
+• Backup cifrato e ripristino, per esempio quando cambi telefono
+• Codici QR per i tuoi IBAN
+• Colori aggiuntivi per le carte
+
+Premium è disponibile come abbonamento mensile o annuale con rinnovo automatico, oppure come acquisto unico a vita. Puoi disdire un abbonamento in qualsiasi momento da Google Play › Pagamenti e abbonamenti.
+
+Deckard non è un'app bancaria. Non effettua pagamenti, non trasferisce denaro e non si collega alla tua banca.
+
+Quando salvi una carta fedeltà in Google Wallet, il nome, il numero e la nota di quella carta vengono inviati al nostro servizio di firma per creare il pass. Nessun altro dato delle carte lascia il tuo dispositivo.
+
+Informativa sulla privacy: https://olkan.dev/privacy/cardwallet
+Termini di utilizzo: https://olkan.dev/terms/cardwallet

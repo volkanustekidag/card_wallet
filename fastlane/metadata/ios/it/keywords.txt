@@ -1,0 +1,1 @@
+carta,punti,portafoglio,negozio,scanner,club,socio,widget,orologio,offline,privato,raccolta,cliente

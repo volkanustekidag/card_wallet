@@ -1,0 +1,45 @@
+Deckard met la bonne carte en haut avant que vous arriviez en caisse : « À suivre » apprend, uniquement sur votre téléphone, quand vous utilisez chaque carte de fidélité, et le code-barres s'ouvre en pleine luminosité. Vos cartes bancaires et vos IBAN sont juste à côté. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
+
+En caisse, ouvrez la carte : l'écran s'éclaircit tout seul et le lecteur lit le code-barres du premier coup. Placez votre carte préférée sur l'écran d'accueil avec un widget ou ouvrez-la depuis une vignette des Réglages rapides.
+
+Privée par conception
+• Pas d'inscription, pas de compte
+• Pas de publicité
+• Fonctionne hors ligne
+• Les cartes sont chiffrées sur votre appareil et ne sont pas incluses dans les sauvegardes cloud
+• Verrouillage par code PIN, empreinte ou visage avec verrouillage auto ; les écrans de carte sont masqués dans les captures et les apps récentes
+
+Cartes de fidélité
+• Un seul appareil photo pour tout : codes de fidélité, cartes bancaires et IBAN, même depuis une photo — ou à la main
+• « À suivre » : la carte qu'il vous faut à cette heure-ci passe en premier, apprise sur votre téléphone
+• Vous venez d'une autre app ? Importez son fichier d'export ou un fichier .pkpass en une fois
+• Plus de 500 enseignes reconnues, avec logo et couleurs, de tous les pays
+• Luminosité maximale tant qu'un code-barres est affiché
+• Recherche, filtres par étiquette et favoris
+• Partage d'une carte sous forme d'image
+• Widget « À suivre » et vignette des Réglages rapides
+
+Aussi pour les cartes bancaires et les IBAN
+• Gardez cartes bancaires et IBAN à côté de vos cartes de fidélité
+• Cherchez dans toutes vos cartes depuis l'accueil : nom, banque, étiquette ou 4 derniers chiffres
+• Copiez un IBAN d'un geste, ou partagez-le en texte ou en image
+• Rappels d'échéance de paiement et d'expiration
+• American Express et Diners Club pris en charge
+• Disponible en 9 langues
+
+Premium
+La version gratuite comprend 3 cartes de fidélité, 1 carte bancaire et 1 IBAN. Premium ajoute :
+• Cartes illimitées
+• Enregistrement des cartes de fidélité dans Google Wallet
+• Sauvegarde et restauration chiffrées, par exemple pour passer à un nouveau téléphone
+• QR codes pour vos IBAN
+• Couleurs de carte supplémentaires
+
+Premium est proposé en abonnement mensuel ou annuel renouvelé automatiquement, ou en achat unique à vie. Vous pouvez résilier un abonnement à tout moment dans Google Play › Paiements et abonnements.
+
+Deckard n'est pas une application bancaire. Elle n'effectue pas de paiement, ne transfère pas d'argent et ne se connecte pas à votre banque.
+
+Quand vous enregistrez une carte de fidélité dans Google Wallet, son nom, son numéro et sa note sont envoyés à notre service de signature pour créer le pass. Aucune autre donnée de carte ne quitte votre appareil.
+
+Politique de confidentialité : https://olkan.dev/privacy/cardwallet
+Conditions d'utilisation : https://olkan.dev/terms/cardwallet

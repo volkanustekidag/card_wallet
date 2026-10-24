@@ -1,0 +1,45 @@
+Deckard legt die richtige Karte nach oben, bevor du an der Kasse stehst: „Als Nächstes“ lernt nur auf deinem Handy, wann du welche Kundenkarte nutzt, und der Barcode öffnet mit voller Helligkeit. Deine Bankkarten und IBANs liegen gleich daneben. Du brauchst kein Konto, es gibt keine Werbung, und die App funktioniert auch ohne Internet.
+
+An der Kasse öffnest du die Karte, der Bildschirm wird automatisch hell und der Scanner liest den Barcode beim ersten Versuch. Deine Lieblingskarte legst du als Widget auf den Startbildschirm oder öffnest sie über eine Schnelleinstellungs-Kachel.
+
+Privat von Anfang an
+• Keine Registrierung, kein Konto
+• Keine Werbung
+• Funktioniert offline
+• Karten werden verschlüsselt auf deinem Gerät gespeichert und landen nicht im Cloud-Backup
+• Sperre per PIN, Fingerabdruck oder Gesichtserkennung mit automatischer Sperre; Kartenansichten sind in Screenshots und in der Übersicht der letzten Apps verborgen
+
+Kundenkarten
+• Eine Kamera für alles: Kundenkarten-Barcodes, Bankkarten und IBANs, auch aus einem Foto – oder eintippen
+• „Als Nächstes“: Die Karte, die du um diese Uhrzeit meist brauchst, steht oben – gelernt auf deinem Telefon
+• Du kommst von einer anderen App? Importiere ihre Exportdatei oder eine .pkpass-Datei in einem Rutsch
+• Über 500 Marken aus aller Welt mit Logo und Farben erkannt
+• Volle Bildschirmhelligkeit, solange ein Barcode offen ist
+• Suchen, nach Tags filtern, Favoriten markieren
+• Karte als Bild teilen
+• „Als Nächstes“-Widget und Schnelleinstellungs-Kachel
+
+Auch für Kreditkarten und IBANs
+• Kreditkarten und IBANs neben deinen Kundenkarten aufbewahren
+• Alle Karten vom Startbildschirm aus durchsuchen: Name, Bank, Tag oder letzte 4 Ziffern
+• IBAN mit einem Tippen kopieren oder als Text bzw. Kartenbild teilen
+• Erinnerungen an Zahlungs- und Ablaufdaten von Kreditkarten
+• American Express und Diners Club werden unterstützt
+• In 9 Sprachen verfügbar
+
+Premium
+Die kostenlose Version umfasst 3 Kundenkarten, 1 Kreditkarte und 1 IBAN. Mit Premium bekommst du:
+• Unbegrenzt viele Karten
+• Kundenkarten in Google Wallet speichern
+• Verschlüsselte Sicherung und Wiederherstellung, zum Beispiel beim Umzug auf ein neues Telefon
+• IBAN-QR-Codes
+• Zusätzliche Kartenfarben
+
+Premium gibt es als Monats- oder Jahresabo mit automatischer Verlängerung oder einmalig als Lifetime-Kauf. Abos kannst du jederzeit in Google Play › Zahlungen & Abos kündigen.
+
+Deckard ist keine Banking-App. Sie führt keine Zahlungen aus, überweist kein Geld und verbindet sich nicht mit deiner Bank.
+
+Wenn du eine Kundenkarte in Google Wallet speicherst, werden Name, Nummer und Notiz dieser Karte an unseren Signaturdienst gesendet, um den Pass zu erstellen. Andere Kartendaten verlassen dein Gerät nicht.
+
+Datenschutz: https://olkan.dev/privacy/cardwallet
+Nutzungsbedingungen: https://olkan.dev/terms/cardwallet

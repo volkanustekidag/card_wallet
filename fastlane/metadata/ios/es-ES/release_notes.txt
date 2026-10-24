@@ -1,0 +1,50 @@
+• Un nuevo Deckard
+Toda la app se ha rediseñado. Tu cartera es ahora un mazo de tarjetas que parecen reales, con los colores y logos de cada marca. Toca cualquiera para abrirla.
+
+• Una cámara para todas tus tarjetas
+Toca + y apunta a una tarjeta de fidelidad, una bancaria o un IBAN. Los códigos se leen al instante, los números e IBAN en un momento, y confirmas antes de guardar. También funciona desde una foto.
+
+• Siguiente
+Deckard aprende, solo en tu iPhone, qué tarjeta usas a cada hora del día y la pone primero en el inicio y en el nuevo widget «Siguiente» de la pantalla de inicio y de bloqueo.
+
+• Trae tus tarjetas
+¿Vienes de otra app? Importa su archivo de exportación, una hoja de cálculo o un pase de Apple Wallet desde Ajustes › Importar de otra app.
+
+• Más de 500 marcas de todos los países
+Las tarjetas reciben su logo y colores automáticamente, y siempre puedes usar tu propio nombre para cualquier tienda.
+
+• Face ID y Touch ID para todos
+Desbloquear con Face ID o Touch ID ya es gratis. Actívalo en Ajustes › Seguridad. Si aún no tienes PIN, la app te ayuda a crearlo primero.
+
+• Busca en todas tus tarjetas
+Toca la búsqueda en la pantalla de inicio para encontrar cualquier tarjeta de crédito, IBAN o tarjeta de fidelidad por nombre, banco, marca, etiqueta o últimos 4 dígitos. Las tildes y las mayúsculas dan igual.
+
+• Comparte un IBAN como imagen
+Envía tu IBAN como una imagen de tarjeta con el titular, el banco y el IBAN, lista para cualquier chat. Con Premium, la imagen incluye además un código QR de pago. Compartir como texto sigue disponible.
+
+• Bloqueo automático
+Si usas un PIN, Deckard ahora se bloquea sola cuando sales de la app. Elige cuándo en Ajustes › Seguridad › Bloqueo automático: al instante, a los 30 segundos o a los 1, 5 o 15 minutos.
+
+• Oculta al cambiar de app
+Tus tarjetas quedan tapadas cuando pasas de una app a otra, así nadie puede echarles un vistazo.
+
+• Tus tarjetas se quedan en este iPhone
+Los datos de tus tarjetas ya no se incluyen en la copia de iCloud. Se quedan cifrados y solo en este dispositivo. Para pasarlas a un teléfono nuevo, usa la copia de seguridad cifrada de Ajustes (Premium).
+
+• Códigos de barras más visibles
+Al abrir un código de barras, la pantalla se pone al máximo brillo y no se apaga; al cerrarlo, vuelve a como estaba. Puedes desactivarlo en Ajustes › Pantalla brillante para códigos.
+
+• American Express y Diners Club
+Los números de Amex y Diners Club ahora se reconocen al escribirlos y al escanearlos, y se muestran con el mismo formato que en la tarjeta.
+
+• Escaneo de IBAN gratis
+Escanear un IBAN con la cámara o desde un código QR es gratis para todos.
+
+• 9 idiomas
+La app, los widgets, el Apple Watch y los avisos de permisos ya están completos en español, inglés, turco, alemán, francés, portugués, italiano, neerlandés y polaco.
+
+• Apertura en un iPhone nuevo
+Corregido un problema por el que la app podía quedarse en la pantalla de inicio tras pasar a un iPhone nuevo o restaurar una copia.
+
+• Y además
+Los números de tarjeta copiados se borran solos del portapapeles al minuto, tu estado Premium aparece al momento y hemos corregido muchos fallos pequeños.

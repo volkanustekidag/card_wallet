@@ -1,0 +1,92 @@
+{
+  "en-US": {
+    "appstore_locale": "en-US",
+    "name": "Deckard: Loyalty Card Wallet",
+    "subtitle": "Rewards, barcodes & bank cards",
+    "keywords": "membership,store,points,scan,club,gym,library,pass,widget,watch,offline,private,keyring,shopping",
+    "play_title": "Deckard: Loyalty Card Wallet",
+    "play_short": "Loyalty cards, barcodes and bank cards in one private wallet. No account.",
+    "premium_appstore": "Premium is offered as a monthly or yearly subscription, or as a one-time lifetime purchase. Payment is charged to your Apple ID. Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period. You can manage or cancel them in your App Store account settings.",
+    "premium_play": "Premium is offered as a monthly or yearly subscription that renews automatically, or as a one-time lifetime purchase. You can cancel a subscription anytime in Google Play › Payments & subscriptions."
+  },
+  "de-DE": {
+    "appstore_locale": "de-DE",
+    "name": "Deckard: Kundenkarten App",
+    "subtitle": "Bonuskarten, Barcodes & IBAN",
+    "keywords": "treuekarte,karten,wallet,mitgliedskarte,punkte,scanner,geldbörse,widget,watch,offline,sicher",
+    "play_title": "Deckard: Kundenkarten App",
+    "play_short": "Kundenkarten, Bonuskarten und IBAN in einer privaten Wallet. Ohne Konto.",
+    "premium_appstore": "Premium gibt es als Monats- oder Jahresabo oder einmalig als Lifetime-Kauf. Die Zahlung wird über deine Apple-ID abgerechnet. Abos verlängern sich automatisch, wenn sie nicht mindestens 24 Stunden vor Ende des laufenden Zeitraums gekündigt werden. Verwalten oder kündigen kannst du sie in den Einstellungen deines App-Store-Accounts.",
+    "premium_play": "Premium gibt es als Monats- oder Jahresabo mit automatischer Verlängerung oder einmalig als Lifetime-Kauf. Abos kannst du jederzeit in Google Play › Zahlungen & Abos kündigen."
+  },
+  "tr-TR": {
+    "appstore_locale": "tr",
+    "name": "Deckard: Sadakat Kartı Cüzdan",
+    "subtitle": "Barkod, IBAN ve kart saklama",
+    "keywords": "puan,müşteri,kartları,üyelik,market,indirim,kredi,banka,okuyucu,widget,saat,şifreli",
+    "play_title": "Deckard: Sadakat Kartı Cüzdan",
+    "play_short": "Sadakat kartları, barkodlar, banka kartları ve IBAN tek gizli cüzdanda.",
+    "premium_appstore": "Premium; aylık veya yıllık abonelik ya da tek seferlik ömür boyu satın alma olarak sunulur. Ödeme Apple kimliğinden alınır. Abonelik, dönem bitiminden en az 24 saat önce iptal edilmezse otomatik olarak yenilenir. Aboneliğini App Store hesap ayarlarından yönetebilir ya da iptal edebilirsin.",
+    "premium_play": "Premium; otomatik yenilenen aylık veya yıllık abonelik ya da tek seferlik ömür boyu satın alma olarak sunulur. Aboneliğini istediğin zaman Google Play › Ödemeler ve abonelikler bölümünden iptal edebilirsin."
+  },
+  "fr-FR": {
+    "appstore_locale": "fr-FR",
+    "name": "Deckard : Cartes de fidélité",
+    "subtitle": "Codes-barres, RIB et cartes",
+    "keywords": "fidelite,magasin,portefeuille,adherent,points,scanner,club,widget,montre,hors ligne,iban,enseigne",
+    "play_title": "Deckard : Cartes de fidélité",
+    "play_short": "Cartes de fidélité, codes-barres, cartes bancaires et RIB. Sans compte.",
+    "premium_appstore": "Premium est proposé en abonnement mensuel ou annuel, ou en achat unique à vie. Le paiement est débité sur votre identifiant Apple. Les abonnements se renouvellent automatiquement s'ils ne sont pas résiliés au moins 24 heures avant la fin de la période en cours. Vous pouvez les gérer ou les résilier dans les réglages de votre compte App Store.",
+    "premium_play": "Premium est proposé en abonnement mensuel ou annuel renouvelé automatiquement, ou en achat unique à vie. Vous pouvez résilier un abonnement à tout moment dans Google Play › Paiements et abonnements."
+  },
+  "es-ES": {
+    "appstore_locale": "es-ES",
+    "name": "Deckard: Tarjetas fidelidad",
+    "subtitle": "Códigos de barras, IBAN y más",
+    "keywords": "tarjeta,socio,puntos,cartera,monedero,tienda,escaner,club,widget,reloj,offline,privado,cliente",
+    "play_title": "Deckard: Tarjetas fidelidad",
+    "play_short": "Tarjetas de fidelidad, códigos de barras, tarjetas e IBAN. Sin cuenta.",
+    "premium_appstore": "Premium se ofrece como suscripción mensual o anual, o como compra única de por vida. El pago se carga en tu ID de Apple. Las suscripciones se renuevan automáticamente salvo que las canceles al menos 24 horas antes de que termine el periodo actual. Puedes gestionarlas o cancelarlas en los ajustes de tu cuenta del App Store.",
+    "premium_play": "Premium se ofrece como suscripción mensual o anual con renovación automática, o como compra única de por vida. Puedes cancelar una suscripción cuando quieras en Google Play › Pagos y suscripciones."
+  },
+  "it-IT": {
+    "appstore_locale": "it",
+    "name": "Deckard: Carte fedeltà",
+    "subtitle": "Tessere, codici a barre e IBAN",
+    "keywords": "carta,punti,portafoglio,negozio,scanner,club,socio,widget,orologio,offline,privato,raccolta,cliente",
+    "play_title": "Deckard: Carte fedeltà",
+    "play_short": "Carte fedeltà, tessere, codici a barre, carte e IBAN. Senza account.",
+    "premium_appstore": "Premium è disponibile come abbonamento mensile o annuale, oppure come acquisto unico a vita. Il pagamento viene addebitato sul tuo ID Apple. Gli abbonamenti si rinnovano automaticamente se non vengono disdetti almeno 24 ore prima della fine del periodo in corso. Puoi gestirli o disdirli nelle impostazioni del tuo account App Store.",
+    "premium_play": "Premium è disponibile come abbonamento mensile o annuale con rinnovo automatico, oppure come acquisto unico a vita. Puoi disdire un abbonamento in qualsiasi momento da Google Play › Pagamenti e abbonamenti."
+  },
+  "nl-NL": {
+    "appstore_locale": "nl-NL",
+    "name": "Deckard: Klantenkaarten",
+    "subtitle": "Spaarkaarten, barcodes & IBAN",
+    "keywords": "klantenkaart,pasjes,kaarten,wallet,portemonnee,lidmaatschap,punten,scanner,widget,watch,offline",
+    "play_title": "Deckard: Klantenkaarten",
+    "play_short": "Klantenkaarten, spaarkaarten, barcodes, bankpassen en IBAN. Geen account.",
+    "premium_appstore": "Premium is er als maand- of jaarabonnement, of als eenmalige aankoop voor altijd. De betaling loopt via je Apple ID. Abonnementen worden automatisch verlengd, tenzij je ze minstens 24 uur voor het einde van de lopende periode opzegt. Beheren of opzeggen doe je in de instellingen van je App Store-account.",
+    "premium_play": "Premium is er als automatisch verlengd maand- of jaarabonnement, of als eenmalige aankoop voor altijd. Een abonnement zeg je op elk moment op in Google Play › Betalingen en abonnementen."
+  },
+  "pl-PL": {
+    "appstore_locale": "pl",
+    "name": "Deckard: Karty lojalnościowe",
+    "subtitle": "Kody kreskowe, IBAN i karty",
+    "keywords": "karta,klienta,stałego,portfel,punkty,skaner,program,widżet,zegarek,offline,sklep,rabat",
+    "play_title": "Deckard: Karty lojalnościowe",
+    "play_short": "Karty lojalnościowe, kody kreskowe, karty bankowe i IBAN. Bez konta.",
+    "premium_appstore": "Premium jest dostępne jako subskrypcja miesięczna lub roczna albo jednorazowy zakup dożywotni. Opłata jest pobierana z Twojego Apple ID. Subskrypcje odnawiają się automatycznie, jeśli nie zostaną anulowane co najmniej 24 godziny przed końcem bieżącego okresu. Możesz nimi zarządzać lub je anulować w ustawieniach konta App Store.",
+    "premium_play": "Premium jest dostępne jako automatycznie odnawiana subskrypcja miesięczna lub roczna albo jednorazowy zakup dożywotni. Subskrypcję możesz anulować w każdej chwili w Google Play › Płatności i subskrypcje."
+  },
+  "pt-BR": {
+    "appstore_locale": "pt-BR",
+    "name": "Deckard: Cartão Fidelidade",
+    "subtitle": "Carteira de cartões e códigos",
+    "keywords": "membro,sócio,pontos,clube,barras,leitor,loja,widget,relógio,offline,privado,programa,cliente",
+    "play_title": "Deckard: Cartão Fidelidade",
+    "play_short": "Cartões fidelidade, códigos de barras e cartões de banco. Sem conta.",
+    "premium_appstore": "O Premium é oferecido como assinatura mensal ou anual, ou como compra única vitalícia. O pagamento é cobrado no seu ID Apple. As assinaturas são renovadas automaticamente, a menos que sejam canceladas pelo menos 24 horas antes do fim do período atual. Você pode gerenciá-las ou cancelá-las nos ajustes da sua conta da App Store.",
+    "premium_play": "O Premium é oferecido como assinatura mensal ou anual com renovação automática, ou como compra única vitalícia. Você pode cancelar uma assinatura a qualquer momento em Google Play › Pagamentos e assinaturas."
+  }
+}

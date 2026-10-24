@@ -1,0 +1,1 @@
+tarjeta,socio,puntos,cartera,monedero,tienda,escaner,club,widget,reloj,offline,privado,cliente

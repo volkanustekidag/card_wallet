@@ -1,0 +1,45 @@
+Deckard wyciąga właściwą kartę na górę, zanim dojdziesz do kasy: „Następna” uczy się, tylko na Twoim iPhonie, kiedy używasz każdej karty lojalnościowej, a kod kreskowy otwiera się z pełną jasnością. Karty bankowe i numery IBAN są tuż obok. Nie musisz zakładać konta, nie ma reklam, a aplikacja działa też bez internetu.
+
+Przy kasie otwierasz kartę, ekran sam się rozjaśnia, a czytnik odczytuje kod kreskowy za pierwszym razem. Karty masz też na Apple Watch i w widżecie na ekranie początkowym.
+
+PRYWATNOŚĆ OD POCZĄTKU
+• Bez rejestracji i bez konta
+• Bez reklam
+• Działa offline
+• Karty są zapisywane w postaci zaszyfrowanej na urządzeniu i nie trafiają do kopii iCloud
+• Blokada PIN-em, Face ID lub Touch ID i automatyczna blokada; przy przełączaniu aplikacji karty są zasłonięte
+
+KARTY LOJALNOŚCIOWE
+• Jeden aparat do wszystkiego: kody lojalnościowe, karty bankowe i IBAN, także ze zdjęcia – albo wpisz ręcznie
+• „Następna”: karta, której zwykle używasz o tej porze, jest na górze – nauczone na telefonie
+• Przechodzisz z innej aplikacji? Zaimportuj jej plik eksportu lub kartę Apple Wallet za jednym razem
+• Ponad 500 marek rozpoznawanych z logo i kolorami, z każdego kraju
+• Pełna jasność ekranu, dopóki kod kreskowy jest otwarty
+• Wyszukuj, filtruj po etykietach i oznaczaj ulubione
+• Udostępnij kartę jako obraz
+• Aplikacja na Apple Watch i widżet „Następna” na ekranie głównym i blokady
+
+TAKŻE KARTY PŁATNICZE I IBAN
+• Trzymaj karty kredytowe i numery IBAN obok kart lojalnościowych
+• Szukaj we wszystkich kartach z ekranu głównego: nazwa, bank, etykieta lub ostatnie 4 cyfry
+• Kopiuj IBAN jednym dotknięciem lub udostępniaj jako tekst albo obraz
+• Przypomnienia o terminie płatności i ważności karty
+• Obsługa American Express i Diners Club
+• Dostępna w 9 językach
+
+PREMIUM
+Wersja bezpłatna obejmuje 3 karty lojalnościowe, 1 kartę kredytową i 1 numer IBAN. Premium dodaje:
+• Nieograniczoną liczbę kart
+• Dodawanie kart lojalnościowych do Apple Wallet
+• Szyfrowaną kopię zapasową i przywracanie, np. przy zmianie telefonu
+• Kody QR dla numerów IBAN
+• Dodatkowe kolory kart
+
+Premium jest dostępne jako subskrypcja miesięczna lub roczna albo jednorazowy zakup dożywotni. Opłata jest pobierana z Twojego Apple ID. Subskrypcje odnawiają się automatycznie, jeśli nie zostaną anulowane co najmniej 24 godziny przed końcem bieżącego okresu. Możesz nimi zarządzać lub je anulować w ustawieniach konta App Store.
+
+Deckard nie jest aplikacją bankową. Nie wykonuje płatności, nie przelewa pieniędzy i nie łączy się z Twoim bankiem.
+
+Gdy dodajesz kartę lojalnościową do Apple Wallet, jej nazwa, numer i notatka są wysyłane do naszej usługi podpisywania, żeby utworzyć kartę w Wallet. Żadne inne dane kart nie opuszczają urządzenia.
+
+Warunki korzystania: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Polityka prywatności: https://olkan.dev/privacy/cardwallet

@@ -1,0 +1,49 @@
+Deckard, kasaya gelmeden doğru kartı en üste koyar: Sıradaki, hangi sadakat kartını ne zaman kullandığını yalnızca iPhone'unda öğrenir, barkod tam parlaklıkta açılır. Kredi kartların ve IBAN'ların da hemen yanında. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
+
+IBAN'ını tek dokunuşla kopyala ya da paylaş, karşındakine QR kodla okut. Kasada sadakat kartını aç, ekran kendiliğinden parlasın. Kredi kartının ödeme ve son kullanma tarihini hatırlatıcılar senin yerine takip etsin. Aradığın kartı ana ekrandaki aramayla isim, banka, etiket ya da son 4 haneyle bul.
+
+GÜVENLİK
+• PIN, Face ID veya Touch ID ile kilit
+• Otomatik kilit: uygulamadan çıktığında cüzdan kendini kilitler
+• Uygulama geçişinde kartların görünmez
+• Kartların cihazında şifreli saklanır, iCloud yedeğine girmez
+• Hesap yok, reklam yok
+
+KREDİ KARTLARI
+• Kartlarını şık kart tasarımlarıyla kaydet
+• Ödeme günü ve son kullanma tarihi hatırlatıcıları
+• Visa, Mastercard, Troy, American Express ve Diners Club
+• Kart numarasını kamerayla tara
+• Paylaşırken numarayı maskeli gönder (•••• 1234)
+
+IBAN
+• IBAN'larını isim ve bankayla birlikte sakla
+• Tek dokunuşla kopyala; metin ya da kart görseli olarak paylaş
+• QR kod oluştur, karşı taraf telefonuyla okutsun (Premium)
+
+SADAKAT KARTLARI
+• Tek kamera her şey için: sadakat barkodu, banka kartı ve IBAN, fotoğraftan bile — ya da elle gir
+• Sıradaki: günün bu saatinde genelde kullandığın kart öne gelir, telefonunda öğrenilir
+• Başka bir uygulamadan mı geliyorsun? Dışa aktarma dosyasını ya da Apple Wallet kartını tek seferde içe aktar
+• Her ülkeden 500+ marka, logosu ve rengiyle tanınır
+• Barkod açıkken ekran tam parlaklığa çıkar
+• Etiketle, filtrele, favorilerini işaretle
+• Apple Watch uygulaması; ana ve kilit ekranında Sıradaki widget'ı
+• Kartı görsel olarak paylaş
+
+PREMIUM
+Ücretsiz sürümde 1 kredi kartı, 1 IBAN ve 3 sadakat kartı saklayabilirsin. Premium ile:
+• Sınırsız kart
+• Şifreli yedekleme ve geri yükleme (yeni telefona geçerken de)
+• Sadakat kartlarını Apple Cüzdan'a ekleme
+• IBAN QR kodu
+• Ek kart renkleri
+
+Premium; aylık veya yıllık abonelik ya da tek seferlik ömür boyu satın alma olarak sunulur. Ödeme Apple kimliğinden alınır. Abonelik, dönem bitiminden en az 24 saat önce iptal edilmezse otomatik olarak yenilenir. Aboneliğini App Store hesap ayarlarından yönetebilir ya da iptal edebilirsin.
+
+Deckard bir banka uygulaması değildir; ödeme yapmaz, para göndermez, bankana bağlanmaz.
+
+Bir sadakat kartını Apple Cüzdan'a eklediğinde, kartın oluşturulabilmesi için yalnızca o kartın adı, numarası ve notu imzalama servisimize gönderilir. Diğer kart bilgilerin cihazından çıkmaz.
+
+Kullanım Koşulları: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Gizlilik Politikası: https://olkan.dev/privacy/cardwallet

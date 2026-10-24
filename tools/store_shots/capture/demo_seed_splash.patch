@@ -1,0 +1,326 @@
+diff --git a/lib/feature/splash/splash_page.dart b/lib/feature/splash/splash_page.dart
+index 8b0afe0..586cab7 100644
+--- a/lib/feature/splash/splash_page.dart
++++ b/lib/feature/splash/splash_page.dart
+@@ -1,3 +1,7 @@
++import 'package:wallet_app/core/services/ui_prefs.dart';
++import 'package:in_app_purchase/in_app_purchase.dart';
++import 'package:wallet_app/core/controllers/premium_controller.dart';
++import 'package:wallet_app/core/services/premium_service.dart';
+ import 'dart:convert';
+ import 'dart:io';
+ import 'package:path_provider/path_provider.dart';
+@@ -9,7 +13,15 @@ import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/l
+ import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
+ import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
+ import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
++import 'dart:async';
+ import 'package:flutter/material.dart';
++import 'package:wallet_app/core/brands/brand_catalog.dart';
++import 'package:wallet_app/core/controllers/theme_controller.dart';
++import 'package:wallet_app/feature/card_detail/bank_card_page.dart';
++import 'package:wallet_app/feature/card_detail/iban_page.dart';
++import 'package:wallet_app/feature/iban_card/utils/iban_share_flow.dart';
++import 'package:wallet_app/feature/loyalty_card/loyalty_card_detail_page.dart';
++import 'package:wallet_app/feature/scanner/loyalty_confirm_sheet.dart';
+ import 'package:get/get.dart';
+ import 'package:wallet_app/core/constants/app_images.dart';
+ import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
+@@ -63,11 +75,55 @@ class _SplashPageState extends State<SplashPage> {
+       final loc = env['CW_LOCALE'];
+       if (loc != null && mounted) {
+         final parts = loc.split('_');
++        Get.locale = Locale(parts[0], parts[1]);
+         await el.EasyLocalization.of(context)!.setLocale(Locale(parts[0], parts[1]));
+       }
+       if (env['CW_DEMO'] == '1') {
+         await _seedDemo();
+       }
++      if (env['CW_DEMO'] == '2') {
++        final m = env['CW_MARKET'];
++        if (m != null && m.isNotEmpty) {
++          await _seedMarket(m);
++          await UiPrefs.instance.markViewHintSeen();
++          await UiPrefs.instance.setHomeGrid(env['CW_GRID'] == '1');
++        } else {
++          await _seedStore();
++        }
++      }
++      if (env['CW_DEMO'] == '3') {
++        final cc = CreditCardService(); final ib = IbanCardService(); final lc = LoyaltyCardService();
++        await cc.openBox(); await ib.openBox(); await lc.openBox();
++        await cc.deleteAllData(); await ib.deleteAllData(); await lc.deleteAllData();
++      }
++      if (env.containsKey('CW_THEME') && Get.isRegistered<ThemeController>()) {
++        await Get.find<ThemeController>().setThemeMode(
++            env['CW_THEME'] == 'dark' ? AppThemeMode.dark : AppThemeMode.light);
++      }
++      if (env.containsKey('CW_FAKE_PRODUCTS')) {
++        ProductDetails p(String id, double v) => ProductDetails(
++            id: id, title: id, description: '', price: '€${v.toStringAsFixed(2)}',
++            rawPrice: v, currencyCode: 'EUR', currencySymbol: '€');
++        Get.find<PremiumController>().availableProductsRx.assignAll([
++          p(PremiumService.monthlyProductId, 3.99),
++          p(PremiumService.yearlyProductId, 14.99),
++          p(PremiumService.lifetimeProductId, 29.99),
++        ]);
++      }
++      final shot = env['CW_SHOT'];
++      if (shot != null && shot.isNotEmpty) {
++        final box = await Hive.openBox<dynamic>('app_state');
++        await box.put('onboarding_seen', true);
++        if (!mounted) return;
++        if (shot == 'welcome') {
++          Get.offAllNamed('/onboarding');
++          return;
++        }
++        Get.offAllNamed('/home');
++        await Future<void>.delayed(const Duration(milliseconds: 900));
++        await _openShot(shot);
++        return;
++      }
+       final route = env['CW_ROUTE'];
+       if (route != null && route.isNotEmpty) {
+         if (route != '/onboarding') {
+@@ -115,14 +171,86 @@ class _SplashPageState extends State<SplashPage> {
+   }
+ }
+ 
++Future<void> _openShot(String shot) async {
++  final loyalty = await LoyaltyCardService().getAllLoyaltyCards();
++  final credit = await CreditCardService().getAllCreditCards();
++  final ibans = await IbanCardService().getAllIbanCards();
++  switch (shot) {
++    case 'checkout':
++      Get.to(() => LoyaltyCardDetailPage(card: loyalty.firstWhere((c) => c.id == 's-coffee')));
++      break;
++    case 'bank':
++      Get.to(() => BankCardPage(card: credit.firstWhere((c) => c.id == 's-everyday')));
++      break;
++    case 'iban':
++      Get.to(() => IbanPage(card: ibans.first));
++      await Future<void>.delayed(const Duration(milliseconds: 900));
++      final ctx = Get.context;
++      if (ctx != null) unawaited(showIbanShareSheet(ctx, isPremium: true, card: ibans.first));
++      break;
++    case 'confirm':
++      Get.to(() => const Scaffold(backgroundColor: Color(0xFF0B0C0F), body: _ShotScannerBackdrop()));
++      await Future<void>.delayed(const Duration(milliseconds: 700));
++      final ctx = Get.context;
++      if (ctx != null) {
++        unawaited(showLoyaltyConfirmSheet(ctx, raw: '4006381333931', format: 'EAN_13',
++            brand: BrandEntry(name: _confirmBrand.$1, domain: 'confirm.invalid', color: _confirmBrand.$2, regions: const ['global'])));
++      }
++      break;
++  }
++}
++
++class _ShotScannerBackdrop extends StatelessWidget {
++  const _ShotScannerBackdrop();
++  @override
++  Widget build(BuildContext context) => const DecoratedBox(
++        decoration: BoxDecoration(
++          gradient: RadialGradient(center: Alignment(0, -0.4), radius: 1.0,
++              colors: [Color(0xFF3A3B40), Color(0xFF0B0C0F)]),
++        ),
++        child: SizedBox.expand(),
++      );
++}
++
++Future<void> _seedStore() async {
++  final cc = CreditCardService();
++  final ib = IbanCardService();
++  final lc = LoyaltyCardService();
++  await cc.openBox(); await ib.openBox(); await lc.openBox();
++  await cc.deleteAllData(); await ib.deleteAllData(); await lc.deleteAllData();
++  final now = DateTime.now();
++  await cc.addToCreditCard(CreditCard(id: 's-everyday', bankName: 'Everyday', creditCardNumber: '4242 4242 4242 4242',
++      cardHolder: 'ALEX MORGAN', expirationDate: '09/28', cardColorId: 11, createdAt: now,
++      paymentDueDay: (now.day + 2) % 28 + 1, paymentReminderEnabled: true, expiryReminderEnabled: true));
++  await cc.addToCreditCard(CreditCard(id: 's-gold', bankName: 'Gold Card', creditCardNumber: '3782 822463 10005',
++      cardHolder: 'ALEX MORGAN', expirationDate: '02/29', cardColorId: 12, createdAt: now.subtract(const Duration(days: 3))));
++  await ib.addIbanCard(IbanCard(id: 's-iban', bankName: 'Main account', cardHolder: 'Alex Morgan',
++      iban: 'FR76 3000 6000 0112 3456 7890 189', swiftCode: 'BNPAFRPP', createdAt: now.subtract(const Duration(days: 1))));
++  final cards = [
++    ['s-coffee', 'Coffee Club', '6061234567890123', 'QR_CODE', 0xFF0D4F3B, 18],
++    ['s-grocer', 'Fresh Market', '5012345678900', 'EAN_13', 0xFFC62828, 9],
++    ['s-beauty', 'Bloom Beauty', '3000001234562', 'EAN_13', 0xFFAD1457, 4],
++    ['s-books', 'Book Corner', '9780201379624', 'EAN_13', 0xFF1565C0, 2],
++    ['s-gym', 'City Gym', 'GYM-0042-7781', 'CODE_128', 0xFF37474F, 1],
++  ];
++  for (final l in cards) {
++    final uses = l[5] as int;
++    final log = [for (var k = 0; k < uses; k++) now.subtract(Duration(days: k + 1, minutes: (k * 13) % 40)).millisecondsSinceEpoch].reversed.toList();
++    await lc.addLoyaltyCard(LoyaltyCard(id: l[0] as String, name: l[1] as String, barcode: l[2] as String,
++        barcodeFormat: l[3] as String, colorId: 0, brandColor: l[4] as int, createdAt: now,
++        useCount: uses, lastUsedAt: DateTime.fromMillisecondsSinceEpoch(log.last), usageLog: log,
++        website: '${(l[1] as String).toLowerCase().replaceAll(' ', '-')}.invalid'));
++  }
++}
++
+ Future<void> _seedDemo() async {
+   final cc = CreditCardService();
+   if ((await cc.getAllCreditCards()).isNotEmpty) return;
+   final now = DateTime.now();
+   final credit = [
+-    ['Garanti BBVA', '5406 6754 1234 5674', 'AYŞE YILMAZ', '08/28', 2, 15],
+-    ['Yapı Kredi', '4506 3478 9012 3452', 'AYŞE YILMAZ', '11/26', 5, 3],
+-    ['Akbank', '3782 822463 10005', 'AYŞE YILMAZ', '02/29', 8, null],
++    ['Chase', '4242 4242 4242 4242', 'ALEX MORGAN', '09/28', 11, (now.day + 2) % 28 + 1],
++    ['American Express', '3782 822463 10005', 'ALEX MORGAN', '02/29', 12, null],
++    ['Revolut', '5555 5555 5555 4444', 'ALEX MORGAN', '11/26', 14, null],
+   ];
+   var i = 0;
+   for (final c in credit) {
+@@ -131,24 +259,143 @@ Future<void> _seedDemo() async {
+       cardHolder: c[2] as String, expirationDate: c[3] as String, cardColorId: c[4] as int,
+       createdAt: now.subtract(Duration(days: i * 3)),
+       paymentDueDay: c[5] as int?,
++      paymentReminderEnabled: c[5] != null,
+       tags: i == 1 ? ['favorite'] : null,
+     ));
+   }
+   final ib = IbanCardService();
+-  await ib.addIbanCard(IbanCard(id: 'demo-ib-0', bankName: 'Ziraat Bankası', cardHolder: 'Ayşe Yılmaz', iban: 'TR33 0006 1005 1978 6457 8413 26', swiftCode: 'TCZBTR2A', createdAt: now.subtract(const Duration(days: 1))));
+-  await ib.addIbanCard(IbanCard(id: 'demo-ib-1', bankName: 'İş Bankası', cardHolder: 'Ayşe Yılmaz', iban: 'TR32 0010 0099 9990 1234 5678 90', swiftCode: 'ISBKTRIS', createdAt: now.subtract(const Duration(days: 6))));
++  await ib.addIbanCard(IbanCard(id: 'demo-ib-0', bankName: 'N26', cardHolder: 'Alex Morgan', iban: 'DE89 3704 0044 0532 0130 00', swiftCode: 'NTSBDEB1', createdAt: now.subtract(const Duration(days: 1))));
++  await ib.addIbanCard(IbanCard(id: 'demo-ib-1', bankName: 'BNP Paribas', cardHolder: 'Alex Morgan', iban: 'FR76 3000 6000 0112 3456 7890 189', swiftCode: 'BNPAFRPP', createdAt: now.subtract(const Duration(days: 6))));
+   final lc = LoyaltyCardService();
+   final loyalty = [
+-    ['Migros Money', 'Migros', '2900012345678', 'EAN_13', 3],
+-    ['BİM', 'BIM', '8690000123456', 'EAN_13', 6],
+-    ['Starbucks Rewards', 'Starbucks', '6061 2345 6789 0123', 'QR_CODE', 1],
+-    ['IKEA Family', 'IKEA', '627598 01234567', 'CODE_128', 4],
++    ['Starbucks Rewards', 'Starbucks', '6061234567890123', 'QR_CODE', 10, 14],
++    ['IKEA Family', 'IKEA', '62759801234567', 'CODE_128', 5, 0],
++    ['Carrefour', 'Carrefour', '3760012345670', 'EAN_13', 1, 6],
++    ['Sephora Beauty Insider', 'Sephora', '5012345678900', 'EAN_13', 6, 2],
++    ['Decathlon', 'Decathlon', '3000001234562', 'EAN_13', 2, 0],
+   ];
+   var j = 0;
+   for (final l in loyalty) {
++    final uses = l[5] as int;
++    // Uses spread over the last weeks at about this time of day.
++    final log = [for (var k = 0; k < uses; k++) now.subtract(Duration(days: k * 2 + 1, minutes: (k * 17) % 50)).millisecondsSinceEpoch].reversed.toList();
+     await lc.addLoyaltyCard(LoyaltyCard(id: 'demo-lc-${j++}', name: l[0] as String, brand: l[1] as String,
+       barcode: l[2] as String, barcodeFormat: l[3] as String, colorId: l[4] as int,
+-      createdAt: now.subtract(Duration(days: j * 2)), tags: j == 1 ? ['favorite'] : null,
+-      useCount: 10 - j, lastUsedAt: now.subtract(Duration(hours: j))));
++      createdAt: now.subtract(Duration(days: j * 2)), tags: j == 2 ? ['favorite'] : null,
++      useCount: uses == 0 ? null : uses, lastUsedAt: uses == 0 ? null : DateTime.fromMillisecondsSinceEpoch(log.last),
++      usageLog: uses == 0 ? null : log));
++  }
++}
++
++
++(String, int) _confirmBrand = ('Green Grocer', 0xFF2E8B57);
++
++/// Store screenshots per market: local brands (names and colours only, no
++/// logos), local names, the country's IBAN.
++Future<void> _seedMarket(String m) async {
++  final cc = CreditCardService();
++  final ib = IbanCardService();
++  final lc = LoyaltyCardService();
++  await cc.openBox(); await ib.openBox(); await lc.openBox();
++  await cc.deleteAllData(); await ib.deleteAllData(); await lc.deleteAllData();
++  final now = DateTime.now();
++  final d = _markets[m]!;
++  _confirmBrand = d['confirm'] as (String, int);
++  final holder = d['holder'] as String;
++  final bank = d['bank'] as List<String>;
++  await cc.addToCreditCard(CreditCard(id: 's-everyday', bankName: bank[0], creditCardNumber: '4242 4242 4242 4242',
++      cardHolder: holder.toUpperCase(), expirationDate: '09/28', cardColorId: 11, createdAt: now,
++      paymentDueDay: (now.day + 2) % 28 + 1, paymentReminderEnabled: true, expiryReminderEnabled: true));
++  await cc.addToCreditCard(CreditCard(id: 's-gold', bankName: bank[1], creditCardNumber: d['second'] as String,
++      cardHolder: holder.toUpperCase(), expirationDate: '02/29', cardColorId: 12, createdAt: now.subtract(const Duration(days: 3))));
++  final iban = d['iban'] as List<String>?;
++  if (iban != null) {
++    await ib.addIbanCard(IbanCard(id: 's-iban', bankName: iban[0], cardHolder: holder,
++        iban: iban[1], swiftCode: iban[2], createdAt: now.subtract(const Duration(days: 1))));
++  }
++  final cards = d['cards'] as List<List<Object>>;
++  final ids = ['s-coffee', 's-grocer', 's-beauty', 's-books', 's-gym'];
++  final codes = [['6061234567890123', 'QR_CODE'], ['5012345678900', 'EAN_13'], ['3000001234562', 'EAN_13'], ['9780201379624', 'EAN_13'], ['4006381333931', 'EAN_13']];
++  final usesList = [18, 9, 4, 2, 1];
++  for (var i = 0; i < cards.length; i++) {
++    final uses = usesList[i];
++    final log = [for (var k = 0; k < uses; k++) now.subtract(Duration(days: k + 1, minutes: (k * 13) % 40)).millisecondsSinceEpoch].reversed.toList();
++    await lc.addLoyaltyCard(LoyaltyCard(id: ids[i], name: cards[i][0] as String, barcode: codes[i][0],
++        barcodeFormat: codes[i][1], colorId: 0, brandColor: cards[i][1] as int, createdAt: now,
++        useCount: uses, lastUsedAt: DateTime.fromMillisecondsSinceEpoch(log.last), usageLog: log,
++        website: 'shot-${ids[i]}.invalid'));
+   }
+ }
++
++const _markets = <String, Map<String, Object>>{
++  'us': {
++    'holder': 'Alex Morgan',
++    'bank': ['Everyday', 'Travel Card'],
++    'second': '3782 822463 10005',
++    'confirm': ('Walgreens', 0xFFE31837),
++    'cards': [['Starbucks', 0xFF006241], ['Target', 0xFFCC0000], ['Ulta Beauty', 0xFFF26822], ['Best Buy', 0xFF0046BE], ['Kroger', 0xFF0F4C81]],
++  },
++  'de': {
++    'holder': 'Lena Fischer',
++    'bank': ['Girokarte', 'Kreditkarte'],
++    'second': '5555 5555 5555 4444',
++    'iban': ['Girokonto', 'DE89 3704 0044 0532 0130 00', 'COBADEFFXXX'],
++    'confirm': ('Rossmann', 0xFFC3002F),
++    'cards': [['REWE', 0xFFCC071E], ['dm', 0xFF002878], ['Payback', 0xFF003EAA], ['Douglas', 0xFF1A1A1A], ['EDEKA', 0xFFFFD400]],
++  },
++  'tr': {
++    'holder': 'Ayşe Yılmaz',
++    'bank': ['Maaş kartı', 'Altın kart'],
++    'second': '9792 9900 1234 5678',
++    'iban': ['Maaş hesabı', 'TR33 0006 1005 1978 6457 8413 26', ''],
++    'confirm': ('Gratis', 0xFFE5007E),
++    'cards': [['Migros', 0xFFFF6600], ['Kahve Dünyası', 0xFF5A2D0C], ['D&R', 0xFFE30613], ['LC Waikiki', 0xFF0047BA], ['Watsons', 0xFF00A0AF]],
++  },
++  'fr': {
++    'holder': 'Camille Laurent',
++    'bank': ['Carte courante', 'Carte Gold'],
++    'second': '5555 5555 5555 4444',
++    'iban': ['Compte courant', 'FR76 3000 6000 0112 3456 7890 189', 'BNPAFRPP'],
++    'confirm': ('Auchan', 0xFFE30613),
++    'cards': [['Carrefour', 0xFF004E9F], ['Intermarché', 0xFFE2001A], ['Fnac', 0xFFE1A925], ['Sephora', 0xFF1A1A1A], ['Leroy Merlin', 0xFF78BE20]],
++  },
++  'es': {
++    'holder': 'Lucía Martín',
++    'bank': ['Tarjeta diaria', 'Tarjeta Oro'],
++    'second': '5555 5555 5555 4444',
++    'iban': ['Cuenta nómina', 'ES91 2100 0418 4502 0005 1332', 'CAIXESBBXXX'],
++    'confirm': ('Eroski', 0xFFE30613),
++    'cards': [['El Corte Inglés', 0xFF00873D], ['Carrefour', 0xFF004E9F], ['Dia', 0xFFE30613], ['Repsol', 0xFFFF8200], ['Douglas', 0xFF1A1A1A]],
++  },
++  'it': {
++    'holder': 'Giulia Rossi',
++    'bank': ['Carta conto', 'Carta Oro'],
++    'second': '5555 5555 5555 4444',
++    'iban': ['Conto corrente', 'IT60 X054 2811 1010 0000 0123 456', 'BPMOIT22XXX'],
++    'confirm': ('Unieuro', 0xFFE30613),
++    'cards': [['Esselunga', 0xFF1E6CB5], ['Conad', 0xFFE30613], ['Eni', 0xFFFFD100], ['Leroy Merlin', 0xFF78BE20], ['Douglas', 0xFF1A1A1A]],
++  },
++  'nl': {
++    'holder': 'Sanne de Vries',
++    'bank': ['Betaalpas', 'Creditcard'],
++    'second': '5555 5555 5555 4444',
++    'iban': ['Betaalrekening', 'NL91 ABNA 0417 1643 00', 'ABNANL2A'],
++    'confirm': ('Kruidvat', 0xFFE2001A),
++    'cards': [['Albert Heijn', 0xFF00ADE6], ['Jumbo', 0xFFFFD200], ['HEMA', 0xFFE2001A], ['IKEA', 0xFF0058A3], ['Douglas', 0xFF1A1A1A]],
++  },
++  'pl': {
++    'holder': 'Anna Kowalska',
++    'bank': ['Karta debetowa', 'Karta kredytowa'],
++    'second': '5555 5555 5555 4444',
++    'iban': ['Konto osobiste', 'PL61 1090 1014 0000 0712 1981 2874', 'WBKPPLPP'],
++    'confirm': ('Rossmann', 0xFFC3002F),
++    'cards': [['Żabka', 0xFF00A651], ['Biedronka', 0xFFE30613], ['Lidl', 0xFF0050AA], ['Douglas', 0xFF1A1A1A], ['Empik', 0xFFE30613]],
++  },
++  'br': {
++    'holder': 'Ana Souza',
++    'bank': ['Cartão do dia', 'Cartão Gold'],
++    'second': '5555 5555 5555 4444',
++    'confirm': ('Droga Raia', 0xFF00843D),
++    'cards': [['Pão de Açúcar', 0xFF00843D], ['Livelo', 0xFFE5007E], ['Drogasil', 0xFFE30613], ['Smiles', 0xFFFF6600], ['Ipiranga', 0xFFFFD200]],
++  },
++};

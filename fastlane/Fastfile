@@ -1,0 +1,60 @@
+# Store listing upload: text, screenshots and the Play feature graphic.
+# Binaries, prices and review submission stay manual.
+#
+#   ASC_API_KEY_PATH=~/keys/asc_api_key.json fastlane ios metadata
+#   PLAY_JSON_KEY=~/keys/play-service-account.json fastlane android metadata
+#
+# Regenerate the files first:
+#   python3 tools/store_listing/build.py
+#   python3 tools/store_shots/compose.py
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Upload App Store text + screenshots for every locale (no binary, no submission)"
+  lane :metadata do |options|
+    deliver(
+      api_key_path: ENV.fetch("ASC_API_KEY_PATH"),
+      app_version: options[:version] || "2.2.0",
+      metadata_path: "./fastlane/metadata/ios",
+      screenshots_path: "./fastlane/screenshots",
+      skip_binary_upload: true,
+      skip_app_version_update: false,
+      overwrite_screenshots: true,
+      submit_for_review: false,
+      automatic_release: false,
+      run_precheck_before_submit: false,
+      force: true
+    )
+  end
+
+  desc "Text only (no screenshots)"
+  lane :text do |options|
+    deliver(
+      api_key_path: ENV.fetch("ASC_API_KEY_PATH"),
+      app_version: options[:version] || "2.2.0",
+      metadata_path: "./fastlane/metadata/ios",
+      skip_binary_upload: true,
+      skip_screenshots: true,
+      submit_for_review: false,
+      run_precheck_before_submit: false,
+      force: true
+    )
+  end
+end
+
+platform :android do
+  desc "Upload Play store listing (text, phone screenshots, feature graphic) for every locale"
+  lane :metadata do
+    supply(
+      json_key: ENV.fetch("PLAY_JSON_KEY"),
+      metadata_path: "./fastlane/metadata/android",
+      skip_upload_apk: true,
+      skip_upload_aab: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: false,
+      skip_upload_screenshots: false,
+      sync_image_upload: true
+    )
+  end
+end
