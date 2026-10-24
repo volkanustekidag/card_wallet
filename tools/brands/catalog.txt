@@ -527,3 +527,137 @@ Esfera | esfera.com.vc | #E30613 | points | 3 | br |
 Dotz | dotz.com.br | #FF6600 | points | 3 | br |
 Centauro | centauro.com.br | #E30613 | sports | 3 | br |
 LATAM Pass | latamairlines.com | #1B0088 | travel | 2 | br,cl,co,ar,mx | latam
+
+# ── Other regions ───────────────────────────────────────────────────────
+# Not target markets yet: the household names of each country, one country
+# each (no shared regions), so a user there finds their own shops first.
+# Online-only shops without a member card or number are left out.
+
+# ── Nordics ─────────────────────────────────────────────────────────────
+ICA | ica.se | #E3000F | grocery | 1 | se | ica stammis;stammis
+Coop Sverige | coop.se | #00AA46 | grocery | 1 | se | coop medlem
+Willys | willys.se | #E30613 | grocery | 2 | se | willys plus
+Hemköp | hemkop.se | #E30613 | grocery | 2 | se | hemkop
+Apotek Hjärtat | apotekhjartat.se | #E30613 | drugstore | 2 | se | apotek hjartat;klubb hjärtat
+Rema 1000 | rema.no | #003D7D | grocery | 1 | no | rema
+Kiwi | kiwi.no | #00A651 | grocery | 1 | no |
+Meny | meny.no | #E30613 | grocery | 2 | no |
+Trumf | trumf.no | #E30613 | points | 1 | no |
+Coop Norge | coop.no | #00539B | grocery | 1 | no | coop medlem
+Netto | netto.dk | #FFD500 | grocery | 1 | dk | netto plus
+Føtex | foetex.dk | #00539B | grocery | 2 | dk | foetex
+Bilka | bilka.dk | #0072BC | grocery | 2 | dk |
+Matas | matas.dk | #00539B | drugstore | 1 | dk | club matas
+S-Group | s-kanava.fi | #00843D | grocery | 1 | fi | s-etukortti;prisma;s-market;bonuskortti
+K-Ruoka | k-ruoka.fi | #FF6B00 | grocery | 1 | fi | plussa;k-plussa;k-citymarket;k-market
+SAS EuroBonus | flysas.com | #000A8C | travel | 1 | se,no,dk | eurobonus;sas
+Finnair Plus | finnair.com | #0B1560 | travel | 1 | fi | finnair
+Norwegian Reward | norwegian.com | #D81939 | travel | 2 | no,se,dk,fi | norwegian
+
+# ── Japan ───────────────────────────────────────────────────────────────
+Aeon | aeon.com | #B60081 | grocery | 1 | jp | waon;aeon card
+Ito-Yokado | itoyokado.co.jp | #E30613 | grocery | 2 | jp | nanaco
+Lawson | lawson.co.jp | #0067B1 | grocery | 1 | jp | ponta
+FamilyMart | family.co.jp | #00A040 | grocery | 1 | jp | famima
+V Point | tsite.jp | #004EA2 | points | 1 | jp | t point;t-point
+Rakuten Point | rakuten.co.jp | #BF0000 | points | 1 | jp | rakuten
+Muji | muji.com | #7F0019 | home | 2 | jp,cn,hk,tw,kr | muji passport
+Don Quijote | donki.com | #FFD100 | department | 2 | jp | donki;majica
+Bic Camera | biccamera.com | #E30613 | electronics | 2 | jp |
+Yodobashi | yodobashi.com | #E30613 | electronics | 2 | jp | gold point
+Tsutaya | tsutaya.co.jp | #003F87 | books | 3 | jp |
+ANA Mileage Club | ana.co.jp | #13448F | travel | 2 | jp | ana
+JAL Mileage Bank | jal.co.jp | #CC0000 | travel | 2 | jp | jal
+
+# ── South Korea ─────────────────────────────────────────────────────────
+E-Mart | emart.com | #FFD400 | grocery | 1 | kr | emart;shinsegae point
+Lotte Mart | lottemart.com | #E30613 | grocery | 2 | kr |
+Homeplus | homeplus.co.kr | #E30613 | grocery | 2 | kr |
+CU | cu.bgfretail.com | #652D90 | grocery | 2 | kr |
+GS25 | gs25.gsretail.com | #00A0E9 | grocery | 2 | kr |
+Olive Young | oliveyoung.co.kr | #9ACD32 | beauty | 1 | kr |
+Korean Air SKYPASS | koreanair.com | #00256C | travel | 2 | kr | skypass
+Asiana Club | flyasiana.com | #C8102E | travel | 3 | kr |
+CJ ONE | cjone.com | #E30613 | points | 1 | kr |
+L.POINT | lpoint.com | #E30613 | points | 1 | kr | lpoint
+
+# ── China ───────────────────────────────────────────────────────────────
+山姆会员店 Sam's Club | samsclub.cn | #0067A0 | grocery | 1 | cn | sams club;山姆
+盒马 Freshippo | freshippo.com | #0068FF | grocery | 2 | cn | hema;盒马
+永辉超市 Yonghui | yonghui.com.cn | #E30613 | grocery | 2 | cn | yonghui
+大润发 RT-Mart | rt-mart.com.cn | #E30613 | grocery | 2 | cn | rt mart
+华润万家 CR Vanguard | crv.com.cn | #E30613 | grocery | 3 | cn | vanguard
+物美 Wumart | wumart.com | #E30613 | grocery | 3 | cn | wumart
+沃尔玛 Walmart | walmart.cn | #0071CE | grocery | 3 | cn | walmart
+全家 FamilyMart | familymart.com.cn | #00A040 | grocery | 2 | cn | familymart
+罗森 Lawson | lawson.com.cn | #0067B1 | grocery | 3 | cn | lawson
+瑞幸咖啡 Luckin Coffee | luckincoffee.com | #0022AB | food | 1 | cn | luckin;瑞幸
+喜茶 HeyTea | heytea.com | #000000 | food | 2 | cn | heytea
+蜜雪冰城 Mixue | mxbc.com | #E30613 | food | 2 | cn | mixue
+奈雪的茶 Nayuki | naixue.com | #000000 | food | 3 | cn | nayuki
+海底捞 Haidilao | haidilao.com | #E30613 | food | 2 | cn | haidilao
+屈臣氏 Watsons | watsons.com.cn | #00A0AF | drugstore | 1 | cn | watsons
+百联 Bailian | bl.com | #E30613 | department | 3 | cn | bailian
+中国国航 Air China | airchina.com.cn | #E30613 | travel | 2 | cn | phoenix miles;air china
+东方航空 China Eastern | ceair.com | #002F6C | travel | 2 | cn | eastern miles
+南方航空 China Southern | csair.com | #0066B3 | travel | 2 | cn | sky pearl
+
+# ── Hong Kong & Taiwan ──────────────────────────────────────────────────
+PARKnSHOP | parknshop.com | #E30613 | grocery | 1 | hk | moneyback
+Wellcome | wellcome.com.hk | #E30613 | grocery | 1 | hk | yuu
+Mannings | mannings.com.hk | #F58220 | drugstore | 2 | hk |
+Watsons Hong Kong | watsons.com.hk | #00A0AF | drugstore | 1 | hk | watsons;moneyback
+Cathay | cathaypacific.com | #006564 | travel | 1 | hk | asia miles;cathay pacific
+全聯 PX Mart | pxmart.com.tw | #0054A6 | grocery | 1 | tw | px mart;pxpay
+全家 FamilyMart Taiwan | family.com.tw | #00A040 | grocery | 1 | tw | familymart
+屈臣氏 Watsons Taiwan | watsons.com.tw | #00A0AF | drugstore | 2 | tw | watsons
+
+# ── India & Gulf ────────────────────────────────────────────────────────
+Reliance Smart | relianceretail.com | #00539B | grocery | 2 | in | reliance
+DMart | dmartindia.com | #00843D | grocery | 2 | in |
+Tata Neu | tataneu.com | #5A2D82 | points | 1 | in | neucoins
+Shoppers Stop | shoppersstop.com | #000000 | department | 2 | in | first citizen
+Air India | airindia.com | #DA0000 | travel | 2 | in | maharaja club;flying returns
+Lulu Hypermarket | luluhypermarket.com | #E30613 | grocery | 1 | ae,sa | lulu;happiness
+Carrefour UAE | carrefouruae.com | #004E9F | grocery | 1 | ae | share;maf share
+Panda | panda.com.sa | #00843D | grocery | 1 | sa | panda plus
+Danube | danube.sa | #E30613 | grocery | 2 | sa |
+
+# ── Latin America ───────────────────────────────────────────────────────
+Walmart México | walmart.com.mx | #0071CE | grocery | 1 | mx | walmart
+Soriana | soriana.com | #E30613 | grocery | 1 | mx |
+Chedraui | chedraui.com.mx | #E30613 | grocery | 2 | mx |
+OXXO | oxxo.com | #E30613 | grocery | 1 | mx,co,cl | spin premia;oxxo premia
+Liverpool | liverpool.com.mx | #E10098 | department | 1 | mx |
+Coppel | coppel.com | #FFD100 | department | 2 | mx |
+Sanborns | sanborns.com.mx | #003D7D | department | 3 | mx |
+Club Premier | clubpremier.com | #00205B | travel | 2 | mx | aeromexico rewards;aeroméxico
+Jumbo Chile | jumbo.cl | #00A651 | grocery | 1 | cl | jumbo
+Líder | lider.cl | #0071CE | grocery | 1 | cl | lider
+Falabella | falabella.com | #9BC31C | department | 1 | cl,co | cmr puntos
+Cencosud Puntos | puntoscencosud.cl | #00539B | points | 2 | cl |
+Éxito | exito.com | #FFE600 | grocery | 1 | co | exito;puntos colombia
+Avianca LifeMiles | lifemiles.com | #E30613 | travel | 2 | co | lifemiles
+Coto | coto.com.ar | #E30613 | grocery | 1 | ar |
+Carrefour Argentina | carrefour.com.ar | #004E9F | grocery | 1 | ar | mi carrefour
+
+# ── South Africa & New Zealand ──────────────────────────────────────────
+Pick n Pay | pnp.co.za | #E31837 | grocery | 1 | za | smart shopper
+Checkers | checkers.co.za | #00A651 | grocery | 1 | za | xtra savings
+Shoprite | shoprite.co.za | #E31837 | grocery | 1 | za | xtra savings
+Woolworths SA | woolworths.co.za | #000000 | department | 1 | za | wrewards;woolies
+Spar South Africa | spar.co.za | #E30613 | grocery | 2 | za | spar rewards
+Clicks | clicks.co.za | #00A6D6 | drugstore | 1 | za | clicks clubcard
+Dis-Chem | dischem.co.za | #00A651 | drugstore | 1 | za | dischem
+Makro | makro.co.za | #003F87 | grocery | 2 | za |
+Game | game.co.za | #E30613 | electronics | 3 | za |
+Mr Price | mrp.com | #E30613 | fashion | 2 | za |
+Edgars | edgars.co.za | #000000 | fashion | 3 | za | thank u
+Ackermans | ackermans.co.za | #E30613 | fashion | 3 | za |
+PEP | pepstores.com | #0072BC | fashion | 3 | za |
+Builders | builders.co.za | #FFD200 | diy | 3 | za |
+Engen | engen.co.za | #E30613 | fuel | 2 | za |
+Sasol | sasol.com | #0072BC | fuel | 3 | za |
+Discovery Vitality | discovery.co.za | #004B87 | fitness | 2 | za | vitality
+eBucks | ebucks.com | #00A3E0 | points | 2 | za |
+Woolworths NZ | woolworths.co.nz | #00843D | grocery | 1 | nz | countdown;onecard

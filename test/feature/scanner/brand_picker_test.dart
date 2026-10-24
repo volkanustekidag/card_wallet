@@ -49,6 +49,25 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  test('every market lists its own shops, not its neighbours\'', () {
+    List<String> top(String country) {
+      BrandCatalog.instance.debugZoneCountry = country;
+      return BrandCatalog.instance
+          .popular(limit: 40)
+          .map((b) => b.name)
+          .toList();
+    }
+
+    expect(top('se'), contains('ICA'));
+    expect(top('se'), isNot(contains('Rema 1000')));
+    expect(top('kr'), contains('E-Mart'));
+    expect(top('kr'), isNot(contains('Aeon')));
+    expect(top('jp'), isNot(contains('E-Mart')));
+    expect(top('ar'), isNot(contains('Soriana')));
+    expect(top('ae'), isNot(contains('DMart')));
+    expect(top('za'), contains('Pick n Pay'));
+  });
+
   testWidgets('shows where the list comes from and the local brands',
       (tester) async {
     await openPicker(tester);

@@ -1,5 +1,4 @@
-"""Builds assets/brands/brands.json from catalog.txt (target markets,
-curated) plus other_regions.json (markets not curated yet).
+"""Builds assets/brands/brands.json from catalog.txt (every market, curated).
 
 Run from the repo root: python3 tools/brands/build.py
 """
@@ -9,10 +8,6 @@ HERE = os.path.dirname(__file__)
 KINDS = {'grocery', 'drugstore', 'beauty', 'fashion', 'shoes', 'sports',
          'home', 'diy', 'electronics', 'books', 'pets', 'toys', 'department',
          'fuel', 'food', 'cinema', 'fitness', 'travel', 'points'}
-# Entries in other_regions.json that catalog.txt now covers.
-SUPERSEDED = {'Emirates Skywards', 'Etihad Guest', 'Qatar Airways Privilege Club',
-              '7-Eleven', 'Uniqlo', 'Lidl Suomi', 'LATAM Pass', 'Countdown'}
-
 def fail(msg):
     sys.exit('catalog.txt: ' + msg)
 
@@ -50,12 +45,7 @@ for no, line in enumerate(open(os.path.join(HERE, 'catalog.txt'), encoding='utf-
         e['a'] = al
     entries.append(e)
 
-others = [e for e in json.load(open(os.path.join(HERE, 'other_regions.json'), encoding='utf-8'))
-          if e['n'] not in SUPERSEDED]
-for e in others:
-    e['p'] = 3
-
-out = entries + others
+out = entries
 path = os.path.join(HERE, '..', '..', 'assets', 'brands', 'brands.json')
 with open(path, 'w', encoding='utf-8') as f:
     json.dump(out, f, ensure_ascii=False, separators=(',', ':'))
