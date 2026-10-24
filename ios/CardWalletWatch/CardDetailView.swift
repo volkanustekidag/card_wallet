@@ -79,12 +79,20 @@ private struct BarcodePanel: View {
     let card: LoyaltyCard
     let maxHeight: CGFloat
 
+    private var isQR: Bool {
+        ["QR_CODE", "QRCODE", "QR"].contains(card.format.uppercased())
+    }
+
     var body: some View {
         RoundedRectangle(cornerRadius: 10)
             .fill(Color.white)
+            .aspectRatio(isQR ? 1 : nil, contentMode: .fit)
             .frame(maxHeight: maxHeight)
             .overlay {
-                if let modules = WatchBarcodeRenderer.modules(
+                if isQR, let qr = WatchQRCode.encode(card.barcode) {
+                    WatchQRModulesView(modules: qr)
+                        .padding(8)
+                } else if let modules = WatchBarcodeRenderer.modules(
                     for: card.barcode,
                     format: card.format
                 ) {
