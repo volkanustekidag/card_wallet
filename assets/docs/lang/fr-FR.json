@@ -905,5 +905,6 @@
     "cwViewHintBody": "Passez ici de la pile de cartes à la grille.",
     "cwOneTime": "une fois",
     "cwLifetimeTerms": "{} une seule fois. Pas d’abonnement, rien ne se renouvelle.",
-    "cwLifetimeCancelSub": "L’accès à vie est à vous. Résiliez ici votre ancien abonnement pour qu’il ne se renouvelle pas."
+    "cwLifetimeCancelSub": "L’accès à vie est à vous. Résiliez ici votre ancien abonnement pour qu’il ne se renouvelle pas.",
+    "cwFormatQr": "Code QR"
 }

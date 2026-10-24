@@ -905,5 +905,6 @@
     "cwViewHintBody": "Wissel hier tussen de kaartenstapel en een raster.",
     "cwOneTime": "eenmalig",
     "cwLifetimeTerms": "Eenmalig {}. Geen abonnement, niets wordt verlengd.",
-    "cwLifetimeCancelSub": "Levenslang is van jou. Zeg hier je oude abonnement op zodat het niet verlengt."
+    "cwLifetimeCancelSub": "Levenslang is van jou. Zeg hier je oude abonnement op zodat het niet verlengt.",
+    "cwFormatQr": "QR-code"
 }

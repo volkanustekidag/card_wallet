@@ -1,4 +1,4 @@
-# Deckard 2.2.0 (45) — Gizlilik beyanları
+# Deckard 2.2.0 (46) — Gizlilik beyanları
 
 Bu doküman kodu okuyarak hazırlandı (`origin/main` 0d92076 + PR #8; PR #9 sonrası b4e27e1'de yeni olaylar için tekrar kontrol edildi). Her cevabın yanında hangi dosyadan çıkarıldığı yazıyor. SDK davranışı için Google'ın resmi açıklama sayfaları kullanıldı (en altta). Konsolda cevap verirken bu tabloları kullan. Kod değişirse burayı da güncelle.
 

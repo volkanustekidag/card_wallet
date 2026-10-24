@@ -905,5 +905,6 @@
     "cwViewHintBody": "Switch between the card stack and a grid here.",
     "cwOneTime": "one-time",
     "cwLifetimeTerms": "{} once. No subscription, nothing renews.",
-    "cwLifetimeCancelSub": "Lifetime is yours. Cancel your old subscription here so it doesn't renew."
+    "cwLifetimeCancelSub": "Lifetime is yours. Cancel your old subscription here so it doesn't renew.",
+    "cwFormatQr": "QR code"
 }

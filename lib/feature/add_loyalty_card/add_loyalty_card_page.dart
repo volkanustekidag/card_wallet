@@ -159,7 +159,7 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
             children: [
               for (final f in kLoyaltyBarcodeFormats)
                 CwRow(
-                  title: f.label,
+                  title: barcodeFormatLabel(f.code),
                   trailing: f.code == current
                       ? CwIcon(CwIcons.check, color: CwColors.of(sheet).accent)
                       : null,

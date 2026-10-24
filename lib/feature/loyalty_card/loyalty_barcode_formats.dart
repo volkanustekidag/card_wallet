@@ -1,3 +1,5 @@
+import 'package:easy_localization/easy_localization.dart';
+
 /// Supported barcode formats. Names match `google_mlkit_barcode_scanning`'s
 /// BarcodeFormat enum so that scanned values from a future scanner can be
 /// stored verbatim.
@@ -42,8 +44,10 @@ const Set<String> kDigitOnlyBarcodeFormats = {
 bool isDigitOnlyBarcodeFormat(String format) =>
     kDigitOnlyBarcodeFormats.contains(format);
 
-/// Display label for a stored format code ("EAN_13" → "EAN-13").
+/// Display label for a stored format code ("EAN_13" → "EAN-13"). Format
+/// names are the same in every language except "QR code".
 String barcodeFormatLabel(String code) {
+  if (code == 'QR_CODE') return 'cwFormatQr'.tr();
   for (final f in kLoyaltyBarcodeFormats) {
     if (f.code == code) return f.label;
   }

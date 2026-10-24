@@ -905,5 +905,6 @@
     "cwViewHintBody": "Alterne aqui entre a pilha de cartões e a grade.",
     "cwOneTime": "pagamento único",
     "cwLifetimeTerms": "{} uma única vez. Sem assinatura, nada é renovado.",
-    "cwLifetimeCancelSub": "O vitalício é seu. Cancele aqui a assinatura antiga para ela não renovar."
+    "cwLifetimeCancelSub": "O vitalício é seu. Cancele aqui a assinatura antiga para ela não renovar.",
+    "cwFormatQr": "Código QR"
 }

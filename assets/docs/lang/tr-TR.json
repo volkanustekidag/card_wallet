@@ -905,5 +905,6 @@
     "cwViewHintBody": "Kart destesi ile ızgara arasında buradan geçiş yap.",
     "cwOneTime": "tek sefer",
     "cwLifetimeTerms": "Tek seferlik {}. Abonelik yok, yenilenmez.",
-    "cwLifetimeCancelSub": "Ömür boyu artık senin. Eski aboneliğin yenilenmesin diye buradan iptal et."
+    "cwLifetimeCancelSub": "Ömür boyu artık senin. Eski aboneliğin yenilenmesin diye buradan iptal et.",
+    "cwFormatQr": "QR kod"
 }

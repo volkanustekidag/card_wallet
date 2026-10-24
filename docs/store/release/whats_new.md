@@ -1,4 +1,4 @@
-# Deckard 2.2.0 (45) — Sürüm notları
+# Deckard 2.2.0 (46) — Sürüm notları
 
 Konsola kopyalanacak "What's new" / "Bu sürümdeki yenilikler" metinleri. 2.1.0 ayrı yayınlanmıyor; bu metinler 2.0.0'dan sonraki her şeyi (2.1 + 2.2 değişiklikleri) tek sürüm olarak anlatıyor.
 

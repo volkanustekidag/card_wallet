@@ -905,5 +905,6 @@
     "cwViewHintBody": "Passa qui dalla pila di carte alla griglia.",
     "cwOneTime": "una tantum",
     "cwLifetimeTerms": "{} una volta sola. Nessun abbonamento, niente rinnovi.",
-    "cwLifetimeCancelSub": "A vita è tuo. Annulla qui il vecchio abbonamento così non si rinnova."
+    "cwLifetimeCancelSub": "A vita è tuo. Annulla qui il vecchio abbonamento così non si rinnova.",
+    "cwFormatQr": "Codice QR"
 }

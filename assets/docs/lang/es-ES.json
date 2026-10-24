@@ -905,5 +905,6 @@
     "cwViewHintBody": "Cambia aquí entre la pila de tarjetas y la cuadrícula.",
     "cwOneTime": "pago único",
     "cwLifetimeTerms": "{} una sola vez. Sin suscripción, nada se renueva.",
-    "cwLifetimeCancelSub": "De por vida es tuyo. Cancela aquí tu suscripción anterior para que no se renueve."
+    "cwLifetimeCancelSub": "De por vida es tuyo. Cancela aquí tu suscripción anterior para que no se renueve.",
+    "cwFormatQr": "Código QR"
 }

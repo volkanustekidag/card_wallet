@@ -1,4 +1,4 @@
-# Deckard 2.2.0 (45) — Mağaza sayfası metinleri
+# Deckard 2.2.0 (46) — Mağaza sayfası metinleri
 
 Başlangıç noktası Mayıs taslakları (`toronto/app_store_metadata_2026-05-26.md`, `google_play_metadata_by_language_2026-05-28.md`, `aso_country_strategy_2026-05-28.md`, `store_metadata_plan_2026-05-26.md`). Bu sürümde yapılan değişiklikler:
 
