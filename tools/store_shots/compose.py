@@ -4,7 +4,7 @@ Raw captures (from the simulators / emulators, see README.md) go in RAW;
 the finished files land in the fastlane folders:
 
   fastlane/screenshots/<App Store locale>/          6 x 1290x2796 (6.9" slot)
-  fastlane/creative_assets/<App Store locale>/      header 5244x2950, search 3840x1646
+  fastlane/creative_assets/<App Store locale>/      header 5244x2950, search 3840x2560
   fastlane/metadata/android/<Play locale>/images/   phoneScreenshots 6 x 1080x1920,
                                                      featureGraphic 1024x500,
   fastlane/alt/android/<Play locale>/4_without_wear.png   frame 4 until Wear OS ships
@@ -374,7 +374,7 @@ def main():
             frame('android', m, i, (1080, 1920)).save(os.path.join(play_dir, 'phoneScreenshots', f'{i}.png'), optimize=True)
         frame('android', m, 4, (1080, 1920), wear=False).save(os.path.join(alt_dir, '4_without_wear.png'), optimize=True)
         hero((5244, 2950), 'ios', m, c['f1'], c['s1']).save(os.path.join(ca_dir, 'header_5244x2950.png'), optimize=True)
-        hero((3840, 1646), 'ios', m, c['f1'], c['s1']).save(os.path.join(ca_dir, 'search_3840x1646.png'), optimize=True)
+        hero((3840, 2560), 'ios', m, c['f1'], c['s1']).save(os.path.join(ca_dir, 'search_3840x2560.png'), optimize=True)
         hero((1024, 500), 'android', m, c['f1'], c['s1']).save(os.path.join(play_dir, 'featureGraphic.png'), optimize=True)
         src = os.path.join(RAW, 'wear', f'{m}_card.png')
         if os.path.exists(src):

@@ -8,7 +8,7 @@
 |---|---|---|
 | App Store ekran görüntüleri | `fastlane/screenshots/<dil>/iPhone69_1..6.png` | 1290×2796 (6.9" yuvası), 6 kare |
 | App Store creative assets (ürün sayfası başlığı) | `fastlane/creative_assets/<dil>/header_5244x2950.png` | 5244×2950 |
-| App Store creative assets (arama sonucu) | `fastlane/creative_assets/<dil>/search_3840x1646.png` | 3840×1646 |
+| App Store creative assets (arama sonucu) | `fastlane/creative_assets/<dil>/search_3840x2560.png` | 3840×2560 |
 | App Store metinleri | `fastlane/metadata/ios/<dil>/` | isim, alt başlık, anahtar kelimeler, promosyon, açıklama, sürüm notu |
 | Play ekran görüntüleri | `fastlane/metadata/android/<dil>/images/phoneScreenshots/1..6.png` | 1080×1920, 6 kare |
 | Play öne çıkan görsel | `fastlane/metadata/android/<dil>/images/featureGraphic.png` | 1024×500 |
