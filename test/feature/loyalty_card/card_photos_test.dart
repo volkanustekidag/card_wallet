@@ -115,7 +115,7 @@ void main() {
     testWidgets('a front photo makes the barcode optional', (tester) async {
       await phoneSurface(tester);
       await pumpApp(tester, const Scaffold(body: Text('HOME')));
-      Get.to<void>(() => const AddLoyaltyCardPage());
+      Get.to<void>(() => const AddLoyaltyCardPage(brandFirst: false));
       await tester.pumpAndSettle();
       final c = Get.find<AddLoyaltyCardController>();
 
@@ -141,7 +141,7 @@ void main() {
     testWidgets('saves a photo-only card', (tester) async {
       await phoneSurface(tester);
       await pumpApp(tester, const Scaffold(body: Text('HOME')));
-      Get.to<void>(() => const AddLoyaltyCardPage());
+      Get.to<void>(() => const AddLoyaltyCardPage(brandFirst: false));
       await tester.pumpAndSettle();
       final c = Get.find<AddLoyaltyCardController>();
       await tester.enterText(fieldLabelled('cwName'.tr()), 'City Library');

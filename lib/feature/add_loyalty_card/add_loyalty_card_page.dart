@@ -25,9 +25,15 @@ import 'package:wallet_app/ui/typography.dart';
 /// Add / edit a loyalty card by hand: any brand from any country — pick it
 /// from the catalogue or just type your own name. The barcode can be typed
 /// or scanned; its format is checked before saving.
+///
+/// A new card starts from the brand ([brandFirst]): people think "Migros",
+/// not "a name for my card". Picking one fills name, colour and site and
+/// moves on to the number; skipping it lands on the name.
 class AddLoyaltyCardPage extends StatefulWidget {
   final LoyaltyCard? card;
-  const AddLoyaltyCardPage({Key? key, this.card}) : super(key: key);
+  final bool brandFirst;
+  const AddLoyaltyCardPage({Key? key, this.card, this.brandFirst = true})
+      : super(key: key);
 
   @override
   State<AddLoyaltyCardPage> createState() => _AddLoyaltyCardPageState();
@@ -38,6 +44,10 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
   final _name = TextEditingController();
   final _barcode = TextEditingController();
   final _website = TextEditingController();
+  final _nameFocus = FocusNode();
+  final _barcodeFocus = FocusNode();
+
+  bool get _startFromBrand => widget.card == null && widget.brandFirst;
 
   /// The format was set on purpose (picked, scanned or an existing card's):
   /// typing the number no longer guesses it.
@@ -55,6 +65,23 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
     _name.text = card.name;
     _barcode.text = card.barcode;
     _website.text = card.website ?? '';
+    if (_startFromBrand) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _pickBrandFirst();
+      });
+    }
+  }
+
+  Future<void> _pickBrandFirst() async {
+    final picked = await showBrandPicker(context);
+    if (!mounted) return;
+    final brand = picked?.brand;
+    if (brand != null) {
+      _applyBrand(brand);
+      _barcodeFocus.requestFocus();
+    } else {
+      _nameFocus.requestFocus();
+    }
   }
 
   @override
@@ -62,6 +89,8 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
     _name.dispose();
     _barcode.dispose();
     _website.dispose();
+    _nameFocus.dispose();
+    _barcodeFocus.dispose();
     super.dispose();
   }
 
@@ -172,23 +201,29 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
               : null,
         ),
         children: [
+          // New cards start from the brand; editing starts from the name.
+          if (_startFromBrand) ...[
+            _BrandRow(brand: card.brand, onTap: _pickBrand),
+            const SizedBox(height: 10),
+          ],
           CwField(
             controller: _name,
+            focusNode: _nameFocus,
             label: 'cwName'.tr(),
             hint: 'cwCardNameHint'.tr(),
-            autofocus: !editing,
+            autofocus: !editing && !_startFromBrand,
             textCapitalization: TextCapitalization.words,
             maxLength: 40,
             onChanged: (v) => _c.updateField('name', v),
           ),
-          const SizedBox(height: 10),
-          _BrandRow(
-            brand: card.brand,
-            onTap: _pickBrand,
-          ),
+          if (!_startFromBrand) ...[
+            const SizedBox(height: 10),
+            _BrandRow(brand: card.brand, onTap: _pickBrand),
+          ],
           const SizedBox(height: 10),
           CwField(
             controller: _barcode,
+            focusNode: _barcodeFocus,
             label: 'cwBarcodeNumber'.tr(),
             mono: true,
             maxLength: 120,

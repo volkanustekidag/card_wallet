@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/brands/brand_catalog.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
@@ -184,7 +185,7 @@ void main() {
     });
 
     testWidgets('needs a name and a number', (tester) async {
-      await open(tester, const AddLoyaltyCardPage());
+      await open(tester, const AddLoyaltyCardPage(brandFirst: false));
       expect(submit(tester).onPressed, isNull);
       await tester.enterText(fieldLabelled('cwName'.tr()), 'Corner Cafe');
       await tester.pump();
@@ -196,7 +197,7 @@ void main() {
     });
 
     testWidgets('a typed EAN-13 number gets the EAN-13 format', (tester) async {
-      await open(tester, const AddLoyaltyCardPage());
+      await open(tester, const AddLoyaltyCardPage(brandFirst: false));
       final c = Get.find<AddLoyaltyCardController>();
       await tester.enterText(
           fieldLabelled('cwBarcodeNumber'.tr()), '4006381333931');
@@ -207,8 +208,57 @@ void main() {
       expect(c.currentCard.value.barcodeFormat, 'CODE_128');
     });
 
+    group('starts from the brand', () {
+      setUp(() {
+        BrandCatalog.instance.debugSetEntries([
+          BrandEntry(
+              name: 'Migros',
+              domain: 'migros.com.tr',
+              color: 0xFFFF6600,
+              regions: ['tr']),
+        ]);
+        BrandCatalog.instance.debugZoneCountry = 'tr';
+      });
+      tearDown(() => BrandCatalog.instance.debugZoneCountry = null);
+
+      EditableText field(WidgetTester tester, String label) =>
+          tester.widget<EditableText>(fieldLabelled(label));
+
+      testWidgets('a new card opens the brand search; picking one fills it in',
+          (tester) async {
+        await open(tester, const AddLoyaltyCardPage());
+        expect(find.byKey(const ValueKey('Migros')), findsOneWidget);
+        await tester.tap(find.byKey(const ValueKey('Migros')));
+        await tester.pumpAndSettle();
+
+        final c = Get.find<AddLoyaltyCardController>();
+        expect(c.currentCard.value.name, 'Migros');
+        expect(c.currentCard.value.brand, 'Migros');
+        expect(c.currentCard.value.brandColor, 0xFFFF6600);
+        expect(field(tester, 'cwBarcodeNumber'.tr()).focusNode.hasFocus,
+            isTrue);
+      });
+
+      testWidgets('skipping the brand lands on the name', (tester) async {
+        await open(tester, const AddLoyaltyCardPage());
+        await tester.tapAt(const Offset(200, 20)); // outside the sheet
+        await tester.pumpAndSettle();
+        expect(find.byKey(const ValueKey('Migros')), findsNothing);
+        expect(field(tester, 'cwName'.tr()).focusNode.hasFocus, isTrue);
+      });
+
+      testWidgets('editing starts from the name, no brand search',
+          (tester) async {
+        await open(
+            tester,
+            AddLoyaltyCardPage(
+                card: loyalty('a', 'Corner Cafe', barcode: '4006381333931')));
+        expect(find.byKey(const ValueKey('Migros')), findsNothing);
+      });
+    });
+
     testWidgets('saves the card', (tester) async {
-      await open(tester, const AddLoyaltyCardPage());
+      await open(tester, const AddLoyaltyCardPage(brandFirst: false));
       await tester.enterText(fieldLabelled('cwName'.tr()), 'Corner Cafe');
       await tester.enterText(
           fieldLabelled('cwBarcodeNumber'.tr()), '4006381333931');
