@@ -57,4 +57,38 @@ platform :android do
       sync_image_upload: true
     )
   end
+
+  desc "Upload the Wear OS AAB to a Wear track as a draft (build: tools/release_build.sh android)"
+  lane :wear do |options|
+    supply(
+      json_key: ENV.fetch("PLAY_JSON_KEY"),
+      aab: "build/wear/outputs/bundle/release/wear-release.aab",
+      track: options[:track] || "wear:internal",
+      release_status: "draft",
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
+  desc "Wear OS screenshots for every locale (once the Wear form factor is on)"
+  lane :wear_screenshots do
+    Dir.glob("later/wear/*").each do |dir|
+      locale = File.basename(dir)
+      dest = "metadata/android/#{locale}/images/wearScreenshots"
+      FileUtils.mkdir_p(dest)
+      FileUtils.cp(Dir.glob("#{dir}/*.png"), dest)
+    end
+    supply(
+      json_key: ENV.fetch("PLAY_JSON_KEY"),
+      metadata_path: "./fastlane/metadata/android",
+      skip_upload_apk: true,
+      skip_upload_aab: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: false
+    )
+  end
 end

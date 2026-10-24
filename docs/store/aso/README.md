@@ -92,3 +92,13 @@ Ham çekimler `.context/store_raw/` altında (git dışı). Akış ve betikler `
 - Widget'lar: `widgetshot/` küçük bir SwiftUI uygulaması; widget'ın kendi Swift dosyalarını (`ios/LoyaltyWidget/*.swift`) kopyalayıp görüntüye çevirir.
 - Apple Watch: `watch_cap.py` saat simülatörüne kartları yazar ve çeker.
 - Son olarak `compose.py` hepsini şablona yerleştirir; başlıklar `captions.json`'da.
+
+## Wear OS'u Play'e yüklemek
+
+Hazır: hedef API 36 (`0950bd4`), Wear Compose 1.5, yayın derlemesi küçültmeyle geçiyor, Wear OS ekran görüntüleri `fastlane/later/wear/<dil>/1.png` (454×454, yuvarlak, çerçevesiz; Play'in kuralına uygun).
+
+1. Play Console › Test ve yayınla › Gelişmiş ayarlar › Form faktörleri › **Wear OS ekle**. Wear OS kalite kurallarını kabul et.
+2. İmzalı AAB: `tools/release_build.sh android` (telefon ve Wear AAB'si birlikte; Wear sürüm kodu 100000000 + telefon).
+3. `PLAY_JSON_KEY=~/keys/play.json fastlane android wear`. AAB'yi `wear:internal` kanalına **taslak** olarak yükler; yayınlamaz. Başka kanal için `track:wear:production`.
+4. `fastlane android wear_screenshots`: Wear görüntülerini 9 dile yükler.
+5. Wear yayına girdikten sonra Play'in 4. karesi Wear'li sürüme dönebilir (`phoneScreenshots/4.png` zaten öyle); o zamana kadar `fastlane/alt/android/<dil>/4_without_wear.png`.
