@@ -7,16 +7,20 @@ import 'package:wallet_app/feature/card_detail/bank_card_page.dart';
 import 'package:wallet_app/feature/card_detail/iban_page.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_card_detail_page.dart';
+import 'package:wallet_app/ui/card/wallet_card_faces.dart';
+import 'package:wallet_app/ui/navigation/card_expand_route.dart';
 
 /// Single entry point for "open this card" from anywhere (home stack,
-/// Up Next, search, lists). Loyalty cards go straight to Checkout.
+/// Up Next, search, lists). Loyalty cards go straight to Checkout, growing
+/// out of the card (or row) [context] belongs to.
 Future<void> openWalletItem(BuildContext context, WalletItem item) async {
   switch (item.kind) {
     case WalletItemKind.loyalty:
-      await Get.to<void>(
-        () => LoyaltyCardDetailPage(card: item.card as LoyaltyCard),
-        transition: Transition.cupertino,
-      );
+      await Navigator.of(context).push(CardExpandRoute<void>(
+        origin: originRectOf(context),
+        material: materialForItem(item),
+        builder: (_) => LoyaltyCardDetailPage(card: item.card as LoyaltyCard),
+      ));
       break;
     case WalletItemKind.credit:
       await Get.to<void>(

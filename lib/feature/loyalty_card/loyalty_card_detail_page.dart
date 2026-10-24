@@ -31,6 +31,7 @@ import 'package:wallet_app/feature/loyalty_card/widgets/shareable_loyalty_card.d
 import 'package:wallet_app/ui/card/wallet_card_faces.dart';
 import 'package:wallet_app/ui/components/cw_list.dart';
 import 'package:wallet_app/ui/components/cw_misc.dart';
+import 'package:wallet_app/ui/navigation/card_expand_route.dart';
 import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/ui/tokens.dart';
 import 'package:wallet_app/ui/typography.dart';
@@ -145,20 +146,7 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
         body: Stack(
           children: [
             Positioned.fill(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    center: const Alignment(0, -1),
-                    radius: 1.35,
-                    colors: [
-                      m.colors[m.colors.length > 2 ? 2 : 0],
-                      m.base,
-                      m.colors.first
-                    ],
-                    stops: const [0, 0.45, 1],
-                  ),
-                ),
-              ),
+              child: DecoratedBox(decoration: checkoutBackground(m)),
             ),
             SafeArea(
               child: Column(
@@ -170,83 +158,87 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
                     onMore: _openMore,
                   ),
                   Expanded(
-                    child: ListView(
-                      padding:
-                          EdgeInsets.fromLTRB(18, 10, 18, readOnly ? 24 : 120),
-                      children: [
-                        Center(child: CardLogoChip(item: item, size: 64)),
-                        const SizedBox(height: 12),
-                        Text(
-                          titleForItem(item),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: CwType.title.copyWith(color: fg, fontSize: 24),
-                        ),
-                        if (brand.isNotEmpty && brand != card.name.trim())
-                          Padding(
-                            padding: const EdgeInsets.only(top: 2),
-                            child: Text(
-                              brand,
-                              textAlign: TextAlign.center,
-                              style: CwType.footnote
-                                  .copyWith(color: fg.withValues(alpha: 0.7)),
+                    child: CheckoutRiseIn(
+                      child: ListView(
+                        padding: EdgeInsets.fromLTRB(
+                            18, 10, 18, readOnly ? 24 : 120),
+                        children: [
+                          Center(child: CardLogoChip(item: item, size: 64)),
+                          const SizedBox(height: 12),
+                          Text(
+                            titleForItem(item),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style:
+                                CwType.title.copyWith(color: fg, fontSize: 24),
+                          ),
+                          if (brand.isNotEmpty && brand != card.name.trim())
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(
+                                brand,
+                                textAlign: TextAlign.center,
+                                style: CwType.footnote
+                                    .copyWith(color: fg.withValues(alpha: 0.7)),
+                              ),
                             ),
-                          ),
-                        const SizedBox(height: 24),
-                        if (card.hasBarcode) ...[
-                          _BarcodePanel(
-                            card: card,
-                            valid: check.isValid,
-                            onTap: () => _openLandscape(),
-                            onFix: readOnly ? null : _onEdit,
-                          ),
-                          const SizedBox(height: 16),
-                          _Hint(
-                            fg: fg,
-                            icon: CwIcons.rotate,
-                            text: 'cwTurnSideways'.tr(),
-                          ),
-                          if (card.photoIds.isNotEmpty) ...[
-                            const SizedBox(height: 18),
-                            _PhotoStrip(
+                          const SizedBox(height: 24),
+                          if (card.hasBarcode) ...[
+                            _BarcodePanel(
                               card: card,
+                              valid: check.isValid,
+                              onTap: () => _openLandscape(),
+                              onFix: readOnly ? null : _onEdit,
+                            ),
+                            const SizedBox(height: 16),
+                            _Hint(
                               fg: fg,
+                              icon: CwIcons.rotate,
+                              text: 'cwTurnSideways'.tr(),
+                            ),
+                            if (card.photoIds.isNotEmpty) ...[
+                              const SizedBox(height: 18),
+                              _PhotoStrip(
+                                card: card,
+                                fg: fg,
+                                onOpen: (i) =>
+                                    showCardPhotos(context, card, initial: i),
+                              ),
+                            ],
+                          ] else ...[
+                            _PhotoPanel(
+                              card: card,
                               onOpen: (i) =>
                                   showCardPhotos(context, card, initial: i),
                             ),
-                          ],
-                        ] else ...[
-                          _PhotoPanel(
-                            card: card,
-                            onOpen: (i) =>
-                                showCardPhotos(context, card, initial: i),
-                          ),
-                          const SizedBox(height: 16),
-                          _Hint(
-                            fg: fg,
-                            icon: CwIcons.photos,
-                            text: 'cwShowPhotoAtCheckout'.tr(),
-                          ),
-                        ],
-                        if (hasNotes) ...[
-                          const SizedBox(height: 18),
-                          _GlassBox(
-                            fg: fg,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('cwNotes'.tr().toUpperCase(),
-                                    style: CwType.overline.copyWith(
-                                        color: fg.withValues(alpha: 0.7))),
-                                const SizedBox(height: 6),
-                                SelectableText(card.notes!.trim(),
-                                    style: CwType.callout.copyWith(color: fg)),
-                              ],
+                            const SizedBox(height: 16),
+                            _Hint(
+                              fg: fg,
+                              icon: CwIcons.photos,
+                              text: 'cwShowPhotoAtCheckout'.tr(),
                             ),
-                          ),
+                          ],
+                          if (hasNotes) ...[
+                            const SizedBox(height: 18),
+                            _GlassBox(
+                              fg: fg,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('cwNotes'.tr().toUpperCase(),
+                                      style: CwType.overline.copyWith(
+                                          color: fg.withValues(alpha: 0.7))),
+                                  const SizedBox(height: 6),
+                                  SelectableText(card.notes!.trim(),
+                                      style:
+                                          CwType.callout.copyWith(color: fg)),
+                                ],
+                              ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
                 ],
