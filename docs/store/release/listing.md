@@ -22,83 +22,85 @@ Kurallar:
 
 - **v2 tasarım (aynı 2.2.0 sürümü):** promosyon metni ve açıklamalara tek kamera (barkod + banka kartı + IBAN, fotoğraftan da), Sıradaki (cihazda öğrenilir), başka uygulamadan içe aktarma (dışa aktarma dosyası / tablo / Apple Wallet kartı, Play'de .pkpass), 700+ marka ve Sıradaki widget'ı eklendi. Rakip uygulama adı geçmiyor; "eski uygulamandan" deniyor. Ücretsiz sınırlar ve Premium listesi değişmedi.
 
+- **24 Eki — iOS 27 sonrası mesaj:** iOS 27'de Apple Wallet her barkodlu kartı ekleyebiliyor. Promosyon metni ve açıklamaların ilk paragrafı "kartları sakla"dan "kasada doğru kart en üstte + banka kartı ve IBAN yanında" çizgisine çekildi. İsim, alt başlık, anahtar kelimeler ve Play kısa açıklaması (ASO alanları) değişmedi; ASO turunda ele alınacak. Marka sayısı katalogla eşitlendi: 596 marka var, metinde "500+".
+
 Uzunlukları yeniden saymak için: `python3 tools/check_store_text.py --write docs/store/release/listing.md`
 
 <!-- lengths:start -->
 | Dil | Alan | Uzunluk | Sınır | Durum |
 |---|---|---:|---:|---|
-| en-US | App Store — Name | 25 | 30 | ✅ |
+| en-US | App Store — Name | 22 | 30 | ✅ |
 | en-US | App Store — Subtitle | 28 | 30 | ✅ |
 | en-US | App Store — Keywords | 96 bayt | 100 bayt | ✅ |
-| en-US | App Store — Promotional Text | 142 | 170 | ✅ |
-| en-US | App Store — Description | 2456 | 4000 | ✅ |
-| en-US | Google Play — Title | 25 | 30 | ✅ |
+| en-US | App Store — Promotional Text | 154 | 170 | ✅ |
+| en-US | App Store — Description | 2587 | 4000 | ✅ |
+| en-US | Google Play — Title | 22 | 30 | ✅ |
 | en-US | Google Play — Short description | 76 | 80 | ✅ |
-| en-US | Google Play — Full description | 2331 | 4000 | ✅ |
-| tr-TR | App Store — Name | 24 | 30 | ✅ |
+| en-US | Google Play — Full description | 2462 | 4000 | ✅ |
+| tr-TR | App Store — Name | 21 | 30 | ✅ |
 | tr-TR | App Store — Subtitle | 30 | 30 | ✅ |
 | tr-TR | App Store — Keywords | 86 bayt | 100 bayt | ✅ |
-| tr-TR | App Store — Promotional Text | 141 | 170 | ✅ |
-| tr-TR | App Store — Description | 2632 | 4000 | ✅ |
-| tr-TR | Google Play — Title | 24 | 30 | ✅ |
+| tr-TR | App Store — Promotional Text | 151 | 170 | ✅ |
+| tr-TR | App Store — Description | 2747 | 4000 | ✅ |
+| tr-TR | Google Play — Title | 21 | 30 | ✅ |
 | tr-TR | Google Play — Short description | 75 | 80 | ✅ |
-| tr-TR | Google Play — Full description | 2536 | 4000 | ✅ |
-| de-DE | App Store — Name | 24 | 30 | ✅ |
+| tr-TR | Google Play — Full description | 2651 | 4000 | ✅ |
+| de-DE | App Store — Name | 21 | 30 | ✅ |
 | de-DE | App Store — Subtitle | 30 | 30 | ✅ |
 | de-DE | App Store — Keywords | 100 bayt | 100 bayt | ✅ |
-| de-DE | App Store — Promotional Text | 137 | 170 | ✅ |
-| de-DE | App Store — Description | 2805 | 4000 | ✅ |
-| de-DE | Google Play — Title | 24 | 30 | ✅ |
+| de-DE | App Store — Promotional Text | 157 | 170 | ✅ |
+| de-DE | App Store — Description | 2950 | 4000 | ✅ |
+| de-DE | Google Play — Title | 21 | 30 | ✅ |
 | de-DE | Google Play — Short description | 77 | 80 | ✅ |
-| de-DE | Google Play — Full description | 2672 | 4000 | ✅ |
-| fr-FR | App Store — Name | 28 | 30 | ✅ |
+| de-DE | Google Play — Full description | 2817 | 4000 | ✅ |
+| fr-FR | App Store — Name | 25 | 30 | ✅ |
 | fr-FR | App Store — Subtitle | 30 | 30 | ✅ |
 | fr-FR | App Store — Keywords | 99 bayt | 100 bayt | ✅ |
-| fr-FR | App Store — Promotional Text | 136 | 170 | ✅ |
-| fr-FR | App Store — Description | 2905 | 4000 | ✅ |
-| fr-FR | Google Play — Title | 28 | 30 | ✅ |
+| fr-FR | App Store — Promotional Text | 165 | 170 | ✅ |
+| fr-FR | App Store — Description | 3068 | 4000 | ✅ |
+| fr-FR | Google Play — Title | 25 | 30 | ✅ |
 | fr-FR | Google Play — Short description | 72 | 80 | ✅ |
-| fr-FR | Google Play — Full description | 2778 | 4000 | ✅ |
-| es-ES | App Store — Name | 30 | 30 | ✅ |
+| fr-FR | Google Play — Full description | 2941 | 4000 | ✅ |
+| es-ES | App Store — Name | 27 | 30 | ✅ |
 | es-ES | App Store — Subtitle | 29 | 30 | ✅ |
 | es-ES | App Store — Keywords | 95 bayt | 100 bayt | ✅ |
-| es-ES | App Store — Promotional Text | 138 | 170 | ✅ |
-| es-ES | App Store — Description | 2726 | 4000 | ✅ |
-| es-ES | Google Play — Title | 30 | 30 | ✅ |
+| es-ES | App Store — Promotional Text | 163 | 170 | ✅ |
+| es-ES | App Store — Description | 2887 | 4000 | ✅ |
+| es-ES | Google Play — Title | 27 | 30 | ✅ |
 | es-ES | Google Play — Short description | 77 | 80 | ✅ |
-| es-ES | Google Play — Full description | 2572 | 4000 | ✅ |
-| pt-BR | App Store — Name | 29 | 30 | ✅ |
+| es-ES | Google Play — Full description | 2733 | 4000 | ✅ |
+| pt-BR | App Store — Name | 26 | 30 | ✅ |
 | pt-BR | App Store — Subtitle | 30 | 30 | ✅ |
 | pt-BR | App Store — Keywords | 99 bayt | 100 bayt | ✅ |
-| pt-BR | App Store — Promotional Text | 142 | 170 | ✅ |
-| pt-BR | App Store — Description | 2686 | 4000 | ✅ |
-| pt-BR | Google Play — Title | 29 | 30 | ✅ |
+| pt-BR | App Store — Promotional Text | 163 | 170 | ✅ |
+| pt-BR | App Store — Description | 2832 | 4000 | ✅ |
+| pt-BR | Google Play — Title | 26 | 30 | ✅ |
 | pt-BR | Google Play — Short description | 74 | 80 | ✅ |
-| pt-BR | Google Play — Full description | 2555 | 4000 | ✅ |
-| it-IT | App Store — Name | 25 | 30 | ✅ |
+| pt-BR | Google Play — Full description | 2701 | 4000 | ✅ |
+| it-IT | App Store — Name | 22 | 30 | ✅ |
 | it-IT | App Store — Subtitle | 27 | 30 | ✅ |
 | it-IT | App Store — Keywords | 99 bayt | 100 bayt | ✅ |
-| it-IT | App Store — Promotional Text | 141 | 170 | ✅ |
-| it-IT | App Store — Description | 2706 | 4000 | ✅ |
-| it-IT | Google Play — Title | 25 | 30 | ✅ |
+| it-IT | App Store — Promotional Text | 159 | 170 | ✅ |
+| it-IT | App Store — Description | 2858 | 4000 | ✅ |
+| it-IT | Google Play — Title | 22 | 30 | ✅ |
 | it-IT | Google Play — Short description | 70 | 80 | ✅ |
-| it-IT | Google Play — Full description | 2567 | 4000 | ✅ |
-| nl-NL | App Store — Name | 26 | 30 | ✅ |
+| it-IT | Google Play — Full description | 2719 | 4000 | ✅ |
+| nl-NL | App Store — Name | 23 | 30 | ✅ |
 | nl-NL | App Store — Subtitle | 30 | 30 | ✅ |
 | nl-NL | App Store — Keywords | 100 bayt | 100 bayt | ✅ |
-| nl-NL | App Store — Promotional Text | 143 | 170 | ✅ |
-| nl-NL | App Store — Description | 2647 | 4000 | ✅ |
-| nl-NL | Google Play — Title | 26 | 30 | ✅ |
+| nl-NL | App Store — Promotional Text | 159 | 170 | ✅ |
+| nl-NL | App Store — Description | 2788 | 4000 | ✅ |
+| nl-NL | Google Play — Title | 23 | 30 | ✅ |
 | nl-NL | Google Play — Short description | 79 | 80 | ✅ |
-| nl-NL | Google Play — Full description | 2513 | 4000 | ✅ |
-| pl-PL | App Store — Name | 28 | 30 | ✅ |
+| nl-NL | Google Play — Full description | 2654 | 4000 | ✅ |
+| pl-PL | App Store — Name | 25 | 30 | ✅ |
 | pl-PL | App Store — Subtitle | 27 | 30 | ✅ |
 | pl-PL | App Store — Keywords | 95 bayt | 100 bayt | ✅ |
-| pl-PL | App Store — Promotional Text | 128 | 170 | ✅ |
-| pl-PL | App Store — Description | 2706 | 4000 | ✅ |
-| pl-PL | Google Play — Title | 28 | 30 | ✅ |
+| pl-PL | App Store — Promotional Text | 147 | 170 | ✅ |
+| pl-PL | App Store — Description | 2849 | 4000 | ✅ |
+| pl-PL | Google Play — Title | 25 | 30 | ✅ |
 | pl-PL | Google Play — Short description | 77 | 80 | ✅ |
-| pl-PL | Google Play — Full description | 2592 | 4000 | ✅ |
+| pl-PL | Google Play — Full description | 2735 | 4000 | ✅ |
 <!-- lengths:end -->
 
 ---
@@ -128,13 +130,13 @@ rewards,barcode,qr,membership,points,store,iban,credit,debit,scanner,pass,widget
 #### App Store — Promotional Text (≤170)
 
 ```text
-New look. One camera adds any card, Up Next puts the right one first, and you can bring your cards over from your old app. Face ID stays free.
+Up Next puts the card you need on top, the barcode opens bright at checkout, and your bank cards and IBANs sit right beside it. No account, works offline.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-Deckard keeps your loyalty and membership cards in one private wallet on your iPhone. There's no account to create, no ads, and it works without an internet connection.
+Deckard puts the right card on top before you reach the checkout: Up Next learns when you use each loyalty card, on your iPhone only, and the barcode opens at full brightness. Your bank cards and IBANs sit right beside them. There's no account to create, no ads, and it works without an internet connection.
 
 At the checkout, open a card and the screen brightens automatically so the scanner reads your barcode on the first try. Your cards are also on your Apple Watch and in a home screen widget.
 
@@ -149,7 +151,7 @@ LOYALTY CARDS
 • One camera for everything: loyalty barcodes, bank cards and IBANs, even from a photo — or type it in
 • Up Next: the card you usually need at this time of day comes first, learned on your phone
 • Moving from another app? Import its export file or an Apple Wallet pass in one go
-• 700+ brands recognized with their logo and colors, from any country
+• 500+ brands recognized with their logo and colors, from any country
 • Full screen brightness while a barcode is open
 • Search, filter by tag and mark favorites
 • Share a card as an image
@@ -198,7 +200,7 @@ Loyalty cards and barcodes in a private wallet. No account, no ads, offline.
 #### Google Play — Full description (≤4000)
 
 ```text
-Deckard keeps your loyalty and membership cards in one private wallet on your phone. There's no account to create, no ads, and it works without an internet connection.
+Deckard puts the right card on top before you reach the checkout: Up Next learns when you use each loyalty card, on your phone only, and the barcode opens at full brightness. Your bank cards and IBANs sit right beside them. There's no account to create, no ads, and it works without an internet connection.
 
 At the checkout, open a card and the screen brightens automatically so the scanner reads your barcode on the first try. Put your favorite card on the home screen with a widget or open it from a Quick Settings tile.
 
@@ -213,7 +215,7 @@ Loyalty cards
 • One camera for everything: loyalty barcodes, bank cards and IBANs, even from a photo — or type it in
 • Up Next: the card you usually need at this time of day comes first, learned on your phone
 • Moving from another app? Import its export file or a .pkpass pass in one go
-• 700+ brands recognized with their logo and colors, from any country
+• 500+ brands recognized with their logo and colors, from any country
 • Full screen brightness while a barcode is open
 • Search, filter by tag and mark favorites
 • Share a card as an image
@@ -270,13 +272,13 @@ cüzdan,banka,kredi,barkod,üyelik,puan,market,şifreli,yedek,face id,pin,widget
 #### App Store — Promotional Text (≤170)
 
 ```text
-Yeni görünüm. Tek kamera her kartı ekler, Sıradaki doğru kartı öne alır, eski uygulamandaki kartlarını taşıyabilirsin. Face ID hâlâ ücretsiz.
+Sıradaki, ihtiyacın olan kartı en üste koyar, barkod kasada parlak açılır; banka kartların ve IBAN'ların hemen yanında. Hesap yok, internetsiz çalışır.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-Deckard; kredi kartlarını, IBAN'larını ve sadakat kartlarını tek bir güvenli cüzdanda toplar. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
+Deckard, kasaya gelmeden doğru kartı en üste koyar: Sıradaki, hangi sadakat kartını ne zaman kullandığını yalnızca iPhone'unda öğrenir, barkod tam parlaklıkta açılır. Kredi kartların ve IBAN'ların da hemen yanında. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
 
 IBAN'ını tek dokunuşla kopyala ya da paylaş, karşındakine QR kodla okut. Kasada sadakat kartını aç, ekran kendiliğinden parlasın. Kredi kartının ödeme ve son kullanma tarihini hatırlatıcılar senin yerine takip etsin. Aradığın kartı ana ekrandaki aramayla isim, banka, etiket ya da son 4 haneyle bul.
 
@@ -303,7 +305,7 @@ SADAKAT KARTLARI
 • Tek kamera her şey için: sadakat barkodu, banka kartı ve IBAN, fotoğraftan bile — ya da elle gir
 • Sıradaki: günün bu saatinde genelde kullandığın kart öne gelir, telefonunda öğrenilir
 • Başka bir uygulamadan mı geliyorsun? Dışa aktarma dosyasını ya da Apple Wallet kartını tek seferde içe aktar
-• Her ülkeden 700+ marka, logosu ve rengiyle tanınır
+• Her ülkeden 500+ marka, logosu ve rengiyle tanınır
 • Barkod açıkken ekran tam parlaklığa çıkar
 • Etiketle, filtrele, favorilerini işaretle
 • Apple Watch uygulaması; ana ve kilit ekranında Sıradaki widget'ı
@@ -344,7 +346,7 @@ Kart, IBAN ve sadakat kartların tek güvenli cüzdanda. IBAN'ı QR ile paylaş.
 #### Google Play — Full description (≤4000)
 
 ```text
-Deckard; kredi kartlarını, IBAN'larını ve sadakat kartlarını tek bir güvenli cüzdanda toplar. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
+Deckard, kasaya gelmeden doğru kartı en üste koyar: Sıradaki, hangi sadakat kartını ne zaman kullandığını yalnızca telefonunda öğrenir, barkod tam parlaklıkta açılır. Kredi kartların ve IBAN'ların da hemen yanında. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
 
 IBAN'ını tek dokunuşla kopyala ya da paylaş, karşındakine QR kodla okut. Kasada sadakat kartını aç, ekran kendiliğinden parlasın. Kredi kartının ödeme ve son kullanma tarihini hatırlatıcılar senin yerine takip etsin. Aradığın kartı ana ekrandaki aramayla isim, banka, etiket ya da son 4 haneyle bul.
 
@@ -371,7 +373,7 @@ Sadakat kartları
 • Tek kamera her şey için: sadakat barkodu, banka kartı ve IBAN, fotoğraftan bile — ya da elle gir
 • Sıradaki: günün bu saatinde genelde kullandığın kart öne gelir, telefonunda öğrenilir
 • Başka bir uygulamadan mı geliyorsun? Dışa aktarma dosyasını ya da .pkpass dosyasını tek seferde içe aktar
-• Her ülkeden 700+ marka, logosu ve rengiyle tanınır
+• Her ülkeden 500+ marka, logosu ve rengiyle tanınır
 • Barkod açıkken ekran tam parlaklığa çıkar
 • Etiketle, filtrele, favorilerini işaretle
 • Ana ekranda Sıradaki widget'ı ve Hızlı Ayarlar kutucuğu
@@ -420,13 +422,13 @@ treuekarte,bonuskarte,barcode,qr,wallet,punkte,mitglied,iban,kreditkarte,verschl
 #### App Store — Promotional Text (≤170)
 
 ```text
-Neues Design. Eine Kamera für jede Karte, „Als Nächstes“ zeigt die richtige zuerst, und du bringst deine Karten aus deiner alten App mit.
+„Als Nächstes“ legt die Karte nach oben, die du brauchst, der Barcode öffnet hell an der Kasse, und Bankkarten und IBANs liegen daneben. Kein Konto, offline.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-Deckard bewahrt deine Kunden- und Treuekarten in einer privaten Wallet auf deinem iPhone auf. Du brauchst kein Konto, es gibt keine Werbung, und die App funktioniert auch ohne Internet.
+Deckard legt die richtige Karte nach oben, bevor du an der Kasse stehst: „Als Nächstes“ lernt nur auf deinem iPhone, wann du welche Kundenkarte nutzt, und der Barcode öffnet mit voller Helligkeit. Deine Bankkarten und IBANs liegen gleich daneben. Du brauchst kein Konto, es gibt keine Werbung, und die App funktioniert auch ohne Internet.
 
 An der Kasse öffnest du die Karte, der Bildschirm wird automatisch hell und der Scanner liest den Barcode beim ersten Versuch. Deine Karten hast du außerdem auf der Apple Watch und im Widget auf dem Home-Bildschirm.
 
@@ -441,7 +443,7 @@ KUNDENKARTEN
 • Eine Kamera für alles: Kundenkarten-Barcodes, Bankkarten und IBANs, auch aus einem Foto – oder eintippen
 • „Als Nächstes“: Die Karte, die du um diese Uhrzeit meist brauchst, steht oben – gelernt auf deinem Telefon
 • Du kommst von einer anderen App? Importiere ihre Exportdatei oder einen Apple-Wallet-Pass in einem Rutsch
-• Über 700 Marken aus aller Welt mit Logo und Farben erkannt
+• Über 500 Marken aus aller Welt mit Logo und Farben erkannt
 • Volle Bildschirmhelligkeit, solange ein Barcode offen ist
 • Suchen, nach Tags filtern, Favoriten markieren
 • Karte als Bild teilen
@@ -490,7 +492,7 @@ Kundenkarten und Barcodes in einer privaten Wallet. Ohne Konto, ohne Werbung.
 #### Google Play — Full description (≤4000)
 
 ```text
-Deckard bewahrt deine Kunden- und Treuekarten in einer privaten Wallet auf deinem Handy auf. Du brauchst kein Konto, es gibt keine Werbung, und die App funktioniert auch ohne Internet.
+Deckard legt die richtige Karte nach oben, bevor du an der Kasse stehst: „Als Nächstes“ lernt nur auf deinem Handy, wann du welche Kundenkarte nutzt, und der Barcode öffnet mit voller Helligkeit. Deine Bankkarten und IBANs liegen gleich daneben. Du brauchst kein Konto, es gibt keine Werbung, und die App funktioniert auch ohne Internet.
 
 An der Kasse öffnest du die Karte, der Bildschirm wird automatisch hell und der Scanner liest den Barcode beim ersten Versuch. Deine Lieblingskarte legst du als Widget auf den Startbildschirm oder öffnest sie über eine Schnelleinstellungs-Kachel.
 
@@ -505,7 +507,7 @@ Kundenkarten
 • Eine Kamera für alles: Kundenkarten-Barcodes, Bankkarten und IBANs, auch aus einem Foto – oder eintippen
 • „Als Nächstes“: Die Karte, die du um diese Uhrzeit meist brauchst, steht oben – gelernt auf deinem Telefon
 • Du kommst von einer anderen App? Importiere ihre Exportdatei oder eine .pkpass-Datei in einem Rutsch
-• Über 700 Marken aus aller Welt mit Logo und Farben erkannt
+• Über 500 Marken aus aller Welt mit Logo und Farben erkannt
 • Volle Bildschirmhelligkeit, solange ein Barcode offen ist
 • Suchen, nach Tags filtern, Favoriten markieren
 • Karte als Bild teilen
@@ -562,13 +564,13 @@ carte de fidélité,code-barres,qr,portefeuille,points,magasin,membre,iban,banca
 #### App Store — Promotional Text (≤170)
 
 ```text
-Nouveau design. Un seul scan pour toutes vos cartes, « À suivre » met la bonne en premier, et vos cartes arrivent de votre ancienne app.
+« À suivre » place en haut la carte qu'il vous faut, le code-barres s'ouvre lumineux en caisse, et vos cartes bancaires et IBAN sont à côté. Sans compte, hors ligne.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-Deckard range vos cartes de fidélité et d'adhérent dans un portefeuille privé, sur votre iPhone. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
+Deckard met la bonne carte en haut avant que vous arriviez en caisse : « À suivre » apprend, uniquement sur votre iPhone, quand vous utilisez chaque carte de fidélité, et le code-barres s'ouvre en pleine luminosité. Vos cartes bancaires et vos IBAN sont juste à côté. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
 
 En caisse, ouvrez la carte : l'écran s'éclaircit tout seul et le lecteur lit le code-barres du premier coup. Vos cartes sont aussi sur votre Apple Watch et dans un widget de l'écran d'accueil.
 
@@ -583,7 +585,7 @@ CARTES DE FIDÉLITÉ
 • Un seul appareil photo pour tout : codes de fidélité, cartes bancaires et IBAN, même depuis une photo — ou à la main
 • « À suivre » : la carte qu'il vous faut à cette heure-ci passe en premier, apprise sur votre téléphone
 • Vous venez d'une autre app ? Importez son fichier d'export ou une carte Apple Wallet en une fois
-• Plus de 700 enseignes reconnues, avec logo et couleurs, de tous les pays
+• Plus de 500 enseignes reconnues, avec logo et couleurs, de tous les pays
 • Luminosité maximale tant qu'un code-barres est affiché
 • Recherche, filtres par étiquette et favoris
 • Partage d'une carte sous forme d'image
@@ -632,7 +634,7 @@ Cartes de fidélité et codes-barres, sans compte ni pub, même hors ligne.
 #### Google Play — Full description (≤4000)
 
 ```text
-Deckard range vos cartes de fidélité et d'adhérent dans un portefeuille privé, sur votre téléphone. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
+Deckard met la bonne carte en haut avant que vous arriviez en caisse : « À suivre » apprend, uniquement sur votre téléphone, quand vous utilisez chaque carte de fidélité, et le code-barres s'ouvre en pleine luminosité. Vos cartes bancaires et vos IBAN sont juste à côté. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
 
 En caisse, ouvrez la carte : l'écran s'éclaircit tout seul et le lecteur lit le code-barres du premier coup. Placez votre carte préférée sur l'écran d'accueil avec un widget ou ouvrez-la depuis une vignette des Réglages rapides.
 
@@ -647,7 +649,7 @@ Cartes de fidélité
 • Un seul appareil photo pour tout : codes de fidélité, cartes bancaires et IBAN, même depuis une photo — ou à la main
 • « À suivre » : la carte qu'il vous faut à cette heure-ci passe en premier, apprise sur votre téléphone
 • Vous venez d'une autre app ? Importez son fichier d'export ou un fichier .pkpass en une fois
-• Plus de 700 enseignes reconnues, avec logo et couleurs, de tous les pays
+• Plus de 500 enseignes reconnues, avec logo et couleurs, de tous les pays
 • Luminosité maximale tant qu'un code-barres est affiché
 • Recherche, filtres par étiquette et favoris
 • Partage d'une carte sous forme d'image
@@ -704,13 +706,13 @@ puntos,codigo de barras,qr,socio,tienda,monedero,offline,sin cuenta,iban,credito
 #### App Store — Promotional Text (≤170)
 
 ```text
-Nuevo diseño. Una cámara para cualquier tarjeta, «Siguiente» pone primero la que necesitas y puedes traer tus tarjetas de tu app anterior.
+«Siguiente» pone arriba la tarjeta que necesitas, el código se abre con brillo en la caja y tus tarjetas bancarias e IBAN están al lado. Sin cuenta y sin conexión.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-Deckard guarda tus tarjetas de fidelidad y de socio en una cartera privada en tu iPhone. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
+Deckard pone la tarjeta correcta arriba antes de que llegues a la caja: «Siguiente» aprende, solo en tu iPhone, cuándo usas cada tarjeta de fidelidad, y el código de barras se abre con el brillo al máximo. Tus tarjetas bancarias e IBAN están justo al lado. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
 
 En caja, abre la tarjeta: la pantalla sube el brillo sola y el lector lee el código de barras a la primera. Tus tarjetas también están en el Apple Watch y en un widget de la pantalla de inicio.
 
@@ -725,7 +727,7 @@ TARJETAS DE FIDELIDAD
 • Una cámara para todo: códigos de fidelidad, tarjetas bancarias e IBAN, incluso desde una foto, o escríbelo
 • «Siguiente»: la tarjeta que sueles usar a esta hora aparece primero, aprendido en tu teléfono
 • ¿Vienes de otra app? Importa su archivo de exportación o un pase de Apple Wallet de una vez
-• Más de 700 marcas reconocidas con su logo y colores, de cualquier país
+• Más de 500 marcas reconocidas con su logo y colores, de cualquier país
 • Brillo al máximo mientras el código de barras está abierto
 • Busca, filtra por etiquetas y marca tus favoritas
 • Comparte una tarjeta como imagen
@@ -774,7 +776,7 @@ Tarjetas de fidelidad y códigos de barras. Sin cuenta, sin anuncios, offline.
 #### Google Play — Full description (≤4000)
 
 ```text
-Deckard guarda tus tarjetas de fidelidad y de socio en una cartera privada en tu móvil. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
+Deckard pone la tarjeta correcta arriba antes de que llegues a la caja: «Siguiente» aprende, solo en tu móvil, cuándo usas cada tarjeta de fidelidad, y el código de barras se abre con el brillo al máximo. Tus tarjetas bancarias e IBAN están justo al lado. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
 
 En caja, abre la tarjeta: la pantalla sube el brillo sola y el lector lee el código de barras a la primera. Pon tu tarjeta favorita en la pantalla de inicio con un widget o ábrela desde un icono de Ajustes rápidos.
 
@@ -789,7 +791,7 @@ Tarjetas de fidelidad
 • Una cámara para todo: códigos de fidelidad, tarjetas bancarias e IBAN, incluso desde una foto, o escríbelo
 • «Siguiente»: la tarjeta que sueles usar a esta hora aparece primero, aprendido en tu teléfono
 • ¿Vienes de otra app? Importa su archivo de exportación o un archivo .pkpass de una vez
-• Más de 700 marcas reconocidas con su logo y colores, de cualquier país
+• Más de 500 marcas reconocidas con su logo y colores, de cualquier país
 • Brillo al máximo mientras el código de barras está abierto
 • Busca, filtra por etiquetas y marca tus favoritas
 • Comparte una tarjeta como imagen
@@ -846,13 +848,13 @@ pontos,código de barras,qr,clube,loja,membro,sem conta,cartões,crédito,cripto
 #### App Store — Promotional Text (≤170)
 
 ```text
-Novo visual. Uma câmera para qualquer cartão, “A seguir” mostra o certo primeiro e você traz seus cartões do app antigo. Face ID segue grátis.
+O “A seguir” coloca no topo o cartão que você precisa, o código abre com brilho no caixa e seus cartões de banco e IBAN ficam ao lado. Sem conta, funciona offline.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-O Deckard guarda seus cartões fidelidade e de sócio em uma carteira privada no seu iPhone. Não precisa criar conta, não tem anúncios e funciona sem internet.
+O Deckard coloca o cartão certo no topo antes de você chegar ao caixa: o “A seguir” aprende, só no seu iPhone, quando você usa cada cartão fidelidade, e o código de barras abre com brilho máximo. Seus cartões de banco e IBAN ficam logo ao lado. Não precisa criar conta, não tem anúncios e funciona sem internet.
 
 No caixa, abra o cartão: a tela fica mais clara sozinha e o leitor pega o código de barras de primeira. Seus cartões também ficam no Apple Watch e em um widget da tela de início.
 
@@ -867,7 +869,7 @@ CARTÕES FIDELIDADE
 • Uma câmera para tudo: códigos de fidelidade, cartões bancários e IBAN, até de uma foto — ou digite
 • “A seguir”: o cartão que você costuma usar neste horário aparece primeiro, aprendido no seu celular
 • Vindo de outro app? Importe o arquivo de exportação ou um passe do Apple Wallet de uma vez
-• Mais de 700 marcas reconhecidas com logo e cores, de qualquer país
+• Mais de 500 marcas reconhecidas com logo e cores, de qualquer país
 • Brilho máximo enquanto o código de barras estiver aberto
 • Busque, filtre por etiquetas e marque seus favoritos
 • Compartilhe um cartão como imagem
@@ -916,7 +918,7 @@ Cartões fidelidade e códigos de barras, sem conta, sem anúncios e offline.
 #### Google Play — Full description (≤4000)
 
 ```text
-O Deckard guarda seus cartões fidelidade e de sócio em uma carteira privada no seu celular. Não precisa criar conta, não tem anúncios e funciona sem internet.
+O Deckard coloca o cartão certo no topo antes de você chegar ao caixa: o “A seguir” aprende, só no seu celular, quando você usa cada cartão fidelidade, e o código de barras abre com brilho máximo. Seus cartões de banco e IBAN ficam logo ao lado. Não precisa criar conta, não tem anúncios e funciona sem internet.
 
 No caixa, abra o cartão: a tela fica mais clara sozinha e o leitor pega o código de barras de primeira. Coloque seu cartão favorito na tela inicial com um widget ou abra pelo bloco de Configurações rápidas.
 
@@ -931,7 +933,7 @@ Cartões fidelidade
 • Uma câmera para tudo: códigos de fidelidade, cartões bancários e IBAN, até de uma foto — ou digite
 • “A seguir”: o cartão que você costuma usar neste horário aparece primeiro, aprendido no seu celular
 • Vindo de outro app? Importe o arquivo de exportação ou um arquivo .pkpass de uma vez
-• Mais de 700 marcas reconhecidas com logo e cores, de qualquer país
+• Mais de 500 marcas reconhecidas com logo e cores, de qualquer país
 • Brilho máximo enquanto o código de barras estiver aberto
 • Busque, filtre por etiquetas e marque seus favoritos
 • Compartilhe um cartão como imagem
@@ -988,13 +990,13 @@ tessera,punti,codice a barre,qr,offline,portafoglio,negozio,socio,iban,credito,c
 #### App Store — Promotional Text (≤170)
 
 ```text
-Nuovo look. Una fotocamera per ogni carta, «Prossima» mette prima quella giusta e porti le tue carte dalla vecchia app. Face ID resta gratis.
+«Prossima» mette in cima la carta che ti serve, il codice si apre luminoso alla cassa e carte bancarie e IBAN sono lì accanto. Senza account, funziona offline.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-Deckard tiene le tue carte fedeltà e le tessere in un portafoglio privato sul tuo iPhone. Non serve creare un account, non ci sono pubblicità e funziona anche senza connessione.
+Deckard mette in cima la carta giusta prima che tu arrivi alla cassa: «Prossima» impara, solo sul tuo iPhone, quando usi ogni carta fedeltà, e il codice a barre si apre alla massima luminosità. Le tue carte bancarie e gli IBAN sono subito accanto. Non serve creare un account, non ci sono pubblicità e funziona anche senza connessione.
 
 Alla cassa apri la carta: lo schermo si illumina da solo e il lettore legge il codice a barre al primo colpo. Le tue carte sono anche sull'Apple Watch e in un widget della schermata Home.
 
@@ -1009,7 +1011,7 @@ CARTE FEDELTÀ
 • Una fotocamera per tutto: codici fedeltà, carte bancarie e IBAN, anche da una foto, oppure digitali
 • «Prossima»: la carta che usi di solito a quest'ora viene prima, imparato sul telefono
 • Arrivi da un'altra app? Importa il suo file di esportazione o un pass di Apple Wallet in un colpo
-• Oltre 700 marchi riconosciuti con logo e colori, da ogni paese
+• Oltre 500 marchi riconosciuti con logo e colori, da ogni paese
 • Luminosità al massimo mentre il codice a barre è aperto
 • Cerca, filtra per etichetta e segna le preferite
 • Condividi una carta come immagine
@@ -1058,7 +1060,7 @@ Carte fedeltà e codici a barre, offline e senza account né pubblicità.
 #### Google Play — Full description (≤4000)
 
 ```text
-Deckard tiene le tue carte fedeltà e le tessere in un portafoglio privato sul tuo telefono. Non serve creare un account, non ci sono pubblicità e funziona anche senza connessione.
+Deckard mette in cima la carta giusta prima che tu arrivi alla cassa: «Prossima» impara, solo sul tuo telefono, quando usi ogni carta fedeltà, e il codice a barre si apre alla massima luminosità. Le tue carte bancarie e gli IBAN sono subito accanto. Non serve creare un account, non ci sono pubblicità e funziona anche senza connessione.
 
 Alla cassa apri la carta: lo schermo si illumina da solo e il lettore legge il codice a barre al primo colpo. Metti la tua carta preferita nella schermata Home con un widget o aprila da un riquadro delle Impostazioni rapide.
 
@@ -1073,7 +1075,7 @@ Carte fedeltà
 • Una fotocamera per tutto: codici fedeltà, carte bancarie e IBAN, anche da una foto, oppure digitali
 • «Prossima»: la carta che usi di solito a quest'ora viene prima, imparato sul telefono
 • Arrivi da un'altra app? Importa il suo file di esportazione o un file .pkpass in un colpo
-• Oltre 700 marchi riconosciuti con logo e colori, da ogni paese
+• Oltre 500 marchi riconosciuti con logo e colori, da ogni paese
 • Luminosità al massimo mentre il codice a barre è aperto
 • Cerca, filtra per etichetta e segna le preferite
 • Condividi una carta come immagine
@@ -1130,13 +1132,13 @@ klantenkaart,spaarkaart,pasjes,barcode,qr,punten,winkel,lid,iban,creditcard,vers
 #### App Store — Promotional Text (≤170)
 
 ```text
-Nieuw ontwerp. Eén camera voor elke kaart, ‘Volgende’ zet de juiste bovenaan en je neemt je kaarten mee uit je oude app. Face ID blijft gratis.
+‘Volgende’ zet de kaart die je nodig hebt bovenaan, de barcode opent helder bij de kassa en je bankpassen en IBAN's staan ernaast. Geen account, werkt offline.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-Deckard bewaart je klantenkaarten en ledenpassen in een privé wallet op je iPhone. Je hoeft geen account te maken, er is geen reclame en de app werkt ook zonder internet.
+Deckard zet de juiste kaart bovenaan voordat je bij de kassa staat: ‘Volgende’ leert alleen op je iPhone wanneer je welke klantenkaart gebruikt, en de barcode opent op volle helderheid. Je bankpassen en IBAN's staan er direct naast. Je hoeft geen account te maken, er is geen reclame en de app werkt ook zonder internet.
 
 Open bij de kassa je kaart: het scherm wordt vanzelf fel en de scanner leest je barcode in één keer. Je kaarten staan ook op je Apple Watch en in een widget op je beginscherm.
 
@@ -1151,7 +1153,7 @@ KLANTENKAARTEN
 • Eén camera voor alles: klantenkaartcodes, bankpassen en IBAN's, ook uit een foto – of typ het in
 • ‘Volgende’: de kaart die je rond dit tijdstip meestal nodig hebt staat bovenaan, geleerd op je telefoon
 • Overstappen van een andere app? Importeer het exportbestand of een Apple Wallet-pas in één keer
-• Meer dan 700 merken herkend met logo en kleuren, uit elk land
+• Meer dan 500 merken herkend met logo en kleuren, uit elk land
 • Volle helderheid zolang een barcode open is
 • Zoek, filter op labels en markeer favorieten
 • Deel een kaart als afbeelding
@@ -1200,7 +1202,7 @@ Klantenkaarten en barcodes in een privé wallet. Zonder account, zonder reclame.
 #### Google Play — Full description (≤4000)
 
 ```text
-Deckard bewaart je klantenkaarten en ledenpassen in een privé wallet op je telefoon. Je hoeft geen account te maken, er is geen reclame en de app werkt ook zonder internet.
+Deckard zet de juiste kaart bovenaan voordat je bij de kassa staat: ‘Volgende’ leert alleen op je telefoon wanneer je welke klantenkaart gebruikt, en de barcode opent op volle helderheid. Je bankpassen en IBAN's staan er direct naast. Je hoeft geen account te maken, er is geen reclame en de app werkt ook zonder internet.
 
 Open bij de kassa je kaart: het scherm wordt vanzelf fel en de scanner leest je barcode in één keer. Zet je favoriete kaart met een widget op je startscherm of open hem via een tegel in Snelle instellingen.
 
@@ -1215,7 +1217,7 @@ Klantenkaarten
 • Eén camera voor alles: klantenkaartcodes, bankpassen en IBAN's, ook uit een foto – of typ het in
 • ‘Volgende’: de kaart die je rond dit tijdstip meestal nodig hebt staat bovenaan, geleerd op je telefoon
 • Overstappen van een andere app? Importeer het exportbestand of een .pkpass-bestand in één keer
-• Meer dan 700 merken herkend met logo en kleuren, uit elk land
+• Meer dan 500 merken herkend met logo en kleuren, uit elk land
 • Volle helderheid zolang een barcode open is
 • Zoek, filter op labels en markeer favorieten
 • Deel een kaart als afbeelding
@@ -1272,13 +1274,13 @@ kod kreskowy,qr,punkty,bez konta,bez reklam,sklep,klub,iban,kredytowa,szyfrowani
 #### App Store — Promotional Text (≤170)
 
 ```text
-Nowy wygląd. Jeden aparat do każdej karty, „Następna” pokazuje właściwą jako pierwszą, a karty przeniesiesz ze starej aplikacji.
+„Następna” wyciąga na górę kartę, której potrzebujesz, kod otwiera się jasno przy kasie, a karty bankowe i IBAN są obok. Bez konta, działa offline.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-Deckard trzyma Twoje karty lojalnościowe i członkowskie w prywatnym portfelu na iPhonie. Nie musisz zakładać konta, nie ma reklam, a aplikacja działa też bez internetu.
+Deckard wyciąga właściwą kartę na górę, zanim dojdziesz do kasy: „Następna” uczy się, tylko na Twoim iPhonie, kiedy używasz każdej karty lojalnościowej, a kod kreskowy otwiera się z pełną jasnością. Karty bankowe i numery IBAN są tuż obok. Nie musisz zakładać konta, nie ma reklam, a aplikacja działa też bez internetu.
 
 Przy kasie otwierasz kartę, ekran sam się rozjaśnia, a czytnik odczytuje kod kreskowy za pierwszym razem. Karty masz też na Apple Watch i w widżecie na ekranie początkowym.
 
@@ -1293,7 +1295,7 @@ KARTY LOJALNOŚCIOWE
 • Jeden aparat do wszystkiego: kody lojalnościowe, karty bankowe i IBAN, także ze zdjęcia – albo wpisz ręcznie
 • „Następna”: karta, której zwykle używasz o tej porze, jest na górze – nauczone na telefonie
 • Przechodzisz z innej aplikacji? Zaimportuj jej plik eksportu lub kartę Apple Wallet za jednym razem
-• Ponad 700 marek rozpoznawanych z logo i kolorami, z każdego kraju
+• Ponad 500 marek rozpoznawanych z logo i kolorami, z każdego kraju
 • Pełna jasność ekranu, dopóki kod kreskowy jest otwarty
 • Wyszukuj, filtruj po etykietach i oznaczaj ulubione
 • Udostępnij kartę jako obraz
@@ -1342,7 +1344,7 @@ Karty lojalnościowe i kody kreskowe w prywatnym portfelu. Bez konta i reklam.
 #### Google Play — Full description (≤4000)
 
 ```text
-Deckard trzyma Twoje karty lojalnościowe i członkowskie w prywatnym portfelu na telefonie. Nie musisz zakładać konta, nie ma reklam, a aplikacja działa też bez internetu.
+Deckard wyciąga właściwą kartę na górę, zanim dojdziesz do kasy: „Następna” uczy się, tylko na Twoim telefonie, kiedy używasz każdej karty lojalnościowej, a kod kreskowy otwiera się z pełną jasnością. Karty bankowe i numery IBAN są tuż obok. Nie musisz zakładać konta, nie ma reklam, a aplikacja działa też bez internetu.
 
 Przy kasie otwierasz kartę, ekran sam się rozjaśnia, a czytnik odczytuje kod kreskowy za pierwszym razem. Ulubioną kartę możesz przypiąć widżetem do ekranu głównego albo otworzyć kafelkiem w Szybkich ustawieniach.
 
@@ -1357,7 +1359,7 @@ Karty lojalnościowe
 • Jeden aparat do wszystkiego: kody lojalnościowe, karty bankowe i IBAN, także ze zdjęcia – albo wpisz ręcznie
 • „Następna”: karta, której zwykle używasz o tej porze, jest na górze – nauczone na telefonie
 • Przechodzisz z innej aplikacji? Zaimportuj jej plik eksportu lub plik .pkpass za jednym razem
-• Ponad 700 marek rozpoznawanych z logo i kolorami, z każdego kraju
+• Ponad 500 marek rozpoznawanych z logo i kolorami, z każdego kraju
 • Pełna jasność ekranu, dopóki kod kreskowy jest otwarty
 • Wyszukuj, filtruj po etykietach i oznaczaj ulubione
 • Udostępnij kartę jako obraz
