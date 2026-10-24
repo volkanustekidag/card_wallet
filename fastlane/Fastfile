@@ -6,6 +6,7 @@
 #   ASC_API_KEY_PATH=~/.deckard_keys/asc.json fastlane ios metadata promo:true   # release day
 #   PLAY_JSON_KEY=~/.deckard_keys/play.json fastlane android metadata
 #   PLAY_JSON_KEY=~/.deckard_keys/play.json fastlane android metadata wear:true  # once Wear OS is live
+#   ... send:true sends the changes for review at once (default: wait in the console)
 #
 # Regenerate the files first:
 #   python3 tools/store_listing/build.py
@@ -107,8 +108,8 @@ platform :android do
       skip_upload_apk: true,
       skip_upload_aab: true,
       skip_upload_changelogs: true,
-      version_code: VERSION_CODE,
-      changes_not_sent_for_review: true
+      version_code: options[:version_code] || VERSION_CODE,
+      changes_not_sent_for_review: !options[:send]
     )
   end
 
