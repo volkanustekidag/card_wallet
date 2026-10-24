@@ -83,10 +83,20 @@ private struct BarcodePanel: View {
         ["QR_CODE", "QRCODE", "QR"].contains(card.format.uppercased())
     }
 
+    @ViewBuilder private var panel: some View {
+        if isQR {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.white)
+                .aspectRatio(1, contentMode: .fit)
+        } else {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.white)
+        }
+    }
+
     var body: some View {
-        RoundedRectangle(cornerRadius: 10)
-            .fill(Color.white)
-            .aspectRatio(isQR ? 1 : nil, contentMode: .fit)
+        // QR codes get a square panel; 1D barcodes keep the full width.
+        panel
             .frame(maxHeight: maxHeight)
             .overlay {
                 if isQR, let qr = WatchQRCode.encode(card.barcode) {

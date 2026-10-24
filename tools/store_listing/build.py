@@ -24,6 +24,7 @@ ASO = json.load(open(os.path.join(HERE, 'aso.json'), encoding='utf-8'))
 LISTING = open(os.path.join(ROOT, 'docs/store/release/listing.md'), encoding='utf-8').read()
 WHATS_NEW = open(os.path.join(ROOT, 'docs/store/release/whats_new.md'), encoding='utf-8').read()
 PRIVACY_URL = 'https://olkan.dev/privacy/cardwallet'
+SUPPORT_URL = 'https://www.olkan.dev/cardwallet'
 
 # Competitor apps never appear in store text (App Store 2.3.7, Play metadata policy).
 BANNED = ['stocard', 'klarna', 'catima', 'fidme', 'supercards', 'barcodes app']
@@ -131,6 +132,7 @@ def main():
         write(f'{ios}/description.txt', ios_desc)
         write(f'{ios}/release_notes.txt', ios_notes)
         write(f'{ios}/privacy_url.txt', PRIVACY_URL)
+        write(f'{ios}/support_url.txt', SUPPORT_URL)
         play = os.path.join(ROOT, 'fastlane/metadata/android', a.get('play_locale', lang))
         write(f'{play}/title.txt', a['play_title'])
         write(f'{play}/short_description.txt', a['play_short'])
