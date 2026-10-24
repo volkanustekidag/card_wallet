@@ -20,6 +20,7 @@ import 'package:wallet_app/feature/home/widgets/sheets/credit_card_reminder_shee
 import 'package:wallet_app/feature/scanner/add_flows.dart';
 import 'package:wallet_app/feature/scanner/scan_analyzer.dart';
 import 'package:wallet_app/feature/search/wallet_search_page.dart';
+import 'package:wallet_app/ui/navigation/card_hero.dart';
 import 'package:wallet_app/ui/card/card_face.dart';
 import 'package:wallet_app/ui/card/card_material.dart';
 import 'package:wallet_app/ui/card/wallet_card_faces.dart';
@@ -927,6 +928,7 @@ class _GridCardState extends State<_GridCard> {
             ),
             child: Hero(
               tag: item.heroTag,
+              flightShuttleBuilder: cardHeroShuttle,
               child: WalletMiniCard(item: item, badge: widget.badge),
             ),
           ),
@@ -1047,6 +1049,7 @@ class _FrontCard extends StatelessWidget {
           ),
           child: Hero(
             tag: item.heroTag,
+            flightShuttleBuilder: cardHeroShuttle,
             child: WalletCardFace(item: item, interactive: true),
           ),
         ),

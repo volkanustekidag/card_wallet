@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/controllers/auth_controller.dart';
@@ -7,6 +8,7 @@ import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
 import 'package:wallet_app/core/services/barcode_display_boost.dart';
+import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/services/ui_prefs.dart';
 import 'package:wallet_app/feature/import/import_page.dart';
 import 'package:wallet_app/feature/settings/widgets/settings_body.dart';
@@ -60,6 +62,51 @@ void main() {
     UiPrefs.instance.upNext.value = true;
     await tester.runAsync(UiPrefs.instance.load);
     expect(UiPrefs.instance.upNext.value, isFalse);
+  });
+
+  group('notifications row', () {
+    late List<String> calls;
+    setUp(() {
+      calls = [];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+              const MethodChannel('flutter.baseflow.com/permissions/methods'),
+              (call) async {
+        calls.add(call.method);
+        return true;
+      });
+    });
+    tearDown(() {
+      CardReminderService.debugNotificationsAllowed = null;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+              const MethodChannel('flutter.baseflow.com/permissions/methods'),
+              null);
+    });
+
+    Future<void> tapRow(WidgetTester tester) async {
+      await tester.ensureVisible(find.text('notificationsRowTitle'.tr()));
+      await tester.pumpAndSettle();
+      await tapIo(tester, find.text('notificationsRowTitle'.tr()));
+    }
+
+    testWidgets('off: asks for the permission, not the system settings',
+        (tester) async {
+      CardReminderService.debugNotificationsAllowed = false;
+      await open(tester);
+      await settleIo(tester);
+      expect(find.text('notificationsStatusDisabled'.tr()), findsOneWidget);
+      await tapRow(tester);
+      expect(calls, isNot(contains('openAppSettings')));
+    });
+
+    testWidgets('on: opens the system settings to change it', (tester) async {
+      CardReminderService.debugNotificationsAllowed = true;
+      await open(tester);
+      await settleIo(tester);
+      await tapRow(tester);
+      expect(calls, contains('openAppSettings'));
+    });
   });
 
   testWidgets('max brightness for barcodes toggles', (tester) async {

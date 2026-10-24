@@ -79,9 +79,11 @@ String? freeSlotsLine(CardLimitType type) {
 
 /// "Type it in": choose what to add, then the manual form (limit gate in
 /// [goToAddCard]). With [replace] the caller (scanner) closes first.
+/// [type] skips the question when the scanner already knows what's being
+/// added (a mode other than auto).
 Future<void> pickManualEntry(BuildContext context,
-    {bool replace = false}) async {
-  final type = await showCwSheet<CardLimitType>(
+    {bool replace = false, CardLimitType? type}) async {
+  type ??= await showCwSheet<CardLimitType>(
     context,
     builder: (sheet) {
       final c = CwColors.of(sheet);
@@ -128,11 +130,12 @@ Future<void> pickManualEntry(BuildContext context,
       );
     },
   );
-  if (type == null) return;
+  final chosen = type;
+  if (chosen == null) return;
   if (replace && context.mounted) Navigator.of(context).pop();
   final ctx = Get.context;
   if (ctx == null || !ctx.mounted) return;
-  await goToAddCard(context: ctx, type: type);
+  await goToAddCard(context: ctx, type: chosen);
 }
 
 /// Import from other wallet apps / files.

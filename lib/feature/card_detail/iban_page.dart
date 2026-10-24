@@ -13,6 +13,7 @@ import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
 import 'package:wallet_app/feature/iban_card/controller/iban_card_controller.dart';
 import 'package:wallet_app/feature/iban_card/utils/iban_card_utils.dart';
 import 'package:wallet_app/feature/iban_card/utils/iban_share_flow.dart';
+import 'package:wallet_app/ui/navigation/card_hero.dart';
 import 'package:wallet_app/ui/card/wallet_card_faces.dart';
 import 'package:wallet_app/ui/components/cw_button.dart';
 import 'package:wallet_app/ui/components/cw_list.dart';
@@ -62,6 +63,7 @@ class _IbanPageState extends State<IbanPage> {
               children: [
                 Hero(
                   tag: item.heroTag,
+                  flightShuttleBuilder: cardHeroShuttle,
                   child: WalletCardFace(item: item, interactive: true),
                 ),
                 const SizedBox(height: 14),

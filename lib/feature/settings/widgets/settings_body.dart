@@ -216,7 +216,18 @@ class _SettingsBodyState extends State<SettingsBody>
                         : 'notificationsStatusDisabled'.tr()),
                 subtitleColor: _notificationsEnabled == false ? c.danger : null,
                 trailing: CwIcon(CwIcons.external, size: 16, color: c.mute),
-                onTap: () => CardReminderService().openNotificationSettings(),
+                // Off: ask first (a fresh install was never asked, and the
+                // system settings have no switch until it has been).
+                // requestPermission offers the settings once the OS won't
+                // ask again. On: the settings are where to change it.
+                onTap: () async {
+                  if (_notificationsEnabled == true) {
+                    await CardReminderService().openNotificationSettings();
+                  } else {
+                    await CardReminderService().requestPermission();
+                  }
+                  await _refreshNotificationStatus();
+                },
               ),
             ]),
             CwSectionHeader('cwSecData'.tr()),

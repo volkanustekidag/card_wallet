@@ -20,6 +20,7 @@ import 'package:wallet_app/feature/card_detail/detail_chrome.dart';
 import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
 import 'package:wallet_app/feature/home/widgets/sheets/card_share_choice_sheet.dart';
+import 'package:wallet_app/ui/navigation/card_hero.dart';
 import 'package:wallet_app/ui/card/wallet_card_faces.dart';
 import 'package:wallet_app/ui/components/cw_list.dart';
 import 'package:wallet_app/ui/components/cw_top_bar.dart';
@@ -124,6 +125,7 @@ class _BankCardPageState extends State<BankCardPage> {
               children: [
                 Hero(
                   tag: item.heroTag,
+                  flightShuttleBuilder: cardHeroShuttle,
                   child: WalletCardFace(
                     item: item,
                     interactive: true,

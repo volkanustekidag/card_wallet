@@ -10,6 +10,7 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:wallet_app/core/brands/brand_catalog.dart';
+import 'package:wallet_app/core/enums/card_limit_type.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_barcode_scanner_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
@@ -515,8 +516,15 @@ class _LiveScannerPageState extends State<LiveScannerPage>
                               _BottomAction(
                                 icon: CwIcons.keyboard,
                                 label: 'cwTypeIt'.tr(),
-                                onTap: () =>
-                                    pickManualEntry(context, replace: true),
+                                // The mode already says what's being added.
+                                onTap: () => pickManualEntry(context,
+                                    replace: true,
+                                    type: switch (_mode) {
+                                      ScanMode.auto => null,
+                                      ScanMode.card => CardLimitType.credit,
+                                      ScanMode.barcode => CardLimitType.loyalty,
+                                      ScanMode.iban => CardLimitType.iban,
+                                    }),
                               ),
                             ],
                           ),
