@@ -1,5 +1,5 @@
 diff --git a/lib/feature/splash/splash_page.dart b/lib/feature/splash/splash_page.dart
-index 8b0afe0..32c04f5 100644
+index 8b0afe0..0141532 100644
 --- a/lib/feature/splash/splash_page.dart
 +++ b/lib/feature/splash/splash_page.dart
 @@ -1,3 +1,7 @@
@@ -172,7 +172,7 @@ index 8b0afe0..32c04f5 100644
    ];
    var i = 0;
    for (final c in credit) {
-@@ -131,24 +259,165 @@ Future<void> _seedDemo() async {
+@@ -131,24 +259,186 @@ Future<void> _seedDemo() async {
        cardHolder: c[2] as String, expirationDate: c[3] as String, cardColorId: c[4] as int,
        createdAt: now.subtract(Duration(days: i * 3)),
        paymentDueDay: c[5] as int?,
@@ -344,5 +344,26 @@ index 8b0afe0..32c04f5 100644
 +    'iban': ['Conta à ordem', 'PT50 0002 0123 1234 5678 9015 4', 'CGDIPTPL'],
 +    'confirm': ('Intermarché', 0xFFE2001A),
 +    'cards': [['Continente', 0xFFE30613], ['Pingo Doce', 0xFF76B82A], ['Worten', 0xFFC8102E], ['Fnac', 0xFFE1A925], ['Repsol', 0xFFFF8200]],
++  },
++  'au': {
++    'holder': 'Chloe Wilson',
++    'bank': ['Everyday account', 'Credit card'],
++    'second': '5555 5555 5555 4444',
++    'confirm': ('Priceline Pharmacy', 0xFFE5007E),
++    'cards': [['Woolworths', 0xFF00843D], ['Coles', 0xFFE01A22], ['Flybuys', 0xFF00A3E0], ['Chemist Warehouse', 0xFF1A1A1A], ['Qantas Frequent Flyer', 0xFFE40000]],
++  },
++  'ca': {
++    'holder': 'Liam Tremblay',
++    'bank': ['Chequing account', 'Credit card'],
++    'second': '5555 5555 5555 4444',
++    'confirm': ('Shoppers Drug Mart', 0xFFE31837),
++    'cards': [['Tim Hortons', 0xFFC8102E], ['PC Optimum', 0xFF1A1A1A], ['Air Miles', 0xFF00A3E0], ['Sobeys', 0xFF00843D], ['Canadian Tire', 0xFFE31837]],
++  },
++  'cf': {
++    'holder': 'Émilie Tremblay',
++    'bank': ['Compte chèques', 'Carte de crédit'],
++    'second': '5555 5555 5555 4444',
++    'confirm': ('Shoppers Drug Mart', 0xFFE31837),
++    'cards': [['Tim Hortons', 0xFFC8102E], ['PC Optimum', 0xFF1A1A1A], ['Air Miles', 0xFF00A3E0], ['Sobeys', 0xFF00843D], ['Canadian Tire', 0xFFE31837]],
 +  },
 +};

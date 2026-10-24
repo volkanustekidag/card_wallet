@@ -466,5 +466,122 @@
    "ecrã principal"
   ],
   "s4_nowear": "O widget «A seguir» deixa o código a um toque."
+ },
+ "au": {
+  "lang": "en",
+  "f1": [
+   "The right card,",
+   "right at checkout"
+  ],
+  "s1": "Up Next learns your routine and puts that card on top.",
+  "f2": [
+   "Bright barcode,",
+   "scanned first time"
+  ],
+  "s2": "Opens at full brightness, ready for the scanner.",
+  "f3": [
+   "All your cards,",
+   "one glance"
+  ],
+  "s3": "Loyalty and bank cards together in a private wallet.",
+  "f4": [
+   "On your lock screen",
+   "and your wrist"
+  ],
+  "s4_ios": "Widgets and Apple Watch put the barcode one glance away.",
+  "s4_android": "Widgets and Wear OS put the barcode one glance away.",
+  "f5": [
+   "Scan a card.",
+   "Done."
+  ],
+  "s5": "Brand, colour and barcode filled in for you.",
+  "f6": [
+   "Never miss",
+   "a due date"
+  ],
+  "s6": "Payment and expiry reminders for your bank cards.",
+  "f4_nowear": [
+   "Right on",
+   "your home screen"
+  ],
+  "s4_nowear": "The Up Next widget puts the barcode one tap away."
+ },
+ "ca": {
+  "lang": "en",
+  "f1": [
+   "The right card,",
+   "right at checkout"
+  ],
+  "s1": "Up Next learns your routine and puts that card on top.",
+  "f2": [
+   "Bright barcode,",
+   "scanned first time"
+  ],
+  "s2": "Opens at full brightness, ready for the scanner.",
+  "f3": [
+   "All your cards,",
+   "one glance"
+  ],
+  "s3": "Loyalty and bank cards together in a private wallet.",
+  "f4": [
+   "On your lock screen",
+   "and your wrist"
+  ],
+  "s4_ios": "Widgets and Apple Watch put the barcode one glance away.",
+  "s4_android": "Widgets and Wear OS put the barcode one glance away.",
+  "f5": [
+   "Scan a card.",
+   "Done."
+  ],
+  "s5": "Brand, colour and barcode filled in for you.",
+  "f6": [
+   "Never miss",
+   "a due date"
+  ],
+  "s6": "Payment and expiry reminders for your bank cards.",
+  "f4_nowear": [
+   "Right on",
+   "your home screen"
+  ],
+  "s4_nowear": "The Up Next widget puts the barcode one tap away."
+ },
+ "cf": {
+  "lang": "fr",
+  "f1": [
+   "La bonne carte,",
+   "pile à la caisse"
+  ],
+  "s1": "« À suivre » apprend vos habitudes et met cette carte en haut.",
+  "f2": [
+   "Code-barres lumineux,",
+   "lu du premier coup"
+  ],
+  "s2": "S'ouvre en pleine luminosité, prêt pour le scanner.",
+  "f3": [
+   "Toutes vos cartes,",
+   "au même endroit"
+  ],
+  "s3": "Fidélité et cartes bancaires réunies dans un portefeuille privé.",
+  "f4": [
+   "Sur l'écran verrouillé",
+   "et à votre poignet"
+  ],
+  "s4_ios": "Widgets et Apple Watch : le code-barres en un coup d'œil.",
+  "s4_android": "Widgets et Wear OS : le code-barres en un coup d'œil.",
+  "f5": [
+   "Scannez la carte.",
+   "C'est fait."
+  ],
+  "s5": "Enseigne, couleur et code-barres remplis pour vous.",
+  "f6": [
+   "Ne ratez plus",
+   "une échéance"
+  ],
+  "s6": "Rappels de paiement et d'expiration pour vos cartes bancaires.",
+  "f4_nowear": [
+   "Directement sur",
+   "l'écran d'accueil"
+  ],
+  "s4_nowear": "Le widget « À suivre » met le code-barres à portée de main."
  }
 }

@@ -16,6 +16,9 @@ let markets: [Market] = [
   Market(code: "gb", label: "Up next", cards: [("Tesco","#00539F","#003366","#FFFFFF"),("Boots","#05054B","#02022B","#FFFFFF"),("Nectar","#5A2D82","#3A1D54","#FFFFFF"),("Sainsbury's","#F06C00","#B05000","#FFFFFF")]),
   Market(code: "mx", label: "Siguiente", cards: [("OXXO","#E30613","#9E040D","#FFFFFF"),("Walmart México","#0071CE","#004A87","#FFFFFF"),("Liverpool","#E10098","#9E006B","#FFFFFF"),("Coppel","#FFD100","#C9A200","#1A1A1A")]),
   Market(code: "pt", label: "A seguir", cards: [("Continente","#E30613","#9E040D","#FFFFFF"),("Pingo Doce","#76B82A","#4E7C1C","#FFFFFF"),("Worten","#C8102E","#8A0B20","#FFFFFF"),("Fnac","#E1A925","#A87A10","#FFFFFF")]),
+  Market(code: "au", label: "Up next", cards: [("Woolworths","#00843D","#005226","#FFFFFF"),("Coles","#E01A22","#9E1218","#FFFFFF"),("Flybuys","#00A3E0","#00729D","#FFFFFF"),("Chemist Warehouse","#2A2A2A","#0B0B0B","#FFFFFF")]),
+  Market(code: "ca", label: "Up next", cards: [("Tim Hortons","#C8102E","#8A0B20","#FFFFFF"),("PC Optimum","#2A2A2A","#0B0B0B","#FFFFFF"),("Air Miles","#00A3E0","#00729D","#FFFFFF"),("Sobeys","#00843D","#005226","#FFFFFF")]),
+  Market(code: "cf", label: "À suivre", cards: [("Tim Hortons","#C8102E","#8A0B20","#FFFFFF"),("PC Optimum","#2A2A2A","#0B0B0B","#FFFFFF"),("Air Miles","#00A3E0","#00729D","#FFFFFF"),("Sobeys","#00843D","#005226","#FFFFFF")]),
 ]
 
 func entry(_ m: Market) -> LoyaltyEntry {

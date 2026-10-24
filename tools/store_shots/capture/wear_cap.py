@@ -2,7 +2,10 @@ import json, subprocess, time, sys
 ONLY=sys.argv[1:]
 W=['/tmp/w']
 PKG='com.volkan.wallet_app'
-M={'gb':[('Tesco','#00539F','#003366'),('Boots','#05054B','#02022B'),('Nectar','#5A2D82','#3A1D54'),("Sainsbury's",'#F06C00','#B05000')],
+M={'au':[('Woolworths','#00843D','#005226'),('Coles','#E01A22','#9E1218'),('Flybuys','#00A3E0','#00729D'),('Qantas Frequent Flyer','#E40000','#9E0000')],
+ 'ca':[('Tim Hortons','#C8102E','#8A0B20'),('PC Optimum','#2A2A2A','#0B0B0B'),('Air Miles','#00A3E0','#00729D'),('Sobeys','#00843D','#005226')],
+ 'cf':[('Tim Hortons','#C8102E','#8A0B20'),('PC Optimum','#2A2A2A','#0B0B0B'),('Air Miles','#00A3E0','#00729D'),('Sobeys','#00843D','#005226')],
+ 'gb':[('Tesco','#00539F','#003366'),('Boots','#05054B','#02022B'),('Nectar','#5A2D82','#3A1D54'),("Sainsbury's",'#F06C00','#B05000')],
  'mx':[('OXXO','#E30613','#9E040D'),('Walmart México','#0071CE','#004A87'),('Liverpool','#E10098','#9E006B'),('Coppel','#FFD100','#C9A200')],
  'pt':[('Continente','#E30613','#9E040D'),('Pingo Doce','#76B82A','#4E7C1C'),('Worten','#C8102E','#8A0B20'),('Fnac','#E1A925','#A87A10')],
  'us':[('Starbucks','#006241','#003D28'),('Target','#CC0000','#8A0000'),('Ulta Beauty','#F26822','#B84A12'),('Best Buy','#0046BE','#002C7A')],

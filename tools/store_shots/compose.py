@@ -24,18 +24,21 @@ RAW = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, '.context', 'stor
 FONTS = os.path.join(RAW, 'fonts')
 CAPS = json.load(open(os.path.join(HERE, 'captions.json'), encoding='utf-8'))
 
-MARKETS = ['us', 'de', 'tr', 'fr', 'es', 'it', 'nl', 'pl', 'br', 'gb', 'mx', 'pt']
+MARKETS = ['us', 'de', 'tr', 'fr', 'es', 'it', 'nl', 'pl', 'br', 'gb', 'mx', 'pt', 'au', 'ca', 'cf']
 APPSTORE_LOCALE = {'us': 'en-US', 'de': 'de-DE', 'tr': 'tr', 'fr': 'fr-FR', 'es': 'es-ES',
                    'it': 'it', 'nl': 'nl-NL', 'pl': 'pl', 'br': 'pt-BR',
-                   'gb': 'en-GB', 'mx': 'es-MX', 'pt': 'pt-PT'}
+                   'gb': 'en-GB', 'mx': 'es-MX', 'pt': 'pt-PT',
+                   'au': 'en-AU', 'ca': 'en-CA', 'cf': 'fr-CA'}
 PLAY_LOCALE = {'us': 'en-US', 'de': 'de-DE', 'tr': 'tr-TR', 'fr': 'fr-FR', 'es': 'es-ES',
                'it': 'it-IT', 'nl': 'nl-NL', 'pl': 'pl-PL', 'br': 'pt-BR',
-               'gb': 'en-GB', 'mx': 'es-419', 'pt': 'pt-PT'}
+               'gb': 'en-GB', 'mx': 'es-419', 'pt': 'pt-PT',
+               'au': 'en-AU', 'ca': 'en-CA', 'cf': 'fr-CA'}
 # First card of each market: checkout background and glows.
 BRAND = {'us': '#006241', 'de': '#CC071E', 'tr': '#FF6600', 'fr': '#004E9F', 'es': '#00873D',
          'it': '#1E6CB5', 'nl': '#00ADE6', 'pl': '#00A651', 'br': '#00843D',
-         'gb': '#00539F', 'mx': '#E30613', 'pt': '#E30613'}
-NO_IBAN = {'us', 'br', 'gb', 'mx'}
+         'gb': '#00539F', 'mx': '#E30613', 'pt': '#E30613',
+         'au': '#00843D', 'ca': '#C8102E', 'cf': '#C8102E'}
+NO_IBAN = {'us', 'br', 'gb', 'mx', 'au', 'ca', 'cf'}
 
 INK = (14, 15, 18)
 LIGHT = (246, 246, 243)

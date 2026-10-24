@@ -115,3 +115,4 @@ Hazır: hedef API 36 (`0950bd4`), Wear Compose 1.5, yayın derlemesi küçültme
 - App Store ana dili **en-US** (önce tr idi): yerelleştirmesi olmayan ülkelerde İngilizce sayfa çıkar.
 - Yeni diller, iki mağazada: **en-GB** (Tesco, Boots, Nectar; İngiliz yazımı), **es-MX** / Play **es-419** (OXXO, Walmart México, Liverpool; ABD mağazası es-MX anahtar kelimelerini de indeksler), **pt-PT** (Continente, Pingo Doce, Worten; Avrupa Portekizcesiyle yazıldı, `tools/store_listing/texts/pt-PT.json`). pt-PT ve es-419 artık başka dilin kopyası değil.
 - Toplam 12 dil. Creative assets bu üç dil için de `fastlane/creative_assets/{en-GB,es-MX,pt-PT}/`.
+- Avustralya ve Kanada: **en-AU** (Woolworths, Coles, Flybuys), **en-CA** ve **fr-CA** (Tim Hortons, PC Optimum, Air Miles, Sobeys). fr-CA, fr-FR metninden; RIB yerine IBAN. Toplam 15 dil.
