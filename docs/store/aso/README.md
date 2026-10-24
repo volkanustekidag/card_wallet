@@ -109,3 +109,9 @@ Hazır: hedef API 36 (`0950bd4`), Wear Compose 1.5, yayın derlemesi küçültme
 - **Google Play:** 10 dilde (yukarıdakiler + es-419, es-ES'in kopyası) başlık, kısa ve tam açıklama, 6 ekran görüntüsü (4. kare Wear OS'suz), öne çıkan görsel. **"İncelemeye gönderilmeyen değişiklikler"** olarak bekliyor: Play Console › Yayın özeti'nden bakıp gönder.
 - **Elle:** App Store creative assets (`fastlane/creative_assets/<dil>/`).
 - Anahtarlar `~/.deckard_keys/` altında (repo dışı, yalnız senin kullanıcın okuyabilir).
+
+## 24 Ekim, ikinci tur
+
+- App Store ana dili **en-US** (önce tr idi): yerelleştirmesi olmayan ülkelerde İngilizce sayfa çıkar.
+- Yeni diller, iki mağazada: **en-GB** (Tesco, Boots, Nectar; İngiliz yazımı), **es-MX** / Play **es-419** (OXXO, Walmart México, Liverpool; ABD mağazası es-MX anahtar kelimelerini de indeksler), **pt-PT** (Continente, Pingo Doce, Worten; Avrupa Portekizcesiyle yazıldı, `tools/store_listing/texts/pt-PT.json`). pt-PT ve es-419 artık başka dilin kopyası değil.
+- Toplam 12 dil. Creative assets bu üç dil için de `fastlane/creative_assets/{en-GB,es-MX,pt-PT}/`.
