@@ -16,6 +16,9 @@ require "tmpdir"
 
 # Locales the stores have that reuse one of ours.
 IOS_MIRRORS = {}
+# Version code from pubspec.yaml ("2.2.0+46" -> 46): picks our release when a
+# track holds several (the live one and a draft).
+VERSION_CODE = File.read("../pubspec.yaml")[/^version:\s*[\d.]+\+(\d+)/, 1].to_i
 PLAY_MIRRORS = {}
 
 def stage(src, mirrors)
@@ -73,6 +76,7 @@ platform :android do
       skip_upload_apk: true,
       skip_upload_aab: true,
       skip_upload_changelogs: true,
+      version_code: VERSION_CODE,
       changes_not_sent_for_review: true
     )
   end
@@ -83,7 +87,7 @@ platform :android do
       json_key: ENV.fetch("PLAY_JSON_KEY"),
       aab: "build/wear/outputs/bundle/release/wear-release.aab",
       track: options[:track] || "wear:internal",
-      release_status: "draft",
+      release_status: options[:status] || "draft",
       skip_upload_metadata: true,
       skip_upload_changelogs: true,
       skip_upload_images: true,
@@ -108,6 +112,7 @@ platform :android do
       skip_upload_metadata: true,
       skip_upload_changelogs: true,
       skip_upload_images: true,
+      version_code: VERSION_CODE,
       changes_not_sent_for_review: true
     )
   end
