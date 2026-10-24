@@ -24,15 +24,18 @@ RAW = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, '.context', 'stor
 FONTS = os.path.join(RAW, 'fonts')
 CAPS = json.load(open(os.path.join(HERE, 'captions.json'), encoding='utf-8'))
 
-MARKETS = ['us', 'de', 'tr', 'fr', 'es', 'it', 'nl', 'pl', 'br']
+MARKETS = ['us', 'de', 'tr', 'fr', 'es', 'it', 'nl', 'pl', 'br', 'gb', 'mx', 'pt']
 APPSTORE_LOCALE = {'us': 'en-US', 'de': 'de-DE', 'tr': 'tr', 'fr': 'fr-FR', 'es': 'es-ES',
-                   'it': 'it', 'nl': 'nl-NL', 'pl': 'pl', 'br': 'pt-BR'}
+                   'it': 'it', 'nl': 'nl-NL', 'pl': 'pl', 'br': 'pt-BR',
+                   'gb': 'en-GB', 'mx': 'es-MX', 'pt': 'pt-PT'}
 PLAY_LOCALE = {'us': 'en-US', 'de': 'de-DE', 'tr': 'tr-TR', 'fr': 'fr-FR', 'es': 'es-ES',
-               'it': 'it-IT', 'nl': 'nl-NL', 'pl': 'pl-PL', 'br': 'pt-BR'}
+               'it': 'it-IT', 'nl': 'nl-NL', 'pl': 'pl-PL', 'br': 'pt-BR',
+               'gb': 'en-GB', 'mx': 'es-419', 'pt': 'pt-PT'}
 # First card of each market: checkout background and glows.
 BRAND = {'us': '#006241', 'de': '#CC071E', 'tr': '#FF6600', 'fr': '#004E9F', 'es': '#00873D',
-         'it': '#1E6CB5', 'nl': '#00ADE6', 'pl': '#00A651', 'br': '#00843D'}
-NO_IBAN = {'us', 'br'}
+         'it': '#1E6CB5', 'nl': '#00ADE6', 'pl': '#00A651', 'br': '#00843D',
+         'gb': '#00539F', 'mx': '#E30613', 'pt': '#E30613'}
+NO_IBAN = {'us', 'br', 'gb', 'mx'}
 
 INK = (14, 15, 18)
 LIGHT = (246, 246, 243)

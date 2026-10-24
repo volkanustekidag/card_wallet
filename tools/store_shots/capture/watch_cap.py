@@ -1,10 +1,11 @@
 import json, subprocess, sys, time
+ONLY=sys.argv[1:]
 W=open('/tmp/watch_id').read().strip()
 BID='com.volkan.walletapp.watchkitapp'
-M={'us':('Starbucks','#006241','#003D28'),'de':('REWE','#CC071E','#8C0414'),'tr':('Migros','#FF6600','#C24A00'),
+M={'gb':('Tesco','#00539F','#003366'),'mx':('OXXO','#E30613','#9E040D'),'pt':('Continente','#E30613','#9E040D'),'us':('Starbucks','#006241','#003D28'),'de':('REWE','#CC071E','#8C0414'),'tr':('Migros','#FF6600','#C24A00'),
    'fr':('Carrefour','#004E9F','#003066'),'es':('El Corte Inglés','#00873D','#005426'),'it':('Esselunga','#1E6CB5','#114273'),
    'nl':('Albert Heijn','#00ADE6','#00739A'),'pl':('Żabka','#00A651','#006B34'),'br':('Pão de Açúcar','#00843D','#005226')}
-for code,(name,c1,c2) in M.items():
+for code,(name,c1,c2) in ([(k,M[k]) for k in ONLY] if ONLY else M.items()):
     cards=[{"id":"c0","name":name,"brand":name,"barcode":"4006381333931","format":"EAN_13","color1":c1,"color2":c2,"fg":"#FFFFFF","useCount":18,"lastUsedAt":None}]
     hexdata=json.dumps(cards,ensure_ascii=False).encode().hex()
     subprocess.run(['xcrun','simctl','terminate',W,BID],capture_output=True)

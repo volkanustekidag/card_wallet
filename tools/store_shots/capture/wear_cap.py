@@ -1,7 +1,11 @@
-import json, subprocess, time
+import json, subprocess, time, sys
+ONLY=sys.argv[1:]
 W=['/tmp/w']
 PKG='com.volkan.wallet_app'
-M={'us':[('Starbucks','#006241','#003D28'),('Target','#CC0000','#8A0000'),('Ulta Beauty','#F26822','#B84A12'),('Best Buy','#0046BE','#002C7A')],
+M={'gb':[('Tesco','#00539F','#003366'),('Boots','#05054B','#02022B'),('Nectar','#5A2D82','#3A1D54'),("Sainsbury's",'#F06C00','#B05000')],
+ 'mx':[('OXXO','#E30613','#9E040D'),('Walmart México','#0071CE','#004A87'),('Liverpool','#E10098','#9E006B'),('Coppel','#FFD100','#C9A200')],
+ 'pt':[('Continente','#E30613','#9E040D'),('Pingo Doce','#76B82A','#4E7C1C'),('Worten','#C8102E','#8A0B20'),('Fnac','#E1A925','#A87A10')],
+ 'us':[('Starbucks','#006241','#003D28'),('Target','#CC0000','#8A0000'),('Ulta Beauty','#F26822','#B84A12'),('Best Buy','#0046BE','#002C7A')],
  'de':[('REWE','#CC071E','#8C0414'),('dm','#002878','#00174A'),('Payback','#003EAA','#002670'),('Douglas','#2A2A2A','#0B0B0B')],
  'tr':[('Migros','#FF6600','#C24A00'),('Kahve Dünyası','#5A2D0C','#341A06'),('D&R','#E30613','#9E040D'),('LC Waikiki','#0047BA','#002C78')],
  'fr':[('Carrefour','#004E9F','#003066'),('Intermarché','#E2001A','#9C0012'),('Fnac','#E1A925','#A87A10'),('Sephora','#2A2A2A','#0B0B0B')],
@@ -11,7 +15,7 @@ M={'us':[('Starbucks','#006241','#003D28'),('Target','#CC0000','#8A0000'),('Ulta
  'pl':[('Żabka','#00A651','#006B34'),('Biedronka','#E30613','#9E040D'),('Lidl','#0050AA','#00326B'),('Douglas','#2A2A2A','#0B0B0B')],
  'br':[('Pão de Açúcar','#00843D','#005226'),('Livelo','#E5007E','#9E0057'),('Drogasil','#E30613','#9E040D'),('Smiles','#FF6600','#C24A00')]}
 def sh(*a, inp=None): return subprocess.run(W+list(a), input=inp, capture_output=True)
-for code,cards in M.items():
+for code,cards in [(k,M[k]) for k in ONLY] if ONLY else M.items():
     payload={"version":1,"cards":[{"id":f"c{i}","name":n,"brand":n,"barcode":"4006381333931","format":"EAN_13","color1":c1,"color2":c2,"fg":"#FFFFFF"} for i,(n,c1,c2) in enumerate(cards)]}
     js=json.dumps(payload,ensure_ascii=False)
     esc=js.replace('&','&amp;').replace('"','&quot;').replace('<','&lt;')

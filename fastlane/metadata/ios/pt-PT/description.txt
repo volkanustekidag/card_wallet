@@ -1,0 +1,45 @@
+O Deckard põe o cartão certo no topo antes de chegar à caixa: o «A seguir» aprende, só no seu iPhone, quando usa cada cartão de cliente, e o código de barras abre com o brilho no máximo. Os seus cartões bancários e IBAN ficam mesmo ao lado. Não precisa de criar conta, não tem anúncios e funciona sem internet.
+
+Na caixa, abra o cartão: o ecrã fica mais claro sozinho e o leitor lê o código de barras à primeira. Os seus cartões também estão no Apple Watch e num widget do ecrã principal.
+
+PRIVADO DESDE O INÍCIO
+• Sem registo, sem conta
+• Sem anúncios
+• Funciona offline
+• Os cartões ficam encriptados no seu dispositivo e não entram na cópia de segurança do iCloud
+• Bloqueio por PIN, Face ID ou Touch ID com bloqueio automático; os seus cartões ficam ocultos ao alternar entre apps
+
+CARTÕES DE CLIENTE
+• Uma câmara para tudo: códigos de cartões de cliente, cartões bancários e IBAN, até a partir de uma fotografia — ou escreva-os
+• «A seguir»: o cartão que costuma usar a esta hora aparece primeiro, aprendido no seu telemóvel
+• Vem de outra app? Importe o ficheiro de exportação ou um passe da Apple Wallet de uma só vez
+• Mais de 500 marcas reconhecidas com logótipo e cores, de qualquer país
+• Brilho máximo enquanto o código de barras estiver aberto
+• Pesquise, filtre por etiquetas e marque os seus favoritos
+• Partilhe um cartão como imagem
+• App para Apple Watch e widget «A seguir» no ecrã principal e no ecrã bloqueado
+
+TAMBÉM CARTÕES DE CRÉDITO E IBAN
+• Guarde cartões de crédito e IBAN junto dos seus cartões de cliente
+• Pesquise em todos os seus cartões no ecrã principal: nome, banco, etiqueta ou últimos 4 dígitos
+• Copie um IBAN com um toque ou partilhe-o como texto ou imagem
+• Lembretes de pagamento e de validade do cartão
+• Compatível com American Express e Diners Club
+• Disponível em 9 idiomas
+
+PREMIUM
+A versão gratuita inclui 3 cartões de cliente, 1 cartão de crédito e 1 IBAN. O Premium acrescenta:
+• Cartões ilimitados
+• Adicionar cartões de cliente à Apple Wallet
+• Cópia de segurança encriptada e restauro, por exemplo ao mudar de telemóvel
+• Código QR para os seus IBAN
+• Mais cores de cartão
+
+O Premium está disponível como subscrição mensal ou anual, ou como compra única vitalícia. O pagamento é cobrado no seu ID Apple. As subscrições renovam-se automaticamente, a menos que sejam canceladas pelo menos 24 horas antes do fim do período em curso. Pode geri-las ou cancelá-las nas definições da sua conta da App Store.
+
+O Deckard não é uma app bancária. Não faz pagamentos, não transfere dinheiro e não se liga ao seu banco.
+
+Quando adiciona um cartão de cliente à Apple Wallet, o nome, o número e a nota desse cartão são enviados para o nosso serviço de assinatura para criar o passe. Nenhum outro dado dos seus cartões sai do dispositivo.
+
+Termos de utilização: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Política de privacidade: https://olkan.dev/privacy/cardwallet

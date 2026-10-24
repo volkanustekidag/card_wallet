@@ -15,8 +15,8 @@ require "fileutils"
 require "tmpdir"
 
 # Locales the stores have that reuse one of ours.
-IOS_MIRRORS = { "pt-PT" => "pt-BR" }
-PLAY_MIRRORS = { "es-419" => "es-ES" }
+IOS_MIRRORS = {}
+PLAY_MIRRORS = {}
 
 def stage(src, mirrors)
   dir = Dir.mktmpdir("deckard-store")

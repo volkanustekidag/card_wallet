@@ -1,0 +1,30 @@
+• Um novo Deckard
+A app foi totalmente redesenhada. A sua carteira é agora um baralho de cartões com as cores e os logótipos de cada marca. Toque em qualquer um para o abrir.
+
+• Uma câmara para todos os cartões
+Toque em + e aponte para um cartão de cliente, um cartão bancário ou um IBAN. Funciona também a partir de uma fotografia, e confirma antes de guardar.
+
+• A seguir
+O Deckard aprende, só no seu iPhone, que cartão usa a cada hora e põe-no primeiro, também no novo widget «A seguir» do ecrã principal e do ecrã bloqueado.
+
+• Traga os seus cartões
+Vem de outra app? Importe o ficheiro de exportação, uma folha de cálculo ou um passe da Apple Wallet.
+
+• Mais de 500 marcas de todos os países
+Os cartões recebem logótipo e cores automaticamente, e pode sempre usar o seu próprio nome para qualquer loja.
+
+• Face ID e Touch ID para todos
+Desbloquear com Face ID ou Touch ID é agora grátis.
+
+• Pesquise em todos os seus cartões
+Encontre qualquer cartão de crédito, IBAN ou cartão de cliente por nome, banco, marca, etiqueta ou últimos 4 dígitos.
+
+• Partilhe um IBAN como imagem
+Com o Premium, a imagem inclui também um código QR de pagamento.
+
+• Bloqueio automático e cartões ocultos ao alternar entre apps.
+
+• Os seus cartões ficam neste iPhone
+Os dados dos cartões já não entram na cópia de segurança do iCloud. Para mudar de telemóvel, use a cópia de segurança encriptada (Premium).
+
+• Brilho máximo ao abrir um código de barras, compatibilidade com American Express e Diners Club, 9 idiomas e muitas correções.

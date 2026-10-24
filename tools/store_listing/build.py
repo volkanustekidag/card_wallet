@@ -85,13 +85,25 @@ def main():
     code = version_code()
     report = []
     for lang, a in ASO.items():
-        body = section(LISTING, lang)
-        notes = section(WHATS_NEW, lang)
-        ios_desc = fix_counts(replace_plans(field(body, 'App Store — Description'), a['premium_appstore'], lang))
-        play_desc = fix_counts(replace_plans(field(body, 'Google Play — Full description'), a['premium_play'], lang))
-        promo = field(body, 'App Store — Promotional Text')
-        ios_notes = fix_counts(field(notes, "App Store — What's New"))
-        play_notes = fix_counts(field(notes, "Google Play — What's new"))
+        if 'texts' in a:
+            # Written for this locale (tools/store_listing/texts/<locale>.json).
+            t = json.load(open(os.path.join(HERE, 'texts', a['texts'] + '.json'), encoding='utf-8'))
+            promo, ios_desc, play_desc = t['promo'], t['desc_ios'], t['desc_play']
+            ios_notes, play_notes = t['notes_ios'], t['notes_play']
+        else:
+            # Another locale's text, adapted (en-GB spelling, Mexican Spanish).
+            src = a.get('base', lang)
+            body = section(LISTING, src)
+            notes = section(WHATS_NEW, src)
+            ios_desc = fix_counts(replace_plans(field(body, 'App Store — Description'), a['premium_appstore'], lang))
+            play_desc = fix_counts(replace_plans(field(body, 'Google Play — Full description'), a['premium_play'], lang))
+            promo = field(body, 'App Store — Promotional Text')
+            ios_notes = fix_counts(field(notes, "App Store — What's New"))
+            play_notes = fix_counts(field(notes, "Google Play — What's new"))
+            for old_word, new_word in a.get('replace', []):
+                ios_desc, play_desc, promo, ios_notes, play_notes = (
+                    re.sub(r'\b' + re.escape(old_word) + r'\b', new_word, x)
+                    for x in (ios_desc, play_desc, promo, ios_notes, play_notes))
         # Keywords must not repeat what the name and subtitle already index.
         indexed = set(re.findall(r'\w+', (a['name'] + ' ' + a['subtitle']).lower()))
         dup = [k for k in a['keywords'].split(',') if k.lower() in indexed]
@@ -119,7 +131,7 @@ def main():
         write(f'{ios}/description.txt', ios_desc)
         write(f'{ios}/release_notes.txt', ios_notes)
         write(f'{ios}/privacy_url.txt', PRIVACY_URL)
-        play = os.path.join(ROOT, 'fastlane/metadata/android', lang)
+        play = os.path.join(ROOT, 'fastlane/metadata/android', a.get('play_locale', lang))
         write(f'{play}/title.txt', a['play_title'])
         write(f'{play}/short_description.txt', a['play_short'])
         write(f'{play}/full_description.txt', play_desc)
