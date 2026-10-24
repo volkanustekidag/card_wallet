@@ -1,6 +1,6 @@
 // Round-trip check for the watch QR encoder: encodes samples with
 // WatchQRCode and decodes them with CoreImage.
-//   swiftc -O ios/CardWalletWatch/BarcodeRenderer.swift tools/watch_qr/check.swift -o /tmp/qrcheck && /tmp/qrcheck
+//   swiftc -O ios/CardWalletWatch/BarcodeRenderer.swift tools/watch_qr/main.swift -o /tmp/qrcheck && /tmp/qrcheck
 // (BarcodeRenderer.swift needs SwiftUI, available on macOS.)
 import Foundation
 import CoreImage
