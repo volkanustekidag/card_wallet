@@ -72,8 +72,8 @@ Yükleme:
 ```sh
 python3 tools/store_listing/build.py      # metinler
 python3 tools/store_shots/compose.py      # görseller (ham çekimler .context/store_raw'da)
-ASC_API_KEY_PATH=~/keys/asc.json fastlane ios metadata
-PLAY_JSON_KEY=~/keys/play.json fastlane android metadata
+ASC_API_KEY_PATH=~/.deckard_keys/asc.json fastlane ios metadata
+PLAY_JSON_KEY=~/.deckard_keys/play.json fastlane android metadata
 ```
 - iOS: metin + ekran görüntüleri, 9 dil. Binary yüklemez, incelemeye göndermez.
 - Android: metin + ekran görüntüleri + öne çıkan görsel, 9 dil. AAB yüklemez, sürüm notunu yüklemez (o, sürümle birlikte gider).
@@ -102,3 +102,10 @@ Hazır: hedef API 36 (`0950bd4`), Wear Compose 1.5, yayın derlemesi küçültme
 3. `PLAY_JSON_KEY=~/keys/play.json fastlane android wear`. AAB'yi `wear:internal` kanalına **taslak** olarak yükler; yayınlamaz. Başka kanal için `track:wear:production`.
 4. `fastlane android wear_screenshots`: Wear görüntülerini 9 dile yükler.
 5. Wear yayına girdikten sonra Play'in 4. karesi Wear'li sürüme dönebilir (`phoneScreenshots/4.png` zaten öyle); o zamana kadar `fastlane/alt/android/<dil>/4_without_wear.png`.
+
+## 24 Ekim yüklemesi (yapıldı)
+
+- **App Store, 2.2.0:** 10 dilde (en-US, de-DE, tr, fr-FR, es-ES, it, nl-NL, pl, pt-BR, pt-PT) ad Deckard, alt başlık, anahtar kelimeler, açıklama, sürüm notu ve 6 ekran görüntüsü. nl-NL, pl, pt-BR yeni dil olarak eklendi; pt-PT'deki Lehçe metin pt-BR metniyle değişti. **Promosyon metni yüklenmedi** (hemen canlıya çıkıyor): sürüm günü `fastlane ios metadata promo:true`. İncelemeye gönderilmedi.
+- **Google Play:** 10 dilde (yukarıdakiler + es-419, es-ES'in kopyası) başlık, kısa ve tam açıklama, 6 ekran görüntüsü (4. kare Wear OS'suz), öne çıkan görsel. **"İncelemeye gönderilmeyen değişiklikler"** olarak bekliyor: Play Console › Yayın özeti'nden bakıp gönder.
+- **Elle:** App Store creative assets (`fastlane/creative_assets/<dil>/`).
+- Anahtarlar `~/.deckard_keys/` altında (repo dışı, yalnız senin kullanıcın okuyabilir).

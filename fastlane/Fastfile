@@ -1,25 +1,44 @@
 # Store listing upload: text, screenshots and the Play feature graphic.
-# Binaries, prices and review submission stay manual.
+# Nothing is submitted: App Store versions stay in "Prepare for Submission",
+# Play changes wait under "Changes not sent for review".
 #
-#   ASC_API_KEY_PATH=~/keys/asc_api_key.json fastlane ios metadata
-#   PLAY_JSON_KEY=~/keys/play-service-account.json fastlane android metadata
+#   ASC_API_KEY_PATH=~/.deckard_keys/asc.json fastlane ios metadata
+#   ASC_API_KEY_PATH=~/.deckard_keys/asc.json fastlane ios metadata promo:true   # release day
+#   PLAY_JSON_KEY=~/.deckard_keys/play.json fastlane android metadata
+#   PLAY_JSON_KEY=~/.deckard_keys/play.json fastlane android metadata wear:true  # once Wear OS is live
 #
 # Regenerate the files first:
 #   python3 tools/store_listing/build.py
 #   python3 tools/store_shots/compose.py
 
+require "fileutils"
+require "tmpdir"
+
+# Locales the stores have that reuse one of ours.
+IOS_MIRRORS = { "pt-PT" => "pt-BR" }
+PLAY_MIRRORS = { "es-419" => "es-ES" }
+
+def stage(src, mirrors)
+  dir = Dir.mktmpdir("deckard-store")
+  FileUtils.cp_r(Dir.glob("#{src}/*"), dir)
+  mirrors.each { |to, from| FileUtils.cp_r("#{dir}/#{from}", "#{dir}/#{to}") }
+  dir
+end
+
 default_platform(:ios)
 
 platform :ios do
-  desc "Upload App Store text + screenshots for every locale (no binary, no submission)"
+  desc "App Store text + screenshots, every locale. promo:true also sends the promotional text (it goes live at once)."
   lane :metadata do |options|
+    meta = stage("metadata/ios", IOS_MIRRORS)
+    Dir.glob("#{meta}/*/promotional_text.txt").each { |f| File.delete(f) } unless options[:promo]
+    shots = stage("screenshots", IOS_MIRRORS)
     deliver(
       api_key_path: ENV.fetch("ASC_API_KEY_PATH"),
       app_version: options[:version] || "2.2.0",
-      metadata_path: "./fastlane/metadata/ios",
-      screenshots_path: "./fastlane/screenshots",
+      metadata_path: meta,
+      screenshots_path: shots,
       skip_binary_upload: true,
-      skip_app_version_update: false,
       overwrite_screenshots: true,
       submit_for_review: false,
       automatic_release: false,
@@ -27,34 +46,26 @@ platform :ios do
       force: true
     )
   end
-
-  desc "Text only (no screenshots)"
-  lane :text do |options|
-    deliver(
-      api_key_path: ENV.fetch("ASC_API_KEY_PATH"),
-      app_version: options[:version] || "2.2.0",
-      metadata_path: "./fastlane/metadata/ios",
-      skip_binary_upload: true,
-      skip_screenshots: true,
-      submit_for_review: false,
-      run_precheck_before_submit: false,
-      force: true
-    )
-  end
 end
 
 platform :android do
-  desc "Upload Play store listing (text, phone screenshots, feature graphic) for every locale"
-  lane :metadata do
+  desc "Play listing (text, phone screenshots, feature graphic), every locale; left unsent for review. wear:true keeps the Wear OS frame 4."
+  lane :metadata do |options|
+    meta = stage("metadata/android", {})
+    Dir.glob("#{meta}/*").each do |dir|
+      FileUtils.rm_rf("#{dir}/changelogs")
+      next if options[:wear]
+      alt = "alt/android/#{File.basename(dir)}/4_without_wear.png"
+      FileUtils.cp(alt, "#{dir}/images/phoneScreenshots/4.png") if File.exist?(alt)
+    end
+    PLAY_MIRRORS.each { |to, from| FileUtils.cp_r("#{meta}/#{from}", "#{meta}/#{to}") }
     supply(
       json_key: ENV.fetch("PLAY_JSON_KEY"),
-      metadata_path: "./fastlane/metadata/android",
+      metadata_path: meta,
       skip_upload_apk: true,
       skip_upload_aab: true,
       skip_upload_changelogs: true,
-      skip_upload_images: false,
-      skip_upload_screenshots: false,
-      sync_image_upload: true
+      changes_not_sent_for_review: true
     )
   end
 
@@ -68,27 +79,28 @@ platform :android do
       skip_upload_metadata: true,
       skip_upload_changelogs: true,
       skip_upload_images: true,
-      skip_upload_screenshots: true
+      skip_upload_screenshots: true,
+      changes_not_sent_for_review: true
     )
   end
 
   desc "Wear OS screenshots for every locale (once the Wear form factor is on)"
   lane :wear_screenshots do
+    meta = Dir.mktmpdir("deckard-wear")
     Dir.glob("later/wear/*").each do |dir|
-      locale = File.basename(dir)
-      dest = "metadata/android/#{locale}/images/wearScreenshots"
+      dest = "#{meta}/#{File.basename(dir)}/images/wearScreenshots"
       FileUtils.mkdir_p(dest)
       FileUtils.cp(Dir.glob("#{dir}/*.png"), dest)
     end
     supply(
       json_key: ENV.fetch("PLAY_JSON_KEY"),
-      metadata_path: "./fastlane/metadata/android",
+      metadata_path: meta,
       skip_upload_apk: true,
       skip_upload_aab: true,
       skip_upload_metadata: true,
       skip_upload_changelogs: true,
       skip_upload_images: true,
-      skip_upload_screenshots: false
+      changes_not_sent_for_review: true
     )
   end
 end
