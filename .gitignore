@@ -61,3 +61,6 @@ fastlane/alt/
 fastlane/later/
 fastlane/report.xml
 fastlane/Preview.html
+
+# Browser tool snapshots
+.playwright-mcp/

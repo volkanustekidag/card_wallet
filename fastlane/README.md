@@ -23,6 +23,22 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 App Store text + screenshots, every locale. promo:true also sends the promotional text (it goes live at once).
 
+### ios upload_build
+
+```sh
+[bundle exec] fastlane ios upload_build
+```
+
+Upload build/ios/ipa/Deckard.ipa to App Store Connect (TestFlight processing; no submission)
+
+### ios attach_build
+
+```sh
+[bundle exec] fastlane ios attach_build
+```
+
+Wait for the pubspec build to process, then select it on the editable version
+
 ----
 
 
