@@ -13,6 +13,7 @@
 
 require "fileutils"
 require "tmpdir"
+require "json"
 
 # Locales the stores have that reuse one of ours.
 IOS_MIRRORS = {}
@@ -48,6 +49,36 @@ platform :ios do
       run_precheck_before_submit: false,
       force: true
     )
+  end
+end
+
+platform :ios do
+  desc "Upload build/ios/ipa/Deckard.ipa to App Store Connect (TestFlight processing; no submission)"
+  lane :upload_build do
+    upload_to_testflight(
+      api_key_path: ENV.fetch("ASC_API_KEY_PATH"),
+      ipa: "build/ios/ipa/Deckard.ipa",
+      skip_waiting_for_build_processing: true,
+      skip_submission: true,
+      distribute_external: false
+    )
+  end
+
+  desc "Wait for the pubspec build to process, then select it on the editable version"
+  lane :attach_build do
+    app_store_connect_api_key(**JSON.parse(File.read(ENV.fetch("ASC_API_KEY_PATH")), symbolize_names: true).slice(:key_id, :issuer_id, :key, :in_house).tap { |h| h[:key_content] = h.delete(:key) })
+    app = Spaceship::ConnectAPI::App.find("com.volkan.walletapp")
+    build = nil
+    60.times do
+      build = Spaceship::ConnectAPI::Build.all(app_id: app.id, build_number: VERSION_CODE.to_s).first
+      break if build && build.processing_state != "PROCESSING"
+      UI.message("waiting for build #{VERSION_CODE}...")
+      sleep 30
+    end
+    UI.user_error!("build #{VERSION_CODE} not processed: #{build&.processing_state}") unless build&.processing_state == "VALID"
+    version = app.get_edit_app_store_version(platform: "IOS")
+    version.select_build(build_id: build.id)
+    UI.success("Build #{VERSION_CODE} selected on #{version.version_string}")
   end
 end
 
