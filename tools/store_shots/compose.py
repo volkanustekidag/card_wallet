@@ -3,7 +3,7 @@
 Raw captures (from the simulators / emulators, see README.md) go in RAW;
 the finished files land in the fastlane folders:
 
-  fastlane/screenshots/<App Store locale>/          6 x 1290x2796 (6.9" slot)
+  fastlane/screenshots/<App Store locale>/          6 x 1290x2796 (6.9" slot) + watch_1.png (Apple Watch Ultra)
   fastlane/creative_assets/<App Store locale>/      header 5244x2950, search 3840x2560
   fastlane/metadata/android/<Play locale>/images/   phoneScreenshots 6 x 1080x1920,
                                                      featureGraphic 1024x500,
@@ -382,6 +382,10 @@ def main():
         hero((5244, 2950), 'ios', m, c['f1'], c['s1']).save(os.path.join(ca_dir, 'header_5244x2950.png'), optimize=True)
         hero((3840, 2560), 'ios', m, c['f1'], c['s1']).save(os.path.join(ca_dir, 'search_3840x2560.png'), optimize=True)
         hero((1024, 500), 'android', m, c['f1'], c['s1']).save(os.path.join(play_dir, 'featureGraphic.png'), optimize=True)
+        # Apple Watch screenshot for the App Store (Ultra, 410x502, unframed).
+        ultra = os.path.join(RAW, 'watch_ultra', f'{m}.png')
+        if os.path.exists(ultra):
+            Image.open(ultra).convert('RGB').save(os.path.join(ios_dir, 'watch_1.png'))
         src = os.path.join(RAW, 'wear', f'{m}_card.png')
         if os.path.exists(src):
             Image.open(src).convert('RGB').save(os.path.join(wear_dir, '1.png'))
