@@ -54,9 +54,17 @@ platform :android do
     meta = stage("metadata/android", {})
     Dir.glob("#{meta}/*").each do |dir|
       FileUtils.rm_rf("#{dir}/changelogs")
-      next if options[:wear]
-      alt = "alt/android/#{File.basename(dir)}/4_without_wear.png"
-      FileUtils.cp(alt, "#{dir}/images/phoneScreenshots/4.png") if File.exist?(alt)
+      images = "#{dir}/images"
+      FileUtils.cp("../docs/store/icon/play_store_512.png", "#{images}/icon.png")
+      unless options[:wear]
+        alt = "alt/android/#{File.basename(dir)}/4_without_wear.png"
+        FileUtils.cp(alt, "#{images}/phoneScreenshots/4.png") if File.exist?(alt)
+      end
+      # The tablet slots get the same frames (the old ones were phone-sized too).
+      %w[sevenInchScreenshots tenInchScreenshots].each do |slot|
+        FileUtils.mkdir_p("#{images}/#{slot}")
+        FileUtils.cp(Dir.glob("#{images}/phoneScreenshots/*.png"), "#{images}/#{slot}")
+      end
     end
     PLAY_MIRRORS.each { |to, from| FileUtils.cp_r("#{meta}/#{from}", "#{meta}/#{to}") }
     supply(
