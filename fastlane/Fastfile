@@ -21,6 +21,7 @@ IOS_MIRRORS = {}
 # Version code from pubspec.yaml ("2.2.0+46" -> 46): picks our release when a
 # track holds several (the live one and a draft).
 VERSION_CODE = File.read("../pubspec.yaml")[/^version:\s*[\d.]+\+(\d+)/, 1].to_i
+VERSION_NAME = File.read("../pubspec.yaml")[/^version:\s*([\d.]+)\+/, 1]
 PLAY_MIRRORS = {}
 
 def stage(src, mirrors)
@@ -40,7 +41,7 @@ platform :ios do
     shots = stage("screenshots", IOS_MIRRORS)
     deliver(
       api_key_path: ENV.fetch("ASC_API_KEY_PATH"),
-      app_version: options[:version] || "2.2.0",
+      app_version: options[:version] || VERSION_NAME,
       metadata_path: meta,
       screenshots_path: shots,
       skip_binary_upload: true,

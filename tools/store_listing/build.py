@@ -27,7 +27,7 @@ PRIVACY_URL = 'https://olkan.dev/privacy/cardwallet'
 SUPPORT_URL = 'https://www.olkan.dev/cardwallet'
 
 # Competitor apps never appear in store text (App Store 2.3.7, Play metadata policy).
-BANNED = ['stocard', 'klarna', 'catima', 'fidme', 'supercards', 'barcodes app']
+BANNED = ['stocard', 'klarna', 'catima', 'fidme', 'supercards', 'barcodes app', 'keyring', 'key ring']
 # The paragraph about plans; rewritten from aso.json (no weekly plan, lifetime added).
 PLAN_WORDS = re.compile(r'week|wöchent|wochen|hafta|hebdo|semanal|settiman|wekelijk|week-|tygodn', re.I)
 
@@ -82,6 +82,15 @@ def version_code():
     return re.search(r'^version:\s*[\d.]+\+(\d+)', pub, re.M).group(1)
 
 
+def version_name():
+    pub = open(os.path.join(ROOT, 'pubspec.yaml'), encoding='utf-8').read()
+    return re.search(r'^version:\s*([\d.]+)\+', pub, re.M).group(1)
+
+
+# A small release's one-line "What's new" per locale, in place of whats_new.md.
+PATCH_NOTES = json.load(open(os.path.join(HERE, 'patch_notes.json'), encoding='utf-8')).get(version_name())
+
+
 def main():
     code = version_code()
     report = []
@@ -105,6 +114,8 @@ def main():
                 ios_desc, play_desc, promo, ios_notes, play_notes = (
                     re.sub(r'\b' + re.escape(old_word) + r'\b', new_word, x)
                     for x in (ios_desc, play_desc, promo, ios_notes, play_notes))
+        if PATCH_NOTES:
+            ios_notes = play_notes = PATCH_NOTES[lang]
         # Keywords must not repeat what the name and subtitle already index.
         indexed = set(re.findall(r'\w+', (a['name'] + ' ' + a['subtitle']).lower()))
         dup = [k for k in a['keywords'].split(',') if k.lower() in indexed]
