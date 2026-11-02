@@ -1,0 +1,1 @@
+Barkod, IBAN ve kart saklama

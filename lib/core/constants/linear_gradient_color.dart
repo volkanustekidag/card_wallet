@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 class LinearGradients {
   var linearGradientList = const [
     // --- v1 free gradients (do not reorder) ---
-    LinearGradient(colors: [Color(0xffaa076b), Color(0xff61045f)]),
+    LinearGradient(colors: [Color(0xff3b4350), Color(0xff1e232b)]), // charcoal
     LinearGradient(colors: [Color(0xFFFF0000), Color(0xFFE81B1E)]),
     LinearGradient(colors: [Color(0xff2b5876), Color(0xff2b5876)]),
     LinearGradient(colors: [Color(0xffff9966), Color(0xffff5e62)]),
@@ -70,6 +70,11 @@ class LinearGradients {
         Color(0xFF56AB2F),
       ],
     ), // Spring
+    LinearGradient(
+      colors: [Color(0xFF6B6F76), Color(0xFFD7D9DD), Color(0xFF5D6168)],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    ), // Titanium (v2)
   ];
 }
 

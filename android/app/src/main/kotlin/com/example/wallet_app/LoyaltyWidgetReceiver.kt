@@ -35,7 +35,7 @@ import com.google.zxing.WriterException
  *    calling `HomeWidget.updateWidget(...)` whenever the user opens a
  *    loyalty card or deletes the cached one.
  */
-class LoyaltyWidgetReceiver : AppWidgetProvider() {
+open class LoyaltyWidgetReceiver : AppWidgetProvider() {
 
     override fun onUpdate(
         context: Context,
@@ -44,73 +44,223 @@ class LoyaltyWidgetReceiver : AppWidgetProvider() {
     ) {
         val prefs = sharedPrefs(context)
         for (id in appWidgetIds) {
-            appWidgetManager.updateAppWidget(id, buildRemoteViews(context, prefs))
+            val wide = isWide(appWidgetManager, id)
+            appWidgetManager.updateAppWidget(id, buildRemoteViews(context, prefs, wide, id))
+        }
+    }
+
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: android.os.Bundle,
+    ) {
+        val wide = isWide(appWidgetManager, appWidgetId)
+        appWidgetManager.updateAppWidget(
+            appWidgetId,
+            buildRemoteViews(context, sharedPrefs(context), wide, appWidgetId),
+        )
+    }
+
+    private fun isWide(manager: AppWidgetManager, id: Int): Boolean {
+        val options = manager.getAppWidgetOptions(id)
+        val minWidth = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 0)
+        return minWidth >= 280
+    }
+
+    /** One card from the `cw_cards` / `cw_all_cards` JSON the app publishes. */
+    protected data class WidgetCard(
+        val id: String,
+        val name: String,
+        val barcode: String,
+        val format: String,
+        val bg: Int,
+        val bg2: Int,
+        val fg: Int,
+        val image: String?,
+    )
+
+    /**
+     * Cards for this moment: the `cw_timeline` slot covering now (hourly,
+     * published by the app for the next 24 h), best guess first. Falls back
+     * to the legacy single-card keys.
+     */
+    /** Cards to draw on widget [widgetId], first one with its barcode. */
+    protected open fun cardsFor(
+        context: Context,
+        prefs: SharedPreferences,
+        widgetId: Int,
+    ): List<WidgetCard> = currentCards(prefs)
+
+    /** Label over the card ("Up Next"); null hides it. */
+    protected open fun label(prefs: SharedPreferences): String? =
+        prefs.getString("cw_label_upnext", null)?.takeIf { it.isNotEmpty() }
+
+    /** Text when there's no card to show. */
+    protected open fun emptyTitle(context: Context, prefs: SharedPreferences, widgetId: Int): String =
+        prefs.getString("cw_label_add", null)?.takeIf { it.isNotEmpty() }
+            ?: context.getString(R.string.loyalty_add_card)
+
+    /** Where tapping an empty widget goes. */
+    protected open fun emptyTapIntent(context: Context, widgetId: Int): PendingIntent =
+        buildDeepLinkPendingIntent(context, "cardwallet://loyalty")
+
+    private fun currentCards(prefs: SharedPreferences): List<WidgetCard> {
+        try {
+            val cardsRaw = prefs.getString("cw_cards", null)
+            val timelineRaw = prefs.getString("cw_timeline", null)
+            if (!cardsRaw.isNullOrEmpty() && !timelineRaw.isNullOrEmpty()) {
+                val byId = HashMap<String, WidgetCard>()
+                for (card in parseCards(cardsRaw)) byId[card.id] = card
+                val slots = org.json.JSONArray(timelineRaw)
+                val now = System.currentTimeMillis() / 1000
+                var chosen: org.json.JSONArray? = null
+                for (i in 0 until slots.length()) {
+                    val slot = slots.getJSONObject(i)
+                    if (slot.optLong("t") <= now || chosen == null) {
+                        chosen = slot.optJSONArray("ids")
+                    }
+                    if (slot.optLong("t") > now) break
+                }
+                val result = ArrayList<WidgetCard>()
+                if (chosen != null) {
+                    for (i in 0 until chosen.length()) {
+                        byId[chosen.optString(i)]?.let { result.add(it) }
+                    }
+                }
+                if (result.isNotEmpty()) return result
+            }
+        } catch (_: Exception) {
+            // Malformed data: fall through to the legacy keys.
+        }
+        val id = prefs.getString(KEY_ID, "").orEmpty()
+        val barcode = prefs.getString(KEY_BARCODE, "").orEmpty()
+        if (id.isEmpty() || barcode.isEmpty()) return emptyList()
+        val name = prefs.getString(KEY_NAME, "").orEmpty()
+        return listOf(
+            WidgetCard(
+                id = id,
+                name = name.ifEmpty { prefs.getString(KEY_BRAND, "").orEmpty() },
+                barcode = barcode,
+                format = prefs.getString(KEY_FORMAT, "").orEmpty(),
+                bg = parseHex(prefs.getString(KEY_COLOR1, "")) ?: Color.parseColor("#1F2937"),
+                bg2 = parseHex(prefs.getString(KEY_COLOR2, "")) ?: Color.parseColor("#111827"),
+                fg = Color.WHITE,
+                image = null,
+            ),
+        )
+    }
+
+    /** Cards in a published JSON list (`cw_cards`, `cw_all_cards`). */
+    protected fun parseCards(raw: String?): List<WidgetCard> {
+        if (raw.isNullOrEmpty()) return emptyList()
+        return try {
+            val cards = org.json.JSONArray(raw)
+            (0 until cards.length()).map { i ->
+                val c = cards.getJSONObject(i)
+                WidgetCard(
+                    id = c.optString("id"),
+                    name = c.optString("name"),
+                    barcode = c.optString("barcode"),
+                    format = c.optString("format"),
+                    bg = parseHex(c.optString("bg")) ?: Color.parseColor("#22252C"),
+                    bg2 = parseHex(c.optString("bg2")) ?: Color.parseColor("#0B0C0F"),
+                    fg = parseHex(c.optString("fg")) ?: Color.WHITE,
+                    image = c.optString("img").takeIf { it.isNotEmpty() && it != "null" },
+                )
+            }
+        } catch (_: Exception) {
+            emptyList()
         }
     }
 
     private fun buildRemoteViews(
         context: Context,
         prefs: SharedPreferences,
+        wide: Boolean,
+        widgetId: Int,
     ): RemoteViews {
-        val views = RemoteViews(context.packageName, R.layout.loyalty_widget)
+        val layout = if (wide) R.layout.loyalty_widget_wide else R.layout.loyalty_widget
+        val views = RemoteViews(context.packageName, layout)
+        val cards = cardsFor(context, prefs, widgetId)
+        val top = cards.firstOrNull()
 
-        val id = prefs.getString(KEY_ID, "").orEmpty()
-        val name = prefs.getString(KEY_NAME, "").orEmpty()
-        val brand = prefs.getString(KEY_BRAND, "").orEmpty()
-        val barcode = prefs.getString(KEY_BARCODE, "").orEmpty()
-        val format = prefs.getString(KEY_FORMAT, "").orEmpty()
-        val color1 = parseHex(prefs.getString(KEY_COLOR1, "")) ?: Color.parseColor("#1F2937")
-        val color2 = parseHex(prefs.getString(KEY_COLOR2, "")) ?: Color.parseColor("#111827")
+        views.setImageViewBitmap(
+            R.id.loyalty_widget_background,
+            gradientBitmap(
+                top?.bg ?: Color.parseColor("#22252C"),
+                top?.bg2 ?: Color.parseColor("#0B0C0F"),
+                if (wide) 800 else 400,
+                400,
+            ),
+        )
 
-        // Background gradient. RemoteViews can't host arbitrary
-        // drawables, but it can set a Bitmap on an ImageView — so we
-        // build the gradient into a bitmap and lay it underneath the
-        // content via an ImageView in the layout.
-        val gradient = gradientBitmap(color1, color2, 600, 360)
-        views.setImageViewBitmap(R.id.loyalty_widget_background, gradient)
-
-        if (id.isEmpty() || barcode.isEmpty()) {
-            // Empty state — user hasn't opened any loyalty card yet, or
-            // the cached one was deleted.
-            views.setTextViewText(
-                R.id.loyalty_widget_title,
-                context.getString(R.string.loyalty_empty_title),
-            )
-            views.setTextViewText(
-                R.id.loyalty_widget_subtitle,
-                context.getString(R.string.loyalty_add_card),
-            )
-            views.setTextViewText(R.id.loyalty_widget_number, "")
+        // Labels published by the app in its own language (falls back to
+        // the system-language resources on older data).
+        val label = label(prefs)
+        if (label != null) {
+            views.setTextViewText(R.id.loyalty_widget_label, label)
+            views.setViewVisibility(R.id.loyalty_widget_label, android.view.View.VISIBLE)
+        } else {
+            views.setViewVisibility(R.id.loyalty_widget_label, android.view.View.GONE)
+        }
+        if (top == null) {
+            views.setTextViewText(R.id.loyalty_widget_title, emptyTitle(context, prefs, widgetId))
             views.setImageViewBitmap(R.id.loyalty_widget_barcode, placeholderBitmap())
-            views.setOnClickPendingIntent(
-                R.id.loyalty_widget_root,
-                buildDeepLinkPendingIntent(context, "cardwallet://loyalty"),
-            )
+            views.setOnClickPendingIntent(R.id.loyalty_widget_root, emptyTapIntent(context, widgetId))
+            if (wide) hideRows(views)
             return views
         }
 
-        val displayName = if (name.isNotEmpty()) name else brand
-        views.setTextViewText(R.id.loyalty_widget_title, displayName)
-        // Brand only appears top-right when it's distinct from the
-        // primary name — the barcode itself is the main affordance now,
-        // no "tap to scan" hint needed.
-        val showBrand = brand.isNotEmpty() && brand != name
-        views.setTextViewText(
-            R.id.loyalty_widget_subtitle,
-            if (showBrand) brand else "",
-        )
-        views.setTextViewText(R.id.loyalty_widget_number, barcode)
-
-        val barcodeBitmap = renderBarcode(barcode, format)
+        views.setTextColor(R.id.loyalty_widget_title, top.fg)
+        views.setTextColor(R.id.loyalty_widget_label, (top.fg and 0x00FFFFFF) or 0xB3000000.toInt())
+        views.setTextViewText(R.id.loyalty_widget_title, top.name)
+        val bitmap = top.image?.let { android.graphics.BitmapFactory.decodeFile(it) }
+            ?: renderBarcode(top.barcode, top.format)
             ?: placeholderBitmap()
-        views.setImageViewBitmap(R.id.loyalty_widget_barcode, barcodeBitmap)
-
+        views.setImageViewBitmap(R.id.loyalty_widget_barcode, bitmap)
         views.setOnClickPendingIntent(
             R.id.loyalty_widget_root,
-            buildDeepLinkPendingIntent(context, "cardwallet://loyalty?id=$id"),
+            buildDeepLinkPendingIntent(context, "cardwallet://loyalty?id=${top.id}"),
         )
 
+        if (wide) {
+            val rows = intArrayOf(
+                R.id.loyalty_widget_row1,
+                R.id.loyalty_widget_row2,
+                R.id.loyalty_widget_row3,
+            )
+            val others = cards.drop(1)
+            for ((i, rowId) in rows.withIndex()) {
+                val card = others.getOrNull(i)
+                if (card == null) {
+                    views.setViewVisibility(rowId, android.view.View.INVISIBLE)
+                    continue
+                }
+                views.setViewVisibility(rowId, android.view.View.VISIBLE)
+                views.setTextViewText(rowId, card.name)
+                views.setTextColor(rowId, top.fg)
+                views.setOnClickPendingIntent(
+                    rowId,
+                    buildDeepLinkPendingIntent(context, "cardwallet://loyalty?id=${card.id}"),
+                )
+            }
+            views.setOnClickPendingIntent(
+                R.id.loyalty_widget_main,
+                buildDeepLinkPendingIntent(context, "cardwallet://loyalty?id=${top.id}"),
+            )
+        }
         return views
+    }
+
+    private fun hideRows(views: RemoteViews) {
+        for (rowId in intArrayOf(
+            R.id.loyalty_widget_row1,
+            R.id.loyalty_widget_row2,
+            R.id.loyalty_widget_row3,
+        )) {
+            views.setViewVisibility(rowId, android.view.View.INVISIBLE)
+        }
     }
 
     /**
@@ -119,7 +269,7 @@ class LoyaltyWidgetReceiver : AppWidgetProvider() {
      * widget lives outside any activity stack, and `FLAG_IMMUTABLE` per
      * Android 12+ security requirements.
      */
-    private fun buildDeepLinkPendingIntent(context: Context, uri: String): PendingIntent {
+    protected fun buildDeepLinkPendingIntent(context: Context, uri: String): PendingIntent {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse(uri)).apply {
             setPackage(context.packageName)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -151,8 +301,11 @@ class LoyaltyWidgetReceiver : AppWidgetProvider() {
             "UPC_A" -> BarcodeFormat.UPC_A
             "UPC_E" -> BarcodeFormat.UPC_E
             "AZTEC" -> BarcodeFormat.AZTEC
-            "PDF_417" -> BarcodeFormat.PDF_417
+            "PDF417", "PDF_417" -> BarcodeFormat.PDF_417
             "ITF" -> BarcodeFormat.ITF
+            "CODE_93" -> BarcodeFormat.CODE_93
+            "CODABAR" -> BarcodeFormat.CODABAR
+            "DATA_MATRIX" -> BarcodeFormat.DATA_MATRIX
             else -> return null
         }
         val width = if (zxingFormat == BarcodeFormat.QR_CODE) 360 else 600
@@ -205,7 +358,7 @@ class LoyaltyWidgetReceiver : AppWidgetProvider() {
         }
     }
 
-    private fun sharedPrefs(context: Context): SharedPreferences {
+    protected fun sharedPrefs(context: Context): SharedPreferences {
         // The home_widget Flutter plugin persists values under this
         // exact name on Android (see HomeWidgetPlugin.kt in the plugin).
         // Reading the same file surfaces whatever Flutter just wrote.

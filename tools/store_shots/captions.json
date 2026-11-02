@@ -1,0 +1,587 @@
+{
+ "us": {
+  "lang": "en",
+  "f1": [
+   "The right card,",
+   "right at checkout"
+  ],
+  "s1": "Up Next learns your routine and puts that card on top.",
+  "f2": [
+   "Bright barcode,",
+   "scanned first time"
+  ],
+  "s2": "Opens at full brightness, ready for the scanner.",
+  "f3": [
+   "All your cards,",
+   "one glance"
+  ],
+  "s3": "Loyalty and bank cards together in a private wallet.",
+  "f4": [
+   "On your lock screen",
+   "and your wrist"
+  ],
+  "s4_ios": "Widgets and Apple Watch put the barcode one glance away.",
+  "s4_android": "Widgets and Wear OS put the barcode one glance away.",
+  "f5": [
+   "Scan a card.",
+   "Done."
+  ],
+  "s5": "Brand, colour and barcode filled in for you.",
+  "f6": [
+   "Never miss",
+   "a due date"
+  ],
+  "s6": "Payment and expiry reminders for your bank cards.",
+  "f4_nowear": [
+   "Right on",
+   "your home screen"
+  ],
+  "s4_nowear": "The Up Next widget puts the barcode one tap away."
+ },
+ "de": {
+  "lang": "de",
+  "f1": [
+   "Die richtige Karte,",
+   "direkt an der Kasse"
+  ],
+  "s1": "„Als Nächstes“ lernt deine Routine und legt die Karte nach oben.",
+  "f2": [
+   "Heller Barcode,",
+   "sofort gescannt"
+  ],
+  "s2": "Öffnet mit voller Helligkeit, bereit für den Scanner.",
+  "f3": [
+   "IBAN teilen",
+   "in Sekunden"
+  ],
+  "s3": "Als Bild, Text oder QR-Code.",
+  "f4": [
+   "Auf dem Sperrbildschirm",
+   "und am Handgelenk"
+  ],
+  "s4_ios": "Widgets und Apple Watch: ein Blick bis zum Barcode.",
+  "s4_android": "Widgets und Wear OS: ein Blick bis zum Barcode.",
+  "f5": [
+   "Karte scannen.",
+   "Fertig."
+  ],
+  "s5": "Marke, Farbe und Barcode werden erkannt.",
+  "f6": [
+   "Keine Frist",
+   "verpassen"
+  ],
+  "s6": "Erinnerung an Zahlung und Ablaufdatum deiner Bankkarten.",
+  "f4_nowear": [
+   "Direkt auf dem",
+   "Startbildschirm"
+  ],
+  "s4_nowear": "Das Widget „Als Nächstes“ zeigt den Barcode mit einem Tipp."
+ },
+ "tr": {
+  "lang": "tr",
+  "f1": [
+   "Doğru kart,",
+   "tam kasada"
+  ],
+  "s1": "Sıradaki, alışkanlığını öğrenir ve o kartı en üste koyar.",
+  "f2": [
+   "Parlak barkod,",
+   "ilk seferde okunur"
+  ],
+  "s2": "Tam parlaklıkta açılır, okuyucuya hazır.",
+  "f3": [
+   "IBAN'ını",
+   "saniyede paylaş"
+  ],
+  "s3": "Görsel, metin ya da QR kod olarak.",
+  "f4": [
+   "Kilit ekranında",
+   "ve bileğinde"
+  ],
+  "s4_ios": "Widget ve Apple Watch ile barkod bir bakış uzağında.",
+  "s4_android": "Widget ve Wear OS ile barkod bir bakış uzağında.",
+  "f5": [
+   "Kartı okut,",
+   "gerisi hazır"
+  ],
+  "s5": "Marka, renk ve barkod kendiliğinden gelir.",
+  "f6": [
+   "Ödeme gününü",
+   "kaçırma"
+  ],
+  "s6": "Banka kartların için ödeme ve son kullanma hatırlatıcıları.",
+  "f4_nowear": [
+   "Ana ekranında,",
+   "tek dokunuşta"
+  ],
+  "s4_nowear": "Sıradaki widget'ı barkodu bir dokunuş uzağına getirir."
+ },
+ "fr": {
+  "lang": "fr",
+  "f1": [
+   "La bonne carte,",
+   "pile à la caisse"
+  ],
+  "s1": "« À suivre » apprend vos habitudes et met cette carte en haut.",
+  "f2": [
+   "Code-barres lumineux,",
+   "lu du premier coup"
+  ],
+  "s2": "S'ouvre en pleine luminosité, prêt pour le scanner.",
+  "f3": [
+   "Partagez votre RIB",
+   "en quelques secondes"
+  ],
+  "s3": "En image, en texte ou en QR code.",
+  "f4": [
+   "Sur l'écran verrouillé",
+   "et à votre poignet"
+  ],
+  "s4_ios": "Widgets et Apple Watch : le code-barres en un coup d'œil.",
+  "s4_android": "Widgets et Wear OS : le code-barres en un coup d'œil.",
+  "f5": [
+   "Scannez la carte.",
+   "C'est fait."
+  ],
+  "s5": "Enseigne, couleur et code-barres remplis pour vous.",
+  "f6": [
+   "Ne ratez plus",
+   "une échéance"
+  ],
+  "s6": "Rappels de paiement et d'expiration pour vos cartes bancaires.",
+  "f4_nowear": [
+   "Directement sur",
+   "l'écran d'accueil"
+  ],
+  "s4_nowear": "Le widget « À suivre » met le code-barres à portée de main."
+ },
+ "es": {
+  "lang": "es",
+  "f1": [
+   "La tarjeta correcta,",
+   "justo en la caja"
+  ],
+  "s1": "«Siguiente» aprende tu rutina y pone esa tarjeta arriba.",
+  "f2": [
+   "Código brillante,",
+   "leído a la primera"
+  ],
+  "s2": "Se abre con el brillo al máximo, listo para el lector.",
+  "f3": [
+   "Comparte tu IBAN",
+   "en segundos"
+  ],
+  "s3": "Como imagen, texto o código QR.",
+  "f4": [
+   "En la pantalla de bloqueo",
+   "y en tu muñeca"
+  ],
+  "s4_ios": "Widgets y Apple Watch: el código a un vistazo.",
+  "s4_android": "Widgets y Wear OS: el código a un vistazo.",
+  "f5": [
+   "Escanea la tarjeta.",
+   "Listo."
+  ],
+  "s5": "Marca, color y código se rellenan solos.",
+  "f6": [
+   "Que no se te pase",
+   "ningún pago"
+  ],
+  "s6": "Avisos de pago y caducidad para tus tarjetas bancarias.",
+  "f4_nowear": [
+   "Directo en tu",
+   "pantalla de inicio"
+  ],
+  "s4_nowear": "El widget «Siguiente» deja el código a un toque."
+ },
+ "it": {
+  "lang": "it",
+  "f1": [
+   "La carta giusta,",
+   "proprio alla cassa"
+  ],
+  "s1": "«Prossima» impara le tue abitudini e mette quella carta in cima.",
+  "f2": [
+   "Codice luminoso,",
+   "letto al primo colpo"
+  ],
+  "s2": "Si apre alla massima luminosità, pronto per lo scanner.",
+  "f3": [
+   "Condividi l'IBAN",
+   "in pochi secondi"
+  ],
+  "s3": "Come immagine, testo o codice QR.",
+  "f4": [
+   "Sulla schermata di blocco",
+   "e al polso"
+  ],
+  "s4_ios": "Widget e Apple Watch: il codice a colpo d'occhio.",
+  "s4_android": "Widget e Wear OS: il codice a colpo d'occhio.",
+  "f5": [
+   "Scansiona la carta.",
+   "Fatto."
+  ],
+  "s5": "Insegna, colore e codice compilati per te.",
+  "f6": [
+   "Non perdere",
+   "una scadenza"
+  ],
+  "s6": "Promemoria di pagamento e scadenza per le tue carte bancarie.",
+  "f4_nowear": [
+   "Direttamente sulla",
+   "schermata Home"
+  ],
+  "s4_nowear": "Il widget «Prossima» porta il codice a portata di tocco."
+ },
+ "nl": {
+  "lang": "nl",
+  "f1": [
+   "De juiste kaart,",
+   "precies bij de kassa"
+  ],
+  "s1": "‘Volgende’ leert je routine en zet die kaart bovenaan.",
+  "f2": [
+   "Heldere barcode,",
+   "in één keer gescand"
+  ],
+  "s2": "Opent op volle helderheid, klaar voor de scanner.",
+  "f3": [
+   "Deel je IBAN",
+   "in seconden"
+  ],
+  "s3": "Als afbeelding, tekst of QR-code.",
+  "f4": [
+   "Op je vergrendelscherm",
+   "en om je pols"
+  ],
+  "s4_ios": "Widgets en Apple Watch: de barcode in één oogopslag.",
+  "s4_android": "Widgets en Wear OS: de barcode in één oogopslag.",
+  "f5": [
+   "Scan de kaart.",
+   "Klaar."
+  ],
+  "s5": "Merk, kleur en barcode worden voor je ingevuld.",
+  "f6": [
+   "Mis nooit meer",
+   "een betaaldag"
+  ],
+  "s6": "Herinneringen voor betaling en vervaldatum van je bankpassen.",
+  "f4_nowear": [
+   "Direct op je",
+   "beginscherm"
+  ],
+  "s4_nowear": "De widget ‘Volgende’ zet de barcode één tik verderop."
+ },
+ "pl": {
+  "lang": "pl",
+  "f1": [
+   "Właściwa karta,",
+   "prosto przy kasie"
+  ],
+  "s1": "„Następna” uczy się Twoich nawyków i wyciąga tę kartę na górę.",
+  "f2": [
+   "Jasny kod,",
+   "odczytany od razu"
+  ],
+  "s2": "Otwiera się z pełną jasnością, gotowy dla skanera.",
+  "f3": [
+   "Udostępnij IBAN",
+   "w kilka sekund"
+  ],
+  "s3": "Jako obraz, tekst lub kod QR.",
+  "f4": [
+   "Na ekranie blokady",
+   "i na nadgarstku"
+  ],
+  "s4_ios": "Widżety i Apple Watch: kod kreskowy w mgnieniu oka.",
+  "s4_android": "Widżety i Wear OS: kod kreskowy w mgnieniu oka.",
+  "f5": [
+   "Zeskanuj kartę.",
+   "Gotowe."
+  ],
+  "s5": "Marka, kolor i kod uzupełniają się same.",
+  "f6": [
+   "Nie przegap",
+   "terminu płatności"
+  ],
+  "s6": "Przypomnienia o płatności i ważności kart bankowych.",
+  "f4_nowear": [
+   "Prosto na",
+   "ekranie głównym"
+  ],
+  "s4_nowear": "Widżet „Następna” daje kod kreskowy na jedno dotknięcie."
+ },
+ "br": {
+  "lang": "pt",
+  "f1": [
+   "O cartão certo,",
+   "na hora do caixa"
+  ],
+  "s1": "O “A seguir” aprende sua rotina e coloca esse cartão no topo.",
+  "f2": [
+   "Código brilhante,",
+   "lido de primeira"
+  ],
+  "s2": "Abre com brilho máximo, pronto para o leitor.",
+  "f3": [
+   "Todos os seus cartões,",
+   "num só lugar"
+  ],
+  "s3": "Fidelidade e cartões de banco juntos numa carteira privada.",
+  "f4": [
+   "Na tela de bloqueio",
+   "e no seu pulso"
+  ],
+  "s4_ios": "Widgets e Apple Watch: o código num piscar de olhos.",
+  "s4_android": "Widgets e Wear OS: o código num piscar de olhos.",
+  "f5": [
+   "Escaneie o cartão.",
+   "Pronto."
+  ],
+  "s5": "Marca, cor e código preenchidos para você.",
+  "f6": [
+   "Nunca perca",
+   "um vencimento"
+  ],
+  "s6": "Lembretes de pagamento e validade dos seus cartões de banco.",
+  "f4_nowear": [
+   "Direto na",
+   "tela inicial"
+  ],
+  "s4_nowear": "O widget “A seguir” deixa o código a um toque."
+ },
+ "gb": {
+  "lang": "en",
+  "f1": [
+   "The right card,",
+   "right at checkout"
+  ],
+  "s1": "Up Next learns your routine and puts that card on top.",
+  "f2": [
+   "Bright barcode,",
+   "scanned first time"
+  ],
+  "s2": "Opens at full brightness, ready for the scanner.",
+  "f3": [
+   "All your cards,",
+   "one glance"
+  ],
+  "s3": "Loyalty and bank cards together in a private wallet.",
+  "f4": [
+   "On your lock screen",
+   "and your wrist"
+  ],
+  "s4_ios": "Widgets and Apple Watch put the barcode one glance away.",
+  "s4_android": "Widgets and Wear OS put the barcode one glance away.",
+  "f5": [
+   "Scan a card.",
+   "Done."
+  ],
+  "s5": "Brand, colour and barcode filled in for you.",
+  "f6": [
+   "Never miss",
+   "a due date"
+  ],
+  "s6": "Payment and expiry reminders for your bank cards.",
+  "f4_nowear": [
+   "Right on",
+   "your home screen"
+  ],
+  "s4_nowear": "The Up Next widget puts the barcode one tap away."
+ },
+ "mx": {
+  "lang": "es",
+  "f1": [
+   "La tarjeta correcta,",
+   "justo en la caja"
+  ],
+  "s1": "«Siguiente» aprende tu rutina y pone esa tarjeta hasta arriba.",
+  "f2": [
+   "Código brillante,",
+   "leído a la primera"
+  ],
+  "s2": "Se abre con el brillo al máximo, listo para el lector.",
+  "f3": [
+   "Todas tus tarjetas,",
+   "en un solo lugar"
+  ],
+  "s3": "Lealtad y tarjetas bancarias juntas en una cartera privada.",
+  "f4": [
+   "En la pantalla de bloqueo",
+   "y en tu muñeca"
+  ],
+  "s4_ios": "Widgets y Apple Watch: el código a un vistazo.",
+  "s4_android": "Widgets y Wear OS: el código a un vistazo.",
+  "f5": [
+   "Escanea la tarjeta.",
+   "Listo."
+  ],
+  "s5": "Marca, color y código se llenan solos.",
+  "f6": [
+   "Que no se te pase",
+   "ningún pago"
+  ],
+  "s6": "Avisos de pago y vencimiento para tus tarjetas bancarias.",
+  "f4_nowear": [
+   "Directo en tu",
+   "pantalla de inicio"
+  ],
+  "s4_nowear": "El widget «Siguiente» deja el código a un toque."
+ },
+ "pt": {
+  "lang": "pt",
+  "f1": [
+   "O cartão certo,",
+   "mesmo na caixa"
+  ],
+  "s1": "O «A seguir» aprende a sua rotina e põe esse cartão no topo.",
+  "f2": [
+   "Código luminoso,",
+   "lido à primeira"
+  ],
+  "s2": "Abre com o brilho no máximo, pronto para o leitor.",
+  "f3": [
+   "Partilhe o seu IBAN",
+   "em segundos"
+  ],
+  "s3": "Como imagem, texto ou código QR.",
+  "f4": [
+   "No ecrã bloqueado",
+   "e no seu pulso"
+  ],
+  "s4_ios": "Widgets e Apple Watch: o código num relance.",
+  "s4_android": "Widgets e Wear OS: o código num relance.",
+  "f5": [
+   "Leia o cartão.",
+   "Pronto."
+  ],
+  "s5": "Marca, cor e código preenchidos por si.",
+  "f6": [
+   "Nunca falhe",
+   "um pagamento"
+  ],
+  "s6": "Lembretes de pagamento e de validade dos seus cartões bancários.",
+  "f4_nowear": [
+   "Mesmo no",
+   "ecrã principal"
+  ],
+  "s4_nowear": "O widget «A seguir» deixa o código a um toque."
+ },
+ "au": {
+  "lang": "en",
+  "f1": [
+   "The right card,",
+   "right at checkout"
+  ],
+  "s1": "Up Next learns your routine and puts that card on top.",
+  "f2": [
+   "Bright barcode,",
+   "scanned first time"
+  ],
+  "s2": "Opens at full brightness, ready for the scanner.",
+  "f3": [
+   "All your cards,",
+   "one glance"
+  ],
+  "s3": "Loyalty and bank cards together in a private wallet.",
+  "f4": [
+   "On your lock screen",
+   "and your wrist"
+  ],
+  "s4_ios": "Widgets and Apple Watch put the barcode one glance away.",
+  "s4_android": "Widgets and Wear OS put the barcode one glance away.",
+  "f5": [
+   "Scan a card.",
+   "Done."
+  ],
+  "s5": "Brand, colour and barcode filled in for you.",
+  "f6": [
+   "Never miss",
+   "a due date"
+  ],
+  "s6": "Payment and expiry reminders for your bank cards.",
+  "f4_nowear": [
+   "Right on",
+   "your home screen"
+  ],
+  "s4_nowear": "The Up Next widget puts the barcode one tap away."
+ },
+ "ca": {
+  "lang": "en",
+  "f1": [
+   "The right card,",
+   "right at checkout"
+  ],
+  "s1": "Up Next learns your routine and puts that card on top.",
+  "f2": [
+   "Bright barcode,",
+   "scanned first time"
+  ],
+  "s2": "Opens at full brightness, ready for the scanner.",
+  "f3": [
+   "All your cards,",
+   "one glance"
+  ],
+  "s3": "Loyalty and bank cards together in a private wallet.",
+  "f4": [
+   "On your lock screen",
+   "and your wrist"
+  ],
+  "s4_ios": "Widgets and Apple Watch put the barcode one glance away.",
+  "s4_android": "Widgets and Wear OS put the barcode one glance away.",
+  "f5": [
+   "Scan a card.",
+   "Done."
+  ],
+  "s5": "Brand, colour and barcode filled in for you.",
+  "f6": [
+   "Never miss",
+   "a due date"
+  ],
+  "s6": "Payment and expiry reminders for your bank cards.",
+  "f4_nowear": [
+   "Right on",
+   "your home screen"
+  ],
+  "s4_nowear": "The Up Next widget puts the barcode one tap away."
+ },
+ "cf": {
+  "lang": "fr",
+  "f1": [
+   "La bonne carte,",
+   "pile à la caisse"
+  ],
+  "s1": "« À suivre » apprend vos habitudes et met cette carte en haut.",
+  "f2": [
+   "Code-barres lumineux,",
+   "lu du premier coup"
+  ],
+  "s2": "S'ouvre en pleine luminosité, prêt pour le scanner.",
+  "f3": [
+   "Toutes vos cartes,",
+   "au même endroit"
+  ],
+  "s3": "Fidélité et cartes bancaires réunies dans un portefeuille privé.",
+  "f4": [
+   "Sur l'écran verrouillé",
+   "et à votre poignet"
+  ],
+  "s4_ios": "Widgets et Apple Watch : le code-barres en un coup d'œil.",
+  "s4_android": "Widgets et Wear OS : le code-barres en un coup d'œil.",
+  "f5": [
+   "Scannez la carte.",
+   "C'est fait."
+  ],
+  "s5": "Enseigne, couleur et code-barres remplis pour vous.",
+  "f6": [
+   "Ne ratez plus",
+   "une échéance"
+  ],
+  "s6": "Rappels de paiement et d'expiration pour vos cartes bancaires.",
+  "f4_nowear": [
+   "Directement sur",
+   "l'écran d'accueil"
+  ],
+  "s4_nowear": "Le widget « À suivre » met le code-barres à portée de main."
+ }
+}

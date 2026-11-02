@@ -1,0 +1,1 @@
+rewards,membership,points,scan,club,gym,library,pass,widget,watch,offline,private,keytag,shopping

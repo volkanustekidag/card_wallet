@@ -1,43 +1,45 @@
 import WidgetKit
 import SwiftUI
 
-/// One render slice for the widget timeline. `id` empty => empty state
-/// (the user has not opened any loyalty card yet, or the cached one was
-/// deleted). The widget reads each field from the shared App Group
-/// UserDefaults written by the Flutter side (see WidgetDataService.dart).
-struct LoyaltyEntry: TimelineEntry {
-    let date: Date
+/// A loyalty card as published by the app (WidgetDataService.reconcile):
+/// colours follow the card's look in the app; `imagePath` is a PNG of the
+/// barcode rendered by the app itself, so every format scans.
+struct WidgetCard: Identifiable, Hashable {
     let id: String
     let name: String
-    let brand: String
     let barcode: String
     let format: String
-    let primaryHex: String
-    let secondaryHex: String
+    let bgHex: String
+    let bg2Hex: String
+    let fgHex: String
+    let imagePath: String?
 
-    var hasCard: Bool { !id.isEmpty && !barcode.isEmpty }
-    var displayName: String { name.isEmpty ? brand : name }
-    var hasDistinctBrand: Bool { !brand.isEmpty && brand != name }
+    var deepLink: URL? {
+        // `homeWidget=1` is required by the home_widget plugin's URL filter.
+        URL(string: "cardwallet://loyalty?homeWidget=1&id=\(id)")
+    }
+}
 
-    static let placeholder = LoyaltyEntry(
-        date: Date(),
-        id: "preview-id",
-        name: "Starbucks Rewards",
-        brand: "Starbucks",
-        barcode: "1234567890",
-        format: "CODE_128",
-        primaryHex: "#1F2937",
-        secondaryHex: "#111827"
-    )
+/// One timeline slot: the cards to show, best guess first ("Up Next").
+struct LoyaltyEntry: TimelineEntry {
+    let date: Date
+    let cards: [WidgetCard]
+    /// "Up Next" in the app's language (the user may run the app in a
+    /// language other than the system one). Nil → string catalog.
+    var upNextLabel: String? = nil
 
-    static let empty = LoyaltyEntry(
-        date: Date(),
-        id: "",
-        name: "",
-        brand: "",
-        barcode: "",
-        format: "",
-        primaryHex: "#1F2937",
-        secondaryHex: "#111827"
-    )
+    var upNext: WidgetCard? { cards.first }
+    var others: [WidgetCard] { Array(cards.dropFirst()) }
+
+    static let placeholder = LoyaltyEntry(date: Date(), cards: [
+        WidgetCard(id: "preview", name: "Coffee Club", barcode: "6061234567890123",
+                   format: "CODE_128", bgHex: "#1A8A62", bg2Hex: "#0D4F3B",
+                   fgHex: "#FFFFFF", imagePath: nil),
+        WidgetCard(id: "p2", name: "Grocer", barcode: "1", format: "CODE_128",
+                   bgHex: "#D7332F", bg2Hex: "#8E1B1F", fgHex: "#FFFFFF", imagePath: nil),
+        WidgetCard(id: "p3", name: "Books", barcode: "1", format: "CODE_128",
+                   bgHex: "#3F8FD8", bg2Hex: "#136A8A", fgHex: "#FFFFFF", imagePath: nil),
+    ])
+
+    static let empty = LoyaltyEntry(date: Date(), cards: [])
 }

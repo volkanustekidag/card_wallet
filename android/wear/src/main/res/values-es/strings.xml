@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Deckard</string>
+    <string name="list_title">Tarjetas de fidelidad</string>
+    <string name="empty_title">Añade tarjetas en el móvil</string>
+    <string name="empty_body">Se sincronizan aquí automáticamente.</string>
+    <string name="card_unavailable">Tarjeta no disponible</string>
+    <string name="show_on_phone">Muéstrala en el móvil</string>
+</resources>

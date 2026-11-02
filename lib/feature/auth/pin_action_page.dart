@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:wallet_app/core/components/auth_component.dart';
@@ -126,15 +128,17 @@ class _PinActionPageState extends State<PinActionPage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: context.theme.scaffoldBackgroundColor,
+        backgroundColor: CwColors.of(context).bg,
         extendBodyBehindAppBar: true,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           surfaceTintColor: Colors.transparent,
           scrolledUnderElevation: 0,
           elevation: 0,
+          systemOverlayStyle: cwOverlayStyle(context),
           leading: IconButton(
-            icon: const Icon(Icons.close_rounded),
+            tooltip: MaterialLocalizations.of(context).closeButtonLabel,
+            icon: CwIcon(CwIcons.close, color: CwColors.of(context).ink),
             onPressed: () => Get.back<bool>(result: false),
           ),
         ),

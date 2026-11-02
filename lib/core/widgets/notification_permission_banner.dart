@@ -1,5 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
+import 'package:wallet_app/ui/typography.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 
 /// Inline banner that surfaces when the OS-level notification permission is
@@ -20,8 +23,7 @@ class NotificationPermissionBanner extends StatefulWidget {
 }
 
 class _NotificationPermissionBannerState
-    extends State<NotificationPermissionBanner>
-    with WidgetsBindingObserver {
+    extends State<NotificationPermissionBanner> with WidgetsBindingObserver {
   bool? _enabled;
 
   @override
@@ -56,58 +58,42 @@ class _NotificationPermissionBannerState
   Widget build(BuildContext context) {
     if (_enabled != false) return const SizedBox.shrink();
 
-    final theme = Theme.of(context);
-    final cs = theme.colorScheme;
-    final bg = cs.tertiaryContainer.withValues(alpha: 0.55);
-    final fg = cs.onTertiaryContainer;
-
+    final c = CwColors.of(context);
     return Padding(
       padding: widget.margin,
       child: Container(
-        padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+        padding: const EdgeInsets.fromLTRB(14, 12, 6, 12),
         decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: cs.outlineVariant.withValues(alpha: 0.4)),
+          color: c.warnSoft,
+          borderRadius: BorderRadius.circular(CwRadius.m),
         ),
         child: Row(
           children: [
-            Icon(Icons.notifications_off_outlined, color: fg, size: 22),
-            const SizedBox(width: 12),
+            CwIcon(CwIcons.bell, size: CwIconSize.m, color: c.warn),
+            const SizedBox(width: 10),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'notificationsDisabledBannerTitle'.tr(),
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: fg,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  Text('notificationsDisabledBannerTitle'.tr(),
+                      style: CwType.callout
+                          .copyWith(color: c.ink, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 2),
-                  Text(
-                    'notificationsDisabledBannerBody'.tr(),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: fg.withValues(alpha: 0.85),
-                    ),
-                  ),
+                  Text('notificationsDisabledBannerBody'.tr(),
+                      style: CwType.footnote.copyWith(color: c.ink2)),
                 ],
               ),
             ),
             TextButton(
+              // Asks first (a fresh install was never asked); once the OS
+              // won't ask again this offers the system settings instead.
               onPressed: () async {
-                await CardReminderService().openNotificationSettings();
+                await CardReminderService().requestPermission();
+                await _refresh();
               },
-              style: TextButton.styleFrom(
-                foregroundColor: fg,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              ),
-              child: Text(
-                'openSettings'.tr(),
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
+              child: Text('cwTurnOn'.tr(),
+                  style: CwType.footnote
+                      .copyWith(color: c.accent, fontWeight: FontWeight.w700)),
             ),
           ],
         ),

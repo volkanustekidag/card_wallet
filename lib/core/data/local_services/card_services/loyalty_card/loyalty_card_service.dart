@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:hive/hive.dart';
 import 'package:wallet_app/core/constants/keys.dart';
+import 'package:wallet_app/core/data/storage/card_photo_store.dart';
 import 'package:wallet_app/core/data/storage/encrypted_box_opener.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
@@ -66,7 +67,11 @@ class LoyaltyCardService {
   Future<void> removeLoyaltyCard(LoyaltyCard card) async {
     final box = await _ensureBoxReady();
     final target = box.values.firstWhere((c) => c.id == card.id);
+    final photos = target.photoIds;
     await target.delete();
+    for (final id in photos) {
+      await CardPhotoStore.instance.delete(id);
+    }
   }
 
   Future<void> updateLoyaltyCard(
@@ -74,8 +79,7 @@ class LoyaltyCardService {
     LoyaltyCard updated,
   ) async {
     final box = await _ensureBoxReady();
-    final index =
-        box.values.toList().indexWhere((c) => c.id == original.id);
+    final index = box.values.toList().indexWhere((c) => c.id == original.id);
     if (index == -1) {
       throw Exception('Loyalty card not found for update');
     }
@@ -110,6 +114,7 @@ class LoyaltyCardService {
   Future<void> deleteAllData() async {
     final box = await _ensureBoxReady();
     await box.deleteAll(box.keys);
+    await CardPhotoStore.instance.deleteAll();
   }
 
   Future<Box<LoyaltyCard>> _ensureBoxReady() async {

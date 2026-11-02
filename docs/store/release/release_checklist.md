@@ -1,4 +1,4 @@
-# Card Wallet 2.2.0 (45) — Yayın checklist'i
+# Deckard 2.2.0 (46) — Yayın checklist'i
 
 2.1.0 (44) ayrı yayınlanmıyor; PR #6–#9'daki her şey bu sürümle birlikte çıkıyor. Karşılaştırmalar yayındaki son sürüm olan 2.0.0'a göre.
 
@@ -12,7 +12,7 @@ Sıra: **1. Build → 2. Cihaz testleri → 3. Konsol → 4. Kademeli yayın →
 
 Ana checkout'ta (`~/card_wallet`), `main` güncel ve bu PR merge edilmiş olmalı.
 
-- [ ] `git pull` → `grep '^version' pubspec.yaml` çıktısı `2.2.0+45` olmalı.
+- [ ] `git pull` → `grep '^version' pubspec.yaml` çıktısı `2.2.0+46` olmalı.
 - [ ] `lib/core/constants/keys.dart` gerçek anahtarlarla duruyor (gitignored).
 - [ ] `.dart_defines/wallet.local.env` içinde **yalnızca** `WALLET_EXPORT_BASE_URL=https://cardwallet-wallet-export-134457105597.europe-west1.run.app` var. `WALLET_EXPORT_API_KEY` **olmamalı** (production yetkilendirmesi App Check ile yapılıyor).
 - [ ] `flutter clean && flutter pub get && (cd ios && pod install)`
@@ -20,14 +20,14 @@ Ana checkout'ta (`~/card_wallet`), `main` güncel ve bu PR merge edilmiş olmal�
   ```sh
   DART_DEFINES="--dart-define-from-file=.dart_defines/wallet.local.env" tools/release_build.sh android
   ```
-- [ ] iOS (script `sync_ios_versions.rb`'yi kendisi çalıştırıyor; pbxproj'da diff çıkmamalı, çünkü bu PR'da zaten 2.2.0 (45)'e eşitlendi):
+- [ ] iOS (script `sync_ios_versions.rb`'yi kendisi çalıştırıyor; pbxproj'da diff çıkmamalı, çünkü bu PR'da zaten 2.2.0 (46)'e eşitlendi):
   ```sh
   DART_DEFINES="--dart-define-from-file=.dart_defines/wallet.local.env" tools/release_build.sh ios
   ```
-- [ ] **Sembolleri yedekle:** `symbols/2.2.0+45/android` ve `symbols/2.2.0+45/ios` → özel depolama (`symbols-2.2.0+45/`). Bunlar olmadan obfuscated Crashlytics stack trace'leri çözülemez.
+- [ ] **Sembolleri yedekle:** `symbols/2.2.0+46/android` ve `symbols/2.2.0+46/ios` → özel depolama (`symbols-2.2.0+46/`). Bunlar olmadan obfuscated Crashlytics stack trace'leri çözülemez.
 - [ ] Crashlytics'e sembolleri yükle:
-  - Android: `firebase crashlytics:symbols:upload --app=<android app id> symbols/2.2.0+45/android`
-  - iOS: Xcode Organizer'daki dSYM'i yükle (ya da `upload-symbols`) ve `symbols/2.2.0+45/ios` için de aynı komutu çalıştır.
+  - Android: `firebase crashlytics:symbols:upload --app=<android app id> symbols/2.2.0+46/android`
+  - iOS: Xcode Organizer'daki dSYM'i yükle (ya da `upload-symbols`) ve `symbols/2.2.0+46/ios` için de aynı komutu çalıştır.
 - [ ] Dart-define'ın binary'ye girdiğini kontrol et (0 çıkarsa Wallet export "yapılandırılmamış" hatası verir):
   ```sh
   unzip -p build/app/outputs/bundle/release/app-release.aab base/lib/arm64-v8a/libapp.so | strings | grep -c 'europe-west1.run.app'   # ≥1 olmalı
@@ -42,7 +42,7 @@ PR #6, #7 ve #9'daki "Cihazda doğrulanacak" listeleri tek listede birleştirild
 - [ ] iOS simülatör: kart ekle → `xcrun simctl keychain <device> reset` (Hive dosyaları kalsın) → app splash'te donmadan açılıyor. "Kartların bu cihazda güvende" mesajı **bir kez** çıkıyor, cüzdan boş, yeni kart eklenebiliyor. PIN varsa PIN ekranı gelmiyor.
 - [ ] Bu mesajdaki "Yedekten geri yükle": premium değilse paywall, premiumsa restore akışı açılıyor.
 - [ ] Gerçek iCloud restore (mümkünse): eski yedekte Hive dosyaları olduğu için yetim kutu yolu çalışıyor.
-- [ ] Ayarlar › [ad] › iCloud › Depolamayı Yönet › Yedekler › bu cihaz: Card Wallet boyutu Hive dosyalarını içermiyor. Ya da `xattr -l` çıktısında `com.apple.metadata:com_apple_backup_excludeItem` görünüyor.
+- [ ] Ayarlar › [ad] › iCloud › Depolamayı Yönet › Yedekler › bu cihaz: Deckard boyutu Hive dosyalarını içermiyor. Ya da `xattr -l` çıktısında `com.apple.metadata:com_apple_backup_excludeItem` görünüyor.
 - [ ] Cihaz kilitliyken (ilk unlock öncesi) arka planda başlatma: BootErrorPage açılıyor, kilit açılıp app öne gelince kendiliğinden toparlanıyor.
 - [ ] Android: normal açılış ve kart listesi (regresyon). Keystore hatası simüle edilebiliyorsa BootErrorPage ve home retry.
 - [ ] `AppDelegate.swift` değişikliği iOS release build'de derleniyor (backup exclusion kanalı).

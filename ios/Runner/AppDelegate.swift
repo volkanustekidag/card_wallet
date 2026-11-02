@@ -171,16 +171,19 @@ import WatchConnectivity
     blurView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     overlay.addSubview(blurView)
 
-    if let appIcon = UIImage(named: "AppIcon60x60") ?? UIImage(named: "LaunchImage") {
-      let imageView = UIImageView(image: appIcon)
+    // The app's card-stack mark, no tile: black in light mode, white in
+    // dark (template image tinted with the label colour).
+    if let glyph = UIImage(named: "PrivacyGlyph")?.withRenderingMode(.alwaysTemplate) {
+      let imageView = UIImageView(image: glyph)
+      imageView.tintColor = .label
       imageView.contentMode = .scaleAspectFit
       imageView.translatesAutoresizingMaskIntoConstraints = false
       overlay.addSubview(imageView)
       NSLayoutConstraint.activate([
         imageView.centerXAnchor.constraint(equalTo: overlay.centerXAnchor),
         imageView.centerYAnchor.constraint(equalTo: overlay.centerYAnchor),
-        imageView.widthAnchor.constraint(equalToConstant: 96),
-        imageView.heightAnchor.constraint(equalToConstant: 96),
+        imageView.widthAnchor.constraint(equalToConstant: 64),
+        imageView.heightAnchor.constraint(equalToConstant: 64),
       ])
     }
 

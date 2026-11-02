@@ -16,7 +16,7 @@
 # release tag, e.g. `symbols-2.0.0+30/`.
 #
 # Usage:
-#   tools/release_build.sh android   # builds AAB
+#   tools/release_build.sh android   # builds AABs (phone + Wear OS)
 #   tools/release_build.sh ios       # builds IPA (requires --dart-define
 #                                      env to be set if you also want
 #                                      WALLET_EXPORT_* in the binary)
@@ -45,6 +45,12 @@ build_android() {
     --split-debug-info="${SYMBOL_DIR}/android" \
     ${DART_DEFINES}
   echo "    output: build/app/outputs/bundle/release/app-release.aab"
+  # Wear OS companion: its own AAB, uploaded to the same Play app on the
+  # Wear OS release track. Same version name; version code = 100000000 + phone.
+  # (flutter build above created android/gradlew.)
+  echo "==> Wear OS AAB"
+  (cd android && ./gradlew :wear:bundleRelease -q)
+  echo "    output: build/wear/outputs/bundle/release/wear-release.aab"
 }
 
 sync_ios_versions() {

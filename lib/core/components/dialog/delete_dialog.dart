@@ -1,5 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:wallet_app/ui/components/cw_button.dart';
+import 'package:wallet_app/ui/components/cw_misc.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
+import 'package:wallet_app/ui/typography.dart';
 import 'package:flutter/services.dart';
 
 /// Shows a modern destructive confirmation as a bottom sheet — replaces the
@@ -20,14 +25,11 @@ Future<bool> showConfirmActionSheet({
   String? cancelText,
   bool destructive = true,
   IconData? icon,
+  CwIcons? glyph,
   Future<void> Function()? onConfirm,
 }) async {
-  final result = await showModalBottomSheet<bool>(
-    context: context,
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-    ),
+  final result = await showCwSheet<bool>(
+    context,
     builder: (sheetContext) => _ConfirmSheet(
       title: title,
       content: content,
@@ -35,6 +37,7 @@ Future<bool> showConfirmActionSheet({
       cancelText: cancelText ?? 'cancel'.tr(),
       destructive: destructive,
       icon: icon,
+      glyph: glyph,
       onConfirm: onConfirm,
     ),
   );
@@ -48,6 +51,7 @@ class _ConfirmSheet extends StatefulWidget {
   final String cancelText;
   final bool destructive;
   final IconData? icon;
+  final CwIcons? glyph;
   final Future<void> Function()? onConfirm;
 
   const _ConfirmSheet({
@@ -57,6 +61,7 @@ class _ConfirmSheet extends StatefulWidget {
     required this.cancelText,
     required this.destructive,
     required this.icon,
+    this.glyph,
     required this.onConfirm,
   });
 
@@ -69,126 +74,58 @@ class _ConfirmSheetState extends State<_ConfirmSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final accent = widget.destructive ? colorScheme.error : colorScheme.primary;
-    final onAccent =
-        widget.destructive ? colorScheme.onError : colorScheme.onPrimary;
-    final iconData = widget.icon ??
-        (widget.destructive
-            ? Icons.delete_forever_rounded
-            : Icons.help_outline_rounded);
-
+    final c = CwColors.of(context);
+    final accent = widget.destructive ? c.danger : c.accent;
     return SafeArea(
+      top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+        padding: const EdgeInsets.fromLTRB(20, 6, 20, 12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Center(
               child: Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 20),
+                width: 52,
+                height: 52,
                 decoration: BoxDecoration(
-                  color: colorScheme.onSurface.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(2),
+                  color: widget.destructive ? c.dangerSoft : c.accentSoft,
+                  borderRadius: BorderRadius.circular(16),
                 ),
-              ),
-            ),
-            Center(
-              child: Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.12),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(iconData, color: accent, size: 28),
-              ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              widget.title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            if (widget.content != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                widget.content!,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                  height: 1.4,
-                  color: colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-            ],
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _busy ? null : () => _handleConfirm(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: accent,
-                  foregroundColor: onAccent,
-                  disabledBackgroundColor: accent.withValues(alpha: 0.5),
-                  disabledForegroundColor: onAccent,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                child: _busy
-                    ? SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(onAccent),
-                        ),
-                      )
-                    : Text(
-                        widget.confirmText,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
+                alignment: Alignment.center,
+                child: widget.icon != null
+                    ? Icon(widget.icon, color: accent, size: 24)
+                    : CwIcon(
+                        widget.glyph ??
+                            (widget.destructive ? CwIcons.trash : CwIcons.help),
+                        size: CwIconSize.l,
+                        color: accent,
                       ),
               ),
             ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: double.infinity,
-              child: TextButton(
-                onPressed:
-                    _busy ? null : () => Navigator.of(context).pop(false),
-                style: TextButton.styleFrom(
-                  foregroundColor: colorScheme.onSurface.withValues(alpha: 0.7),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                child: Text(
-                  widget.cancelText,
-                  style: const TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
+            const SizedBox(height: 14),
+            Text(widget.title,
+                textAlign: TextAlign.center,
+                style: CwType.title.copyWith(color: c.ink, fontSize: 20)),
+            if (widget.content != null) ...[
+              const SizedBox(height: 8),
+              Text(widget.content!,
+                  textAlign: TextAlign.center,
+                  style: CwType.callout.copyWith(color: c.ink2, height: 1.4)),
+            ],
+            const SizedBox(height: 22),
+            CwButton(
+              widget.confirmText,
+              kind: widget.destructive
+                  ? CwButtonKind.destructive
+                  : CwButtonKind.primary,
+              loading: _busy,
+              onPressed: _busy ? null : () => _handleConfirm(context),
+            ),
+            const SizedBox(height: 6),
+            CwButton.ghost(
+              widget.cancelText,
+              onPressed: _busy ? null : () => Navigator.of(context).pop(false),
             ),
           ],
         ),

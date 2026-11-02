@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Home-screen widget layout. Uses ImageView underlay for the gradient
-  because RemoteViews can't accept arbitrary GradientDrawable refs at
-  runtime; the receiver builds a Bitmap and slots it in here.
-
-  Design contract (parity with iOS):
-    - Barcode is the primary content (weight=1, fills available space)
-    - Title is compact, single line at the top
-    - Number sits below the barcode in small monospaced text
-    - User can scan straight from the home screen without launching
-      the app
+  Compact "Up Next" widget: label + name on the card colour, the barcode on
+  a white panel filling the rest. Background gradient is an ImageView
+  underlay (RemoteViews can't take a runtime GradientDrawable).
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/loyalty_widget_root"
+    android:background="@drawable/loyalty_widget_preview_bg"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="0dp">
+    android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/loyalty_widget_background"
@@ -29,35 +22,28 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="12dp">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/loyalty_widget_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/loyalty_up_next"
+            android:textAllCaps="true"
+            android:textColor="#B3FFFFFF"
+            android:textSize="9sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08" />
+
+        <TextView
+            android:id="@+id/loyalty_widget_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:baselineAligned="false">
-
-            <TextView
-                android:id="@+id/loyalty_widget_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
-
-            <TextView
-                android:id="@+id/loyalty_widget_subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#B3FFFFFF"
-                android:textSize="10sp"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:layout_marginStart="6dp" />
-        </LinearLayout>
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end" />
 
         <ImageView
             android:id="@+id/loyalty_widget_barcode"
@@ -65,21 +51,9 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_marginTop="6dp"
-            android:layout_marginBottom="4dp"
             android:scaleType="fitCenter"
             android:background="@drawable/loyalty_widget_barcode_panel"
-            android:padding="4dp"
+            android:padding="6dp"
             android:contentDescription="@string/loyalty_widget_barcode_cd" />
-
-        <TextView
-            android:id="@+id/loyalty_widget_number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#E6FFFFFF"
-            android:textSize="9sp"
-            android:maxLines="1"
-            android:ellipsize="middle"
-            android:gravity="center"
-            android:fontFamily="monospace" />
     </LinearLayout>
 </FrameLayout>

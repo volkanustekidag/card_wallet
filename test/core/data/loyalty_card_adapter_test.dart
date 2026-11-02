@@ -90,4 +90,19 @@ void main() {
     expect(box.getAt(0)!.useCount, 4);
     expect(box.getAt(0)!.lastUsedAt, when);
   });
+
+  test('photo ids persist; older cards read with none', () async {
+    Hive.registerAdapter(LoyaltyCardAdapter(), override: true);
+    var box = await Hive.openBox<LoyaltyCard>('loyalty');
+    await box.add(_card()
+      ..frontPhoto = 'front-0001'
+      ..backPhoto = 'back-0002');
+    await box.add(_card());
+    await box.close();
+
+    box = await Hive.openBox<LoyaltyCard>('loyalty');
+    expect(box.getAt(0)!.frontPhoto, 'front-0001');
+    expect(box.getAt(0)!.backPhoto, 'back-0002');
+    expect(box.getAt(1)!.photoIds, isEmpty);
+  });
 }

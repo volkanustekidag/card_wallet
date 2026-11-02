@@ -24,8 +24,14 @@
     <uses-permission android:name="com.google.android.gms.permission.AD_ID" tools:node="remove" />
     <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID" tools:node="remove" />
     <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION" tools:node="remove" />
+    <!--
+      The live scanner (camera plugin) never records audio or video files;
+      it opens the camera with enableAudio: false. Strip what CameraX adds.
+    -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" tools:node="remove" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove" />
    <application
-        android:label="Card Wallet"
+        android:label="Deckard"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
@@ -82,6 +88,28 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/loyalty_widget_info" />
         </receiver>
+        <!-- "Pinned card" widget: one card the user picks (PinnedCardWidgetReceiver.kt). -->
+        <receiver
+            android:name=".PinnedCardWidgetReceiver"
+            android:exported="true"
+            android:label="@string/pinned_widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/pinned_widget_info" />
+        </receiver>
+        <activity
+            android:name=".PinnedCardConfigureActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
         <!--
           Quick Settings tile that opens the most recent loyalty card.
           User has to drag it into their QS panel from the "Edit tiles"

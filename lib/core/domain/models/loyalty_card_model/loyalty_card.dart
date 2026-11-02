@@ -61,6 +61,24 @@ class LoyaltyCard extends HiveObject {
   @HiveField(12)
   int? useCount;
 
+  /// Recent barcode displays as epoch milliseconds, newest last, capped at
+  /// [kUsageLogCap]. Feeds "Up Next" (time-of-day / weekday habits).
+  @HiveField(13)
+  List<int>? usageLog;
+
+  /// ARGB brand colour picked from the brand catalogue. When set the card
+  /// renders in the brand's colour instead of [colorId].
+  @HiveField(14)
+  int? brandColor;
+
+  /// [CardPhotoStore] ids of photos of the card's front and back. A card
+  /// with a front photo may have no barcode at all (shown as the photo).
+  @HiveField(15)
+  String? frontPhoto;
+
+  @HiveField(16)
+  String? backPhoto;
+
   LoyaltyCard({
     required this.id,
     required this.name,
@@ -75,5 +93,20 @@ class LoyaltyCard extends HiveObject {
     this.website,
     this.lastUsedAt,
     this.useCount,
+    this.usageLog,
+    this.brandColor,
+    this.frontPhoto,
+    this.backPhoto,
   });
+
+  bool get hasBarcode => barcode.trim().isNotEmpty;
+
+  /// Photo ids in display order (front first).
+  List<String> get photoIds => [
+        if (frontPhoto != null) frontPhoto!,
+        if (backPhoto != null) backPhoto!,
+      ];
 }
+
+/// How many recent uses [LoyaltyCard.usageLog] keeps.
+const int kUsageLogCap = 40;

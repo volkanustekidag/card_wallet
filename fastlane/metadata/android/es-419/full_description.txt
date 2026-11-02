@@ -1,0 +1,45 @@
+Deckard pone la tarjeta correcta arriba antes de que llegues a la caja: «Siguiente» aprende, solo en tu celular, cuándo usas cada tarjeta de lealtad, y el código de barras se abre con el brillo al máximo. Tus tarjetas bancarias e IBAN están justo al lado. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
+
+En caja, abre la tarjeta: la pantalla sube el brillo sola y el lector lee el código de barras a la primera. Pon tu tarjeta favorita en la pantalla de inicio con un widget o ábrela desde un icono de Ajustes rápidos.
+
+Privada desde el principio
+• Sin registro y sin cuenta
+• Sin anuncios
+• Funciona sin conexión
+• Las tarjetas se guardan cifradas en tu dispositivo y no se incluyen en las copias en la nube
+• Bloqueo con PIN, huella o cara y bloqueo automático; las pantallas de tarjetas no salen en capturas ni en apps recientes
+
+Tarjetas de lealtad
+• Una cámara para todo: códigos de lealtad, tarjetas bancarias e IBAN, incluso desde una foto, o escríbelo
+• «Siguiente»: la tarjeta que sueles usar a esta hora aparece primero, aprendido en tu teléfono
+• ¿Vienes de otra app? Importa su archivo de exportación o un archivo .pkpass de una vez
+• Más de 500 marcas reconocidas con su logo y colores, de cualquier país
+• Brillo al máximo mientras el código de barras está abierto
+• Busca, filtra por etiquetas y marca tus favoritas
+• Comparte una tarjeta como imagen
+• Widget «Siguiente» e icono de Ajustes rápidos
+
+También tarjetas bancarias e IBAN
+• Guarda tarjetas de crédito e IBAN junto a tus tarjetas de lealtad
+• Busca en todas tus tarjetas desde el inicio: nombre, banco, etiqueta o últimos 4 dígitos
+• Copia un IBAN con un toque o compártelo como texto o imagen
+• Recordatorios de pago y de vencimiento de tus tarjetas
+• Compatible con American Express y Diners Club
+• Disponible en 9 idiomas
+
+Premium
+La versión gratuita incluye 3 tarjetas de lealtad, 1 tarjeta de crédito y 1 IBAN. Premium añade:
+• Tarjetas ilimitadas
+• Guardar tarjetas de lealtad en Google Wallet
+• Copia de seguridad cifrada y restauración, por ejemplo al cambiar de teléfono
+• Códigos QR para tus IBAN
+• Más colores de tarjeta
+
+Premium se ofrece como suscripción mensual o anual con renovación automática, o como compra única de por vida. Puedes cancelar una suscripción cuando quieras en Google Play › Pagos y suscripciones.
+
+Deckard no es una app bancaria. No hace pagos, no mueve dinero y no se conecta con tu banco.
+
+Cuando guardas una tarjeta de lealtad en Google Wallet, su nombre, su número y su nota se envían a nuestro servicio de firma para crear el pase. Ningún otro dato de tus tarjetas sale de tu dispositivo.
+
+Política de privacidad: https://olkan.dev/privacy/cardwallet
+Condiciones de uso: https://olkan.dev/terms/cardwallet

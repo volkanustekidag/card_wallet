@@ -1,0 +1,85 @@
+plugins {
+    id "com.android.application"
+    id "org.jetbrains.kotlin.android"
+    id "org.jetbrains.kotlin.plugin.compose"
+}
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader -> localProperties.load(reader) }
+}
+def phoneVersionCode = (localProperties.getProperty('flutter.versionCode') ?: '1').toInteger()
+def phoneVersionName = localProperties.getProperty('flutter.versionName') ?: '1.0'
+
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    namespace 'com.volkan.wallet_app.wear'
+    compileSdk = 36
+
+    defaultConfig {
+        // Same application id and signing key as the phone app: the Wear
+        // Data Layer only connects apps that match on both.
+        applicationId "com.volkan.wallet_app"
+        minSdk = 30
+        targetSdk = 36
+        // Play wants a distinct version code per artifact of the app.
+        versionCode = 100000000 + phoneVersionCode
+        versionName = phoneVersionName
+    }
+
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            // Same keystore as the phone app (paths in key.properties are
+            // relative to android/app, like there).
+            def ks = keystoreProperties['storeFile']
+            storeFile ks ? (new File(ks).isAbsolute() ? file(ks) : rootProject.file("app/" + ks)) : null
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+}
+
+dependencies {
+    implementation platform('androidx.compose:compose-bom:2025.06.00')
+    implementation 'androidx.compose.ui:ui'
+    implementation 'androidx.activity:activity-compose:1.10.1'
+    implementation 'androidx.wear.compose:compose-material:1.5.0'
+    implementation 'androidx.wear.compose:compose-foundation:1.5.0'
+    implementation 'androidx.wear.compose:compose-navigation:1.5.0'
+    implementation 'com.google.android.gms:play-services-wearable:19.0.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.9.0'
+    implementation 'com.google.zxing:core:3.5.3'
+}

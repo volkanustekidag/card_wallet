@@ -1,5 +1,7 @@
+import 'dart:typed_data';
 import 'dart:convert';
 
+import 'package:encrypt/encrypt.dart' as enc;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:wallet_app/core/data/services/backup_crypto.dart';
 import 'package:wallet_app/core/data/services/backup_service.dart';
@@ -66,7 +68,8 @@ void main() {
     });
 
     test('round-trips with the production iteration count', () async {
-      final raw = _encryptedFile('secret123', iterations: kBackupPbkdf2Iterations);
+      final raw =
+          _encryptedFile('secret123', iterations: kBackupPbkdf2Iterations);
       expect(await _decode(raw), _payload);
     });
 
@@ -140,7 +143,10 @@ void main() {
 
     test('payload without card lists is rejected', () async {
       await expectLater(
-        _decode(jsonEncode({'version': '1.0', 'data': {'creditCards': 1}})),
+        _decode(jsonEncode({
+          'version': '1.0',
+          'data': {'creditCards': 1}
+        })),
         throwsA(_backupError(BackupErrorKind.invalidFormat)),
       );
     });
@@ -189,6 +195,66 @@ void main() {
       expect(restored.id, 'l1');
       expect(restored.useCount, isNull);
       expect(restored.lastUsedAt, isNull);
+    });
+  });
+
+  test('loyalty card photos survive the backup shape', () {
+    final card = LoyaltyCard(
+      id: 'l9',
+      name: 'Library',
+      barcode: '',
+      barcodeFormat: 'CODE_128',
+      colorId: 0,
+      frontPhoto: 'front-0001-aaaa',
+      backPhoto: 'back-0002-bbbb',
+    );
+    final back = BackupService.loyaltyCardFromJson(
+        jsonDecode(jsonEncode(BackupService.loyaltyCardToJson(card))) as Map);
+    expect(back.frontPhoto, 'front-0001-aaaa');
+    expect(back.backPhoto, 'back-0002-bbbb');
+    expect(back.hasBarcode, isFalse);
+    expect(back.photoIds, ['front-0001-aaaa', 'back-0002-bbbb']);
+  });
+
+  group('authenticated GCM (2.2)', () {
+    test('new backups carry the tag', () {
+      final envelope = jsonDecode(_encryptedFile('secret123')) as Map;
+      expect(envelope['version'], '2.2');
+      expect(envelope['tag'], 128);
+    });
+
+    test('any modified byte is rejected, not restored garbled', () async {
+      final envelope =
+          jsonDecode(_encryptedFile('secret123')) as Map<String, dynamic>;
+      final data = base64Decode(envelope['data'] as String);
+      for (final i in [0, data.length ~/ 2, data.length - 1]) {
+        final copy = [...data]..[i] ^= 0x01;
+        await expectLater(
+          _decode(jsonEncode({...envelope, 'data': base64Encode(copy)})),
+          throwsA(_backupError(BackupErrorKind.wrongPassword)),
+        );
+      }
+    });
+
+    test('2.1 backups (untagged GCM) still open', () async {
+      final salt = List<int>.generate(16, (i) => i);
+      final nonce = List<int>.generate(12, (i) => 200 - i);
+      final key = deriveBackupKey('secret123', salt, 1000);
+      final data = enc.Encrypter(
+              enc.AES(enc.Key(key), mode: enc.AESMode.gcm, padding: null))
+          .encrypt(jsonEncode(_payload), iv: enc.IV(Uint8List.fromList(nonce)))
+          .base64;
+      final legacy = jsonEncode({
+        'version': '2.1',
+        'encrypted': true,
+        'algorithm': 'AES-256-GCM',
+        'kdf': 'PBKDF2-HMAC-SHA256',
+        'iterations': 1000,
+        'salt': base64Encode(salt),
+        'nonce': base64Encode(nonce),
+        'data': data,
+      });
+      expect(await _decode(legacy), _payload);
     });
   });
 }

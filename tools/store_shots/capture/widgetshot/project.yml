@@ -1,0 +1,15 @@
+name: WidgetShot
+options:
+  bundleIdPrefix: dev.olkan.shots
+targets:
+  WidgetShot:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources: [Src]
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: dev.olkan.shots.widgetshot
+        CODE_SIGNING_ALLOWED: NO
+        SWIFT_VERSION: 5.0

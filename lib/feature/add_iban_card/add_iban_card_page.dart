@@ -1,206 +1,204 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
-import 'package:wallet_app/core/widgets/add_iban_card_widget.dart';
-import 'package:wallet_app/core/widgets/primary_form_button.dart';
+import 'package:wallet_app/core/utils/validators.dart';
+import 'package:wallet_app/core/widgets/notes_and_tags_section.dart';
+import 'package:wallet_app/feature/add_credit_card/utils/card_bank_detector.dart';
 import 'package:wallet_app/feature/add_iban_card/controller/add_iban_card_controller.dart';
-import 'package:wallet_app/feature/add_iban_card/widgets/add_iban_app_bar.dart';
-import 'package:wallet_app/feature/add_iban_card/widgets/iban_text_forms.dart';
+import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
+import 'package:wallet_app/feature/scanner/live_scanner_page.dart';
+import 'package:wallet_app/feature/scanner/scan_analyzer.dart';
+import 'package:wallet_app/ui/card/wallet_card_faces.dart';
+import 'package:wallet_app/ui/components/cw_button.dart';
+import 'package:wallet_app/ui/components/cw_field.dart';
+import 'package:wallet_app/ui/components/cw_form.dart';
+import 'package:wallet_app/ui/components/cw_list.dart';
+import 'package:wallet_app/ui/components/cw_misc.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
 
+/// Add / edit an IBAN. The IBAN is checked (mod-97, per-country length)
+/// as you type and fills in the bank when the bank code is known.
+/// [prefill] comes from the live scanner.
 class AddIbanCardPage extends StatefulWidget {
   final IbanCard? ibanCard;
+  final IbanHit? prefill;
 
-  const AddIbanCardPage({Key? key, this.ibanCard}) : super(key: key);
+  const AddIbanCardPage({Key? key, this.ibanCard, this.prefill})
+      : super(key: key);
 
   @override
   State<AddIbanCardPage> createState() => _AddIbanCardPageState();
 }
 
 class _AddIbanCardPageState extends State<AddIbanCardPage> {
-  late TextEditingController _ibanController;
-  late FocusNode _ibanFocusNode;
-  late final AddIbanCardController _controller =
-      Get.find<AddIbanCardController>();
-  late final ScrollController _scrollController;
+  late final AddIbanCardController _c = Get.find<AddIbanCardController>();
+  final _iban = TextEditingController();
+  final _holder = TextEditingController();
+  final _bank = TextEditingController();
+  final _swift = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _ibanController = TextEditingController();
-    _ibanFocusNode = FocusNode();
-    _scrollController = ScrollController();
-
     if (widget.ibanCard != null) {
-      _controller.initializeForEdit(widget.ibanCard!);
+      _c.initializeForEdit(widget.ibanCard!);
     } else {
-      _controller.initializeForCreate();
+      _c.initializeForCreate();
     }
-
-    // Auto-expand the preview when the IBAN field gains focus — that's
-    // the one whose typing actually lands on the visible card, and it
-    // sits at the top of the form so it fits above the keyboard while
-    // the card is full-size. Other fields (holder/bank/swift) live
-    // further down: auto-expanding for them just causes a flicker when
-    // Flutter's ensureVisible scrolls them back above the keyboard.
-    FocusManager.instance.addListener(_handleFocusChange);
+    final card = _c.currentCard.value;
+    _iban.text = formatIban(card.iban);
+    _holder.text = card.cardHolder;
+    _bank.text = card.bankName;
+    _swift.text = card.swiftCode;
+    if (widget.prefill != null) _apply(widget.prefill!);
   }
 
   @override
   void dispose() {
-    FocusManager.instance.removeListener(_handleFocusChange);
-    _scrollController.dispose();
-    _ibanController.dispose();
-    _ibanFocusNode.dispose();
+    for (final t in [_iban, _holder, _bank, _swift]) {
+      t.dispose();
+    }
     super.dispose();
   }
 
-  void _handleFocusChange() {
-    if (!mounted) return;
-    final node = FocusManager.instance.primaryFocus;
-    if (node == null || !node.hasFocus) return;
-    if (node != _ibanFocusNode) return;
-    _expandPreview();
+  void _apply(IbanHit hit) {
+    _iban.text = formatIban(hit.iban);
+    _onIban(_iban.text);
+    if (hit.holder != null && hit.holder!.isNotEmpty) {
+      _holder.text = hit.holder!;
+      _c.updateCardField('cardHolder', hit.holder!);
+    }
+    if (hit.bic != null && hit.bic!.isNotEmpty) {
+      _swift.text = hit.bic!;
+      _c.updateCardField('swiftCode', hit.bic!);
+    }
   }
 
-  void _expandPreview() {
-    if (!_scrollController.hasClients) return;
-    if (_scrollController.offset <= 0.5) return;
-    _scrollController.animateTo(
-      0,
-      duration: const Duration(milliseconds: 360),
-      curve: Curves.easeOutCubic,
-    );
+  void _onIban(String v) {
+    _c.updateCardField('iban', v);
+    final detected = CardBankDetector.detectFromIban(v);
+    if (detected != null && _bank.text != detected) {
+      _bank.text = detected;
+      _c.updateCardField('bankName', detected);
+    }
   }
 
-  /// Tap on the collapsed pill: dismiss the keyboard and animate the
-  /// preview back to its full-size state. Lets the user "open" the card
-  /// to verify what they've entered without scrolling all the way up.
-  void _handleCollapsedTap() {
-    FocusScope.of(context).unfocus();
-    _expandPreview();
+  Future<void> _scan() async {
+    final hit = await Navigator.of(context).push<ScanHit>(MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) => const LiveScannerPage(
+        initialMode: ScanMode.iban,
+        returnHit: true,
+      ),
+    ));
+    if (hit is IbanHit && mounted) setState(() => _apply(hit));
   }
 
   @override
   Widget build(BuildContext context) {
-    final mq = MediaQuery.of(context);
-    // Card horizontal margin (12 each side) matches the original layout.
-    final cardWidth = mq.size.width - 24;
-    final cardHeight = cardWidth / 1.586;
-    // Header extents include 8px top/bottom breathing room around the card.
-    final maxExt = cardHeight + 16;
-    const minExt = 80.0;
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: AddIbanAppBar(ibanCard: widget.ibanCard),
-      backgroundColor: colorScheme.surface,
-      body: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: CustomScrollView(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(),
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          slivers: [
-            SliverPersistentHeader(
-              pinned: true,
-              delegate: _IbanPreviewHeaderDelegate(
-                minExt: minExt,
-                maxExt: maxExt,
-                onCollapsedTap: _handleCollapsedTap,
-                builder: (t) => Obx(() => AddIbanCardWidget(
-                      ibanCard: _controller.currentCard.value,
-                      collapse: t,
-                    )),
-              ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-              sliver: SliverToBoxAdapter(
-                child: IbanTextFieldForms(
-                  ibanController: _ibanController,
-                  focusNode: _ibanFocusNode,
-                ),
-              ),
-            ),
-          ],
+    return Obx(() {
+      final card = _c.currentCard.value;
+      final editing = _c.isEditMode.value;
+      final clean = card.iban.replaceAll(RegExp(r'\s'), '').toUpperCase();
+      Widget? status;
+      if (clean.length >= 15) {
+        status = IbanValidator.isValid(clean)
+            ? CwNotice.ok(
+                context, 'cwIbanValid'.tr(args: [clean.substring(0, 2)]))
+            : CwNotice.warn(context, 'cwIbanInvalid'.tr());
+      }
+      return CwFormScaffold(
+        title: editing ? 'cwEditIban'.tr() : 'cwNewIban'.tr(),
+        action: editing
+            ? null
+            : CwHeaderAction(
+                icon: CwIcons.scan, label: 'cwScan'.tr(), onTap: _scan),
+        preview: WalletCardFace(item: WalletItem.iban(card)),
+        button: CwButton(
+          editing ? 'cwSave'.tr() : 'cwAddCard'.tr(),
+          loading: _c.isLoading.value,
+          onPressed: _c.canSave && !_c.isLoading.value
+              ? () => _c.saveCard()
+              : null,
         ),
-      ),
-      bottomNavigationBar: StickyBottomBar(
-        child: Obx(() {
-          final isBusy = _controller.isLoading.value;
-          // Reading currentCard.value makes the button react to typing.
-          final canSave = AddIbanCardController.hasRequiredFields(
-            _controller.currentCard.value,
-          );
-          return PrimaryFormButton(
-            label: _controller.isEditMode.value
-                ? 'updateAction'.tr()
-                : 'addAction'.tr(),
-            isBusy: isBusy,
-            onPressed: isBusy || !canSave ? null : _controller.saveCard,
-          );
-        }),
-      ),
+        children: [
+          CwField(
+            controller: _iban,
+            label: 'IBAN',
+            hint: 'DE89 3704 0044 0532 0130 00',
+            mono: true,
+            autofocus: !editing && widget.prefill == null,
+            textCapitalization: TextCapitalization.characters,
+            maxLength: 42,
+            inputFormatters: [_IbanFormatter()],
+            onChanged: _onIban,
+          ),
+          if (status != null) ...[const SizedBox(height: 10), status],
+          const SizedBox(height: 10),
+          CwField(
+            controller: _holder,
+            label: 'cwHolderIban'.tr(),
+            textCapitalization: TextCapitalization.words,
+            maxLength: 40,
+            onChanged: (v) => _c.updateCardField('cardHolder', v),
+          ),
+          const SizedBox(height: 10),
+          CwField(
+            controller: _bank,
+            label: 'cwBank'.tr(),
+            hint: 'unknownBank'.tr(),
+            maxLength: 40,
+            onChanged: (v) => _c.updateCardField('bankName', v),
+          ),
+          const SizedBox(height: 10),
+          CwField(
+            controller: _swift,
+            label: 'cwSwiftField'.tr(),
+            mono: true,
+            textCapitalization: TextCapitalization.characters,
+            maxLength: 11,
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp('[A-Za-z0-9]')),
+              _UpperFormatter(),
+            ],
+            onChanged: (v) => _c.updateCardField('swiftCode', v),
+          ),
+          CwSectionHeader('cwNotesTags'.tr(),
+              padding: const EdgeInsets.fromLTRB(4, 24, 4, 8)),
+          NotesAndTagsSection(
+            initialNotes: card.notes,
+            initialTags: card.tags,
+            onNotesChanged: (v) => _c.updateCardField('notes', v),
+            onTagsChanged: (v) => _c.updateCardField('tags', v),
+          ),
+          const SizedBox(height: 20),
+          CwTrustLine('cwEncryptedLocal'.tr()),
+        ],
+      );
+    });
+  }
+}
+
+/// Upper-cases, drops anything but letters/digits and groups by four.
+class _IbanFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    final clean =
+        newValue.text.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
+    final grouped = formatIban(clean);
+    return TextEditingValue(
+      text: grouped,
+      selection: TextSelection.collapsed(offset: grouped.length),
     );
   }
 }
 
-/// Pinned header that crossfades [AddIbanCardWidget] from full preview to
-/// compact pill as the user scrolls. The shrink fraction is computed from
-/// the sliver's [shrinkOffset] and forwarded to the card so it can swap
-/// inner content (full IBAN/holder/swift → bank + last-4 + IBAN tag).
-class _IbanPreviewHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final double minExt;
-  final double maxExt;
-  final VoidCallback onCollapsedTap;
-  final Widget Function(double collapse) builder;
-
-  _IbanPreviewHeaderDelegate({
-    required this.minExt,
-    required this.maxExt,
-    required this.onCollapsedTap,
-    required this.builder,
-  });
-
+class _UpperFormatter extends TextInputFormatter {
   @override
-  double get minExtent => minExt;
-
-  @override
-  double get maxExtent => maxExt;
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    final range = (maxExt - minExt).clamp(1.0, double.infinity);
-    final t = (shrinkOffset / range).clamp(0.0, 1.0);
-    // Once the card is mostly collapsed, taps "open" it: dismiss the
-    // keyboard and animate the preview back to full size. Above this
-    // threshold the card is just a static visual — taps fall through
-    // (via opaque hit-testing on the surrounding scrollable).
-    final tappable = t > 0.5;
-    return Container(
-      // Match the scaffold's background — both add pages set it to
-      // `colorScheme.surface`, which differs from `scaffoldBackgroundColor`
-      // (especially in dark mode) so using the latter leaves a visible
-      // darker patch behind the pinned card preview.
-      color: Theme.of(context).colorScheme.surface,
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: tappable ? onCollapsedTap : null,
-        child: builder(t),
-      ),
-    );
-  }
-
-  @override
-  bool shouldRebuild(covariant _IbanPreviewHeaderDelegate oldDelegate) {
-    return oldDelegate.minExt != minExt ||
-        oldDelegate.maxExt != maxExt ||
-        oldDelegate.onCollapsedTap != onCollapsedTap;
-  }
+  TextEditingValue formatEditUpdate(
+          TextEditingValue oldValue, TextEditingValue newValue) =>
+      newValue.copyWith(text: newValue.text.toUpperCase());
 }

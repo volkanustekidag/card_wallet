@@ -30,8 +30,20 @@ void main() {
     expect(cards.last['useCount'], 0);
     expect(cards.last['lastUsedAt'], isNull);
     // The original keys the watch decodes are still there.
-    expect(cards.first.keys, containsAll(
-      ['id', 'name', 'brand', 'barcode', 'format', 'color1', 'color2'],
-    ));
+    expect(
+        cards.first.keys,
+        containsAll(
+          ['id', 'name', 'brand', 'barcode', 'format', 'color1', 'color2'],
+        ));
+  });
+
+  test('photo-only cards stay off the watch', () {
+    final photoOnly = _card('photo')
+      ..barcode = ''
+      ..frontPhoto = 'front-12345678';
+    final json =
+        jsonDecode(WatchSyncService.encodePayload([_card('a'), photoOnly]))
+            as Map<String, dynamic>;
+    expect((json['cards'] as List).map((c) => (c as Map)['id']), ['a']);
   });
 }

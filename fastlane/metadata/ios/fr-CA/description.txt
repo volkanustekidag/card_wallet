@@ -1,0 +1,45 @@
+Deckard met la bonne carte en haut avant que vous arriviez en caisse : « À suivre » apprend, uniquement sur votre iPhone, quand vous utilisez chaque carte de fidélité, et le code-barres s'ouvre en pleine luminosité. Vos cartes bancaires et vos IBAN sont juste à côté. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
+
+En caisse, ouvrez la carte : l'écran s'éclaircit tout seul et le lecteur lit le code-barres du premier coup. Vos cartes sont aussi sur votre Apple Watch et dans un widget de l'écran d'accueil.
+
+PRIVÉE PAR CONCEPTION
+• Pas d'inscription, pas de compte
+• Pas de publicité
+• Fonctionne hors ligne
+• Les cartes sont chiffrées sur votre appareil et ne sont pas incluses dans la sauvegarde iCloud
+• Verrouillage par code PIN, Face ID ou Touch ID avec verrouillage auto ; vos cartes sont masquées dans le sélecteur d'apps
+
+CARTES DE FIDÉLITÉ
+• Un seul appareil photo pour tout : codes de fidélité, cartes bancaires et IBAN, même depuis une photo — ou à la main
+• « À suivre » : la carte qu'il vous faut à cette heure-ci passe en premier, apprise sur votre téléphone
+• Vous venez d'une autre app ? Importez son fichier d'export ou une carte Apple Wallet en une fois
+• Plus de 500 enseignes reconnues, avec logo et couleurs, de tous les pays
+• Luminosité maximale tant qu'un code-barres est affiché
+• Recherche, filtres par étiquette et favoris
+• Partage d'une carte sous forme d'image
+• App Apple Watch et widget « À suivre » sur l'écran d'accueil et l'écran verrouillé
+
+AUSSI POUR LES CARTES BANCAIRES ET LES IBAN
+• Gardez cartes bancaires et IBAN à côté de vos cartes de fidélité
+• Cherchez dans toutes vos cartes depuis l'accueil : nom, banque, étiquette ou 4 derniers chiffres
+• Copiez un IBAN d'un geste, ou partagez-le en texte ou en image
+• Rappels d'échéance de paiement et d'expiration
+• American Express et Diners Club pris en charge
+• Disponible en 9 langues
+
+PREMIUM
+La version gratuite comprend 3 cartes de fidélité, 1 carte bancaire et 1 IBAN. Premium ajoute :
+• Cartes illimitées
+• Ajout des cartes de fidélité à Apple Wallet
+• Sauvegarde et restauration chiffrées, par exemple pour passer à un nouveau téléphone
+• QR codes pour vos IBAN
+• Couleurs de carte supplémentaires
+
+Premium est proposé en abonnement mensuel ou annuel, ou en achat unique à vie. Le paiement est débité sur votre identifiant Apple. Les abonnements se renouvellent automatiquement s'ils ne sont pas résiliés au moins 24 heures avant la fin de la période en cours. Vous pouvez les gérer ou les résilier dans les réglages de votre compte App Store.
+
+Deckard n'est pas une application bancaire. Elle n'effectue pas de paiement, ne transfère pas d'argent et ne se connecte pas à votre banque.
+
+Quand vous ajoutez une carte de fidélité à Apple Wallet, son nom, son numéro et sa note sont envoyés à notre service de signature pour créer le pass. Aucune autre donnée de carte ne quitte votre appareil.
+
+Conditions d'utilisation : https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Politique de confidentialité : https://olkan.dev/privacy/cardwallet

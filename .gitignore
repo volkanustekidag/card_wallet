@@ -52,3 +52,15 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Store images: rebuilt by tools/store_shots/compose.py (~110 MB)
+fastlane/screenshots/
+fastlane/creative_assets/
+fastlane/metadata/android/*/images/
+fastlane/alt/
+fastlane/later/
+fastlane/report.xml
+fastlane/Preview.html
+
+# Browser tool snapshots
+.playwright-mcp/

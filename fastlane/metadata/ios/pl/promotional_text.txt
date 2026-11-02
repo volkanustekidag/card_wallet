@@ -1,0 +1,1 @@
+„Następna” wyciąga na górę kartę, której potrzebujesz, kod otwiera się jasno przy kasie, a karty bankowe i IBAN są obok. Bez konta, działa offline.

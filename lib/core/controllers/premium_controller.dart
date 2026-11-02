@@ -29,6 +29,8 @@ class PremiumController extends GetxController {
       _getProductById(PremiumService.monthlyProductId);
   ProductDetails? get yearlyProduct =>
       _getProductById(PremiumService.yearlyProductId);
+  ProductDetails? get lifetimeProduct =>
+      _getProductById(PremiumService.lifetimeProductId);
   int get creditCardCount => _creditCardCount.value;
   int get ibanCardCount => _ibanCardCount.value;
   int get loyaltyCardCount => _loyaltyCardCount.value;
@@ -145,8 +147,8 @@ class PremiumController extends GetxController {
     return PremiumService.canAddMoreLoyaltyCards(currentCount);
   }
 
-  int get maxCardsForFree => PremiumService.maxCardsForFree;
   int get maxLoyaltyCardsForFree => PremiumService.maxLoyaltyCardsForFree;
+  int freeLimitFor(CardLimitType type) => PremiumService.freeLimitFor(type);
 
   Future<int> getStoredCardCount(CardLimitType type) async {
     switch (type) {
@@ -187,9 +189,11 @@ class PremiumController extends GetxController {
   }
 
   /// Product id of the active subscription, null for lifetime / free.
-  String? get currentPlanId => PremiumService.hasActiveSubscription
-      ? PremiumService.lastSubscriptionProductId
-      : null;
+  /// Lifetime wins over a subscription still running next to it.
+  String? get currentPlanId =>
+      PremiumService.hasActiveSubscription && !PremiumService.hasLifetime
+          ? PremiumService.lastSubscriptionProductId
+          : null;
 
   @override
   void onClose() {

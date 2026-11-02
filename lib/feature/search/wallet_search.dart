@@ -4,6 +4,7 @@ import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.da
 import 'package:wallet_app/core/utils/search_normalize.dart';
 import 'package:wallet_app/core/utils/tag_index.dart';
 import 'package:wallet_app/feature/home/widgets/sections/wallet_item.dart';
+import 'package:wallet_app/core/utils/credit_card_label.dart';
 
 /// Searchable text per card kind:
 ///  * credit: holder, bank, tags, last 4 digits
@@ -18,7 +19,7 @@ List<String> walletSearchFields(WalletItem item) {
       final c = item.card as CreditCard;
       return [
         c.cardHolder,
-        c.bankName,
+        creditCardLabel(c),
         ..._userTags(c.tags),
         last4(c.creditCardNumber),
       ];
@@ -50,10 +51,8 @@ Iterable<String> _userTags(List<String>? tags) =>
 /// [normalizeForSearch] (Turkish- and accent-insensitive). Keeps the input
 /// order (home's newest-first timeline). An empty query returns nothing.
 List<WalletItem> searchWallet(Iterable<WalletItem> items, String query) {
-  final tokens = normalizeForSearch(query)
-      .split(' ')
-      .where((t) => t.isNotEmpty)
-      .toList();
+  final tokens =
+      normalizeForSearch(query).split(' ').where((t) => t.isNotEmpty).toList();
   if (tokens.isEmpty) return const [];
   return items.where((item) {
     // \u0001 keeps a token from matching across two fields.

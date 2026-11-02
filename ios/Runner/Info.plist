@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>CardWallet</string>
+	<string>Deckard</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -27,7 +27,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>CardWallet</string>
+	<string>Deckard</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -58,11 +58,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>CardWallet uses the camera to scan your credit cards, IBANs, and loyalty card barcodes. Card data stays on your device.</string>
+	<string>Deckard uses the camera to scan your credit cards, IBANs, and loyalty card barcodes. Card data stays on your device.</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>CardWallet uses Face ID or Touch ID to unlock your wallet and protect access to your cards.</string>
+	<string>Deckard uses Face ID or Touch ID to unlock your wallet and protect access to your cards.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>CardWallet reads images from your library so you can scan a card photo or barcode you already have saved.</string>
+	<string>Deckard reads images from your library so you can scan a card photo or barcode you already have saved.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

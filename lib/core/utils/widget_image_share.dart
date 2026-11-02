@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -97,8 +98,8 @@ Future<bool> shareWidgetAsImage({
     await Future.delayed(const Duration(milliseconds: 200));
     await WidgetsBinding.instance.endOfFrame;
 
-    final renderObject =
-        boundaryKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    final renderObject = boundaryKey.currentContext?.findRenderObject()
+        as RenderRepaintBoundary?;
     if (renderObject == null) return false;
 
     final image = await renderObject.toImage(pixelRatio: pixelRatio);
@@ -112,18 +113,43 @@ Future<bool> shareWidgetAsImage({
     await file.writeAsBytes(bytes, flush: true);
 
     await AppLockService.guard(() => SharePlus.instance.share(
-      ShareParams(
-        files: [XFile(file.path, mimeType: 'image/png')],
-        // share_plus rejects an empty string (but accepts null).
-        text: (text == null || text.trim().isEmpty) ? null : text,
-        subject: subject,
-        sharePositionOrigin: shareOrigin,
-      ),
-    ));
+          ShareParams(
+            files: [XFile(file.path, mimeType: 'image/png')],
+            // share_plus rejects an empty string (but accepts null).
+            text: (text == null || text.trim().isEmpty) ? null : text,
+            subject: subject,
+            sharePositionOrigin: shareOrigin,
+          ),
+        ));
     return true;
   } catch (_) {
     return false;
   } finally {
     entry.remove();
+  }
+}
+
+/// Shares an image the app already has as bytes (a card photo). The temp
+/// copy is deleted once the share sheet closes.
+Future<bool> shareImageBytes(
+  Uint8List bytes, {
+  required String filename,
+  String mimeType = 'image/jpeg',
+}) async {
+  File? file;
+  try {
+    final dir = await getTemporaryDirectory();
+    file = File('${dir.path}/$filename');
+    await file.writeAsBytes(bytes, flush: true);
+    await AppLockService.guard(() => SharePlus.instance.share(
+          ShareParams(files: [XFile(file!.path, mimeType: mimeType)]),
+        ));
+    return true;
+  } catch (_) {
+    return false;
+  } finally {
+    try {
+      if (file != null && await file.exists()) await file.delete();
+    } catch (_) {}
   }
 }

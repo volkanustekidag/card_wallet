@@ -5,28 +5,27 @@ import 'package:wallet_app/core/data/services/backup_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
+import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
+import 'package:wallet_app/ui/components/cw_button.dart';
+import 'package:wallet_app/ui/components/cw_field.dart';
+import 'package:wallet_app/ui/components/cw_misc.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
+import 'package:wallet_app/ui/typography.dart';
 
 /// Settings › Restore: confirm, pick the file, ask for its password and
 /// replace the wallet. Also started from the home "cards stay on this
 /// device" notice. Callers handle the premium gate.
 Future<void> restoreFromBackupFlow(BuildContext context) async {
-  final confirmed = await Get.dialog<bool>(
-        AlertDialog(
-          title: Text('restoreTitle'.tr()),
-          content: Text('restoreContent'.tr()),
-          actions: [
-            TextButton(
-              onPressed: () => Get.back(result: false),
-              child: Text('cancel'.tr()),
-            ),
-            ElevatedButton(
-              onPressed: () => Get.back(result: true),
-              child: Text('confirm'.tr()),
-            ),
-          ],
-        ),
-      ) ??
-      false;
+  final confirmed = await showConfirmActionSheet(
+    context: context,
+    title: 'restoreTitle'.tr(),
+    content: 'restoreContent'.tr(),
+    confirmText: 'confirm'.tr(),
+    cancelText: 'cancel'.tr(),
+    destructive: false,
+    glyph: CwIcons.restore,
+  );
   if (!confirmed) return;
 
   try {
@@ -57,23 +56,18 @@ Future<void> restoreFromBackupFlow(BuildContext context) async {
 /// v1.0 backups are plain JSON: anyone holding the file can read the card
 /// numbers. Make the user acknowledge that before restoring one.
 Future<bool> _confirmLegacyPlaintextRestore() async {
-  final result = await Get.dialog<bool>(
-    AlertDialog(
-      title: Text('legacyBackupWarningTitle'.tr()),
-      content: Text('legacyBackupWarningBody'.tr()),
-      actions: [
-        TextButton(
-          onPressed: () => Get.back(result: false),
-          child: Text('cancel'.tr()),
-        ),
-        ElevatedButton(
-          onPressed: () => Get.back(result: true),
-          child: Text('legacyBackupWarningConfirm'.tr()),
-        ),
-      ],
-    ),
+  final ctx = Get.context;
+  if (ctx == null) return false;
+  final result = await showConfirmActionSheet(
+    context: ctx,
+    title: 'legacyBackupWarningTitle'.tr(),
+    content: 'legacyBackupWarningBody'.tr(),
+    confirmText: 'legacyBackupWarningConfirm'.tr(),
+    cancelText: 'cancel'.tr(),
+    destructive: true,
+    glyph: CwIcons.warning,
   );
-  return result ?? false;
+  return result;
 }
 
 String localizeBackupError(BackupError e) {
@@ -99,74 +93,65 @@ Future<String?> promptBackupPassword(
   final confirmController = TextEditingController();
   String? errorText;
 
-  final result = await showDialog<String?>(
-    context: context,
-    barrierDismissible: false,
-    builder: (dialogContext) {
-      return StatefulBuilder(builder: (ctx, setLocal) {
-        return AlertDialog(
-          title: Text(title),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(description, style: const TextStyle(fontSize: 13)),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'backupPasswordLabel'.tr(),
-                  ),
+  final result = await showCwSheet<String>(
+    context,
+    builder: (sheet) => StatefulBuilder(builder: (ctx, setLocal) {
+      final c = CwColors.of(ctx);
+      void submit() {
+        final pw = passwordController.text;
+        if (pw.length < 6) {
+          setLocal(() => errorText = 'backupPasswordTooShort'.tr());
+          return;
+        }
+        if (confirmRequired && pw != confirmController.text) {
+          setLocal(() => errorText = 'backupPasswordMismatch'.tr());
+          return;
+        }
+        Navigator.pop(sheet, pw);
+      }
+
+      return SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 14),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(title,
+                  style: CwType.title.copyWith(color: c.ink, fontSize: 20)),
+              const SizedBox(height: 6),
+              Text(description,
+                  style: CwType.callout.copyWith(color: c.ink2, height: 1.4)),
+              const SizedBox(height: 16),
+              CwField(
+                controller: passwordController,
+                label: 'backupPasswordLabel'.tr(),
+                obscure: true,
+                autofocus: true,
+                error: confirmRequired ? null : errorText,
+                onSubmitted: (_) => confirmRequired ? null : submit(),
+              ),
+              if (confirmRequired) ...[
+                const SizedBox(height: 10),
+                CwField(
+                  controller: confirmController,
+                  label: 'backupPasswordConfirmLabel'.tr(),
+                  obscure: true,
+                  error: errorText,
+                  onSubmitted: (_) => submit(),
                 ),
-                if (confirmRequired) ...[
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: confirmController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'backupPasswordConfirmLabel'.tr(),
-                    ),
-                  ),
-                ],
-                if (errorText != null) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    errorText!,
-                    style: TextStyle(
-                      color: Theme.of(ctx).colorScheme.error,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
               ],
-            ),
+              const SizedBox(height: 18),
+              CwButton('confirm'.tr(), onPressed: submit),
+              const SizedBox(height: 6),
+              CwButton.ghost('cancel'.tr(),
+                  onPressed: () => Navigator.pop(sheet)),
+            ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext, null),
-              child: Text('cancel'.tr()),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final pw = passwordController.text;
-                if (pw.length < 6) {
-                  setLocal(() => errorText = 'backupPasswordTooShort'.tr());
-                  return;
-                }
-                if (confirmRequired && pw != confirmController.text) {
-                  setLocal(() => errorText = 'backupPasswordMismatch'.tr());
-                  return;
-                }
-                Navigator.pop(dialogContext, pw);
-              },
-              child: Text('confirm'.tr()),
-            ),
-          ],
-        );
-      });
-    },
+        ),
+      );
+    }),
   );
 
   return result;

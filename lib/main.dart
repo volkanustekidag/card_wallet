@@ -6,6 +6,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:wallet_app/core/brands/brand_catalog.dart';
+import 'package:wallet_app/core/services/ui_prefs.dart';
+import 'package:wallet_app/core/services/widget_data_service.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:hive_flutter/hive_flutter.dart';
@@ -45,14 +48,6 @@ void main() async {
     // English instead of a crash.
     Intl.defaultLocale = kFallbackLocale.toString();
 
-    // Crash reporting and analytics are not worth a dead app: if Firebase
-    // fails to come up, start without it.
-    try {
-      await _initFirebase();
-    } catch (e, st) {
-      ErrorReporter.report(e, st, reason: 'initFirebase');
-    }
-
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
@@ -73,8 +68,17 @@ void main() async {
       ),
       app: const AppWrapper(),
     );
+    // Crash reporting and analytics are not worth a dead app, nor a slower
+    // start: Firebase (a few hundred ms, more on slow phones) comes up once
+    // the first frame — the app or BootErrorPage — is on screen. Reporting
+    // and logging are no-ops until then.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_initFirebase().catchError((Object e, StackTrace st) {
+        ErrorReporter.report(e, st, reason: 'initFirebase');
+      }));
+    });
   }, (error, stack) {
-    if (!kDebugMode) {
+    if (!kDebugMode && Firebase.apps.isNotEmpty) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
     }
   });
@@ -241,9 +245,14 @@ class _AppWrapperState extends State<AppWrapper> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    RateAppService.instance.scheduleInitialPrompt();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) unawaited(_rescheduleReminders(context.locale));
+      // Logos + brand colours; parsed off the UI isolate.
+      unawaited(BrandCatalog.instance.load());
+      // Widget publishing waits for this (off-screen barcode rendering
+      // and localized labels need a running app).
+      WidgetDataService.instance.markUiReady();
+      unawaited(UiPrefs.instance.load());
     });
   }
 
@@ -270,7 +279,6 @@ class _AppWrapperState extends State<AppWrapper> with WidgetsBindingObserver {
       if (Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().refreshData();
       }
-      RateAppService.instance.scheduleInitialPrompt();
     }
   }
 
@@ -302,7 +310,7 @@ class MyApp extends StatelessWidget {
       locale: context.locale,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
-      title: 'Card Wallet',
+      title: 'Deckard',
       debugShowCheckedModeBanner: false,
       theme: AppThemes.lightTheme,
       darkTheme: AppThemes.darkTheme,

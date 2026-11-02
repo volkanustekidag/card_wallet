@@ -1,0 +1,45 @@
+Deckard zet de juiste kaart bovenaan voordat je bij de kassa staat: ‘Volgende’ leert alleen op je telefoon wanneer je welke klantenkaart gebruikt, en de barcode opent op volle helderheid. Je bankpassen en IBAN's staan er direct naast. Je hoeft geen account te maken, er is geen reclame en de app werkt ook zonder internet.
+
+Open bij de kassa je kaart: het scherm wordt vanzelf fel en de scanner leest je barcode in één keer. Zet je favoriete kaart met een widget op je startscherm of open hem via een tegel in Snelle instellingen.
+
+Privé vanaf het begin
+• Geen registratie, geen account
+• Geen reclame
+• Werkt offline
+• Kaarten worden versleuteld op je apparaat bewaard en zitten niet in cloudback-ups
+• Vergrendeling met pincode, vingerafdruk of gezicht en automatisch vergrendelen; kaartschermen zijn verborgen in screenshots en recente apps
+
+Klantenkaarten
+• Eén camera voor alles: klantenkaartcodes, bankpassen en IBAN's, ook uit een foto – of typ het in
+• ‘Volgende’: de kaart die je rond dit tijdstip meestal nodig hebt staat bovenaan, geleerd op je telefoon
+• Overstappen van een andere app? Importeer het exportbestand of een .pkpass-bestand in één keer
+• Meer dan 500 merken herkend met logo en kleuren, uit elk land
+• Volle helderheid zolang een barcode open is
+• Zoek, filter op labels en markeer favorieten
+• Deel een kaart als afbeelding
+• ‘Volgende’-widget en tegel in Snelle instellingen
+
+Ook voor creditcards en IBAN's
+• Bewaar creditcards en IBAN's naast je klantenkaarten
+• Zoek vanaf het beginscherm in al je kaarten: naam, bank, label of laatste 4 cijfers
+• Kopieer een IBAN met één tik of deel hem als tekst of afbeelding
+• Herinneringen voor betaal- en vervaldatums van je creditcards
+• Ondersteunt American Express en Diners Club
+• Beschikbaar in 9 talen
+
+Premium
+De gratis versie bevat 3 klantenkaarten, 1 creditcard en 1 IBAN. Premium voegt toe:
+• Onbeperkt kaarten
+• Klantenkaarten opslaan in Google Wallet
+• Versleutelde back-up en herstel, bijvoorbeeld als je overstapt naar een nieuwe telefoon
+• QR-codes voor je IBAN's
+• Extra kaartkleuren
+
+Premium is er als automatisch verlengd maand- of jaarabonnement, of als eenmalige aankoop voor altijd. Een abonnement zeg je op elk moment op in Google Play › Betalingen en abonnementen.
+
+Deckard is geen bankapp. De app doet geen betalingen, maakt geen geld over en maakt geen verbinding met je bank.
+
+Sla je een klantenkaart op in Google Wallet, dan worden de naam, het nummer en de notitie van die kaart naar onze ondertekeningsdienst gestuurd om de pas te maken. Geen andere kaartgegevens verlaten je apparaat.
+
+Privacybeleid: https://olkan.dev/privacy/cardwallet
+Gebruiksvoorwaarden: https://olkan.dev/terms/cardwallet

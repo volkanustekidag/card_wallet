@@ -1,33 +1,44 @@
 import 'dart:async';
-import 'dart:io' show Platform;
-import 'dart:math' as math;
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
 import 'package:hive/hive.dart';
+import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/authentication_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
+import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/router/getx_routes.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/core/services/card_reminder_service.dart';
+import 'package:wallet_app/core/services/error_reporter.dart';
+import 'package:wallet_app/core/services/ui_prefs.dart';
 import 'package:wallet_app/core/utils/secure_storage_provider.dart';
+import 'package:wallet_app/core/utils/session_prompt_gate.dart';
+import 'package:wallet_app/feature/auth/pin_action_page.dart';
+import 'package:wallet_app/feature/scanner/add_flows.dart';
+import 'package:wallet_app/feature/scanner/scan_analyzer.dart';
+import 'package:wallet_app/ui/card/card_face.dart';
+import 'package:wallet_app/ui/card/card_material.dart';
+import 'package:wallet_app/ui/components/cw_list.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
+import 'package:wallet_app/ui/typography.dart';
 
-/// One-time intro shown before the home (or PIN, for migrated users) on
-/// first launch. Single screen with an auto-rotating feature card so the
-/// pitch reads as a quick teaser rather than a four-tap slideshow. The
-/// `onboarding_seen` flag in a Hive box gates re-display; a re-install
-/// brings it back because Hive boxes live in the app's documents directory
-/// and are wiped on uninstall on both iOS and Android.
+/// First launch, four steps on one stage (in the app's theme): welcome → what do you
+/// carry → add the first card → lock & reminders. Every step can be left
+/// and finished later; nothing here is required to use the app.
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({Key? key}) : super(key: key);
 
   static const String storageKey = 'onboarding_seen';
   static const String _boxName = 'app_state';
 
-  // Earlier builds wrote the flag to FlutterSecureStorage. iOS Keychain
-  // survives uninstall, so a "no PIN ⇒ fresh install" heuristic was used
-  // to force re-display on reinstall — but PIN is opt-in, so the majority
-  // of users (who skip PIN) re-saw onboarding every launch. We migrated to
-  // Hive (wiped on uninstall) and clean up the stale Keychain entry once.
+  // Earlier builds wrote the flag to FlutterSecureStorage (iOS Keychain
+  // survives uninstall). The flag lives in Hive now; the stale Keychain
+  // entry is cleaned up once.
   static bool _legacyCleanedUp = false;
 
   static Future<Box<dynamic>> _openBox() async {
@@ -67,968 +78,827 @@ class OnboardingPage extends StatefulWidget {
   State<OnboardingPage> createState() => _OnboardingPageState();
 }
 
-class _OnboardingPageState extends State<OnboardingPage>
-    with TickerProviderStateMixin {
-  // 6 slides * 3.2s ≈ 19s full cycle. Long enough to read each, short
-  // enough that a passive viewer sees every feature before the CTA tap.
-  static const Duration _rotationInterval = Duration(milliseconds: 3200);
-
-  // Built in initState so Platform.isIOS can swap the wallet/extras slides.
-  // Slides 1-3 are platform-agnostic value props; 4 is cross-platform OCR;
-  // 5 and 6 branch on platform (Apple Wallet/Watch+Widgets vs Google
-  // Wallet/Home Widget+Tile).
-  late final List<_OnboardingFeature> _features;
-
-  static List<_OnboardingFeature> _buildFeatures() {
-    final isIos = Platform.isIOS;
-    return [
-      const _OnboardingFeature(
-        icon: Icons.style_rounded,
-        titleKey: 'onboardingSlide1Title',
-        descKey: 'onboardingSlide1Desc',
-        accent: Color(0xFF4568DC),
-        cardKind: _CardKind.credit,
-      ),
-      const _OnboardingFeature(
-        icon: Icons.lock_rounded,
-        titleKey: 'onboardingSlide2Title',
-        descKey: 'onboardingSlide2Desc',
-        accent: Color(0xFF11998E),
-        cardKind: _CardKind.iban,
-      ),
-      const _OnboardingFeature(
-        icon: Icons.fingerprint_rounded,
-        titleKey: 'onboardingSlide3Title',
-        descKey: 'onboardingSlide3Desc',
-        accent: Color(0xFFFF6A00),
-        cardKind: _CardKind.loyalty,
-      ),
-      const _OnboardingFeature(
-        icon: Icons.qr_code_scanner_rounded,
-        titleKey: 'onboardingSlide4Title',
-        descKey: 'onboardingSlide4Desc',
-        accent: Color(0xFF9B59B6),
-        cardKind: _CardKind.credit,
-      ),
-      _OnboardingFeature(
-        icon: Icons.account_balance_wallet_rounded,
-        titleKey:
-            isIos ? 'onboardingSlide5IosTitle' : 'onboardingSlide5AndroidTitle',
-        descKey:
-            isIos ? 'onboardingSlide5IosDesc' : 'onboardingSlide5AndroidDesc',
-        accent: const Color(0xFF6F2DBD),
-        cardKind: _CardKind.loyalty,
-      ),
-      _OnboardingFeature(
-        icon: isIos ? Icons.watch_outlined : Icons.widgets_rounded,
-        titleKey:
-            isIos ? 'onboardingSlide6IosTitle' : 'onboardingSlide6AndroidTitle',
-        descKey:
-            isIos ? 'onboardingSlide6IosDesc' : 'onboardingSlide6AndroidDesc',
-        accent: const Color(0xFFE91E63),
-        cardKind: _CardKind.loyalty,
-      ),
-    ];
-  }
-
-  Timer? _ticker;
-  int _currentIndex = 0;
-
-  // Cached so build() and _handlePrimaryCta() don't hit the auth box on every
-  // rebuild. Resolved once in initState — `hasPasswordSync` requires the auth
-  // box to be open, which main.dart guarantees before runApp.
-  late final bool _hasPassword;
-
-  late final AnimationController _floatController;
-  late final AnimationController _shimmerController;
-  late final AnimationController _ctaPulseController;
+class _OnboardingPageState extends State<OnboardingPage> {
+  final _pages = PageController();
+  int _step = 0;
+  final Set<String> _carry = {'loyalty'};
+  int _cardsAdded = 0;
+  late final bool _hadPin;
+  bool _finishing = false;
 
   @override
   void initState() {
     super.initState();
-    _features = _buildFeatures();
-    _hasPassword = AuthenticationService().hasPasswordSync();
-    _floatController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 3200),
-    )..repeat(reverse: true);
-    _shimmerController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2400),
-    )..repeat();
-    _ctaPulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1800),
-    )..repeat(reverse: true);
-
-    _ticker = Timer.periodic(_rotationInterval, (_) {
-      if (!mounted) return;
-      setState(() {
-        _currentIndex = (_currentIndex + 1) % _features.length;
-      });
-    });
+    _hadPin = AuthenticationService().hasPasswordSync();
+    // The lock step below covers the PIN; don't let a first card save
+    // also pop the post-add PIN nudge on top of onboarding.
+    SessionPromptGate.markUsed();
   }
 
   @override
   void dispose() {
-    _ticker?.cancel();
-    _floatController.dispose();
-    _shimmerController.dispose();
-    _ctaPulseController.dispose();
+    _pages.dispose();
     super.dispose();
   }
 
-  // Double-tap guard. iOS Keychain write + route transition can take a
-  // beat on cold launch; without this a frustrated second tap fires a
-  // duplicate offAllNamed which GetX serialises and stutters through.
-  bool _finishing = false;
+  void _go(int step) {
+    HapticFeedback.selectionClick();
+    setState(() => _step = step);
+    _pages.animateToPage(step,
+        duration: CwMotion.slow, curve: CwMotion.standard);
+  }
 
-  /// [openAddCardSheet] only matters for fresh users — migrated users with a
-  /// PIN always land on /auth regardless. Default true because the primary
-  /// CTA is "Add your first card"; the "Skip for now" link passes false.
-  Future<void> _finish({bool openAddCardSheet = true}) async {
+  Future<int> _cardCount() async {
+    try {
+      final r = await Future.wait([
+        CreditCardService().getAllCreditCards(),
+        IbanCardService().getAllIbanCards(),
+        LoyaltyCardService().getAllLoyaltyCards(),
+      ]);
+      return r.fold<int>(0, (n, l) => n + (l as List).length);
+    } catch (_) {
+      return 0;
+    }
+  }
+
+  Future<void> _afterAdd(Future<void> Function() flow) async {
+    final before = await _cardCount();
+    await flow();
+    final after = await _cardCount();
+    if (!mounted) return;
+    if (after > before) {
+      setState(() => _cardsAdded += after - before);
+      _go(3);
+    }
+  }
+
+  ScanMode get _preferredMode {
+    if (_carry.length == 1) {
+      switch (_carry.first) {
+        case 'cards':
+          return ScanMode.card;
+        case 'iban':
+          return ScanMode.iban;
+        case 'loyalty':
+        case 'members':
+          return ScanMode.barcode;
+      }
+    }
+    return ScanMode.auto;
+  }
+
+  Future<void> _finish() async {
     if (_finishing) return;
     _finishing = true;
-    _ticker?.cancel();
-    // Keychain write is fire-and-forget — blocking the route transition on
-    // a 100–300ms iOS Keychain round-trip is what makes the CTA feel laggy.
-    // If the user kills the app before the write lands they re-see the
-    // intro on next launch, which is fine.
     unawaited(OnboardingPage._markSeen());
     unawaited(AnalyticsService.instance.logOnboardingComplete());
-    if (!openAddCardSheet) {
+    if (_cardsAdded == 0) {
       unawaited(
-        AnalyticsService.instance.logEvent('first_card_picker_skipped'),
-      );
+          AnalyticsService.instance.logEvent('first_card_picker_skipped'));
     }
     if (!mounted) return;
-    // Existing users (with PIN) still see the lock screen; new users go
-    // straight to home and may set up a PIN later.
-    if (_hasPassword) {
-      Get.offAllNamed(AppRoutes.auth);
-      return;
-    }
-    Get.offAllNamed(
-      AppRoutes.home,
-      arguments: openAddCardSheet ? {'open_add_card_sheet': true} : null,
-    );
+    // Users who already had a PIN (migrated) still see the lock screen.
+    Get.offAllNamed(_hadPin ? AppRoutes.auth : AppRoutes.home);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final feature = _features[_currentIndex];
-
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: _AnimatedBackdrop(accent: feature.accent, isDark: isDark),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
-            child: Column(
+    final c = CwColors.of(context);
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: cwOverlayStyle(context),
+      child: Theme(
+        data: Theme.of(context),
+        child: PopScope(
+          canPop: _step == 0,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop && _step > 0) _go(_step - 1);
+          },
+          child: Scaffold(
+            backgroundColor: c.bg,
+            body: Stack(
               children: [
-                const SizedBox(height: 48),
-                _CardStackHero(
-                  feature: feature,
-                  floatController: _floatController,
-                  shimmerController: _shimmerController,
-                ),
-                const SizedBox(height: 48),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    'onboardingHeroTitle'.tr(),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                      height: 1.15,
-                      letterSpacing: -0.6,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: Center(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 420),
-                      switchInCurve: Curves.easeOutCubic,
-                      switchOutCurve: Curves.easeInCubic,
-                      transitionBuilder: (child, animation) {
-                        final offset = Tween<Offset>(
-                          begin: const Offset(0, 0.08),
-                          end: Offset.zero,
-                        ).animate(animation);
-                        return FadeTransition(
-                          opacity: animation,
-                          child: SlideTransition(
-                            position: offset,
-                            child: child,
-                          ),
-                        );
-                      },
-                      child: _FeatureBlock(
-                        key: ValueKey(feature.titleKey),
-                        feature: feature,
-                        pulseController: _floatController,
+                const Positioned.fill(child: _Stage()),
+                SafeArea(
+                  child: Column(
+                    children: [
+                      AnimatedOpacity(
+                        duration: CwMotion.base,
+                        opacity: _step == 0 ? 0 : 1,
+                        child: _Progress(step: _step),
                       ),
-                    ),
-                  ),
-                ),
-                _Indicators(
-                  count: _features.length,
-                  activeIndex: _currentIndex,
-                  accent: feature.accent,
-                  colorScheme: colorScheme,
-                ),
-                const SizedBox(height: 18),
-                _CtaButton(
-                  label: (_hasPassword
-                          ? 'onboardingStart'
-                          : 'onboardingAddFirstCard')
-                      .tr(),
-                  pulseController: _ctaPulseController,
-                  onPressed: () => _finish(),
-                ),
-                if (!_hasPassword) ...[
-                  const SizedBox(height: 6),
-                  TextButton(
-                    onPressed: () => _finish(openAddCardSheet: false),
-                    style: TextButton.styleFrom(
-                      foregroundColor:
-                          colorScheme.onSurface.withValues(alpha: 0.65),
-                      textStyle: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
+                      Expanded(
+                        child: PageView(
+                          controller: _pages,
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: [
+                            _Welcome(onNext: () => _go(1)),
+                            _Carry(
+                              selected: _carry,
+                              onToggle: (k) => setState(() => _carry.contains(k)
+                                  ? _carry.remove(k)
+                                  : _carry.add(k)),
+                              onImport: () =>
+                                  _afterAdd(() => openImport(context)),
+                              onNext: () {
+                                UiPrefs.instance.setCarry(_carry.toList());
+                                _go(2);
+                              },
+                            ),
+                            _FirstCard(
+                              added: _cardsAdded,
+                              onScan: () => _afterAdd(
+                                  () => openScanner(mode: _preferredMode)),
+                              onImport: () =>
+                                  _afterAdd(() => openImport(context)),
+                              onType: () =>
+                                  _afterAdd(() => pickManualEntry(context)),
+                              onLater: () => _go(3),
+                            ),
+                            _LockStep(
+                              hadPin: _hadPin,
+                              onDone: _finish,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    child: Text('onboardingSkipForNow'.tr()),
+                    ],
                   ),
-                ],
-                const SizedBox(height: 24),
-                const _TrustSignals(),
+                ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Models
-// ---------------------------------------------------------------------------
-
-enum _CardKind { credit, iban, loyalty }
-
-class _OnboardingFeature {
-  final IconData icon;
-  final String titleKey;
-  final String descKey;
-  final Color accent;
-  final _CardKind cardKind;
-  const _OnboardingFeature({
-    required this.icon,
-    required this.titleKey,
-    required this.descKey,
-    required this.accent,
-    required this.cardKind,
-  });
-}
-
-// ---------------------------------------------------------------------------
-// Backdrop — radial glow that re-tints with the active slide.
-// ---------------------------------------------------------------------------
-
-class _AnimatedBackdrop extends StatelessWidget {
-  final Color accent;
-  final bool isDark;
-  const _AnimatedBackdrop({required this.accent, required this.isDark});
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 900),
-      curve: Curves.easeOutCubic,
-      decoration: BoxDecoration(
-        gradient: RadialGradient(
-          center: const Alignment(0, -0.65),
-          radius: 1.1,
-          colors: isDark
-              ? [
-                  accent.withValues(alpha: 0.45),
-                  accent.withValues(alpha: 0.16),
-                  Colors.transparent,
-                ]
-              : [
-                  accent.withValues(alpha: 0.32),
-                  accent.withValues(alpha: 0.10),
-                  Colors.transparent,
-                ],
-          stops: const [0, 0.55, 1],
         ),
       ),
     );
   }
 }
 
-// ---------------------------------------------------------------------------
-// Card stack hero — three rotated mock cards. Front card carries a shimmer
-// sweep and the whole stack drifts vertically with a slow sine.
-// ---------------------------------------------------------------------------
-
-class _CardStackHero extends StatelessWidget {
-  final _OnboardingFeature feature;
-  final AnimationController floatController;
-  final AnimationController shimmerController;
-  const _CardStackHero({
-    required this.feature,
-    required this.floatController,
-    required this.shimmerController,
-  });
+class _Stage extends StatelessWidget {
+  const _Stage();
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final cardWidth = (screenWidth * 0.58).clamp(200.0, 300.0);
-    final cardHeight = cardWidth / 1.586; // ISO 7810
-
-    return SizedBox(
-      height: cardHeight + 36,
-      child: AnimatedBuilder(
-        animation: floatController,
-        builder: (_, __) {
-          final t = floatController.value; // 0..1..0
-          final dy = math.sin(t * math.pi) * 6 - 3;
-          return Transform.translate(
-            offset: Offset(0, dy),
-            child: Stack(
-              alignment: Alignment.center,
-              clipBehavior: Clip.none,
-              children: [
-                // Left peek
-                Transform.translate(
-                  offset: Offset(-cardWidth * 0.40, 10),
-                  child: Transform.rotate(
-                    angle: -0.10,
-                    child: Opacity(
-                      opacity: 0.55,
-                      child: _MockCard(
-                        width: cardWidth,
-                        height: cardHeight,
-                        gradient: _gradientFor(_peekKindLeft(feature.cardKind)),
-                        kind: _peekKindLeft(feature.cardKind),
-                      ),
-                    ),
-                  ),
-                ),
-                // Right peek
-                Transform.translate(
-                  offset: Offset(cardWidth * 0.40, 10),
-                  child: Transform.rotate(
-                    angle: 0.10,
-                    child: Opacity(
-                      opacity: 0.55,
-                      child: _MockCard(
-                        width: cardWidth,
-                        height: cardHeight,
-                        gradient:
-                            _gradientFor(_peekKindRight(feature.cardKind)),
-                        kind: _peekKindRight(feature.cardKind),
-                      ),
-                    ),
-                  ),
-                ),
-                // Front card with shimmer
-                AnimatedBuilder(
-                  animation: shimmerController,
-                  builder: (_, __) {
-                    return Stack(
-                      children: [
-                        _MockCard(
-                          width: cardWidth,
-                          height: cardHeight,
-                          gradient: _gradientFor(feature.cardKind),
-                          kind: feature.cardKind,
-                          isFront: true,
-                        ),
-                        Positioned.fill(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: CustomPaint(
-                              painter: _ShimmerPainter(
-                                progress: shimmerController.value,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  static _CardKind _peekKindLeft(_CardKind front) {
-    switch (front) {
-      case _CardKind.credit:
-        return _CardKind.iban;
-      case _CardKind.iban:
-        return _CardKind.loyalty;
-      case _CardKind.loyalty:
-        return _CardKind.credit;
-    }
-  }
-
-  static _CardKind _peekKindRight(_CardKind front) {
-    switch (front) {
-      case _CardKind.credit:
-        return _CardKind.loyalty;
-      case _CardKind.iban:
-        return _CardKind.credit;
-      case _CardKind.loyalty:
-        return _CardKind.iban;
-    }
-  }
-
-  static LinearGradient _gradientFor(_CardKind kind) {
-    switch (kind) {
-      case _CardKind.credit:
-        return const LinearGradient(
-          colors: [Color(0xFF4568DC), Color(0xFF2B3F8E)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      case _CardKind.iban:
-        return const LinearGradient(
-          colors: [Color(0xFF11998E), Color(0xFF0B5C56)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      case _CardKind.loyalty:
-        return const LinearGradient(
-          colors: [Color(0xFFFF8A3D), Color(0xFFC25116)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-    }
-  }
-}
-
-class _MockCard extends StatelessWidget {
-  final double width;
-  final double height;
-  final LinearGradient gradient;
-  final _CardKind kind;
-  final bool isFront;
-
-  const _MockCard({
-    required this.width,
-    required this.height,
-    required this.gradient,
-    required this.kind,
-    this.isFront = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
+    final c = CwColors.of(context);
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return DecoratedBox(
       decoration: BoxDecoration(
-        gradient: gradient,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(
-              alpha: isFront ? 0.30 : 0.12,
+        gradient: RadialGradient(
+          center: const Alignment(0, -0.6),
+          radius: 1.0,
+          colors: [
+            Color.alphaBlend(
+                c.ink.withValues(alpha: dark ? 0.07 : 0.035), c.bg),
+            c.bg,
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Progress extends StatelessWidget {
+  final int step;
+  const _Progress({required this.step});
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
+        child: Row(
+          children: [
+            for (var i = 1; i <= 3; i++) ...[
+              if (i > 1) const SizedBox(width: 6),
+              Expanded(
+                child: AnimatedContainer(
+                  duration: CwMotion.base,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: i <= step
+                        ? CwColors.of(context).ink
+                        : CwColors.of(context).ink.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      );
+}
+
+/// Bottom-pinned primary button for every step.
+class _Primary extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  const _Primary({required this.label, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: FilledButton(
+        style: FilledButton.styleFrom(
+          backgroundColor: c.ink,
+          foregroundColor: c.bg,
+          disabledBackgroundColor: c.ink.withValues(alpha: 0.25),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(CwRadius.l)),
+        ),
+        onPressed: onPressed,
+        child: Text(label,
+            style: CwType.headline
+                .copyWith(color: c.bg, fontWeight: FontWeight.w700)),
+      ),
+    );
+  }
+}
+
+class _Welcome extends StatelessWidget {
+  final VoidCallback onNext;
+  const _Welcome({required this.onNext});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    final w = MediaQuery.sizeOf(context).width * 0.66;
+    Widget demo(int material, double angle, Offset at, Widget child) =>
+        Transform.translate(
+          offset: at,
+          child: Transform.rotate(
+            angle: angle,
+            child: CardFace(
+              material: CardMaterial.of(material),
+              width: w,
+              height: w / 1.586,
+              child: child,
             ),
-            blurRadius: isFront ? 26 : 14,
-            offset: Offset(0, isFront ? 14 : 6),
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: _MockCardContent(kind: kind),
-      ),
-    );
-  }
-}
-
-class _MockCardContent extends StatelessWidget {
-  final _CardKind kind;
-  const _MockCardContent({required this.kind});
-
-  @override
-  Widget build(BuildContext context) {
-    switch (kind) {
-      case _CardKind.credit:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 28,
-              height: 20,
-              decoration: BoxDecoration(
-                color: const Color(0xFFEAC76C),
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-            const Spacer(),
-            Text(
-              '•••• •••• •••• 4242',
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.4,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                Text(
-                  'CARDHOLDER',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: Colors.white.withValues(alpha: 0.92),
-                    fontSize: 9,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.4,
-                  ),
-                ),
-                const Spacer(),
-                Icon(
-                  Icons.contactless_rounded,
-                  color: Colors.white.withValues(alpha: 0.85),
-                  size: 16,
-                ),
-              ],
-            ),
-          ],
         );
-      case _CardKind.iban:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'IBAN',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                color: Colors.white.withValues(alpha: 0.85),
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.4,
-              ),
-            ),
-            const Spacer(),
-            Text(
-              'TR12 3456 •••• 6543',
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.6,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'CARDHOLDER',
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                color: Colors.white.withValues(alpha: 0.92),
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.4,
-              ),
-            ),
-          ],
+    Widget label(String t) => Align(
+          alignment: Alignment.topLeft,
+          child: Text(t,
+              style: CwType.overline
+                  .copyWith(color: Colors.white.withValues(alpha: 0.75))),
         );
-      case _CardKind.loyalty:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.star_rounded,
-                  color: Colors.white.withValues(alpha: 0.95),
-                  size: 18,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'LOYALTY',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    color: Colors.white.withValues(alpha: 0.95),
-                    fontSize: 9,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.4,
-                  ),
-                ),
-              ],
-            ),
-            const Spacer(),
-            // Faux barcode strip
-            SizedBox(
-              height: 18,
-              child: Row(
-                children: List.generate(28, (i) {
-                  final isWide = i % 3 == 0;
-                  return Container(
-                    width: isWide ? 3 : 1.5,
-                    margin: const EdgeInsets.only(right: 2),
-                    color: Colors.white.withValues(
-                      alpha: i.isEven ? 0.95 : 0.55,
-                    ),
-                  );
-                }),
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              '•••• 0429',
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                color: Colors.white,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.6,
-              ),
-            ),
-          ],
-        );
-    }
-  }
-}
-
-/// Diagonal white sweep, ported from the paywall's _ShimmerPainter. Travels
-/// across the front card during the first ~35% of the cycle, then idles.
-class _ShimmerPainter extends CustomPainter {
-  final double progress;
-  const _ShimmerPainter({required this.progress});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (progress > 0.35) return;
-    final t = progress / 0.35;
-    final shineWidth = size.width * 0.30;
-    final dx = -shineWidth + (size.width + shineWidth * 2) * t;
-    final rect = Rect.fromLTWH(
-      dx,
-      -size.height * 0.2,
-      shineWidth,
-      size.height * 1.4,
-    );
-    final paint = Paint()
-      ..shader = LinearGradient(
-        colors: [
-          Colors.white.withValues(alpha: 0),
-          Colors.white.withValues(alpha: 0.22),
-          Colors.white.withValues(alpha: 0),
-        ],
-        stops: const [0, 0.5, 1],
-      ).createShader(rect);
-    canvas.save();
-    canvas.translate(rect.center.dx, rect.center.dy);
-    canvas.rotate(-0.35);
-    canvas.translate(-rect.center.dx, -rect.center.dy);
-    canvas.drawRect(rect, paint);
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(covariant _ShimmerPainter oldDelegate) =>
-      oldDelegate.progress != progress;
-}
-
-// ---------------------------------------------------------------------------
-// Rotating feature block — icon (with accent radial glow + pulse ring),
-// title, description.
-// ---------------------------------------------------------------------------
-
-class _FeatureBlock extends StatelessWidget {
-  final _OnboardingFeature feature;
-  final AnimationController pulseController;
-  const _FeatureBlock({
-    Key? key,
-    required this.feature,
-    required this.pulseController,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AnimatedBuilder(
-          animation: pulseController,
-          builder: (_, __) {
-            final t = pulseController.value;
-            final ringScale = 1.0 + 0.08 * math.sin(t * math.pi);
-            final ringAlpha = 0.18 + 0.10 * (1 - (t - 0.5).abs() * 2);
-            return SizedBox(
-              width: 96,
-              height: 96,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Transform.scale(
-                    scale: ringScale,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: feature.accent.withValues(alpha: ringAlpha),
-                          width: 1.4,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 76,
-                    height: 76,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          feature.accent.withValues(alpha: 0.22),
-                          feature.accent.withValues(alpha: 0.06),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Center(
+              child: SizedBox(
+                height: w / 1.586 + 120,
+                child: Stack(
+                  alignment: Alignment.center,
+                  clipBehavior: Clip.none,
+                  children: [
+                    demo(10, -0.12, const Offset(-26, -56),
+                        label('cwTypeLoyalty'.tr().toUpperCase())),
+                    demo(2, 0.08, const Offset(30, -8), label('IBAN')),
+                    demo(
+                      11,
+                      -0.03,
+                      const Offset(-6, 52),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          label('cwTypeCard'.tr().toUpperCase()),
+                          const Spacer(),
+                          Text('••••  ••••  ••••  4242',
+                              style:
+                                  CwType.mono(size: 15, color: Colors.white)),
                         ],
                       ),
                     ),
-                    child: Icon(
-                      feature.icon,
-                      size: 38,
-                      color: feature.accent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Text('cwObTitle'.tr(),
+              style: CwType.display.copyWith(color: c.ink, fontSize: 32)),
+          const SizedBox(height: 12),
+          Text('cwObBody'.tr(),
+              style: CwType.body.copyWith(color: c.ink2, height: 1.45)),
+          const SizedBox(height: 28),
+          _Primary(label: 'cwGetStarted'.tr(), onPressed: onNext),
+          const SizedBox(height: 14),
+          Wrap(
+            alignment: WrapAlignment.spaceEvenly,
+            runAlignment: WrapAlignment.center,
+            spacing: 6,
+            runSpacing: 2,
+            children: [
+              _TrustItem(CwIcons.lock, 'cwTrustOnDevice'.tr()),
+              _TrustItem(CwIcons.offline, 'cwTrustOffline'.tr()),
+              _TrustItem(CwIcons.user, 'cwTrustNoSignup'.tr()),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TrustItem extends StatelessWidget {
+  final CwIcons icon;
+  final String text;
+  const _TrustItem(this.icon, this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CwIcon(icon, size: 13, color: c.mute),
+        const SizedBox(width: 5),
+        Text(text, style: CwType.caption.copyWith(color: c.mute)),
+      ],
+    );
+  }
+}
+
+class _Carry extends StatelessWidget {
+  final Set<String> selected;
+  final ValueChanged<String> onToggle;
+  final VoidCallback onImport;
+  final VoidCallback onNext;
+
+  const _Carry({
+    required this.selected,
+    required this.onToggle,
+    required this.onImport,
+    required this.onNext,
+  });
+
+  static const _options = [
+    ('loyalty', CwIcons.tag, 'cwCarryLoyalty', 'cwCarryLoyaltySub'),
+    ('cards', CwIcons.card, 'cwCarryCards', 'cwCarryCardsSub'),
+    ('iban', CwIcons.bank, 'cwCarryIban', 'cwCarryIbanSub'),
+    ('members', CwIcons.plane, 'cwCarryMembers', 'cwCarryMembersSub'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('cwCarryTitle'.tr(),
+              style: CwType.display.copyWith(color: c.ink, fontSize: 30)),
+          const SizedBox(height: 6),
+          Text('cwCarrySub'.tr(),
+              style: CwType.callout.copyWith(color: c.ink2)),
+          const SizedBox(height: 20),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  for (var r = 0; r < 2; r++) ...[
+                    if (r > 0) const SizedBox(height: 10),
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (var i = r * 2; i < r * 2 + 2; i++) ...[
+                            if (i.isOdd) const SizedBox(width: 10),
+                            Expanded(
+                              child: _CarryTile(
+                                icon: _options[i].$2,
+                                title: _options[i].$3.tr(),
+                                sub: _options[i].$4.tr(),
+                                on: selected.contains(_options[i].$1),
+                                onTap: () => onToggle(_options[i].$1),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
+                  ],
+                  const SizedBox(height: 14),
+                  Material(
+                    color: c.accentSoft,
+                    borderRadius: BorderRadius.circular(CwRadius.m),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(CwRadius.m),
+                      onTap: onImport,
+                      child: Padding(
+                        padding: const EdgeInsets.all(14),
+                        child: Row(
+                          children: [
+                            CwIcon(CwIcons.import,
+                                size: CwIconSize.m, color: c.ink),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('cwCarryImport'.tr(),
+                                      style: CwType.callout.copyWith(
+                                          color: c.ink,
+                                          fontWeight: FontWeight.w700)),
+                                  Text('cwCarryImportSub'.tr(),
+                                      style: CwType.footnote
+                                          .copyWith(color: c.ink2)),
+                                ],
+                              ),
+                            ),
+                            CwIcon(CwIcons.chevronRight,
+                                size: 18, color: c.ink2),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          _Primary(
+            label: 'cwContinue'.tr(),
+            onPressed: selected.isEmpty ? null : onNext,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CarryTile extends StatelessWidget {
+  final CwIcons icon;
+  final String title;
+  final String sub;
+  final bool on;
+  final VoidCallback onTap;
+
+  const _CarryTile({
+    required this.icon,
+    required this.title,
+    required this.sub,
+    required this.on,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    return Semantics(
+      button: true,
+      selected: on,
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
+        child: AnimatedContainer(
+          duration: CwMotion.fast,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: on
+                ? c.ink.withValues(alpha: 0.10)
+                : c.ink.withValues(alpha: 0.04),
+            borderRadius: BorderRadius.circular(CwRadius.l),
+            border: Border.all(
+              color: on ? c.ink : c.ink.withValues(alpha: 0.12),
+              width: on ? 2 : 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CwIcon(icon, size: CwIconSize.l, color: c.ink),
+                  const Spacer(),
+                  AnimatedOpacity(
+                    duration: CwMotion.fast,
+                    opacity: on ? 1 : 0,
+                    child: Container(
+                      width: 22,
+                      height: 22,
+                      decoration:
+                          BoxDecoration(color: c.ink, shape: BoxShape.circle),
+                      alignment: Alignment.center,
+                      child: CwIcon(CwIcons.check, size: 14, color: c.bg),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Text(title, style: CwType.headline.copyWith(color: c.ink)),
+              const SizedBox(height: 2),
+              Text(sub, style: CwType.footnote.copyWith(color: c.mute)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FirstCard extends StatelessWidget {
+  final int added;
+  final VoidCallback onScan;
+  final VoidCallback onImport;
+  final VoidCallback onType;
+  final VoidCallback onLater;
+
+  const _FirstCard({
+    required this.added,
+    required this.onScan,
+    required this.onImport,
+    required this.onType,
+    required this.onLater,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    Widget secondary(CwIcons icon, String label, VoidCallback onTap) =>
+        Expanded(
+          child: Material(
+            color: c.ink.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(CwRadius.m),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(CwRadius.m),
+              onTap: onTap,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CwIcon(icon, size: 18, color: c.ink),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(label,
+                          overflow: TextOverflow.ellipsis,
+                          style: CwType.callout.copyWith(
+                              color: c.ink, fontWeight: FontWeight.w600)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('cwFirstTitle'.tr(),
+              style: CwType.display.copyWith(color: c.ink, fontSize: 30)),
+          const SizedBox(height: 6),
+          Text('cwFirstSub'.tr(),
+              style: CwType.callout.copyWith(color: c.ink2)),
+          const SizedBox(height: 22),
+          GestureDetector(
+            onTap: onScan,
+            child: AspectRatio(
+              aspectRatio: 1.45,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: c.ink.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(CwRadius.xl),
+                ),
+                padding: const EdgeInsets.all(22),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border:
+                        Border.all(color: const Color(0xFF34D399), width: 2.5),
+                  ),
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CwIcon(CwIcons.scan, size: 40, color: c.ink),
+                      const SizedBox(height: 12),
+                      Text('cwOpenCamera'.tr(),
+                          style: CwType.headline.copyWith(color: c.ink)),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              secondary(CwIcons.import, 'cwImportCards'.tr(), onImport),
+              const SizedBox(width: 10),
+              secondary(CwIcons.keyboard, 'cwTypeItIn'.tr(), onType),
+            ],
+          ),
+          const Spacer(),
+          TextButton(
+            onPressed: onLater,
+            child: Text('cwLater'.tr(),
+                style: CwType.callout
+                    .copyWith(color: c.mute, fontWeight: FontWeight.w600)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LockStep extends StatefulWidget {
+  final bool hadPin;
+  final VoidCallback onDone;
+  const _LockStep({required this.hadPin, required this.onDone});
+
+  @override
+  State<_LockStep> createState() => _LockStepState();
+}
+
+class _LockStepState extends State<_LockStep> {
+  bool _reminders = false;
+
+  AuthController get _auth => Get.isRegistered<AuthController>()
+      ? Get.find<AuthController>()
+      : Get.put(AuthController());
+
+  @override
+  void initState() {
+    super.initState();
+    _reminders = UiPrefs.instance.remindByDefault.value;
+  }
+
+  Future<void> _toggleLock(bool on) async {
+    final auth = _auth;
+    if (on && !auth.hasPassword.value) {
+      final created = await Get.to<bool>(
+        () => const PinActionPage(),
+        arguments: PinAction.create,
+      );
+      if (created == true && auth.isBiometricAvailable.value) {
+        await auth.toggleBiometric(true);
+      }
+    } else if (!on && auth.hasPassword.value) {
+      final verified = await Get.to<bool>(
+        () => const PinActionPage(),
+        arguments: PinAction.verify,
+      );
+      if (verified == true) await auth.removePassword();
+    }
+    if (mounted) setState(() {});
+  }
+
+  /// On: expiry reminders for the cards added so far and every new one
+  /// (asks for the notification permission first). Off: undoes that.
+  Future<void> _toggleReminders(bool on) async {
+    if (on && !await CardReminderService().requestPermission()) return;
+    if (mounted) setState(() => _reminders = on);
+    await UiPrefs.instance.setRemindByDefault(on);
+    try {
+      final service = CreditCardService();
+      for (final card in await service.getAllCreditCards()) {
+        if (card.expiryReminderEnabled == on) continue;
+        card.expiryReminderEnabled = on;
+        await card.save();
+        await CardReminderService.guarded(
+          'onboarding.reminders',
+          () => CardReminderService().scheduleForCard(card),
+        );
+      }
+    } catch (e, st) {
+      ErrorReporter.report(e, st, reason: 'onboarding.reminders');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    final auth = _auth;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Spacer(),
+          Center(
+            child: Container(
+              width: 84,
+              height: 84,
+              decoration: BoxDecoration(
+                color: c.ink.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(26),
+              ),
+              alignment: Alignment.center,
+              child: CwIcon(CwIcons.shield, size: 40, color: c.ink),
+            ),
+          ),
+          const SizedBox(height: 22),
+          Text('cwLockTitle'.tr(),
+              textAlign: TextAlign.center,
+              style: CwType.display.copyWith(color: c.ink, fontSize: 28)),
+          const SizedBox(height: 10),
+          Text('cwLockSub'.tr(),
+              textAlign: TextAlign.center,
+              style: CwType.callout.copyWith(color: c.ink2, height: 1.4)),
+          const SizedBox(height: 24),
+          Obx(() {
+            final hasPin = auth.hasPassword.value;
+            final bio = auth.isBiometricAvailable.value;
+            return Container(
+              decoration: BoxDecoration(
+                color: c.ink.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(CwRadius.l),
+              ),
+              child: Column(
+                children: [
+                  _NightRow(
+                    icon: bio ? CwIcons.faceId : CwIcons.lock,
+                    title: bio
+                        ? '${'cwLockWithPin'.tr()} · ${auth.getBiometricDisplayName()}'
+                        : 'cwLockWithPin'.tr(),
+                    sub: 'cwLockWithPinSub'.tr(),
+                    trailing: CwSwitch(value: hasPin, onChanged: _toggleLock),
+                  ),
+                  Divider(
+                      height: 1,
+                      indent: 60,
+                      color: c.ink.withValues(alpha: 0.08)),
+                  _NightRow(
+                    icon: CwIcons.bell,
+                    title: 'cwRemindExpire'.tr(),
+                    sub: 'cwRemindExpireSub'.tr(),
+                    trailing: CwSwitch(
+                        value: _reminders, onChanged: _toggleReminders),
                   ),
                 ],
               ),
             );
-          },
-        ),
-        const SizedBox(height: 16),
-        Text(
-          feature.titleKey.tr(),
-          textAlign: TextAlign.center,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontFamily: 'Poppins',
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          feature.descKey.tr(),
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontFamily: 'Poppins',
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-            height: 1.45,
-          ),
-        ),
-      ],
+          }),
+          const Spacer(flex: 2),
+          _Primary(label: 'cwDoneOpen'.tr(), onPressed: widget.onDone),
+        ],
+      ),
     );
   }
 }
 
-// ---------------------------------------------------------------------------
-// Indicators — accent-tinted active pill with soft glow.
-// ---------------------------------------------------------------------------
+class _NightRow extends StatelessWidget {
+  final CwIcons icon;
+  final String title;
+  final String sub;
+  final Widget trailing;
 
-class _Indicators extends StatelessWidget {
-  final int count;
-  final int activeIndex;
-  final Color accent;
-  final ColorScheme colorScheme;
-  const _Indicators({
-    required this.count,
-    required this.activeIndex,
-    required this.accent,
-    required this.colorScheme,
+  const _NightRow({
+    required this.icon,
+    required this.title,
+    required this.sub,
+    required this.trailing,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(count, (i) {
-        final active = i == activeIndex;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 320),
-          curve: Curves.easeOutCubic,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          height: 6,
-          width: active ? 26 : 6,
-          decoration: BoxDecoration(
-            color:
-                active ? accent : colorScheme.onSurface.withValues(alpha: 0.22),
-            borderRadius: BorderRadius.circular(6),
-            boxShadow: active
-                ? [
-                    BoxShadow(
-                      color: accent.withValues(alpha: 0.40),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
-          ),
-        );
-      }),
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// CTA — solid primary fill with a pulsing primary-tinted glow shadow.
-// ---------------------------------------------------------------------------
-
-class _CtaButton extends StatelessWidget {
-  final String label;
-  final AnimationController pulseController;
-  final VoidCallback onPressed;
-
-  const _CtaButton({
-    required this.label,
-    required this.pulseController,
-    required this.onPressed,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return AnimatedBuilder(
-      animation: pulseController,
-      builder: (_, __) {
-        final t = pulseController.value;
-        final glowAlpha = 0.30 + 0.22 * (0.5 - (t - 0.5).abs()) * 2;
-        return Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(28),
-            onTap: onPressed,
-            child: Container(
-              width: double.infinity,
-              height: 58,
-              alignment: Alignment.center,
+    final c = CwColors.of(context);
+    // Like CwRow: tapping anywhere on a switch row flips the switch.
+    final t = trailing;
+    final onTap = t is CwSwitch && t.onChanged != null
+        ? () => t.onChanged!(!t.value)
+        : null;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(CwRadius.l),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 12, 12, 12),
+        child: Row(
+          children: [
+            Container(
+              width: 34,
+              height: 34,
               decoration: BoxDecoration(
-                color: colorScheme.primary,
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: [
-                  BoxShadow(
-                    color: colorScheme.primary.withValues(alpha: glowAlpha),
-                    blurRadius: 22,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+                color: c.ink.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
+              alignment: Alignment.center,
+              child: CwIcon(icon, size: 18, color: c.ink),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      letterSpacing: 0.4,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Icon(
-                    Icons.arrow_forward_rounded,
-                    color: Colors.white,
-                    size: 20,
-                  ),
+                  Text(title,
+                      style: CwType.callout
+                          .copyWith(color: c.ink, fontWeight: FontWeight.w600)),
+                  Text(sub, style: CwType.footnote.copyWith(color: c.mute)),
                 ],
               ),
             ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Trust signals — small icon+label chips that earn the "premium" claim with
-// three concrete reassurances (encryption, offline, biometric).
-// ---------------------------------------------------------------------------
-
-class _TrustSignals extends StatelessWidget {
-  const _TrustSignals();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _TrustChip(
-          icon: Icons.shield_rounded,
-          labelKey: 'onboardingTrustEncryption',
+            trailing,
+          ],
         ),
-        const SizedBox(width: 14),
-        _TrustChip(
-          icon: Icons.cloud_off_rounded,
-          labelKey: 'onboardingTrustOffline',
-        ),
-        const SizedBox(width: 14),
-        _TrustChip(
-          icon: Icons.fingerprint_rounded,
-          labelKey: 'onboardingTrustBiometric',
-        ),
-      ],
-    );
-  }
-}
-
-class _TrustChip extends StatelessWidget {
-  final IconData icon;
-  final String labelKey;
-  const _TrustChip({required this.icon, required this.labelKey});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.onSurface.withValues(
-          alpha: 0.62,
-        );
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 14, color: color),
-        const SizedBox(width: 5),
-        Text(
-          labelKey.tr(),
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: 11,
-            fontWeight: FontWeight.w600,
-            color: color,
-            letterSpacing: 0.2,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

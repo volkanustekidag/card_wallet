@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
@@ -16,6 +18,7 @@ import 'package:wallet_app/core/utils/card_reminder_rules.dart';
 import 'package:wallet_app/core/utils/locale_format.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
+import 'package:wallet_app/core/utils/credit_card_label.dart';
 
 class CardReminderService {
   CardReminderService._internal();
@@ -211,15 +214,30 @@ class CardReminderService {
     return _notificationsAllowed(promptForPermissions: false);
   }
 
+  /// Asks the OS for notification permission (onboarding priming). True
+  /// when reminders can fire afterwards. Wrapped so the system dialog
+  /// doesn't trip the app lock.
+  Future<bool> requestPermission() async {
+    await init();
+    return AppLockService.guard(
+        () => _notificationsAllowed(promptForPermissions: true));
+  }
+
   /// Opens the system app-settings screen so the user can flip the
   /// notification toggle. Returns true if the platform call succeeded.
   Future<bool> openNotificationSettings() async {
     return AppLockService.guard(() => openAppSettings());
   }
 
+  /// Tests: the answer the OS would give (no platform plugin runs there).
+  @visibleForTesting
+  static bool? debugNotificationsAllowed;
+
   Future<bool> _notificationsAllowed({
     required bool promptForPermissions,
   }) async {
+    final override = debugNotificationsAllowed;
+    if (override != null) return override;
     if (kIsWeb) return false;
 
     if (Platform.isAndroid) {
@@ -288,21 +306,14 @@ class CardReminderService {
 
   Future<void> _offerNotificationSettings() async {
     if (Get.context == null) return;
-    final shouldOpen = await Get.dialog<bool>(
-      AlertDialog(
-        title: Text('notificationPermissionRequired'.tr()),
-        content: Text('notificationPermissionSettingsMessage'.tr()),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: Text('cancel'.tr()),
-          ),
-          TextButton(
-            onPressed: () => Get.back(result: true),
-            child: Text('openSettings'.tr()),
-          ),
-        ],
-      ),
+    final shouldOpen = await showConfirmActionSheet(
+      context: Get.context!,
+      title: 'notificationPermissionRequired'.tr(),
+      content: 'notificationPermissionSettingsMessage'.tr(),
+      confirmText: 'openSettings'.tr(),
+      cancelText: 'cancel'.tr(),
+      destructive: false,
+      glyph: CwIcons.bell,
     );
     if (shouldOpen == true) {
       await AppLockService.guard(() => openAppSettings());
@@ -398,6 +409,8 @@ class CardReminderService {
           channelDescription: _channelDescription,
           importance: Importance.high,
           priority: Priority.high,
+          // Tints the status icon and header: the brand tangerine.
+          color: Color(0xFFFF5A1F),
         ),
         iOS: DarwinNotificationDetails(),
         macOS: DarwinNotificationDetails(),
@@ -420,9 +433,9 @@ class CardReminderService {
 
     final digits = card.creditCardNumber.replaceAll(RegExp(r'\D'), '');
     if (digits.length >= 4) {
-      return '•••• ${digits.substring(digits.length - 4)}';
+      return '${creditCardLabel(card)} •••• ${digits.substring(digits.length - 4)}';
     }
-    return 'creditCard'.tr();
+    return creditCardLabel(card);
   }
 
   int _notificationId(CreditCard card, String purpose) {

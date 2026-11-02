@@ -42,11 +42,19 @@ Future<void> _pump(WidgetTester tester, Widget child, Size size) async {
 Future<void> _loadFonts() async {
   Future<ByteData> bytes(String path) async =>
       ByteData.sublistView(await File(path).readAsBytes());
-  final poppins = FontLoader('Poppins');
-  for (final w in ['Regular', 'Medium', 'SemiBold', 'Bold', 'ExtraBold']) {
-    poppins.addFont(bytes('assets/fonts/poppins/Poppins-$w.ttf'));
+  // The app uses the platform font (SF / Roboto); goldens are macOS-only,
+  // so a stock macOS sans stands in for it under the test default family.
+  final sans = FontLoader('Roboto');
+  for (final f in ['Arial.ttf', 'Arial Bold.ttf']) {
+    final file = File('/System/Library/Fonts/Supplemental/$f');
+    if (file.existsSync()) sans.addFont(bytes(file.path));
   }
-  await poppins.load();
+  await sans.load();
+  final mono = FontLoader('JetBrainsMono');
+  for (final w in ['Medium', 'SemiBold']) {
+    mono.addFont(bytes('assets/fonts/jetbrains_mono/JetBrainsMono-$w.ttf'));
+  }
+  await mono.load();
   // flutter_tester lives in bin/cache/artifacts/engine/<platform>/.
   final icons = File('${File(Platform.resolvedExecutable).parent.parent.parent.path}'
       '/material_fonts/MaterialIcons-Regular.otf');
@@ -76,9 +84,7 @@ void main() {
     expect(find.textContaining('Ayşe Gülşen'), findsOneWidget);
     expect(find.text('SWIFT'), findsNothing);
     expect(find.byType(QrImageView), findsNothing);
-    expect(find.text('Wallet'), findsNothing); // inside a Text.rich span
-    expect(find.textContaining('CardWallet', findRichText: true),
-        findsOneWidget);
+    expect(find.text('Deckard'), findsOneWidget);
   });
 
   testWidgets('premium image carries the QR and SWIFT', (tester) async {

@@ -26,23 +26,31 @@ void main() {
     for (final lang in _langs.skip(1)) {
       final other = _load(lang);
       for (final key in en.keys) {
-        final a = '{}'.allMatches('${en[key]}').length;
-        final b = '{}'.allMatches('${other[key]}').length;
+        final a = _placeholders(en[key]);
+        final b = _placeholders(other[key]);
         expect(b, a, reason: '$lang:$key placeholder count');
       }
     }
   });
 
-  test('paywall legal text names the right store per platform', () {
+  test('paywall renewal terms carry the price in every language', () {
+    // Shown under the buy button for the selected plan: the price, that it
+    // renews automatically, and that it can be cancelled (store rules).
     for (final lang in _langs) {
       final t = _load(lang);
-      final android = t['premiumLegalDisclosureAndroid'] as String;
-      final ios = t['premiumLegalDisclosureIos'] as String;
-      expect(android, contains('Google Play'), reason: lang);
-      expect(android, isNot(contains('Apple')), reason: lang);
-      expect(android, isNot(contains('App Store')), reason: lang);
-      expect(ios, contains('Apple'), reason: lang);
-      expect(ios, isNot(contains('Google')), reason: lang);
+      for (final key in ['cwRenewsYear', 'cwRenewsMonth', 'cwRenewsWeek']) {
+        final text = t[key] as String?;
+        expect(text, isNotNull, reason: '$lang:$key');
+        expect('{}'.allMatches(text!).length, 1, reason: '$lang:$key');
+      }
+      expect(t['cwTerms'], isNotNull, reason: lang);
+      expect(t['cwPrivacy'], isNotNull, reason: lang);
     }
   });
 }
+
+/// `{}` count of a string, or of the `other` form of a plural map (forms
+/// differ per language: Polish has few/many, English has one/other).
+int _placeholders(dynamic value) => value is Map
+    ? _placeholders(value['other'])
+    : '{}'.allMatches('$value').length;

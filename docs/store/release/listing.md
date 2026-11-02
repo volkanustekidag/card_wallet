@@ -1,4 +1,4 @@
-# Card Wallet 2.2.0 (45) — Mağaza sayfası metinleri
+# Deckard 2.2.0 (46) — Mağaza sayfası metinleri
 
 Başlangıç noktası Mayıs taslakları (`toronto/app_store_metadata_2026-05-26.md`, `google_play_metadata_by_language_2026-05-28.md`, `aso_country_strategy_2026-05-28.md`, `store_metadata_plan_2026-05-26.md`). Bu sürümde yapılan değişiklikler:
 
@@ -6,7 +6,7 @@ Başlangıç noktası Mayıs taslakları (`toronto/app_store_metadata_2026-05-26
 |---|---|---|
 | Konumlandırma (TR) | Banka kartları başta | Kart + IBAN + sadakat kartı tek güvenli cüzdanda; IBAN QR, hatırlatıcılar, PIN + Face ID |
 | Konumlandırma (EN ve AB dilleri) | "Bank cards" başta | Sadakat kartı önce: hesap yok, internet gerekmez, reklam yok, şifreli. Ardından Apple Watch + widget ve Wallet'a ekleme. Kredi kartı ve IBAN ikinci planda |
-| Premium | "Premium sınırsız kart + gelişmiş özellikler" | Ücretsiz sınırlar (5 sadakat / 2 kredi / 2 IBAN) ve Premium'a bağlı özellikler açıkça yazıldı. Yedekleme, Wallet'a ekleme ve IBAN QR kod Premium'a bağlı; Face ID / Touch ID / parmak izi ve IBAN tarama ücretsiz |
+| Premium | "Premium sınırsız kart + gelişmiş özellikler" | Ücretsiz sınırlar (3 sadakat / 1 kredi / 1 IBAN) ve Premium'a bağlı özellikler açıkça yazıldı. Yedekleme, Wallet'a ekleme ve IBAN QR kod Premium'a bağlı; Face ID / Touch ID / parmak izi ve IBAN tarama ücretsiz |
 | Play metinleri | Apple Watch ve Apple Wallet geçiyordu | Android'de olanlar yazıldı: Google Wallet, widget, Hızlı Ayarlar kutucuğu, parmak izi / yüz tanıma |
 | App Store dilleri | TR, EN, FR, DE, IT, PT-PT, ES | 9 dil. **nl-NL, pl-PL ve pt-BR App Store Connect'te yeni dil olarak eklenmeli** (bkz. release_checklist) |
 | Veri cümlesi | "Kart verileri cihazdan çıkmaz" | "Wallet'a eklerken yalnızca o sadakat kartının adı, numarası ve notu imzalama servisine gider." Kod tam olarak bunu gönderiyor (`wallet_pass_export_service.dart` `_payload`) |
@@ -20,83 +20,87 @@ Kurallar:
 - **Arama:** home'daki arama tüm kart türlerinde çalışıyor (kredi kartı: isim, banka, etiket, son 4; IBAN: isim, banka, son 4; sadakat: isim, marka, etiket, not). Metinde "isim, banka, etiket ya da son 4 hane" diye özetlendi. Tam kart numarası aranamıyor, o yüzden yazılmadı.
 - **Bilerek yazılmayanlar:** IBAN tarama ücretsiz ama mağaza metninde vaat edilmiyor. "En çok kullanılan" sıralaması yalnızca sürüm notlarında geçiyor.
 
+- **v2 tasarım (aynı 2.2.0 sürümü):** promosyon metni ve açıklamalara tek kamera (barkod + banka kartı + IBAN, fotoğraftan da), Sıradaki (cihazda öğrenilir), başka uygulamadan içe aktarma (dışa aktarma dosyası / tablo / Apple Wallet kartı, Play'de .pkpass), 700+ marka ve Sıradaki widget'ı eklendi. Rakip uygulama adı geçmiyor; "eski uygulamandan" deniyor. Ücretsiz sınırlar ve Premium listesi değişmedi.
+
+- **24 Eki — iOS 27 sonrası mesaj:** iOS 27'de Apple Wallet her barkodlu kartı ekleyebiliyor. Promosyon metni ve açıklamaların ilk paragrafı "kartları sakla"dan "kasada doğru kart en üstte + banka kartı ve IBAN yanında" çizgisine çekildi. İsim, alt başlık, anahtar kelimeler ve Play kısa açıklaması (ASO alanları) değişmedi; ASO turunda ele alınacak. Marka sayısı katalogla eşitlendi: 596 marka var, metinde "500+".
+
 Uzunlukları yeniden saymak için: `python3 tools/check_store_text.py --write docs/store/release/listing.md`
 
 <!-- lengths:start -->
 | Dil | Alan | Uzunluk | Sınır | Durum |
 |---|---|---:|---:|---|
-| en-US | App Store — Name | 25 | 30 | ✅ |
+| en-US | App Store — Name | 22 | 30 | ✅ |
 | en-US | App Store — Subtitle | 28 | 30 | ✅ |
 | en-US | App Store — Keywords | 96 bayt | 100 bayt | ✅ |
-| en-US | App Store — Promotional Text | 139 | 170 | ✅ |
-| en-US | App Store — Description | 2176 | 4000 | ✅ |
-| en-US | Google Play — Title | 25 | 30 | ✅ |
+| en-US | App Store — Promotional Text | 154 | 170 | ✅ |
+| en-US | App Store — Description | 2587 | 4000 | ✅ |
+| en-US | Google Play — Title | 22 | 30 | ✅ |
 | en-US | Google Play — Short description | 76 | 80 | ✅ |
-| en-US | Google Play — Full description | 2078 | 4000 | ✅ |
-| tr-TR | App Store — Name | 24 | 30 | ✅ |
+| en-US | Google Play — Full description | 2462 | 4000 | ✅ |
+| tr-TR | App Store — Name | 21 | 30 | ✅ |
 | tr-TR | App Store — Subtitle | 30 | 30 | ✅ |
 | tr-TR | App Store — Keywords | 86 bayt | 100 bayt | ✅ |
-| tr-TR | App Store — Promotional Text | 146 | 170 | ✅ |
-| tr-TR | App Store — Description | 2343 | 4000 | ✅ |
-| tr-TR | Google Play — Title | 24 | 30 | ✅ |
+| tr-TR | App Store — Promotional Text | 151 | 170 | ✅ |
+| tr-TR | App Store — Description | 2747 | 4000 | ✅ |
+| tr-TR | Google Play — Title | 21 | 30 | ✅ |
 | tr-TR | Google Play — Short description | 75 | 80 | ✅ |
-| tr-TR | Google Play — Full description | 2270 | 4000 | ✅ |
-| de-DE | App Store — Name | 24 | 30 | ✅ |
+| tr-TR | Google Play — Full description | 2651 | 4000 | ✅ |
+| de-DE | App Store — Name | 21 | 30 | ✅ |
 | de-DE | App Store — Subtitle | 30 | 30 | ✅ |
 | de-DE | App Store — Keywords | 100 bayt | 100 bayt | ✅ |
-| de-DE | App Store — Promotional Text | 139 | 170 | ✅ |
-| de-DE | App Store — Description | 2489 | 4000 | ✅ |
-| de-DE | Google Play — Title | 24 | 30 | ✅ |
+| de-DE | App Store — Promotional Text | 157 | 170 | ✅ |
+| de-DE | App Store — Description | 2950 | 4000 | ✅ |
+| de-DE | Google Play — Title | 21 | 30 | ✅ |
 | de-DE | Google Play — Short description | 77 | 80 | ✅ |
-| de-DE | Google Play — Full description | 2391 | 4000 | ✅ |
-| fr-FR | App Store — Name | 28 | 30 | ✅ |
+| de-DE | Google Play — Full description | 2817 | 4000 | ✅ |
+| fr-FR | App Store — Name | 25 | 30 | ✅ |
 | fr-FR | App Store — Subtitle | 30 | 30 | ✅ |
 | fr-FR | App Store — Keywords | 99 bayt | 100 bayt | ✅ |
-| fr-FR | App Store — Promotional Text | 158 | 170 | ✅ |
-| fr-FR | App Store — Description | 2567 | 4000 | ✅ |
-| fr-FR | Google Play — Title | 28 | 30 | ✅ |
+| fr-FR | App Store — Promotional Text | 165 | 170 | ✅ |
+| fr-FR | App Store — Description | 3068 | 4000 | ✅ |
+| fr-FR | Google Play — Title | 25 | 30 | ✅ |
 | fr-FR | Google Play — Short description | 72 | 80 | ✅ |
-| fr-FR | Google Play — Full description | 2488 | 4000 | ✅ |
-| es-ES | App Store — Name | 30 | 30 | ✅ |
+| fr-FR | Google Play — Full description | 2941 | 4000 | ✅ |
+| es-ES | App Store — Name | 27 | 30 | ✅ |
 | es-ES | App Store — Subtitle | 29 | 30 | ✅ |
 | es-ES | App Store — Keywords | 95 bayt | 100 bayt | ✅ |
-| es-ES | App Store — Promotional Text | 154 | 170 | ✅ |
-| es-ES | App Store — Description | 2411 | 4000 | ✅ |
-| es-ES | Google Play — Title | 30 | 30 | ✅ |
+| es-ES | App Store — Promotional Text | 163 | 170 | ✅ |
+| es-ES | App Store — Description | 2887 | 4000 | ✅ |
+| es-ES | Google Play — Title | 27 | 30 | ✅ |
 | es-ES | Google Play — Short description | 77 | 80 | ✅ |
-| es-ES | Google Play — Full description | 2300 | 4000 | ✅ |
-| pt-BR | App Store — Name | 29 | 30 | ✅ |
+| es-ES | Google Play — Full description | 2733 | 4000 | ✅ |
+| pt-BR | App Store — Name | 26 | 30 | ✅ |
 | pt-BR | App Store — Subtitle | 30 | 30 | ✅ |
 | pt-BR | App Store — Keywords | 99 bayt | 100 bayt | ✅ |
-| pt-BR | App Store — Promotional Text | 149 | 170 | ✅ |
-| pt-BR | App Store — Description | 2377 | 4000 | ✅ |
-| pt-BR | Google Play — Title | 29 | 30 | ✅ |
+| pt-BR | App Store — Promotional Text | 163 | 170 | ✅ |
+| pt-BR | App Store — Description | 2832 | 4000 | ✅ |
+| pt-BR | Google Play — Title | 26 | 30 | ✅ |
 | pt-BR | Google Play — Short description | 74 | 80 | ✅ |
-| pt-BR | Google Play — Full description | 2282 | 4000 | ✅ |
-| it-IT | App Store — Name | 25 | 30 | ✅ |
+| pt-BR | Google Play — Full description | 2701 | 4000 | ✅ |
+| it-IT | App Store — Name | 22 | 30 | ✅ |
 | it-IT | App Store — Subtitle | 27 | 30 | ✅ |
 | it-IT | App Store — Keywords | 99 bayt | 100 bayt | ✅ |
-| it-IT | App Store — Promotional Text | 143 | 170 | ✅ |
-| it-IT | App Store — Description | 2419 | 4000 | ✅ |
-| it-IT | Google Play — Title | 25 | 30 | ✅ |
+| it-IT | App Store — Promotional Text | 159 | 170 | ✅ |
+| it-IT | App Store — Description | 2858 | 4000 | ✅ |
+| it-IT | Google Play — Title | 22 | 30 | ✅ |
 | it-IT | Google Play — Short description | 70 | 80 | ✅ |
-| it-IT | Google Play — Full description | 2318 | 4000 | ✅ |
-| nl-NL | App Store — Name | 26 | 30 | ✅ |
+| it-IT | Google Play — Full description | 2719 | 4000 | ✅ |
+| nl-NL | App Store — Name | 23 | 30 | ✅ |
 | nl-NL | App Store — Subtitle | 30 | 30 | ✅ |
 | nl-NL | App Store — Keywords | 100 bayt | 100 bayt | ✅ |
-| nl-NL | App Store — Promotional Text | 148 | 170 | ✅ |
-| nl-NL | App Store — Description | 2343 | 4000 | ✅ |
-| nl-NL | Google Play — Title | 26 | 30 | ✅ |
+| nl-NL | App Store — Promotional Text | 159 | 170 | ✅ |
+| nl-NL | App Store — Description | 2788 | 4000 | ✅ |
+| nl-NL | Google Play — Title | 23 | 30 | ✅ |
 | nl-NL | Google Play — Short description | 79 | 80 | ✅ |
-| nl-NL | Google Play — Full description | 2238 | 4000 | ✅ |
-| pl-PL | App Store — Name | 28 | 30 | ✅ |
+| nl-NL | Google Play — Full description | 2654 | 4000 | ✅ |
+| pl-PL | App Store — Name | 25 | 30 | ✅ |
 | pl-PL | App Store — Subtitle | 27 | 30 | ✅ |
 | pl-PL | App Store — Keywords | 95 bayt | 100 bayt | ✅ |
-| pl-PL | App Store — Promotional Text | 161 | 170 | ✅ |
-| pl-PL | App Store — Description | 2397 | 4000 | ✅ |
-| pl-PL | Google Play — Title | 28 | 30 | ✅ |
+| pl-PL | App Store — Promotional Text | 147 | 170 | ✅ |
+| pl-PL | App Store — Description | 2849 | 4000 | ✅ |
+| pl-PL | Google Play — Title | 25 | 30 | ✅ |
 | pl-PL | Google Play — Short description | 77 | 80 | ✅ |
-| pl-PL | Google Play — Full description | 2318 | 4000 | ✅ |
+| pl-PL | Google Play — Full description | 2735 | 4000 | ✅ |
 <!-- lengths:end -->
 
 ---
@@ -108,7 +112,7 @@ Uzunlukları yeniden saymak için: `python3 tools/check_store_text.py --write do
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Loyalty Cards
+Deckard: Loyalty Cards
 ```
 
 #### App Store — Subtitle (≤30)
@@ -126,13 +130,13 @@ rewards,barcode,qr,membership,points,store,iban,credit,debit,scanner,pass,widget
 #### App Store — Promotional Text (≤170)
 
 ```text
-Face ID and Touch ID are now free for everyone. Plus search across all your cards, IBANs shared as images, auto-lock and brighter barcodes.
+Up Next puts the card you need on top, the barcode opens bright at checkout, and your bank cards and IBANs sit right beside it. No account, works offline.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet keeps your loyalty and membership cards in one private wallet on your iPhone. There's no account to create, no ads, and it works without an internet connection.
+Deckard puts the right card on top before you reach the checkout: Up Next learns when you use each loyalty card, on your iPhone only, and the barcode opens at full brightness. Your bank cards and IBANs sit right beside them. There's no account to create, no ads, and it works without an internet connection.
 
 At the checkout, open a card and the screen brightens automatically so the scanner reads your barcode on the first try. Your cards are also on your Apple Watch and in a home screen widget.
 
@@ -144,11 +148,14 @@ PRIVATE BY DESIGN
 • PIN, Face ID or Touch ID lock with auto-lock, and your cards are hidden in the app switcher
 
 LOYALTY CARDS
-• Scan a barcode or QR code with the camera, pick it from a photo, or type it in
+• One camera for everything: loyalty barcodes, bank cards and IBANs, even from a photo — or type it in
+• Up Next: the card you usually need at this time of day comes first, learned on your phone
+• Moving from another app? Import its export file or an Apple Wallet pass in one go
+• 500+ brands recognized with their logo and colors, from any country
 • Full screen brightness while a barcode is open
 • Search, filter by tag and mark favorites
 • Share a card as an image
-• Apple Watch app and home screen widget for quick access
+• Apple Watch app, plus an Up Next widget on the home and lock screen
 
 CREDIT CARDS AND IBANS TOO
 • Keep credit cards and IBANs next to your loyalty cards
@@ -159,7 +166,7 @@ CREDIT CARDS AND IBANS TOO
 • Available in 9 languages
 
 PREMIUM
-The free version includes 5 loyalty cards, 2 credit cards and 2 IBANs. Premium adds:
+The free version includes 3 loyalty cards, 1 credit card and 1 IBAN. Premium adds:
 • Unlimited cards
 • Add loyalty cards to Apple Wallet
 • Encrypted backup and restore, for example when you move to a new phone
@@ -168,7 +175,7 @@ The free version includes 5 loyalty cards, 2 credit cards and 2 IBANs. Premium a
 
 Premium is offered as a weekly, monthly or yearly subscription. Payment is charged to your Apple ID. A subscription renews automatically unless it's cancelled at least 24 hours before the end of the current period. You can manage or cancel it in your App Store account settings.
 
-CardWallet is not a banking app. It doesn't make payments, move money or connect to your bank.
+Deckard is not a banking app. It doesn't make payments, move money or connect to your bank.
 
 When you add a loyalty card to Apple Wallet, that card's name, number and note are sent to our pass-signing service to create the pass. No other card details leave your device.
 
@@ -181,7 +188,7 @@ Privacy Policy: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Loyalty Cards
+Deckard: Loyalty Cards
 ```
 
 #### Google Play — Short description (≤80)
@@ -193,7 +200,7 @@ Loyalty cards and barcodes in a private wallet. No account, no ads, offline.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet keeps your loyalty and membership cards in one private wallet on your phone. There's no account to create, no ads, and it works without an internet connection.
+Deckard puts the right card on top before you reach the checkout: Up Next learns when you use each loyalty card, on your phone only, and the barcode opens at full brightness. Your bank cards and IBANs sit right beside them. There's no account to create, no ads, and it works without an internet connection.
 
 At the checkout, open a card and the screen brightens automatically so the scanner reads your barcode on the first try. Put your favorite card on the home screen with a widget or open it from a Quick Settings tile.
 
@@ -205,11 +212,14 @@ Private by design
 • PIN, fingerprint or face lock with auto-lock, and card screens are hidden from screenshots and the recent apps view
 
 Loyalty cards
-• Scan a barcode or QR code with the camera, pick it from a photo, or type it in
+• One camera for everything: loyalty barcodes, bank cards and IBANs, even from a photo — or type it in
+• Up Next: the card you usually need at this time of day comes first, learned on your phone
+• Moving from another app? Import its export file or a .pkpass pass in one go
+• 500+ brands recognized with their logo and colors, from any country
 • Full screen brightness while a barcode is open
 • Search, filter by tag and mark favorites
 • Share a card as an image
-• Home screen widget and Quick Settings tile for quick access
+• Up Next home screen widget and Quick Settings tile
 
 Credit cards and IBANs too
 • Keep credit cards and IBANs next to your loyalty cards
@@ -220,7 +230,7 @@ Credit cards and IBANs too
 • Available in 9 languages
 
 Premium
-The free version includes 5 loyalty cards, 2 credit cards and 2 IBANs. Premium adds:
+The free version includes 3 loyalty cards, 1 credit card and 1 IBAN. Premium adds:
 • Unlimited cards
 • Save loyalty cards to Google Wallet
 • Encrypted backup and restore, for example when you move to a new phone
@@ -229,7 +239,7 @@ The free version includes 5 loyalty cards, 2 credit cards and 2 IBANs. Premium a
 
 Premium is offered as a weekly, monthly or yearly subscription that renews automatically. You can cancel anytime in Google Play › Payments & subscriptions.
 
-CardWallet is not a banking app. It doesn't make payments, move money or connect to your bank.
+Deckard is not a banking app. It doesn't make payments, move money or connect to your bank.
 
 When you save a loyalty card to Google Wallet, that card's name, number and note are sent to our pass-signing service to create the pass. No other card details leave your device.
 
@@ -244,7 +254,7 @@ Terms of Use: https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Kart ve IBAN
+Deckard: Kart ve IBAN
 ```
 
 #### App Store — Subtitle (≤30)
@@ -262,13 +272,13 @@ cüzdan,banka,kredi,barkod,üyelik,puan,market,şifreli,yedek,face id,pin,widget
 #### App Store — Promotional Text (≤170)
 
 ```text
-Face ID ve Touch ID artık herkese ücretsiz. Ayrıca tüm kartlarında arama, IBAN'ı görsel olarak paylaşma, otomatik kilit ve barkodda tam parlaklık.
+Sıradaki, ihtiyacın olan kartı en üste koyar, barkod kasada parlak açılır; banka kartların ve IBAN'ların hemen yanında. Hesap yok, internetsiz çalışır.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet; kredi kartlarını, IBAN'larını ve sadakat kartlarını tek bir güvenli cüzdanda toplar. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
+Deckard, kasaya gelmeden doğru kartı en üste koyar: Sıradaki, hangi sadakat kartını ne zaman kullandığını yalnızca iPhone'unda öğrenir, barkod tam parlaklıkta açılır. Kredi kartların ve IBAN'ların da hemen yanında. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
 
 IBAN'ını tek dokunuşla kopyala ya da paylaş, karşındakine QR kodla okut. Kasada sadakat kartını aç, ekran kendiliğinden parlasın. Kredi kartının ödeme ve son kullanma tarihini hatırlatıcılar senin yerine takip etsin. Aradığın kartı ana ekrandaki aramayla isim, banka, etiket ya da son 4 haneyle bul.
 
@@ -292,14 +302,17 @@ IBAN
 • QR kod oluştur, karşı taraf telefonuyla okutsun (Premium)
 
 SADAKAT KARTLARI
-• Barkodu veya QR kodu kamerayla tara, fotoğraftan seç ya da elle gir
+• Tek kamera her şey için: sadakat barkodu, banka kartı ve IBAN, fotoğraftan bile — ya da elle gir
+• Sıradaki: günün bu saatinde genelde kullandığın kart öne gelir, telefonunda öğrenilir
+• Başka bir uygulamadan mı geliyorsun? Dışa aktarma dosyasını ya da Apple Wallet kartını tek seferde içe aktar
+• Her ülkeden 500+ marka, logosu ve rengiyle tanınır
 • Barkod açıkken ekran tam parlaklığa çıkar
 • Etiketle, filtrele, favorilerini işaretle
-• Apple Watch ve ana ekran widget'ıyla saniyeler içinde aç
+• Apple Watch uygulaması; ana ve kilit ekranında Sıradaki widget'ı
 • Kartı görsel olarak paylaş
 
 PREMIUM
-Ücretsiz sürümde 2 kredi kartı, 2 IBAN ve 5 sadakat kartı saklayabilirsin. Premium ile:
+Ücretsiz sürümde 1 kredi kartı, 1 IBAN ve 3 sadakat kartı saklayabilirsin. Premium ile:
 • Sınırsız kart
 • Şifreli yedekleme ve geri yükleme (yeni telefona geçerken de)
 • Sadakat kartlarını Apple Cüzdan'a ekleme
@@ -308,7 +321,7 @@ PREMIUM
 
 Premium; haftalık, aylık veya yıllık abonelik olarak sunulur. Ödeme Apple kimliğinden alınır. Abonelik, dönem bitiminden en az 24 saat önce iptal edilmezse otomatik olarak yenilenir. Aboneliğini App Store hesap ayarlarından yönetebilir ya da iptal edebilirsin.
 
-CardWallet bir banka uygulaması değildir; ödeme yapmaz, para göndermez, bankana bağlanmaz.
+Deckard bir banka uygulaması değildir; ödeme yapmaz, para göndermez, bankana bağlanmaz.
 
 Bir sadakat kartını Apple Cüzdan'a eklediğinde, kartın oluşturulabilmesi için yalnızca o kartın adı, numarası ve notu imzalama servisimize gönderilir. Diğer kart bilgilerin cihazından çıkmaz.
 
@@ -321,7 +334,7 @@ Gizlilik Politikası: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Kart ve IBAN
+Deckard: Kart ve IBAN
 ```
 
 #### Google Play — Short description (≤80)
@@ -333,7 +346,7 @@ Kart, IBAN ve sadakat kartların tek güvenli cüzdanda. IBAN'ı QR ile paylaş.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet; kredi kartlarını, IBAN'larını ve sadakat kartlarını tek bir güvenli cüzdanda toplar. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
+Deckard, kasaya gelmeden doğru kartı en üste koyar: Sıradaki, hangi sadakat kartını ne zaman kullandığını yalnızca telefonunda öğrenir, barkod tam parlaklıkta açılır. Kredi kartların ve IBAN'ların da hemen yanında. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
 
 IBAN'ını tek dokunuşla kopyala ya da paylaş, karşındakine QR kodla okut. Kasada sadakat kartını aç, ekran kendiliğinden parlasın. Kredi kartının ödeme ve son kullanma tarihini hatırlatıcılar senin yerine takip etsin. Aradığın kartı ana ekrandaki aramayla isim, banka, etiket ya da son 4 haneyle bul.
 
@@ -357,14 +370,17 @@ IBAN
 • QR kod oluştur, karşı taraf telefonuyla okutsun (Premium)
 
 Sadakat kartları
-• Barkodu veya QR kodu kamerayla tara, fotoğraftan seç ya da elle gir
+• Tek kamera her şey için: sadakat barkodu, banka kartı ve IBAN, fotoğraftan bile — ya da elle gir
+• Sıradaki: günün bu saatinde genelde kullandığın kart öne gelir, telefonunda öğrenilir
+• Başka bir uygulamadan mı geliyorsun? Dışa aktarma dosyasını ya da .pkpass dosyasını tek seferde içe aktar
+• Her ülkeden 500+ marka, logosu ve rengiyle tanınır
 • Barkod açıkken ekran tam parlaklığa çıkar
 • Etiketle, filtrele, favorilerini işaretle
-• Ana ekran widget'ı ve Hızlı Ayarlar kutucuğuyla saniyeler içinde aç
+• Ana ekranda Sıradaki widget'ı ve Hızlı Ayarlar kutucuğu
 • Kartı görsel olarak paylaş
 
 Premium
-Ücretsiz sürümde 2 kredi kartı, 2 IBAN ve 5 sadakat kartı saklayabilirsin. Premium ile:
+Ücretsiz sürümde 1 kredi kartı, 1 IBAN ve 3 sadakat kartı saklayabilirsin. Premium ile:
 • Sınırsız kart
 • Şifreli yedekleme ve geri yükleme (yeni telefona geçerken de)
 • Sadakat kartlarını Google Cüzdan'a ekleme
@@ -373,7 +389,7 @@ Premium
 
 Premium; haftalık, aylık veya yıllık abonelik olarak sunulur ve otomatik yenilenir. İstediğin zaman Google Play › Ödemeler ve abonelikler bölümünden iptal edebilirsin.
 
-CardWallet bir banka uygulaması değildir; ödeme yapmaz, para göndermez, bankana bağlanmaz.
+Deckard bir banka uygulaması değildir; ödeme yapmaz, para göndermez, bankana bağlanmaz.
 
 Bir sadakat kartını Google Cüzdan'a eklediğinde, kartın oluşturulabilmesi için yalnızca o kartın adı, numarası ve notu imzalama servisimize gönderilir. Diğer kart bilgilerin cihazından çıkmaz.
 
@@ -388,7 +404,7 @@ Kullanım Koşulları: https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Kundenkarten
+Deckard: Kundenkarten
 ```
 
 #### App Store — Subtitle (≤30)
@@ -406,13 +422,13 @@ treuekarte,bonuskarte,barcode,qr,wallet,punkte,mitglied,iban,kreditkarte,verschl
 #### App Store — Promotional Text (≤170)
 
 ```text
-Face ID und Touch ID jetzt für alle kostenlos. Dazu Suche über alle Karten, IBAN als Bild teilen, automatische Sperre und hellere Barcodes.
+„Als Nächstes“ legt die Karte nach oben, die du brauchst, der Barcode öffnet hell an der Kasse, und Bankkarten und IBANs liegen daneben. Kein Konto, offline.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet bewahrt deine Kunden- und Treuekarten in einer privaten Wallet auf deinem iPhone auf. Du brauchst kein Konto, es gibt keine Werbung, und die App funktioniert auch ohne Internet.
+Deckard legt die richtige Karte nach oben, bevor du an der Kasse stehst: „Als Nächstes“ lernt nur auf deinem iPhone, wann du welche Kundenkarte nutzt, und der Barcode öffnet mit voller Helligkeit. Deine Bankkarten und IBANs liegen gleich daneben. Du brauchst kein Konto, es gibt keine Werbung, und die App funktioniert auch ohne Internet.
 
 An der Kasse öffnest du die Karte, der Bildschirm wird automatisch hell und der Scanner liest den Barcode beim ersten Versuch. Deine Karten hast du außerdem auf der Apple Watch und im Widget auf dem Home-Bildschirm.
 
@@ -424,11 +440,14 @@ PRIVAT VON ANFANG AN
 • Sperre per PIN, Face ID oder Touch ID mit automatischer Sperre; im App-Umschalter sind deine Karten verdeckt
 
 KUNDENKARTEN
-• Barcode oder QR-Code mit der Kamera scannen, aus einem Foto übernehmen oder eintippen
+• Eine Kamera für alles: Kundenkarten-Barcodes, Bankkarten und IBANs, auch aus einem Foto – oder eintippen
+• „Als Nächstes“: Die Karte, die du um diese Uhrzeit meist brauchst, steht oben – gelernt auf deinem Telefon
+• Du kommst von einer anderen App? Importiere ihre Exportdatei oder einen Apple-Wallet-Pass in einem Rutsch
+• Über 500 Marken aus aller Welt mit Logo und Farben erkannt
 • Volle Bildschirmhelligkeit, solange ein Barcode offen ist
 • Suchen, nach Tags filtern, Favoriten markieren
 • Karte als Bild teilen
-• Apple-Watch-App und Widget für den schnellen Zugriff
+• Apple-Watch-App und „Als Nächstes“-Widget auf Home- und Sperrbildschirm
 
 AUCH FÜR KREDITKARTEN UND IBANS
 • Kreditkarten und IBANs neben deinen Kundenkarten aufbewahren
@@ -439,7 +458,7 @@ AUCH FÜR KREDITKARTEN UND IBANS
 • In 9 Sprachen verfügbar
 
 PREMIUM
-Die kostenlose Version umfasst 5 Kundenkarten, 2 Kreditkarten und 2 IBANs. Mit Premium bekommst du:
+Die kostenlose Version umfasst 3 Kundenkarten, 1 Kreditkarte und 1 IBAN. Mit Premium bekommst du:
 • Unbegrenzt viele Karten
 • Kundenkarten zu Apple Wallet hinzufügen
 • Verschlüsselte Sicherung und Wiederherstellung, zum Beispiel beim Umzug auf ein neues Telefon
@@ -448,7 +467,7 @@ Die kostenlose Version umfasst 5 Kundenkarten, 2 Kreditkarten und 2 IBANs. Mit P
 
 Premium gibt es als Wochen-, Monats- oder Jahresabo. Die Zahlung wird über deine Apple-ID abgerechnet. Das Abo verlängert sich automatisch, wenn es nicht mindestens 24 Stunden vor Ende des laufenden Zeitraums gekündigt wird. Verwalten oder kündigen kannst du es in den Einstellungen deines App-Store-Accounts.
 
-CardWallet ist keine Banking-App. Sie führt keine Zahlungen aus, überweist kein Geld und verbindet sich nicht mit deiner Bank.
+Deckard ist keine Banking-App. Sie führt keine Zahlungen aus, überweist kein Geld und verbindet sich nicht mit deiner Bank.
 
 Wenn du eine Kundenkarte zu Apple Wallet hinzufügst, werden Name, Nummer und Notiz dieser Karte an unseren Signaturdienst gesendet, um den Pass zu erstellen. Andere Kartendaten verlassen dein Gerät nicht.
 
@@ -461,7 +480,7 @@ Datenschutz: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Kundenkarten
+Deckard: Kundenkarten
 ```
 
 #### Google Play — Short description (≤80)
@@ -473,7 +492,7 @@ Kundenkarten und Barcodes in einer privaten Wallet. Ohne Konto, ohne Werbung.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet bewahrt deine Kunden- und Treuekarten in einer privaten Wallet auf deinem Handy auf. Du brauchst kein Konto, es gibt keine Werbung, und die App funktioniert auch ohne Internet.
+Deckard legt die richtige Karte nach oben, bevor du an der Kasse stehst: „Als Nächstes“ lernt nur auf deinem Handy, wann du welche Kundenkarte nutzt, und der Barcode öffnet mit voller Helligkeit. Deine Bankkarten und IBANs liegen gleich daneben. Du brauchst kein Konto, es gibt keine Werbung, und die App funktioniert auch ohne Internet.
 
 An der Kasse öffnest du die Karte, der Bildschirm wird automatisch hell und der Scanner liest den Barcode beim ersten Versuch. Deine Lieblingskarte legst du als Widget auf den Startbildschirm oder öffnest sie über eine Schnelleinstellungs-Kachel.
 
@@ -485,11 +504,14 @@ Privat von Anfang an
 • Sperre per PIN, Fingerabdruck oder Gesichtserkennung mit automatischer Sperre; Kartenansichten sind in Screenshots und in der Übersicht der letzten Apps verborgen
 
 Kundenkarten
-• Barcode oder QR-Code mit der Kamera scannen, aus einem Foto übernehmen oder eintippen
+• Eine Kamera für alles: Kundenkarten-Barcodes, Bankkarten und IBANs, auch aus einem Foto – oder eintippen
+• „Als Nächstes“: Die Karte, die du um diese Uhrzeit meist brauchst, steht oben – gelernt auf deinem Telefon
+• Du kommst von einer anderen App? Importiere ihre Exportdatei oder eine .pkpass-Datei in einem Rutsch
+• Über 500 Marken aus aller Welt mit Logo und Farben erkannt
 • Volle Bildschirmhelligkeit, solange ein Barcode offen ist
 • Suchen, nach Tags filtern, Favoriten markieren
 • Karte als Bild teilen
-• Widget und Schnelleinstellungs-Kachel für den schnellen Zugriff
+• „Als Nächstes“-Widget und Schnelleinstellungs-Kachel
 
 Auch für Kreditkarten und IBANs
 • Kreditkarten und IBANs neben deinen Kundenkarten aufbewahren
@@ -500,7 +522,7 @@ Auch für Kreditkarten und IBANs
 • In 9 Sprachen verfügbar
 
 Premium
-Die kostenlose Version umfasst 5 Kundenkarten, 2 Kreditkarten und 2 IBANs. Mit Premium bekommst du:
+Die kostenlose Version umfasst 3 Kundenkarten, 1 Kreditkarte und 1 IBAN. Mit Premium bekommst du:
 • Unbegrenzt viele Karten
 • Kundenkarten in Google Wallet speichern
 • Verschlüsselte Sicherung und Wiederherstellung, zum Beispiel beim Umzug auf ein neues Telefon
@@ -509,7 +531,7 @@ Die kostenlose Version umfasst 5 Kundenkarten, 2 Kreditkarten und 2 IBANs. Mit P
 
 Premium gibt es als Wochen-, Monats- oder Jahresabo mit automatischer Verlängerung. Kündigen kannst du jederzeit in Google Play › Zahlungen & Abos.
 
-CardWallet ist keine Banking-App. Sie führt keine Zahlungen aus, überweist kein Geld und verbindet sich nicht mit deiner Bank.
+Deckard ist keine Banking-App. Sie führt keine Zahlungen aus, überweist kein Geld und verbindet sich nicht mit deiner Bank.
 
 Wenn du eine Kundenkarte in Google Wallet speicherst, werden Name, Nummer und Notiz dieser Karte an unseren Signaturdienst gesendet, um den Pass zu erstellen. Andere Kartendaten verlassen dein Gerät nicht.
 
@@ -524,7 +546,7 @@ Nutzungsbedingungen: https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet : Cartes fidélité
+Deckard : Cartes fidélité
 ```
 
 #### App Store — Subtitle (≤30)
@@ -542,13 +564,13 @@ carte de fidélité,code-barres,qr,portefeuille,points,magasin,membre,iban,banca
 #### App Store — Promotional Text (≤170)
 
 ```text
-Face ID et Touch ID désormais gratuits pour tous. Et aussi : recherche dans toutes vos cartes, IBAN en image, verrouillage auto et codes-barres plus lumineux.
+« À suivre » place en haut la carte qu'il vous faut, le code-barres s'ouvre lumineux en caisse, et vos cartes bancaires et IBAN sont à côté. Sans compte, hors ligne.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet range vos cartes de fidélité et d'adhérent dans un portefeuille privé, sur votre iPhone. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
+Deckard met la bonne carte en haut avant que vous arriviez en caisse : « À suivre » apprend, uniquement sur votre iPhone, quand vous utilisez chaque carte de fidélité, et le code-barres s'ouvre en pleine luminosité. Vos cartes bancaires et vos IBAN sont juste à côté. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
 
 En caisse, ouvrez la carte : l'écran s'éclaircit tout seul et le lecteur lit le code-barres du premier coup. Vos cartes sont aussi sur votre Apple Watch et dans un widget de l'écran d'accueil.
 
@@ -560,11 +582,14 @@ PRIVÉE PAR CONCEPTION
 • Verrouillage par code PIN, Face ID ou Touch ID avec verrouillage auto ; vos cartes sont masquées dans le sélecteur d'apps
 
 CARTES DE FIDÉLITÉ
-• Scannez un code-barres ou un QR code avec l'appareil photo, depuis une photo, ou saisissez-le
+• Un seul appareil photo pour tout : codes de fidélité, cartes bancaires et IBAN, même depuis une photo — ou à la main
+• « À suivre » : la carte qu'il vous faut à cette heure-ci passe en premier, apprise sur votre téléphone
+• Vous venez d'une autre app ? Importez son fichier d'export ou une carte Apple Wallet en une fois
+• Plus de 500 enseignes reconnues, avec logo et couleurs, de tous les pays
 • Luminosité maximale tant qu'un code-barres est affiché
 • Recherche, filtres par étiquette et favoris
 • Partage d'une carte sous forme d'image
-• App Apple Watch et widget pour un accès rapide
+• App Apple Watch et widget « À suivre » sur l'écran d'accueil et l'écran verrouillé
 
 AUSSI POUR LES CARTES BANCAIRES ET LES IBAN
 • Gardez cartes bancaires et IBAN à côté de vos cartes de fidélité
@@ -575,7 +600,7 @@ AUSSI POUR LES CARTES BANCAIRES ET LES IBAN
 • Disponible en 9 langues
 
 PREMIUM
-La version gratuite comprend 5 cartes de fidélité, 2 cartes bancaires et 2 IBAN. Premium ajoute :
+La version gratuite comprend 3 cartes de fidélité, 1 carte bancaire et 1 IBAN. Premium ajoute :
 • Cartes illimitées
 • Ajout des cartes de fidélité à Apple Wallet
 • Sauvegarde et restauration chiffrées, par exemple pour passer à un nouveau téléphone
@@ -584,7 +609,7 @@ La version gratuite comprend 5 cartes de fidélité, 2 cartes bancaires et 2 IBA
 
 Premium est proposé en abonnement hebdomadaire, mensuel ou annuel. Le paiement est débité sur votre identifiant Apple. L'abonnement se renouvelle automatiquement s'il n'est pas résilié au moins 24 heures avant la fin de la période en cours. Vous pouvez le gérer ou le résilier dans les réglages de votre compte App Store.
 
-CardWallet n'est pas une application bancaire. Elle n'effectue pas de paiement, ne transfère pas d'argent et ne se connecte pas à votre banque.
+Deckard n'est pas une application bancaire. Elle n'effectue pas de paiement, ne transfère pas d'argent et ne se connecte pas à votre banque.
 
 Quand vous ajoutez une carte de fidélité à Apple Wallet, son nom, son numéro et sa note sont envoyés à notre service de signature pour créer le pass. Aucune autre donnée de carte ne quitte votre appareil.
 
@@ -597,7 +622,7 @@ Politique de confidentialité : https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet : Cartes fidélité
+Deckard : Cartes fidélité
 ```
 
 #### Google Play — Short description (≤80)
@@ -609,7 +634,7 @@ Cartes de fidélité et codes-barres, sans compte ni pub, même hors ligne.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet range vos cartes de fidélité et d'adhérent dans un portefeuille privé, sur votre téléphone. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
+Deckard met la bonne carte en haut avant que vous arriviez en caisse : « À suivre » apprend, uniquement sur votre téléphone, quand vous utilisez chaque carte de fidélité, et le code-barres s'ouvre en pleine luminosité. Vos cartes bancaires et vos IBAN sont juste à côté. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
 
 En caisse, ouvrez la carte : l'écran s'éclaircit tout seul et le lecteur lit le code-barres du premier coup. Placez votre carte préférée sur l'écran d'accueil avec un widget ou ouvrez-la depuis une vignette des Réglages rapides.
 
@@ -621,11 +646,14 @@ Privée par conception
 • Verrouillage par code PIN, empreinte ou visage avec verrouillage auto ; les écrans de carte sont masqués dans les captures et les apps récentes
 
 Cartes de fidélité
-• Scannez un code-barres ou un QR code avec l'appareil photo, depuis une photo, ou saisissez-le
+• Un seul appareil photo pour tout : codes de fidélité, cartes bancaires et IBAN, même depuis une photo — ou à la main
+• « À suivre » : la carte qu'il vous faut à cette heure-ci passe en premier, apprise sur votre téléphone
+• Vous venez d'une autre app ? Importez son fichier d'export ou un fichier .pkpass en une fois
+• Plus de 500 enseignes reconnues, avec logo et couleurs, de tous les pays
 • Luminosité maximale tant qu'un code-barres est affiché
 • Recherche, filtres par étiquette et favoris
 • Partage d'une carte sous forme d'image
-• Widget et vignette des Réglages rapides pour un accès rapide
+• Widget « À suivre » et vignette des Réglages rapides
 
 Aussi pour les cartes bancaires et les IBAN
 • Gardez cartes bancaires et IBAN à côté de vos cartes de fidélité
@@ -636,7 +664,7 @@ Aussi pour les cartes bancaires et les IBAN
 • Disponible en 9 langues
 
 Premium
-La version gratuite comprend 5 cartes de fidélité, 2 cartes bancaires et 2 IBAN. Premium ajoute :
+La version gratuite comprend 3 cartes de fidélité, 1 carte bancaire et 1 IBAN. Premium ajoute :
 • Cartes illimitées
 • Enregistrement des cartes de fidélité dans Google Wallet
 • Sauvegarde et restauration chiffrées, par exemple pour passer à un nouveau téléphone
@@ -645,7 +673,7 @@ La version gratuite comprend 5 cartes de fidélité, 2 cartes bancaires et 2 IBA
 
 Premium est proposé en abonnement hebdomadaire, mensuel ou annuel, renouvelé automatiquement. Vous pouvez le résilier à tout moment dans Google Play › Paiements et abonnements.
 
-CardWallet n'est pas une application bancaire. Elle n'effectue pas de paiement, ne transfère pas d'argent et ne se connecte pas à votre banque.
+Deckard n'est pas une application bancaire. Elle n'effectue pas de paiement, ne transfère pas d'argent et ne se connecte pas à votre banque.
 
 Quand vous enregistrez une carte de fidélité dans Google Wallet, son nom, son numéro et sa note sont envoyés à notre service de signature pour créer le pass. Aucune autre donnée de carte ne quitte votre appareil.
 
@@ -660,7 +688,7 @@ Conditions d'utilisation : https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Tarjetas fidelidad
+Deckard: Tarjetas fidelidad
 ```
 
 #### App Store — Subtitle (≤30)
@@ -678,13 +706,13 @@ puntos,codigo de barras,qr,socio,tienda,monedero,offline,sin cuenta,iban,credito
 #### App Store — Promotional Text (≤170)
 
 ```text
-Face ID y Touch ID ahora gratis para todos. Además: búsqueda en todas tus tarjetas, IBAN como imagen, bloqueo automático y códigos de barras más visibles.
+«Siguiente» pone arriba la tarjeta que necesitas, el código se abre con brillo en la caja y tus tarjetas bancarias e IBAN están al lado. Sin cuenta y sin conexión.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet guarda tus tarjetas de fidelidad y de socio en una cartera privada en tu iPhone. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
+Deckard pone la tarjeta correcta arriba antes de que llegues a la caja: «Siguiente» aprende, solo en tu iPhone, cuándo usas cada tarjeta de fidelidad, y el código de barras se abre con el brillo al máximo. Tus tarjetas bancarias e IBAN están justo al lado. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
 
 En caja, abre la tarjeta: la pantalla sube el brillo sola y el lector lee el código de barras a la primera. Tus tarjetas también están en el Apple Watch y en un widget de la pantalla de inicio.
 
@@ -696,11 +724,14 @@ PRIVADA DESDE EL PRINCIPIO
 • Bloqueo con PIN, Face ID o Touch ID y bloqueo automático; tus tarjetas se ocultan al cambiar de app
 
 TARJETAS DE FIDELIDAD
-• Escanea un código de barras o QR con la cámara, elígelo de una foto o escríbelo
+• Una cámara para todo: códigos de fidelidad, tarjetas bancarias e IBAN, incluso desde una foto, o escríbelo
+• «Siguiente»: la tarjeta que sueles usar a esta hora aparece primero, aprendido en tu teléfono
+• ¿Vienes de otra app? Importa su archivo de exportación o un pase de Apple Wallet de una vez
+• Más de 500 marcas reconocidas con su logo y colores, de cualquier país
 • Brillo al máximo mientras el código de barras está abierto
 • Busca, filtra por etiquetas y marca tus favoritas
 • Comparte una tarjeta como imagen
-• App para Apple Watch y widget para abrirlas al momento
+• App para Apple Watch y widget «Siguiente» en la pantalla de inicio y de bloqueo
 
 TAMBIÉN TARJETAS BANCARIAS E IBAN
 • Guarda tarjetas de crédito e IBAN junto a tus tarjetas de fidelidad
@@ -711,7 +742,7 @@ TAMBIÉN TARJETAS BANCARIAS E IBAN
 • Disponible en 9 idiomas
 
 PREMIUM
-La versión gratuita incluye 5 tarjetas de fidelidad, 2 tarjetas de crédito y 2 IBAN. Premium añade:
+La versión gratuita incluye 3 tarjetas de fidelidad, 1 tarjeta de crédito y 1 IBAN. Premium añade:
 • Tarjetas ilimitadas
 • Añadir tarjetas de fidelidad a Apple Wallet
 • Copia de seguridad cifrada y restauración, por ejemplo al cambiar de teléfono
@@ -720,7 +751,7 @@ La versión gratuita incluye 5 tarjetas de fidelidad, 2 tarjetas de crédito y 2
 
 Premium se ofrece como suscripción semanal, mensual o anual. El pago se carga en tu ID de Apple. La suscripción se renueva automáticamente salvo que la canceles al menos 24 horas antes de que termine el periodo actual. Puedes gestionarla o cancelarla en los ajustes de tu cuenta del App Store.
 
-CardWallet no es una app bancaria. No hace pagos, no mueve dinero y no se conecta con tu banco.
+Deckard no es una app bancaria. No hace pagos, no mueve dinero y no se conecta con tu banco.
 
 Cuando añades una tarjeta de fidelidad a Apple Wallet, su nombre, su número y su nota se envían a nuestro servicio de firma para crear el pase. Ningún otro dato de tus tarjetas sale de tu dispositivo.
 
@@ -733,7 +764,7 @@ Política de privacidad: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Tarjetas fidelidad
+Deckard: Tarjetas fidelidad
 ```
 
 #### Google Play — Short description (≤80)
@@ -745,7 +776,7 @@ Tarjetas de fidelidad y códigos de barras. Sin cuenta, sin anuncios, offline.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet guarda tus tarjetas de fidelidad y de socio en una cartera privada en tu móvil. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
+Deckard pone la tarjeta correcta arriba antes de que llegues a la caja: «Siguiente» aprende, solo en tu móvil, cuándo usas cada tarjeta de fidelidad, y el código de barras se abre con el brillo al máximo. Tus tarjetas bancarias e IBAN están justo al lado. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
 
 En caja, abre la tarjeta: la pantalla sube el brillo sola y el lector lee el código de barras a la primera. Pon tu tarjeta favorita en la pantalla de inicio con un widget o ábrela desde un icono de Ajustes rápidos.
 
@@ -757,11 +788,14 @@ Privada desde el principio
 • Bloqueo con PIN, huella o cara y bloqueo automático; las pantallas de tarjetas no salen en capturas ni en apps recientes
 
 Tarjetas de fidelidad
-• Escanea un código de barras o QR con la cámara, elígelo de una foto o escríbelo
+• Una cámara para todo: códigos de fidelidad, tarjetas bancarias e IBAN, incluso desde una foto, o escríbelo
+• «Siguiente»: la tarjeta que sueles usar a esta hora aparece primero, aprendido en tu teléfono
+• ¿Vienes de otra app? Importa su archivo de exportación o un archivo .pkpass de una vez
+• Más de 500 marcas reconocidas con su logo y colores, de cualquier país
 • Brillo al máximo mientras el código de barras está abierto
 • Busca, filtra por etiquetas y marca tus favoritas
 • Comparte una tarjeta como imagen
-• Widget e icono de Ajustes rápidos para abrirlas al momento
+• Widget «Siguiente» e icono de Ajustes rápidos
 
 También tarjetas bancarias e IBAN
 • Guarda tarjetas de crédito e IBAN junto a tus tarjetas de fidelidad
@@ -772,7 +806,7 @@ También tarjetas bancarias e IBAN
 • Disponible en 9 idiomas
 
 Premium
-La versión gratuita incluye 5 tarjetas de fidelidad, 2 tarjetas de crédito y 2 IBAN. Premium añade:
+La versión gratuita incluye 3 tarjetas de fidelidad, 1 tarjeta de crédito y 1 IBAN. Premium añade:
 • Tarjetas ilimitadas
 • Guardar tarjetas de fidelidad en Google Wallet
 • Copia de seguridad cifrada y restauración, por ejemplo al cambiar de teléfono
@@ -781,7 +815,7 @@ La versión gratuita incluye 5 tarjetas de fidelidad, 2 tarjetas de crédito y 2
 
 Premium se ofrece como suscripción semanal, mensual o anual con renovación automática. Puedes cancelarla cuando quieras en Google Play › Pagos y suscripciones.
 
-CardWallet no es una app bancaria. No hace pagos, no mueve dinero y no se conecta con tu banco.
+Deckard no es una app bancaria. No hace pagos, no mueve dinero y no se conecta con tu banco.
 
 Cuando guardas una tarjeta de fidelidad en Google Wallet, su nombre, su número y su nota se envían a nuestro servicio de firma para crear el pase. Ningún otro dato de tus tarjetas sale de tu dispositivo.
 
@@ -796,7 +830,7 @@ Condiciones de uso: https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Cartão Fidelidade
+Deckard: Cartão Fidelidade
 ```
 
 #### App Store — Subtitle (≤30)
@@ -814,13 +848,13 @@ pontos,código de barras,qr,clube,loja,membro,sem conta,cartões,crédito,cripto
 #### App Store — Promotional Text (≤170)
 
 ```text
-Face ID e Touch ID agora grátis para todos. E mais: busca em todos os cartões, IBAN como imagem, bloqueio automático e códigos de barras mais claros.
+O “A seguir” coloca no topo o cartão que você precisa, o código abre com brilho no caixa e seus cartões de banco e IBAN ficam ao lado. Sem conta, funciona offline.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-O CardWallet guarda seus cartões fidelidade e de sócio em uma carteira privada no seu iPhone. Não precisa criar conta, não tem anúncios e funciona sem internet.
+O Deckard coloca o cartão certo no topo antes de você chegar ao caixa: o “A seguir” aprende, só no seu iPhone, quando você usa cada cartão fidelidade, e o código de barras abre com brilho máximo. Seus cartões de banco e IBAN ficam logo ao lado. Não precisa criar conta, não tem anúncios e funciona sem internet.
 
 No caixa, abra o cartão: a tela fica mais clara sozinha e o leitor pega o código de barras de primeira. Seus cartões também ficam no Apple Watch e em um widget da tela de início.
 
@@ -832,11 +866,14 @@ PRIVADO DESDE O INÍCIO
 • Bloqueio por PIN, Face ID ou Touch ID com bloqueio automático; seus cartões ficam escondidos na troca de apps
 
 CARTÕES FIDELIDADE
-• Escaneie código de barras ou QR com a câmera, escolha de uma foto ou digite
+• Uma câmera para tudo: códigos de fidelidade, cartões bancários e IBAN, até de uma foto — ou digite
+• “A seguir”: o cartão que você costuma usar neste horário aparece primeiro, aprendido no seu celular
+• Vindo de outro app? Importe o arquivo de exportação ou um passe do Apple Wallet de uma vez
+• Mais de 500 marcas reconhecidas com logo e cores, de qualquer país
 • Brilho máximo enquanto o código de barras estiver aberto
 • Busque, filtre por etiquetas e marque seus favoritos
 • Compartilhe um cartão como imagem
-• App para Apple Watch e widget para abrir na hora
+• App para Apple Watch e widget “A seguir” na tela inicial e de bloqueio
 
 TAMBÉM CARTÕES DE CRÉDITO E IBAN
 • Guarde cartões de crédito e IBANs junto com seus cartões fidelidade
@@ -847,7 +884,7 @@ TAMBÉM CARTÕES DE CRÉDITO E IBAN
 • Disponível em 9 idiomas
 
 PREMIUM
-A versão gratuita inclui 5 cartões fidelidade, 2 cartões de crédito e 2 IBANs. O Premium adiciona:
+A versão gratuita inclui 3 cartões fidelidade, 1 cartão de crédito e 1 IBAN. O Premium adiciona:
 • Cartões ilimitados
 • Adicionar cartões fidelidade à Apple Wallet
 • Backup criptografado e restauração, por exemplo ao trocar de celular
@@ -856,7 +893,7 @@ A versão gratuita inclui 5 cartões fidelidade, 2 cartões de crédito e 2 IBAN
 
 O Premium é oferecido como assinatura semanal, mensal ou anual. O pagamento é cobrado no seu ID Apple. A assinatura é renovada automaticamente, a menos que seja cancelada pelo menos 24 horas antes do fim do período atual. Você pode gerenciar ou cancelar nos ajustes da sua conta da App Store.
 
-O CardWallet não é um app de banco. Ele não faz pagamentos, não transfere dinheiro e não se conecta ao seu banco.
+O Deckard não é um app de banco. Ele não faz pagamentos, não transfere dinheiro e não se conecta ao seu banco.
 
 Quando você adiciona um cartão fidelidade à Apple Wallet, o nome, o número e a observação desse cartão são enviados ao nosso serviço de assinatura digital para criar o passe. Nenhum outro dado dos seus cartões sai do aparelho.
 
@@ -869,7 +906,7 @@ Política de privacidade: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Cartão Fidelidade
+Deckard: Cartão Fidelidade
 ```
 
 #### Google Play — Short description (≤80)
@@ -881,7 +918,7 @@ Cartões fidelidade e códigos de barras, sem conta, sem anúncios e offline.
 #### Google Play — Full description (≤4000)
 
 ```text
-O CardWallet guarda seus cartões fidelidade e de sócio em uma carteira privada no seu celular. Não precisa criar conta, não tem anúncios e funciona sem internet.
+O Deckard coloca o cartão certo no topo antes de você chegar ao caixa: o “A seguir” aprende, só no seu celular, quando você usa cada cartão fidelidade, e o código de barras abre com brilho máximo. Seus cartões de banco e IBAN ficam logo ao lado. Não precisa criar conta, não tem anúncios e funciona sem internet.
 
 No caixa, abra o cartão: a tela fica mais clara sozinha e o leitor pega o código de barras de primeira. Coloque seu cartão favorito na tela inicial com um widget ou abra pelo bloco de Configurações rápidas.
 
@@ -893,11 +930,14 @@ Privado desde o início
 • Bloqueio por PIN, impressão digital ou rosto com bloqueio automático; as telas dos cartões não aparecem em capturas nem em apps recentes
 
 Cartões fidelidade
-• Escaneie código de barras ou QR com a câmera, escolha de uma foto ou digite
+• Uma câmera para tudo: códigos de fidelidade, cartões bancários e IBAN, até de uma foto — ou digite
+• “A seguir”: o cartão que você costuma usar neste horário aparece primeiro, aprendido no seu celular
+• Vindo de outro app? Importe o arquivo de exportação ou um arquivo .pkpass de uma vez
+• Mais de 500 marcas reconhecidas com logo e cores, de qualquer país
 • Brilho máximo enquanto o código de barras estiver aberto
 • Busque, filtre por etiquetas e marque seus favoritos
 • Compartilhe um cartão como imagem
-• Widget e bloco de Configurações rápidas para abrir na hora
+• Widget “A seguir” e bloco de Configurações rápidas
 
 Também cartões de crédito e IBAN
 • Guarde cartões de crédito e IBANs junto com seus cartões fidelidade
@@ -908,7 +948,7 @@ Também cartões de crédito e IBAN
 • Disponível em 9 idiomas
 
 Premium
-A versão gratuita inclui 5 cartões fidelidade, 2 cartões de crédito e 2 IBANs. O Premium adiciona:
+A versão gratuita inclui 3 cartões fidelidade, 1 cartão de crédito e 1 IBAN. O Premium adiciona:
 • Cartões ilimitados
 • Salvar cartões fidelidade na Google Wallet
 • Backup criptografado e restauração, por exemplo ao trocar de celular
@@ -917,7 +957,7 @@ A versão gratuita inclui 5 cartões fidelidade, 2 cartões de crédito e 2 IBAN
 
 O Premium é oferecido como assinatura semanal, mensal ou anual com renovação automática. Você pode cancelar quando quiser em Google Play › Pagamentos e assinaturas.
 
-O CardWallet não é um app de banco. Ele não faz pagamentos, não transfere dinheiro e não se conecta ao seu banco.
+O Deckard não é um app de banco. Ele não faz pagamentos, não transfere dinheiro e não se conecta ao seu banco.
 
 Quando você salva um cartão fidelidade na Google Wallet, o nome, o número e a observação desse cartão são enviados ao nosso serviço de assinatura digital para criar o passe. Nenhum outro dado dos seus cartões sai do aparelho.
 
@@ -932,7 +972,7 @@ Termos de uso: https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Carte fedeltà
+Deckard: Carte fedeltà
 ```
 
 #### App Store — Subtitle (≤30)
@@ -950,13 +990,13 @@ tessera,punti,codice a barre,qr,offline,portafoglio,negozio,socio,iban,credito,c
 #### App Store — Promotional Text (≤170)
 
 ```text
-Face ID e Touch ID ora gratis per tutti. E poi: ricerca in tutte le carte, IBAN come immagine, blocco automatico e codici a barre più luminosi.
+«Prossima» mette in cima la carta che ti serve, il codice si apre luminoso alla cassa e carte bancarie e IBAN sono lì accanto. Senza account, funziona offline.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet tiene le tue carte fedeltà e le tessere in un portafoglio privato sul tuo iPhone. Non serve creare un account, non ci sono pubblicità e funziona anche senza connessione.
+Deckard mette in cima la carta giusta prima che tu arrivi alla cassa: «Prossima» impara, solo sul tuo iPhone, quando usi ogni carta fedeltà, e il codice a barre si apre alla massima luminosità. Le tue carte bancarie e gli IBAN sono subito accanto. Non serve creare un account, non ci sono pubblicità e funziona anche senza connessione.
 
 Alla cassa apri la carta: lo schermo si illumina da solo e il lettore legge il codice a barre al primo colpo. Le tue carte sono anche sull'Apple Watch e in un widget della schermata Home.
 
@@ -968,11 +1008,14 @@ PRIVATA FIN DALL'INIZIO
 • Blocco con PIN, Face ID o Touch ID e blocco automatico; le tue carte sono nascoste quando passi da un'app all'altra
 
 CARTE FEDELTÀ
-• Scansiona un codice a barre o un QR con la fotocamera, prendilo da una foto o digitalo
+• Una fotocamera per tutto: codici fedeltà, carte bancarie e IBAN, anche da una foto, oppure digitali
+• «Prossima»: la carta che usi di solito a quest'ora viene prima, imparato sul telefono
+• Arrivi da un'altra app? Importa il suo file di esportazione o un pass di Apple Wallet in un colpo
+• Oltre 500 marchi riconosciuti con logo e colori, da ogni paese
 • Luminosità al massimo mentre il codice a barre è aperto
 • Cerca, filtra per etichetta e segna le preferite
 • Condividi una carta come immagine
-• App per Apple Watch e widget per aprirle al volo
+• App per Apple Watch e widget «Prossima» su Home e schermata di blocco
 
 ANCHE CARTE DI CREDITO E IBAN
 • Tieni carte di credito e IBAN accanto alle carte fedeltà
@@ -983,7 +1026,7 @@ ANCHE CARTE DI CREDITO E IBAN
 • Disponibile in 9 lingue
 
 PREMIUM
-La versione gratuita include 5 carte fedeltà, 2 carte di credito e 2 IBAN. Premium aggiunge:
+La versione gratuita include 3 carte fedeltà, 1 carta di credito e 1 IBAN. Premium aggiunge:
 • Carte illimitate
 • Aggiunta delle carte fedeltà ad Apple Wallet
 • Backup cifrato e ripristino, per esempio quando cambi telefono
@@ -992,7 +1035,7 @@ La versione gratuita include 5 carte fedeltà, 2 carte di credito e 2 IBAN. Prem
 
 Premium è disponibile come abbonamento settimanale, mensile o annuale. Il pagamento viene addebitato sul tuo ID Apple. L'abbonamento si rinnova automaticamente se non viene disdetto almeno 24 ore prima della fine del periodo in corso. Puoi gestirlo o disdirlo nelle impostazioni del tuo account App Store.
 
-CardWallet non è un'app bancaria. Non effettua pagamenti, non trasferisce denaro e non si collega alla tua banca.
+Deckard non è un'app bancaria. Non effettua pagamenti, non trasferisce denaro e non si collega alla tua banca.
 
 Quando aggiungi una carta fedeltà ad Apple Wallet, il nome, il numero e la nota di quella carta vengono inviati al nostro servizio di firma per creare il pass. Nessun altro dato delle carte lascia il tuo dispositivo.
 
@@ -1005,7 +1048,7 @@ Informativa sulla privacy: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Carte fedeltà
+Deckard: Carte fedeltà
 ```
 
 #### Google Play — Short description (≤80)
@@ -1017,7 +1060,7 @@ Carte fedeltà e codici a barre, offline e senza account né pubblicità.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet tiene le tue carte fedeltà e le tessere in un portafoglio privato sul tuo telefono. Non serve creare un account, non ci sono pubblicità e funziona anche senza connessione.
+Deckard mette in cima la carta giusta prima che tu arrivi alla cassa: «Prossima» impara, solo sul tuo telefono, quando usi ogni carta fedeltà, e il codice a barre si apre alla massima luminosità. Le tue carte bancarie e gli IBAN sono subito accanto. Non serve creare un account, non ci sono pubblicità e funziona anche senza connessione.
 
 Alla cassa apri la carta: lo schermo si illumina da solo e il lettore legge il codice a barre al primo colpo. Metti la tua carta preferita nella schermata Home con un widget o aprila da un riquadro delle Impostazioni rapide.
 
@@ -1029,11 +1072,14 @@ Privata fin dall'inizio
 • Blocco con PIN, impronta o volto e blocco automatico; le schermate delle carte non compaiono negli screenshot né nelle app recenti
 
 Carte fedeltà
-• Scansiona un codice a barre o un QR con la fotocamera, prendilo da una foto o digitalo
+• Una fotocamera per tutto: codici fedeltà, carte bancarie e IBAN, anche da una foto, oppure digitali
+• «Prossima»: la carta che usi di solito a quest'ora viene prima, imparato sul telefono
+• Arrivi da un'altra app? Importa il suo file di esportazione o un file .pkpass in un colpo
+• Oltre 500 marchi riconosciuti con logo e colori, da ogni paese
 • Luminosità al massimo mentre il codice a barre è aperto
 • Cerca, filtra per etichetta e segna le preferite
 • Condividi una carta come immagine
-• Widget e riquadro delle Impostazioni rapide per aprirle al volo
+• Widget «Prossima» e riquadro delle Impostazioni rapide
 
 Anche carte di credito e IBAN
 • Tieni carte di credito e IBAN accanto alle carte fedeltà
@@ -1044,7 +1090,7 @@ Anche carte di credito e IBAN
 • Disponibile in 9 lingue
 
 Premium
-La versione gratuita include 5 carte fedeltà, 2 carte di credito e 2 IBAN. Premium aggiunge:
+La versione gratuita include 3 carte fedeltà, 1 carta di credito e 1 IBAN. Premium aggiunge:
 • Carte illimitate
 • Salvataggio delle carte fedeltà in Google Wallet
 • Backup cifrato e ripristino, per esempio quando cambi telefono
@@ -1053,7 +1099,7 @@ La versione gratuita include 5 carte fedeltà, 2 carte di credito e 2 IBAN. Prem
 
 Premium è disponibile come abbonamento settimanale, mensile o annuale con rinnovo automatico. Puoi disdirlo quando vuoi in Google Play › Pagamenti e abbonamenti.
 
-CardWallet non è un'app bancaria. Non effettua pagamenti, non trasferisce denaro e non si collega alla tua banca.
+Deckard non è un'app bancaria. Non effettua pagamenti, non trasferisce denaro e non si collega alla tua banca.
 
 Quando salvi una carta fedeltà in Google Wallet, il nome, il numero e la nota di quella carta vengono inviati al nostro servizio di firma per creare il pass. Nessun altro dato delle carte lascia il tuo dispositivo.
 
@@ -1068,7 +1114,7 @@ Termini di utilizzo: https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Klantenkaarten
+Deckard: Klantenkaarten
 ```
 
 #### App Store — Subtitle (≤30)
@@ -1086,13 +1132,13 @@ klantenkaart,spaarkaart,pasjes,barcode,qr,punten,winkel,lid,iban,creditcard,vers
 #### App Store — Promotional Text (≤170)
 
 ```text
-Face ID en Touch ID nu gratis voor iedereen. Plus: zoeken in al je kaarten, IBAN delen als afbeelding, automatisch vergrendelen en fellere barcodes.
+‘Volgende’ zet de kaart die je nodig hebt bovenaan, de barcode opent helder bij de kassa en je bankpassen en IBAN's staan ernaast. Geen account, werkt offline.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet bewaart je klantenkaarten en ledenpassen in een privé wallet op je iPhone. Je hoeft geen account te maken, er is geen reclame en de app werkt ook zonder internet.
+Deckard zet de juiste kaart bovenaan voordat je bij de kassa staat: ‘Volgende’ leert alleen op je iPhone wanneer je welke klantenkaart gebruikt, en de barcode opent op volle helderheid. Je bankpassen en IBAN's staan er direct naast. Je hoeft geen account te maken, er is geen reclame en de app werkt ook zonder internet.
 
 Open bij de kassa je kaart: het scherm wordt vanzelf fel en de scanner leest je barcode in één keer. Je kaarten staan ook op je Apple Watch en in een widget op je beginscherm.
 
@@ -1104,11 +1150,14 @@ PRIVÉ VANAF HET BEGIN
 • Vergrendeling met pincode, Face ID of Touch ID en automatisch vergrendelen; je kaarten zijn verborgen in de appkiezer
 
 KLANTENKAARTEN
-• Scan een barcode of QR-code met de camera, kies hem uit een foto of typ hem in
+• Eén camera voor alles: klantenkaartcodes, bankpassen en IBAN's, ook uit een foto – of typ het in
+• ‘Volgende’: de kaart die je rond dit tijdstip meestal nodig hebt staat bovenaan, geleerd op je telefoon
+• Overstappen van een andere app? Importeer het exportbestand of een Apple Wallet-pas in één keer
+• Meer dan 500 merken herkend met logo en kleuren, uit elk land
 • Volle helderheid zolang een barcode open is
 • Zoek, filter op labels en markeer favorieten
 • Deel een kaart als afbeelding
-• Apple Watch-app en widget om ze snel te openen
+• Apple Watch-app en ‘Volgende’-widget op begin- en toegangsscherm
 
 OOK VOOR CREDITCARDS EN IBAN'S
 • Bewaar creditcards en IBAN's naast je klantenkaarten
@@ -1119,7 +1168,7 @@ OOK VOOR CREDITCARDS EN IBAN'S
 • Beschikbaar in 9 talen
 
 PREMIUM
-De gratis versie bevat 5 klantenkaarten, 2 creditcards en 2 IBAN's. Premium voegt toe:
+De gratis versie bevat 3 klantenkaarten, 1 creditcard en 1 IBAN. Premium voegt toe:
 • Onbeperkt kaarten
 • Klantenkaarten toevoegen aan Apple Wallet
 • Versleutelde back-up en herstel, bijvoorbeeld als je overstapt naar een nieuwe telefoon
@@ -1128,7 +1177,7 @@ De gratis versie bevat 5 klantenkaarten, 2 creditcards en 2 IBAN's. Premium voeg
 
 Premium is er als week-, maand- of jaarabonnement. De betaling loopt via je Apple ID. Het abonnement wordt automatisch verlengd, tenzij je het minstens 24 uur voor het einde van de lopende periode opzegt. Beheren of opzeggen doe je in de instellingen van je App Store-account.
 
-CardWallet is geen bankapp. De app doet geen betalingen, maakt geen geld over en maakt geen verbinding met je bank.
+Deckard is geen bankapp. De app doet geen betalingen, maakt geen geld over en maakt geen verbinding met je bank.
 
 Voeg je een klantenkaart toe aan Apple Wallet, dan worden de naam, het nummer en de notitie van die kaart naar onze ondertekeningsdienst gestuurd om de pas te maken. Geen andere kaartgegevens verlaten je apparaat.
 
@@ -1141,7 +1190,7 @@ Privacybeleid: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Klantenkaarten
+Deckard: Klantenkaarten
 ```
 
 #### Google Play — Short description (≤80)
@@ -1153,7 +1202,7 @@ Klantenkaarten en barcodes in een privé wallet. Zonder account, zonder reclame.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet bewaart je klantenkaarten en ledenpassen in een privé wallet op je telefoon. Je hoeft geen account te maken, er is geen reclame en de app werkt ook zonder internet.
+Deckard zet de juiste kaart bovenaan voordat je bij de kassa staat: ‘Volgende’ leert alleen op je telefoon wanneer je welke klantenkaart gebruikt, en de barcode opent op volle helderheid. Je bankpassen en IBAN's staan er direct naast. Je hoeft geen account te maken, er is geen reclame en de app werkt ook zonder internet.
 
 Open bij de kassa je kaart: het scherm wordt vanzelf fel en de scanner leest je barcode in één keer. Zet je favoriete kaart met een widget op je startscherm of open hem via een tegel in Snelle instellingen.
 
@@ -1165,11 +1214,14 @@ Privé vanaf het begin
 • Vergrendeling met pincode, vingerafdruk of gezicht en automatisch vergrendelen; kaartschermen zijn verborgen in screenshots en recente apps
 
 Klantenkaarten
-• Scan een barcode of QR-code met de camera, kies hem uit een foto of typ hem in
+• Eén camera voor alles: klantenkaartcodes, bankpassen en IBAN's, ook uit een foto – of typ het in
+• ‘Volgende’: de kaart die je rond dit tijdstip meestal nodig hebt staat bovenaan, geleerd op je telefoon
+• Overstappen van een andere app? Importeer het exportbestand of een .pkpass-bestand in één keer
+• Meer dan 500 merken herkend met logo en kleuren, uit elk land
 • Volle helderheid zolang een barcode open is
 • Zoek, filter op labels en markeer favorieten
 • Deel een kaart als afbeelding
-• Widget en tegel in Snelle instellingen om ze snel te openen
+• ‘Volgende’-widget en tegel in Snelle instellingen
 
 Ook voor creditcards en IBAN's
 • Bewaar creditcards en IBAN's naast je klantenkaarten
@@ -1180,7 +1232,7 @@ Ook voor creditcards en IBAN's
 • Beschikbaar in 9 talen
 
 Premium
-De gratis versie bevat 5 klantenkaarten, 2 creditcards en 2 IBAN's. Premium voegt toe:
+De gratis versie bevat 3 klantenkaarten, 1 creditcard en 1 IBAN. Premium voegt toe:
 • Onbeperkt kaarten
 • Klantenkaarten opslaan in Google Wallet
 • Versleutelde back-up en herstel, bijvoorbeeld als je overstapt naar een nieuwe telefoon
@@ -1189,7 +1241,7 @@ De gratis versie bevat 5 klantenkaarten, 2 creditcards en 2 IBAN's. Premium voeg
 
 Premium is er als week-, maand- of jaarabonnement dat automatisch wordt verlengd. Opzeggen kan altijd via Google Play › Betalingen en abonnementen.
 
-CardWallet is geen bankapp. De app doet geen betalingen, maakt geen geld over en maakt geen verbinding met je bank.
+Deckard is geen bankapp. De app doet geen betalingen, maakt geen geld over en maakt geen verbinding met je bank.
 
 Sla je een klantenkaart op in Google Wallet, dan worden de naam, het nummer en de notitie van die kaart naar onze ondertekeningsdienst gestuurd om de pas te maken. Geen andere kaartgegevens verlaten je apparaat.
 
@@ -1204,7 +1256,7 @@ Gebruiksvoorwaarden: https://olkan.dev/terms/cardwallet
 #### App Store — Name (≤30)
 
 ```text
-CardWallet: Portfel na karty
+Deckard: Portfel na karty
 ```
 
 #### App Store — Subtitle (≤30)
@@ -1222,13 +1274,13 @@ kod kreskowy,qr,punkty,bez konta,bez reklam,sklep,klub,iban,kredytowa,szyfrowani
 #### App Store — Promotional Text (≤170)
 
 ```text
-Face ID i Touch ID teraz bezpłatnie dla wszystkich. Do tego wyszukiwanie we wszystkich kartach, IBAN jako obraz, automatyczna blokada i jaśniejsze kody kreskowe.
+„Następna” wyciąga na górę kartę, której potrzebujesz, kod otwiera się jasno przy kasie, a karty bankowe i IBAN są obok. Bez konta, działa offline.
 ```
 
 #### App Store — Description (≤4000)
 
 ```text
-CardWallet trzyma Twoje karty lojalnościowe i członkowskie w prywatnym portfelu na iPhonie. Nie musisz zakładać konta, nie ma reklam, a aplikacja działa też bez internetu.
+Deckard wyciąga właściwą kartę na górę, zanim dojdziesz do kasy: „Następna” uczy się, tylko na Twoim iPhonie, kiedy używasz każdej karty lojalnościowej, a kod kreskowy otwiera się z pełną jasnością. Karty bankowe i numery IBAN są tuż obok. Nie musisz zakładać konta, nie ma reklam, a aplikacja działa też bez internetu.
 
 Przy kasie otwierasz kartę, ekran sam się rozjaśnia, a czytnik odczytuje kod kreskowy za pierwszym razem. Karty masz też na Apple Watch i w widżecie na ekranie początkowym.
 
@@ -1240,11 +1292,14 @@ PRYWATNOŚĆ OD POCZĄTKU
 • Blokada PIN-em, Face ID lub Touch ID i automatyczna blokada; przy przełączaniu aplikacji karty są zasłonięte
 
 KARTY LOJALNOŚCIOWE
-• Zeskanuj kod kreskowy lub QR aparatem, wybierz go ze zdjęcia albo wpisz ręcznie
+• Jeden aparat do wszystkiego: kody lojalnościowe, karty bankowe i IBAN, także ze zdjęcia – albo wpisz ręcznie
+• „Następna”: karta, której zwykle używasz o tej porze, jest na górze – nauczone na telefonie
+• Przechodzisz z innej aplikacji? Zaimportuj jej plik eksportu lub kartę Apple Wallet za jednym razem
+• Ponad 500 marek rozpoznawanych z logo i kolorami, z każdego kraju
 • Pełna jasność ekranu, dopóki kod kreskowy jest otwarty
 • Wyszukuj, filtruj po etykietach i oznaczaj ulubione
 • Udostępnij kartę jako obraz
-• Aplikacja na Apple Watch i widżet do szybkiego otwierania
+• Aplikacja na Apple Watch i widżet „Następna” na ekranie głównym i blokady
 
 TAKŻE KARTY PŁATNICZE I IBAN
 • Trzymaj karty kredytowe i numery IBAN obok kart lojalnościowych
@@ -1255,7 +1310,7 @@ TAKŻE KARTY PŁATNICZE I IBAN
 • Dostępna w 9 językach
 
 PREMIUM
-Wersja bezpłatna obejmuje 5 kart lojalnościowych, 2 karty kredytowe i 2 numery IBAN. Premium dodaje:
+Wersja bezpłatna obejmuje 3 karty lojalnościowe, 1 kartę kredytową i 1 numer IBAN. Premium dodaje:
 • Nieograniczoną liczbę kart
 • Dodawanie kart lojalnościowych do Apple Wallet
 • Szyfrowaną kopię zapasową i przywracanie, np. przy zmianie telefonu
@@ -1264,7 +1319,7 @@ Wersja bezpłatna obejmuje 5 kart lojalnościowych, 2 karty kredytowe i 2 numery
 
 Premium jest dostępne jako subskrypcja tygodniowa, miesięczna lub roczna. Opłata jest pobierana z Twojego Apple ID. Subskrypcja odnawia się automatycznie, jeśli nie zostanie anulowana co najmniej 24 godziny przed końcem bieżącego okresu. Możesz nią zarządzać lub ją anulować w ustawieniach konta App Store.
 
-CardWallet nie jest aplikacją bankową. Nie wykonuje płatności, nie przelewa pieniędzy i nie łączy się z Twoim bankiem.
+Deckard nie jest aplikacją bankową. Nie wykonuje płatności, nie przelewa pieniędzy i nie łączy się z Twoim bankiem.
 
 Gdy dodajesz kartę lojalnościową do Apple Wallet, jej nazwa, numer i notatka są wysyłane do naszej usługi podpisywania, żeby utworzyć kartę w Wallet. Żadne inne dane kart nie opuszczają urządzenia.
 
@@ -1277,7 +1332,7 @@ Polityka prywatności: https://olkan.dev/privacy/cardwallet
 #### Google Play — Title (≤30)
 
 ```text
-CardWallet: Portfel na karty
+Deckard: Portfel na karty
 ```
 
 #### Google Play — Short description (≤80)
@@ -1289,7 +1344,7 @@ Karty lojalnościowe i kody kreskowe w prywatnym portfelu. Bez konta i reklam.
 #### Google Play — Full description (≤4000)
 
 ```text
-CardWallet trzyma Twoje karty lojalnościowe i członkowskie w prywatnym portfelu na telefonie. Nie musisz zakładać konta, nie ma reklam, a aplikacja działa też bez internetu.
+Deckard wyciąga właściwą kartę na górę, zanim dojdziesz do kasy: „Następna” uczy się, tylko na Twoim telefonie, kiedy używasz każdej karty lojalnościowej, a kod kreskowy otwiera się z pełną jasnością. Karty bankowe i numery IBAN są tuż obok. Nie musisz zakładać konta, nie ma reklam, a aplikacja działa też bez internetu.
 
 Przy kasie otwierasz kartę, ekran sam się rozjaśnia, a czytnik odczytuje kod kreskowy za pierwszym razem. Ulubioną kartę możesz przypiąć widżetem do ekranu głównego albo otworzyć kafelkiem w Szybkich ustawieniach.
 
@@ -1301,11 +1356,14 @@ Prywatność od początku
 • Blokada PIN-em, odciskiem palca lub twarzą i automatyczna blokada; ekrany kart są ukryte na zrzutach ekranu i w ostatnich aplikacjach
 
 Karty lojalnościowe
-• Zeskanuj kod kreskowy lub QR aparatem, wybierz go ze zdjęcia albo wpisz ręcznie
+• Jeden aparat do wszystkiego: kody lojalnościowe, karty bankowe i IBAN, także ze zdjęcia – albo wpisz ręcznie
+• „Następna”: karta, której zwykle używasz o tej porze, jest na górze – nauczone na telefonie
+• Przechodzisz z innej aplikacji? Zaimportuj jej plik eksportu lub plik .pkpass za jednym razem
+• Ponad 500 marek rozpoznawanych z logo i kolorami, z każdego kraju
 • Pełna jasność ekranu, dopóki kod kreskowy jest otwarty
 • Wyszukuj, filtruj po etykietach i oznaczaj ulubione
 • Udostępnij kartę jako obraz
-• Widżet i kafelek w Szybkich ustawieniach do szybkiego otwierania
+• Widżet „Następna” i kafelek w Szybkich ustawieniach
 
 Także karty płatnicze i IBAN
 • Trzymaj karty kredytowe i numery IBAN obok kart lojalnościowych
@@ -1316,7 +1374,7 @@ Także karty płatnicze i IBAN
 • Dostępna w 9 językach
 
 Premium
-Wersja bezpłatna obejmuje 5 kart lojalnościowych, 2 karty kredytowe i 2 numery IBAN. Premium dodaje:
+Wersja bezpłatna obejmuje 3 karty lojalnościowe, 1 kartę kredytową i 1 numer IBAN. Premium dodaje:
 • Nieograniczoną liczbę kart
 • Zapisywanie kart lojalnościowych w Google Wallet
 • Szyfrowaną kopię zapasową i przywracanie, np. przy zmianie telefonu
@@ -1325,7 +1383,7 @@ Wersja bezpłatna obejmuje 5 kart lojalnościowych, 2 karty kredytowe i 2 numery
 
 Premium jest dostępne jako subskrypcja tygodniowa, miesięczna lub roczna, odnawiana automatycznie. Możesz ją anulować w dowolnej chwili w Google Play › Płatności i subskrypcje.
 
-CardWallet nie jest aplikacją bankową. Nie wykonuje płatności, nie przelewa pieniędzy i nie łączy się z Twoim bankiem.
+Deckard nie jest aplikacją bankową. Nie wykonuje płatności, nie przelewa pieniędzy i nie łączy się z Twoim bankiem.
 
 Gdy zapisujesz kartę lojalnościową w Google Wallet, jej nazwa, numer i notatka są wysyłane do naszej usługi podpisywania, żeby utworzyć kartę w Wallet. Żadne inne dane kart nie opuszczają urządzenia.
 

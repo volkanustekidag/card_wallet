@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:wallet_app/core/controllers/auth_controller.dart';
 import 'package:wallet_app/core/components/auth_component.dart';
 import 'package:wallet_app/feature/auth/widgets/forgot_pin_sheet.dart';
+import 'package:wallet_app/ui/tokens.dart';
 
 class AuthenticationPage extends StatefulWidget {
   /// True when shown by [AppLockService] as the warm re-lock screen: success
@@ -42,8 +43,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeAutoTriggerBiometric();
     });
-    _autoBiometricWorker =
-        ever<bool>(_authController.showBiometricButton, (_) {
+    _autoBiometricWorker = ever<bool>(_authController.showBiometricButton, (_) {
       _maybeAutoTriggerBiometric();
     });
     _recoveryPromptWorker =
@@ -94,7 +94,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: context.theme.scaffoldBackgroundColor,
+        backgroundColor: CwColors.of(context).bg,
         resizeToAvoidBottomInset: true,
         body: Obx(() {
           final isRegistering = _authController.isRegistering.value;
@@ -117,6 +117,14 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             text: isRegistering ? "createPin" : "enterPin",
             autoFocus: autoFocus,
             onCompleted: _handlePinCompleted,
+            lockScreen: !isRegistering,
+            onBiometric:
+                !isRegistering && _authController.showBiometricButton.value
+                    ? _authController.authenticateWithBiometric
+                    : null,
+            onForgot: !isRegistering && _authController.isPinRecoveryAvailable
+                ? () => showForgotPinSheet(context)
+                : null,
           );
         }),
       ),

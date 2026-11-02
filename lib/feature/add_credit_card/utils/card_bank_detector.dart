@@ -11,6 +11,21 @@ enum CardNetwork {
   unknown,
 }
 
+extension CardNetworkLabel on CardNetwork {
+  /// Brand name as printed on cards (not translated).
+  String get label => switch (this) {
+        CardNetwork.visa => 'Visa',
+        CardNetwork.mastercard => 'Mastercard',
+        CardNetwork.amex => 'American Express',
+        CardNetwork.unionPay => 'UnionPay',
+        CardNetwork.discover => 'Discover',
+        CardNetwork.jcb => 'JCB',
+        CardNetwork.troy => 'Troy',
+        CardNetwork.dinersClub => 'Diners Club',
+        CardNetwork.unknown => '',
+      };
+}
+
 /// Best-effort BIN → bank lookup. Longest matching prefix wins, so 6-digit
 /// BINs override 4-digit ones. Coverage is curated, not exhaustive — banks
 /// share BIN blocks and individual ranges shift over time, so an unknown

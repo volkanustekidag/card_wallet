@@ -1,0 +1,45 @@
+Deckard pone la tarjeta correcta arriba antes de que llegues a la caja: «Siguiente» aprende, solo en tu iPhone, cuándo usas cada tarjeta de fidelidad, y el código de barras se abre con el brillo al máximo. Tus tarjetas bancarias e IBAN están justo al lado. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
+
+En caja, abre la tarjeta: la pantalla sube el brillo sola y el lector lee el código de barras a la primera. Tus tarjetas también están en el Apple Watch y en un widget de la pantalla de inicio.
+
+PRIVADA DESDE EL PRINCIPIO
+• Sin registro y sin cuenta
+• Sin anuncios
+• Funciona sin conexión
+• Las tarjetas se guardan cifradas en tu dispositivo y no se incluyen en la copia de iCloud
+• Bloqueo con PIN, Face ID o Touch ID y bloqueo automático; tus tarjetas se ocultan al cambiar de app
+
+TARJETAS DE FIDELIDAD
+• Una cámara para todo: códigos de fidelidad, tarjetas bancarias e IBAN, incluso desde una foto, o escríbelo
+• «Siguiente»: la tarjeta que sueles usar a esta hora aparece primero, aprendido en tu teléfono
+• ¿Vienes de otra app? Importa su archivo de exportación o un pase de Apple Wallet de una vez
+• Más de 500 marcas reconocidas con su logo y colores, de cualquier país
+• Brillo al máximo mientras el código de barras está abierto
+• Busca, filtra por etiquetas y marca tus favoritas
+• Comparte una tarjeta como imagen
+• App para Apple Watch y widget «Siguiente» en la pantalla de inicio y de bloqueo
+
+TAMBIÉN TARJETAS BANCARIAS E IBAN
+• Guarda tarjetas de crédito e IBAN junto a tus tarjetas de fidelidad
+• Busca en todas tus tarjetas desde el inicio: nombre, banco, etiqueta o últimos 4 dígitos
+• Copia un IBAN con un toque o compártelo como texto o imagen
+• Recordatorios de pago y de caducidad de tus tarjetas
+• Compatible con American Express y Diners Club
+• Disponible en 9 idiomas
+
+PREMIUM
+La versión gratuita incluye 3 tarjetas de fidelidad, 1 tarjeta de crédito y 1 IBAN. Premium añade:
+• Tarjetas ilimitadas
+• Añadir tarjetas de fidelidad a Apple Wallet
+• Copia de seguridad cifrada y restauración, por ejemplo al cambiar de teléfono
+• Códigos QR para tus IBAN
+• Más colores de tarjeta
+
+Premium se ofrece como suscripción mensual o anual, o como compra única de por vida. El pago se carga en tu ID de Apple. Las suscripciones se renuevan automáticamente salvo que las canceles al menos 24 horas antes de que termine el periodo actual. Puedes gestionarlas o cancelarlas en los ajustes de tu cuenta del App Store.
+
+Deckard no es una app bancaria. No hace pagos, no mueve dinero y no se conecta con tu banco.
+
+Cuando añades una tarjeta de fidelidad a Apple Wallet, su nombre, su número y su nota se envían a nuestro servicio de firma para crear el pase. Ningún otro dato de tus tarjetas sale de tu dispositivo.
+
+Condiciones de uso: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Política de privacidad: https://olkan.dev/privacy/cardwallet

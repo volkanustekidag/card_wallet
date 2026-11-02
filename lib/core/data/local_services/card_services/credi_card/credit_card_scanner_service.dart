@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:get/get.dart' hide Trans;
@@ -43,7 +42,7 @@ class CreditCardScannerService {
 
       // Kredi kartı bilgilerini parse et
       return _reportScan(
-        _parseCreditCardInfo(recognizedText.text),
+        parseCardText(recognizedText.text),
         AnalyticsScanMethod.camera,
       );
     } catch (e) {
@@ -75,7 +74,7 @@ class CreditCardScannerService {
           await _textRecognizer.processImage(inputImage);
 
       return _reportScan(
-        _parseCreditCardInfo(recognizedText.text),
+        parseCardText(recognizedText.text),
         AnalyticsScanMethod.gallery,
       );
     } catch (e) {
@@ -86,8 +85,9 @@ class CreditCardScannerService {
     }
   }
 
-  // Kredi kartı bilgilerini parse et
-  Map<String, String> _parseCreditCardInfo(String text) {
+  /// Card number, MM/YY expiry and holder name from OCR text (empty strings
+  /// for what wasn't found).
+  static Map<String, String> parseCardText(String text) {
     Map<String, String> cardInfo = {
       'cardNumber': '',
       'expiryDate': '',
@@ -135,7 +135,6 @@ class CreditCardScannerService {
   /// text. Groups may be separated by spaces or dashes; only candidates that
   /// pass the Luhn check are accepted, which filters out phone numbers and
   /// account numbers printed on the card.
-  @visibleForTesting
   static String? extractCardNumber(String text) {
     final run = RegExp(r'\d+(?:[ \-]\d+)*');
     for (final line in text.split('\n')) {
@@ -178,7 +177,7 @@ class CreditCardScannerService {
       .logScanFailed(type: AnalyticsCardType.credit, method: method);
 
   // Kart sahibi ismini formatla
-  String _formatCardHolderName(String name) {
+  static String _formatCardHolderName(String name) {
     return name
         .split(' ')
         .where((word) => word.length > 1)
@@ -187,7 +186,7 @@ class CreditCardScannerService {
   }
 
   // Yaygın banka isimlerini filtrele
-  bool _isCommonBankName(String text) {
+  static bool _isCommonBankName(String text) {
     final commonBankNames = [
       'VISA',
       'MASTERCARD',

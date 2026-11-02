@@ -1,0 +1,1 @@
+membro,sócio,pontos,clube,barras,leitor,loja,widget,relógio,offline,privado,programa,cliente

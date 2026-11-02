@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Deckard</string>
+    <string name="list_title">Klantenkaarten</string>
+    <string name="empty_title">Voeg kaarten toe op je telefoon</string>
+    <string name="empty_body">Ze worden hier automatisch gesynchroniseerd.</string>
+    <string name="card_unavailable">Kaart niet beschikbaar</string>
+    <string name="show_on_phone">Toon dit op je telefoon</string>
+</resources>

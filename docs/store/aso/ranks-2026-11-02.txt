@@ -1,0 +1,27 @@
+us | deckard | 3 | 7 | Deckard: Card Counter, Deckard: Card & Toy Sc, Deckard: Loyalty Card 
+us | loyalty card | 61 | 190 | WinStamp - Loyalty Car, WinStamp Business, VeeCard — Digital Loya
+us | loyalty card wallet | 7 | 195 | Stocard — Loyalty Card, Key Ring Rewards Card , SuperCards: Store Card
+us | rewards card | >200 | 182 | MyCardWallet., Atlas - Rewards Credit, Key Ring Rewards Card 
+us | membership card | 78 | 181 | eMembership Card, Key Ring Rewards Card , Membership Wallet
+us | card wallet | 62 | 188 | MyCardWallet., Card Wallet App, Apple Wallet
+us | barcode wallet | >200 | 185 | Barcodes: Loyalty Card, Pass2U Wallet - Add st, Key Ring Rewards Card 
+us | store card | 124 | 190 | Amazon Store Card, SuperCards: Store Card, Store Card: Add Pass t
+us | points card | >200 | 182 | Points Card: Loyalty P, CardPointers for Credi, SuperCards: Store Card
+us | gym card | 75 | 180 | GymCard, Barcodes: Loyalty Card, Lift Card: Track & Sha
+gb | loyalty card | 49 | 187 | SuperCards - Stocard W, WinStamp - Loyalty Car, Greggs App - Food & Dr
+gb | loyalty card wallet | 6 | 191 | SuperCards - Stocard W, Apple Wallet, Klarna: Smarter everyd
+gb | card wallet | 25 | 186 | SuperCards - Stocard W, Apple Wallet, MyCardWallet
+gb | reward cards | >200 | 189 | SuperCards - Stocard W, Greggs App - Food & Dr, ALDI UK
+de | kundenkarten | 53 | 122 | SuperCards: Kundenkart, mobile-pocket Kundenka, Apple Wallet
+de | kundenkarten app | 73 | 183 | SuperCards: Kundenkart, Store Card — Kunderkar, Apple Wallet
+de | bonuskarten | 165 | 180 | SuperCards: Kundenkart, Apple Wallet, mobile-pocket Kundenka
+de | treuekarte | 63 | 135 | ViCAFE Treuekarte, Mein KRESS, Mankido
+de | karten wallet | 139 | 184 | SuperCards: Kundenkart, Apple Wallet, mobile-pocket Kundenka
+tr | sadakat kartı | 4 | 140 | WinStamp - Loyalty Car, Mahalle Kart - Loyalty, Stocard - loyalty card
+tr | kart cüzdanı | >200 | 38 | İstanbulkart - Dijital, Kliq: Digital Wallet &, Oppi: Crypto Wallet & 
+tr | üyelik kartı | 4 | 55 | Pluxee Cep POS, İstanbul Modern Üye Pr, Düzce Beşiktaşlılar De
+tr | iban | 127 | 164 | IBAN & Card, IBAN: Save, Scan & Sha, Hoppa
+fr | carte de fidélité | 115 | 181 | FIDME Carte de Fidélit, Apple Wallet, SuperCards: Carte de F
+fr | cartes de fidélité | 56 | 179 | Apple Wallet, FIDME Carte de Fidélit, Stocard - Carte de fid
+nl | klantenkaart | 146 | 168 | SuperCards: Klantenkaa, Bijdehand: klantenkaar, Apple Wallet
+nl | klantenkaarten | 50 | 91 | SuperCards: Klantenkaa, Store Card: Klantenkaa, Apple Wallet

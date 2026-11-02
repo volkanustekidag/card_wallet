@@ -13,8 +13,15 @@ const String kFavoriteTag = 'favorite';
 Set<String> collectAllTags({
   required Iterable<CreditCard> credits,
   required Iterable<IbanCard> ibans,
+  Iterable<LoyaltyCard> loyalties = const [],
 }) {
   final set = <String>{};
+  for (final c in loyalties) {
+    for (final t in c.tags ?? const <String>[]) {
+      final trimmed = t.trim();
+      if (trimmed.isNotEmpty) set.add(trimmed);
+    }
+  }
   for (final c in credits) {
     final tags = c.tags;
     if (tags == null) continue;

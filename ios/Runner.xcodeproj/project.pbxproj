@@ -32,6 +32,7 @@
 		B97AA124EFE30F494D18909A /* CardWalletWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = C5AFA70EB815CAA7CA4EB91E /* CardWalletWatch.app */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C1CA944346E43A46E5D7F689 /* LoyaltyCardStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70650104DFC784A7635F9255 /* LoyaltyCardStore.swift */; };
 		D0D33A741161B7436E976B3D /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B43A90FEC6F46C0C73EFF070 /* GoogleService-Info.plist */; };
+		D901CCF7F5EAF61BEA76B83B /* PinnedCardWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F287A28241A0C4029202E9B /* PinnedCardWidget.swift */; };
 		F0131BB81F4DCBE0ACEC4122 /* LoyaltyWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 488AC6D9B0E09932E1CB9F62 /* LoyaltyWidget.swift */; };
 		F688B0C0BE07D81E1B6A97C0 /* BarcodeRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7EDFE70D316CFE700FA2A36 /* BarcodeRenderer.swift */; };
 		FD02A65086A8C21C3AC6D009 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 8B531014D00881712F0529AE /* Localizable.xcstrings */; };
@@ -101,6 +102,7 @@
 		2BF4FAD656D89EDC220B7D2F /* tr */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		3DAEDADA8B66A45A1EA6CDF9 /* de */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		3F287A28241A0C4029202E9B /* PinnedCardWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PinnedCardWidget.swift; sourceTree = "<group>"; };
 		3F57502E7E520DD20EBC1FFC /* BarcodeRenderer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BarcodeRenderer.swift; sourceTree = "<group>"; };
 		4345A2E0EC56EFBF12813393 /* CardWalletWatchApp.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CardWalletWatchApp.swift; sourceTree = "<group>"; };
 		488AC6D9B0E09932E1CB9F62 /* LoyaltyWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LoyaltyWidget.swift; sourceTree = "<group>"; };
@@ -174,6 +176,7 @@
 				488AC6D9B0E09932E1CB9F62 /* LoyaltyWidget.swift */,
 				D1C606ABD2D6C559F8B1985F /* LoyaltyWidgetBundle.swift */,
 				B57C1ED5C00944D03D23C089 /* Provider.swift */,
+				3F287A28241A0C4029202E9B /* PinnedCardWidget.swift */,
 				6412B2ED6AD4D1FD93AF0DDE /* LoyaltyEntry.swift */,
 				3F57502E7E520DD20EBC1FFC /* BarcodeRenderer.swift */,
 				99505D8CEE93266E02F2271B /* Info.plist */,
@@ -547,6 +550,7 @@
 				F0131BB81F4DCBE0ACEC4122 /* LoyaltyWidget.swift in Sources */,
 				59704484FF1731F76FF9A35C /* LoyaltyWidgetBundle.swift in Sources */,
 				6B8EB348AA77B57A4A733126 /* Provider.swift in Sources */,
+				D901CCF7F5EAF61BEA76B83B /* PinnedCardWidget.swift in Sources */,
 				A65BD34443ADED88AAD4484C /* LoyaltyEntry.swift in Sources */,
 				3E301D6668EDA9CE146A67D3 /* BarcodeRenderer.swift in Sources */,
 			);
@@ -633,7 +637,8 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CURRENT_PROJECT_VERSION = 45;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CURRENT_PROJECT_VERSION = 47;
 				DEVELOPMENT_TEAM = FXWKZB775S;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = CardWalletWatch/Info.plist;
@@ -713,7 +718,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CURRENT_PROJECT_VERSION = 45;
+				CURRENT_PROJECT_VERSION = 47;
 				DEVELOPMENT_TEAM = FXWKZB775S;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -737,7 +742,8 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CURRENT_PROJECT_VERSION = 45;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CURRENT_PROJECT_VERSION = 47;
 				DEVELOPMENT_TEAM = FXWKZB775S;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = CardWalletWatch/Info.plist;
@@ -765,7 +771,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = LoyaltyWidget/LoyaltyWidget.entitlements;
-				CURRENT_PROJECT_VERSION = 45;
+				CURRENT_PROJECT_VERSION = 47;
 				DEVELOPMENT_TEAM = FXWKZB775S;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LoyaltyWidget/Info.plist;
@@ -795,7 +801,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = LoyaltyWidget/LoyaltyWidget.entitlements;
-				CURRENT_PROJECT_VERSION = 45;
+				CURRENT_PROJECT_VERSION = 47;
 				DEVELOPMENT_TEAM = FXWKZB775S;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LoyaltyWidget/Info.plist;
@@ -932,7 +938,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CURRENT_PROJECT_VERSION = 45;
+				CURRENT_PROJECT_VERSION = 47;
 				DEVELOPMENT_TEAM = FXWKZB775S;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -959,7 +965,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				CURRENT_PROJECT_VERSION = 45;
+				CURRENT_PROJECT_VERSION = 47;
 				DEVELOPMENT_TEAM = FXWKZB775S;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -983,7 +989,8 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CURRENT_PROJECT_VERSION = 45;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CURRENT_PROJECT_VERSION = 47;
 				DEVELOPMENT_TEAM = FXWKZB775S;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = CardWalletWatch/Info.plist;
@@ -1012,7 +1019,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				CODE_SIGN_ENTITLEMENTS = LoyaltyWidget/LoyaltyWidget.entitlements;
-				CURRENT_PROJECT_VERSION = 45;
+				CURRENT_PROJECT_VERSION = 47;
 				DEVELOPMENT_TEAM = FXWKZB775S;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = LoyaltyWidget/Info.plist;

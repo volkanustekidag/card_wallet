@@ -1,6 +1,6 @@
 # Wallet Export Server
 
-Small signing server for Card Wallet loyalty-card exports.
+Small signing server for Deckard loyalty-card exports.
 
 The Flutter app calls:
 
@@ -58,7 +58,7 @@ Required environment:
 ```sh
 export APPLE_PASS_TYPE_ID=pass.com.example.cardwallet.loyalty
 export APPLE_TEAM_ID=ABCDE12345
-export APPLE_ORG_NAME="Card Wallet"
+export APPLE_ORG_NAME="Deckard"
 export APPLE_SIGNER_CERT_PATH=/secure/pass-cert.pem
 export APPLE_SIGNER_KEY_PATH=/secure/pass-key.pem
 export APPLE_SIGNER_KEY_PASSPHRASE=optional
@@ -72,7 +72,7 @@ Current production values:
 ```sh
 export APPLE_PASS_TYPE_ID=pass.com.volkan.cardwallet.loyalty
 export APPLE_TEAM_ID=FXWKZB775S
-export APPLE_ORG_NAME="Card Wallet"
+export APPLE_ORG_NAME="Deckard"
 ```
 
 Supported Apple barcode formats are `QR_CODE` and `CODE_128`. Other retail
@@ -93,8 +93,8 @@ export GOOGLE_WALLET_ORIGINS=https://wallet-api.example.com
 Optional environment:
 
 ```sh
-export GOOGLE_WALLET_ISSUER_NAME="Card Wallet"
-export GOOGLE_WALLET_PROGRAM_NAME="Card Wallet Loyalty"
+export GOOGLE_WALLET_ISSUER_NAME="Deckard"
+export GOOGLE_WALLET_PROGRAM_NAME="Deckard Loyalty"
 export GOOGLE_WALLET_HOMEPAGE_URL=https://example.com
 export GOOGLE_WALLET_LOGO_URL=https://wallet-api.example.com/assets/google-logo.png
 export GOOGLE_LOGO_PATH=/secure/google-logo.png
@@ -106,8 +106,8 @@ Current production values:
 ```sh
 export GOOGLE_WALLET_ISSUER_ID=3388000000023114775
 export GOOGLE_WALLET_CLASS_SUFFIX=cardwallet_loyalty
-export GOOGLE_WALLET_ISSUER_NAME="Card Wallet"
-export GOOGLE_WALLET_PROGRAM_NAME="Card Wallet Loyalty"
+export GOOGLE_WALLET_ISSUER_NAME="Deckard"
+export GOOGLE_WALLET_PROGRAM_NAME="Deckard Loyalty"
 export GOOGLE_WALLET_LOGO_URL=https://www.olkan.dev/apps/cardwallet-icon.png
 ```
 
@@ -165,7 +165,7 @@ gcloud run deploy cardwallet-wallet-export \
   --max-instances 1 \
   --memory 256Mi \
   --cpu 1 \
-  --set-env-vars "APP_CHECK_REQUIRED=true,FIREBASE_PROJECT_ID=x-app-c2e89,WALLET_PUBLIC_BASE_URL=${SERVICE_URL},APPLE_PASS_TYPE_ID=pass.com.volkan.cardwallet.loyalty,APPLE_TEAM_ID=FXWKZB775S,APPLE_ORG_NAME=Card Wallet,APPLE_SIGNER_KEY_PATH=/secrets/apple-pass-key/pass-key.pem,APPLE_SIGNER_CERT_PATH=/secrets/apple-pass-cert/pass-cert.pem,APPLE_WWDR_CERT_PATH=/secrets/apple-wwdr/wwdr.pem,APPLE_ICON_PATH=/secrets/apple-icon/icon.png,APPLE_LOGO_PATH=/secrets/apple-logo/logo.png,GOOGLE_SERVICE_ACCOUNT_PATH=/secrets/google-wallet-service-account/google-service-account.json,GOOGLE_WALLET_ISSUER_ID=3388000000023114775,GOOGLE_WALLET_CLASS_SUFFIX=cardwallet_loyalty,GOOGLE_WALLET_ISSUER_NAME=Card Wallet,GOOGLE_WALLET_PROGRAM_NAME=Card Wallet Loyalty,GOOGLE_WALLET_LOGO_URL=https://www.olkan.dev/apps/cardwallet-icon.png,GOOGLE_WALLET_ORIGINS=${SERVICE_URL}" \
+  --set-env-vars "APP_CHECK_REQUIRED=true,FIREBASE_PROJECT_ID=x-app-c2e89,WALLET_PUBLIC_BASE_URL=${SERVICE_URL},APPLE_PASS_TYPE_ID=pass.com.volkan.cardwallet.loyalty,APPLE_TEAM_ID=FXWKZB775S,APPLE_ORG_NAME=Deckard,APPLE_SIGNER_KEY_PATH=/secrets/apple-pass-key/pass-key.pem,APPLE_SIGNER_CERT_PATH=/secrets/apple-pass-cert/pass-cert.pem,APPLE_WWDR_CERT_PATH=/secrets/apple-wwdr/wwdr.pem,APPLE_ICON_PATH=/secrets/apple-icon/icon.png,APPLE_LOGO_PATH=/secrets/apple-logo/logo.png,GOOGLE_SERVICE_ACCOUNT_PATH=/secrets/google-wallet-service-account/google-service-account.json,GOOGLE_WALLET_ISSUER_ID=3388000000023114775,GOOGLE_WALLET_CLASS_SUFFIX=cardwallet_loyalty,GOOGLE_WALLET_ISSUER_NAME=Deckard,GOOGLE_WALLET_PROGRAM_NAME=Deckard Loyalty,GOOGLE_WALLET_LOGO_URL=https://www.olkan.dev/apps/cardwallet-icon.png,GOOGLE_WALLET_ORIGINS=${SERVICE_URL}" \
   --update-secrets "/secrets/apple-pass-key/pass-key.pem=apple-pass-key:latest,/secrets/apple-pass-cert/pass-cert.pem=apple-pass-cert:latest,/secrets/apple-wwdr/wwdr.pem=apple-wwdr:latest,/secrets/apple-icon/icon.png=apple-icon:latest,/secrets/apple-logo/logo.png=apple-logo:latest,/secrets/google-wallet-service-account/google-service-account.json=google-wallet-service-account:latest" \
   --quiet
 ```
@@ -186,12 +186,12 @@ SERVICE_URL="https://cardwallet-wallet-export-134457105597.europe-west1.run.app"
 curl -X POST "$SERVICE_URL/v1/wallet/loyalty/apple" \
   -H "Content-Type: application/json" \
   -H "X-CardWallet-Api-Key: $API_KEY" \
-  -d '{"id":"smoke-apple","name":"Smoke Loyalty","brand":"Card Wallet","barcode":"123456789012","barcodeFormat":"CODE_128"}'
+  -d '{"id":"smoke-apple","name":"Smoke Loyalty","brand":"Deckard","barcode":"123456789012","barcodeFormat":"CODE_128"}'
 
 curl -X POST "$SERVICE_URL/v1/wallet/loyalty/google" \
   -H "Content-Type: application/json" \
   -H "X-CardWallet-Api-Key: $API_KEY" \
-  -d '{"id":"smoke-google","name":"Smoke Loyalty","brand":"Card Wallet","barcode":"123456789012","barcodeFormat":"CODE_128"}'
+  -d '{"id":"smoke-google","name":"Smoke Loyalty","brand":"Deckard","barcode":"123456789012","barcodeFormat":"CODE_128"}'
 ```
 
 Security controls:

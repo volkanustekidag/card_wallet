@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- One card the user picks, see PinnedCardWidgetReceiver.kt. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="110dp"
+    android:minHeight="110dp"
+    android:targetCellWidth="3"
+    android:targetCellHeight="2"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/pinned_widget"
+    android:previewLayout="@layout/pinned_widget"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:configure="com.volkan.wallet_app.PinnedCardConfigureActivity"
+    android:widgetFeatures="reconfigurable"
+    android:description="@string/pinned_widget_description" />

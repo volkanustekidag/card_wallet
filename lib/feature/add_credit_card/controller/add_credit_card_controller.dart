@@ -1,8 +1,9 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:wallet_app/feature/credit_cards/controller/credit_card_controller.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
@@ -12,13 +13,13 @@ import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
 import 'package:wallet_app/core/domain/models/credit_card_model/credit_card.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
-import 'package:wallet_app/core/styles/app_themes.dart';
 import 'package:wallet_app/core/utils/session_prompt_gate.dart';
 import 'package:wallet_app/core/utils/card_number_layout.dart';
 import 'package:wallet_app/core/utils/validators.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
+import 'package:wallet_app/core/services/ui_prefs.dart';
 
 class AddCreditCardController extends GetxController {
   final CreditCardService _creditCardService = CreditCardService();
@@ -82,6 +83,8 @@ class AddCreditCardController extends GetxController {
       cardHolder: "",
       expirationDate: "",
       cardColorId: 1,
+      // On when the user asked for reminders during onboarding.
+      expiryReminderEnabled: UiPrefs.instance.remindByDefault.value,
     );
     isEditMode.value = false;
 
@@ -139,10 +142,12 @@ class AddCreditCardController extends GetxController {
     currentCard.refresh();
   }
 
-  Future<void> saveCard() async {
+  /// Saves and pops the form. True when a card was written.
+  Future<bool> saveCard() async {
+    var saved = false;
     // A second tap can land before Obx rebuilds the disabled button; without
     // this guard both calls run and two cards with different ids are added.
-    if (isLoading.value) return;
+    if (isLoading.value) return false;
     try {
       isLoading.value = true;
       final wasEditMode = isEditMode.value;
@@ -152,12 +157,11 @@ class AddCreditCardController extends GetxController {
       if (warnings.isNotEmpty) {
         final shouldProceed = await _confirmSaveDespiteWarnings(warnings);
         if (shouldProceed != true) {
-          return;
+          return false;
         }
       }
 
       await _creditCardService.openBox();
-
       // Premium kontrolü sadece yeni kart eklerken
       if (!wasEditMode) {
         final premiumController = Get.find<PremiumController>();
@@ -168,13 +172,13 @@ class AddCreditCardController extends GetxController {
           final dialogContext = Get.context;
           if (dialogContext == null) {
             Get.toNamed('/premium');
-            return;
+            return false;
           }
 
           final unlocked =
               await showCardLimitDialog(dialogContext, CardLimitType.credit);
           if (!unlocked) {
-            return;
+            return false;
           }
         }
       }
@@ -201,6 +205,7 @@ class AddCreditCardController extends GetxController {
         );
 
         await _creditCardService.updateCreditCard(_originalCard!, updatedCard);
+        saved = true;
         HapticFeedback.mediumImpact();
         Get.back();
         Get.context?.showSuccessSnackBar("creditCardUpdatedSuccessfully".tr());
@@ -226,6 +231,7 @@ class AddCreditCardController extends GetxController {
         );
 
         await _creditCardService.addToCreditCard(newCard);
+        saved = true;
         unawaited(
           AnalyticsService.instance.logCardAdded(AnalyticsCardType.credit),
         );
@@ -260,6 +266,7 @@ class AddCreditCardController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+    return saved;
   }
 
   void resetCard() {
@@ -280,8 +287,10 @@ class AddCreditCardController extends GetxController {
     final expirationPattern = RegExp(r'^\d{2}\s?\/\s?\d{2}$');
 
     // 13-19 digits depending on the network (Amex 15, Diners 14, Visa 13/16/19…).
-    return card.bankName.trim().isNotEmpty &&
-        CardNumberLayout.isValidLength(card.creditCardNumber) &&
+    // The bank is optional: many issuers worldwide aren't in the BIN table,
+    // and an unknown bank must not block a scanned card ([saveCard] names
+    // it after the network instead).
+    return CardNumberLayout.isValidLength(card.creditCardNumber) &&
         card.cardHolder.trim().isNotEmpty &&
         expirationPattern.hasMatch(card.expirationDate.trim());
   }
@@ -297,64 +306,20 @@ class AddCreditCardController extends GetxController {
     return warnings;
   }
 
-  Future<bool?> _confirmSaveDespiteWarnings(List<String> warnings) {
-    final dialogContext = Get.context;
-    if (dialogContext == null) return Future.value(true);
-    return Get.dialog<bool>(
-      AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.warning_amber_rounded,
-                color: AppThemes.warning(dialogContext)),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                'validationWarningTitle'.tr(),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'validationWarningSubtitle'.tr(),
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 8),
-            for (final w in warnings)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Text(
-                  '• $w',
-                  style: const TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 13,
-                  ),
-                ),
-              ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: Text('reviewAgain'.tr()),
-          ),
-          ElevatedButton(
-            onPressed: () => Get.back(result: true),
-            child: Text('saveAnyway'.tr()),
-          ),
-        ],
-      ),
-      barrierDismissible: false,
+  Future<bool?> _confirmSaveDespiteWarnings(List<String> warnings) async {
+    final ctx = Get.context;
+    if (ctx == null) return true;
+    return showConfirmActionSheet(
+      context: ctx,
+      title: 'validationWarningTitle'.tr(),
+      content: [
+        'validationWarningSubtitle'.tr(),
+        for (final w in warnings) '• $w',
+      ].join('\n'),
+      confirmText: 'saveAnyway'.tr(),
+      cancelText: 'reviewAgain'.tr(),
+      destructive: false,
+      glyph: CwIcons.warning,
     );
   }
 }

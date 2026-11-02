@@ -1,0 +1,45 @@
+O Deckard coloca o cartão certo no topo antes de você chegar ao caixa: o “A seguir” aprende, só no seu celular, quando você usa cada cartão fidelidade, e o código de barras abre com brilho máximo. Seus cartões de banco e IBAN ficam logo ao lado. Não precisa criar conta, não tem anúncios e funciona sem internet.
+
+No caixa, abra o cartão: a tela fica mais clara sozinha e o leitor pega o código de barras de primeira. Coloque seu cartão favorito na tela inicial com um widget ou abra pelo bloco de Configurações rápidas.
+
+Privado desde o início
+• Sem cadastro, sem conta
+• Sem anúncios
+• Funciona offline
+• Os cartões ficam criptografados no seu aparelho e não entram em backups na nuvem
+• Bloqueio por PIN, impressão digital ou rosto com bloqueio automático; as telas dos cartões não aparecem em capturas nem em apps recentes
+
+Cartões fidelidade
+• Uma câmera para tudo: códigos de fidelidade, cartões bancários e IBAN, até de uma foto — ou digite
+• “A seguir”: o cartão que você costuma usar neste horário aparece primeiro, aprendido no seu celular
+• Vindo de outro app? Importe o arquivo de exportação ou um arquivo .pkpass de uma vez
+• Mais de 500 marcas reconhecidas com logo e cores, de qualquer país
+• Brilho máximo enquanto o código de barras estiver aberto
+• Busque, filtre por etiquetas e marque seus favoritos
+• Compartilhe um cartão como imagem
+• Widget “A seguir” e bloco de Configurações rápidas
+
+Também cartões de crédito e IBAN
+• Guarde cartões de crédito e IBANs junto com seus cartões fidelidade
+• Busque em todos os seus cartões na tela inicial: nome, banco, etiqueta ou últimos 4 dígitos
+• Copie um IBAN com um toque ou compartilhe como texto ou imagem
+• Lembretes de pagamento e de vencimento do cartão
+• Suporte a American Express e Diners Club
+• Disponível em 9 idiomas
+
+Premium
+A versão gratuita inclui 3 cartões fidelidade, 1 cartão de crédito e 1 IBAN. O Premium adiciona:
+• Cartões ilimitados
+• Salvar cartões fidelidade na Google Wallet
+• Backup criptografado e restauração, por exemplo ao trocar de celular
+• QR code para seus IBANs
+• Mais cores de cartão
+
+O Premium é oferecido como assinatura mensal ou anual com renovação automática, ou como compra única vitalícia. Você pode cancelar uma assinatura a qualquer momento em Google Play › Pagamentos e assinaturas.
+
+O Deckard não é um app de banco. Ele não faz pagamentos, não transfere dinheiro e não se conecta ao seu banco.
+
+Quando você salva um cartão fidelidade na Google Wallet, o nome, o número e a observação desse cartão são enviados ao nosso serviço de assinatura digital para criar o passe. Nenhum outro dado dos seus cartões sai do aparelho.
+
+Política de privacidade: https://olkan.dev/privacy/cardwallet
+Termos de uso: https://olkan.dev/terms/cardwallet

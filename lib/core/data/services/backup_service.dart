@@ -15,6 +15,7 @@ import '../../services/wallet_surfaces_sync.dart';
 import '../local_services/card_services/credi_card/credit_card_service.dart';
 import '../local_services/card_services/iban_card/iban_card_service.dart';
 import '../local_services/card_services/loyalty_card/loyalty_card_service.dart';
+import '../storage/card_photo_store.dart';
 import 'backup_crypto.dart';
 
 /// Errors surfaced by [BackupService]. The UI layer maps these to user-facing
@@ -36,9 +37,9 @@ class BackupError implements Exception {
 }
 
 class BackupService {
-  /// Backups are small JSON files; refuse anything that clearly isn't one
-  /// before reading it into memory.
-  static const int _maxBackupBytes = 10 * 1024 * 1024;
+  /// Backups are JSON files (card photos make them a few MB); refuse
+  /// anything that clearly isn't one before reading it into memory.
+  static const int _maxBackupBytes = 64 * 1024 * 1024;
 
   // Boxes are opened through the card services so they always use the
   // encrypted cipher. There is deliberately no plain `Hive.openBox`
@@ -124,16 +125,23 @@ class BackupService {
     }
 
     final loyaltyCards = <Map<String, dynamic>>[];
+    final photos = <String, String>{};
     for (var i = 0; i < loyaltyCardsBox.length; i++) {
       final card = loyaltyCardsBox.getAt(i);
       if (card == null) continue;
       loyaltyCards.add(loyaltyCardToJson(card));
+      for (final id in card.photoIds) {
+        final bytes = await CardPhotoStore.instance.load(id);
+        if (bytes != null) photos[id] = base64Encode(bytes);
+      }
     }
 
     return {
       'creditCards': creditCards,
       'ibanCards': ibanCards,
       'loyaltyCards': loyaltyCards,
+      // Card photos by id (2.3+); the whole payload is encrypted.
+      if (photos.isNotEmpty) 'photos': photos,
     };
   }
 
@@ -166,18 +174,17 @@ class BackupService {
         ),
       );
 
-      final bytes =
-          Uint8List.fromList(utf8.encode(jsonEncode(envelope)));
+      final bytes = Uint8List.fromList(utf8.encode(jsonEncode(envelope)));
       final fileName =
           'card_wallet_backup_${DateTime.now().millisecondsSinceEpoch}.json';
 
       return await AppLockService.guard(() => FilePicker.platform.saveFile(
-        dialogTitle: dialogTitle,
-        fileName: fileName,
-        type: FileType.custom,
-        allowedExtensions: const ['json'],
-        bytes: bytes,
-      ));
+            dialogTitle: dialogTitle,
+            fileName: fileName,
+            type: FileType.custom,
+            allowedExtensions: const ['json'],
+            bytes: bytes,
+          ));
     } on BackupError {
       rethrow;
     } catch (e) {
@@ -294,11 +301,30 @@ class BackupService {
   }
 
   Future<void> _restorePayload(Map<String, dynamic> data) async {
+    // Photos first, under the ids the restored cards point at. Old photos
+    // stay until the cards are swapped, so a failed restore loses nothing.
+    final photos = data['photos'];
+    if (photos is Map) {
+      for (final e in photos.entries) {
+        final id = e.key.toString();
+        final b64 = e.value;
+        if (b64 is! String) continue;
+        try {
+          await CardPhotoStore.instance.write(id, base64Decode(b64));
+        } catch (_) {
+          // A broken photo must not block the cards.
+        }
+      }
+    }
     await _atomicReplace(
       newCreditCards: data['creditCards'] as List,
       newIbanCards: data['ibanCards'] as List,
       newLoyaltyCards: (data['loyaltyCards'] as List?) ?? const <dynamic>[],
     );
+    final keep = {
+      for (final c in (await _getLoyaltyCardsBox()).values) ...c.photoIds,
+    };
+    await CardPhotoStore.instance.keepOnly(keep);
     // Widget, quick tile and Watch should show the restored cards now, not
     // after the debounce.
     await WalletSurfacesSync.instance.syncNow();
@@ -464,8 +490,7 @@ class BackupService {
       expiryReminderEnabled: (raw['expiryReminderEnabled'] as bool?) ?? false,
       expiryReminderDaysBefore:
           (raw['expiryReminderDaysBefore'] as num?)?.toInt() ?? 30,
-      paymentReminderEnabled:
-          (raw['paymentReminderEnabled'] as bool?) ?? false,
+      paymentReminderEnabled: (raw['paymentReminderEnabled'] as bool?) ?? false,
       paymentDueDay: (raw['paymentDueDay'] as num?)?.toInt(),
       paymentReminderDaysBefore:
           (raw['paymentReminderDaysBefore'] as num?)?.toInt() ?? 3,
@@ -504,6 +529,10 @@ class BackupService {
         'website': card.website,
         'lastUsedAt': card.lastUsedAt?.toIso8601String(),
         'useCount': card.useCount,
+        'usageLog': card.usageLog,
+        'brandColor': card.brandColor,
+        'frontPhoto': card.frontPhoto,
+        'backPhoto': card.backPhoto,
       };
 
   /// Inverse of [loyaltyCardToJson]. Backups from before 2.2 have no usage
@@ -523,6 +552,13 @@ class BackupService {
       website: raw['website'] as String?,
       lastUsedAt: _parseDate(raw['lastUsedAt']),
       useCount: (raw['useCount'] as num?)?.toInt(),
+      usageLog: (raw['usageLog'] as List?)
+          ?.whereType<num>()
+          .map((e) => e.toInt())
+          .toList(),
+      brandColor: (raw['brandColor'] as num?)?.toInt(),
+      frontPhoto: raw['frontPhoto'] as String?,
+      backPhoto: raw['backPhoto'] as String?,
     );
   }
 

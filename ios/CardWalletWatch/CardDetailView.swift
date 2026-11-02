@@ -10,6 +10,10 @@ struct CardDetailView: View {
 
     @State private var brightnessSnapshot: Float = 0
 
+    private var textColor: Color {
+        card.fg.flatMap { Color(hex: $0) } ?? .white
+    }
+
     var body: some View {
         GeometryReader { proxy in
             ZStack {
@@ -22,7 +26,7 @@ struct CardDetailView: View {
                 VStack(spacing: 8) {
                     Text(card.displayName)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(textColor)
                         .multilineTextAlignment(.center)
                         .lineLimit(2)
                         .padding(.horizontal, 8)
@@ -31,7 +35,7 @@ struct CardDetailView: View {
 
                     Text(formattedBarcode(card.barcode))
                         .font(.system(size: 11, weight: .medium, design: .monospaced))
-                        .foregroundStyle(.white.opacity(0.9))
+                        .foregroundStyle(textColor.opacity(0.9))
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .padding(.horizontal, 8)
@@ -75,12 +79,30 @@ private struct BarcodePanel: View {
     let card: LoyaltyCard
     let maxHeight: CGFloat
 
+    private var isQR: Bool {
+        ["QR_CODE", "QRCODE", "QR"].contains(card.format.uppercased())
+    }
+
+    @ViewBuilder private var panel: some View {
+        if isQR {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.white)
+                .aspectRatio(1, contentMode: .fit)
+        } else {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color.white)
+        }
+    }
+
     var body: some View {
-        RoundedRectangle(cornerRadius: 10)
-            .fill(Color.white)
+        // QR codes get a square panel; 1D barcodes keep the full width.
+        panel
             .frame(maxHeight: maxHeight)
             .overlay {
-                if let modules = WatchBarcodeRenderer.modules(
+                if isQR, let qr = WatchQRCode.encode(card.barcode) {
+                    WatchQRModulesView(modules: qr)
+                        .padding(8)
+                } else if let modules = WatchBarcodeRenderer.modules(
                     for: card.barcode,
                     format: card.format
                 ) {

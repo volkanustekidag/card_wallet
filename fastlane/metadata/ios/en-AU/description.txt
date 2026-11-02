@@ -1,0 +1,45 @@
+Deckard puts the right card on top before you reach the checkout: Up Next learns when you use each loyalty card, on your iPhone only, and the barcode opens at full brightness. Your bank cards and IBANs sit right beside them. There's no account to create, no ads, and it works without an internet connection.
+
+At the checkout, open a card and the screen brightens automatically so the scanner reads your barcode on the first try. Your cards are also on your Apple Watch and in a home screen widget.
+
+PRIVATE BY DESIGN
+• No sign-up, no account
+• No ads
+• Works offline
+• Cards are stored encrypted on your device and aren't included in iCloud backups
+• PIN, Face ID or Touch ID lock with auto-lock, and your cards are hidden in the app switcher
+
+LOYALTY CARDS
+• One camera for everything: loyalty barcodes, bank cards and IBANs, even from a photo — or type it in
+• Up Next: the card you usually need at this time of day comes first, learned on your phone
+• Moving from another app? Import its export file or an Apple Wallet pass in one go
+• 500+ brands recognised with their logo and colours, from any country
+• Full screen brightness while a barcode is open
+• Search, filter by tag and mark favourites
+• Share a card as an image
+• Apple Watch app, plus an Up Next widget on the home and lock screen
+
+CREDIT CARDS AND IBANS TOO
+• Keep credit cards and IBANs next to your loyalty cards
+• Search all your cards from the home screen by name, bank, tag or last 4 digits
+• Copy an IBAN in one tap, or share it as text or as a card image
+• Payment and expiry reminders for credit cards
+• American Express and Diners Club supported
+• Available in 9 languages
+
+PREMIUM
+The free version includes 3 loyalty cards, 1 credit card and 1 IBAN. Premium adds:
+• Unlimited cards
+• Add loyalty cards to Apple Wallet
+• Encrypted backup and restore, for example when you move to a new phone
+• IBAN QR codes
+• Extra card colours
+
+Premium is offered as a monthly or yearly subscription, or as a one-time lifetime purchase. Payment is charged to your Apple ID. Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period. You can manage or cancel them in your App Store account settings.
+
+Deckard is not a banking app. It doesn't make payments, move money or connect to your bank.
+
+When you add a loyalty card to Apple Wallet, that card's name, number and note are sent to our pass-signing service to create the pass. No other card details leave your device.
+
+Terms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Privacy Policy: https://olkan.dev/privacy/cardwallet

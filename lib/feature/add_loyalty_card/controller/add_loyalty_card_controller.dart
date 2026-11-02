@@ -4,11 +4,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
 import 'package:uuid/uuid.dart';
 import 'package:wallet_app/core/controllers/premium_controller.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
+import 'package:wallet_app/core/data/storage/card_photo_store.dart';
 import 'package:wallet_app/core/dialogs/card_limit_dialog.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
 import 'package:wallet_app/core/enums/card_limit_type.dart';
@@ -34,9 +37,41 @@ class AddLoyaltyCardController extends GetxController {
   final isEditMode = false.obs;
   LoyaltyCard? _originalCard;
 
+  /// Photos taken in this form. Those the saved card doesn't keep are
+  /// deleted when the form closes (cancelled, or replaced before saving).
+  final Set<String> _newPhotos = {};
+  final Set<String> _committedPhotos = {};
+
+  /// A name, and a barcode or at least a front photo to show instead.
   bool get isFormValid {
     final c = currentCard.value;
-    return c.name.trim().isNotEmpty && c.barcode.trim().isNotEmpty;
+    return c.name.trim().isNotEmpty &&
+        (c.barcode.trim().isNotEmpty || c.frontPhoto != null);
+  }
+
+  void setPhoto({required bool front, String? id}) {
+    if (id != null) _newPhotos.add(id);
+    updateField(front ? 'frontPhoto' : 'backPhoto', id);
+  }
+
+  @override
+  void onClose() {
+    for (final id in _newPhotos.difference(_committedPhotos)) {
+      unawaited(CardPhotoStore.instance.delete(id));
+    }
+    _newPhotos.clear();
+    super.onClose();
+  }
+
+  /// After a save: keeps the card's photos, drops those an edit replaced.
+  void _commitPhotos(LoyaltyCard saved, LoyaltyCard? original) {
+    _committedPhotos.addAll(saved.photoIds);
+    if (original == null) return;
+    for (final id in original.photoIds) {
+      if (!saved.photoIds.contains(id)) {
+        unawaited(CardPhotoStore.instance.delete(id));
+      }
+    }
   }
 
   void initializeForCreate() {
@@ -68,6 +103,9 @@ class AddLoyaltyCardController extends GetxController {
       logoAsset: card.logoAsset,
       tags: card.tags == null ? null : List<String>.from(card.tags!),
       website: card.website,
+      brandColor: card.brandColor,
+      frontPhoto: card.frontPhoto,
+      backPhoto: card.backPhoto,
     );
     isEditMode.value = true;
     currentCard.refresh();
@@ -97,8 +135,20 @@ class AddLoyaltyCardController extends GetxController {
       case 'logoAsset':
         c.logoAsset = value as String?;
         break;
+      case 'tags':
+        c.tags = value as List<String>?;
+        break;
+      case 'brandColor':
+        c.brandColor = value as int?;
+        break;
       case 'website':
         c.website = value as String?;
+        break;
+      case 'frontPhoto':
+        c.frontPhoto = value as String?;
+        break;
+      case 'backPhoto':
+        c.backPhoto = value as String?;
         break;
     }
     currentCard.refresh();
@@ -123,6 +173,10 @@ class AddLoyaltyCardController extends GetxController {
       website: draft.website,
       lastUsedAt: original.lastUsedAt,
       useCount: original.useCount,
+      usageLog: original.usageLog,
+      brandColor: draft.brandColor,
+      frontPhoto: draft.frontPhoto,
+      backPhoto: draft.backPhoto,
     );
   }
 
@@ -132,6 +186,8 @@ class AddLoyaltyCardController extends GetxController {
   /// back to fix the number.
   Future<bool> _resolveInvalidBarcode() async {
     final card = currentCard.value;
+    // No barcode: the card shows its photo (the form requires one).
+    if (card.barcode.trim().isEmpty) return card.frontPhoto != null;
     final format = card.barcodeFormat;
     final check = LoyaltyBarcodeValidator.validate(card.barcode, format);
     if (check.isValid) return true;
@@ -141,48 +197,48 @@ class AddLoyaltyCardController extends GetxController {
     final suggested =
         LoyaltyBarcodeValidator.suggestFormat(card.barcode, format);
     final reason = describeBarcodeIssue(check, format);
-    final useSuggested = await Get.dialog<bool>(
-      AlertDialog(
-        icon: const Icon(Icons.qr_code_2_rounded),
-        title: Text('loyaltyBarcodeInvalidTitle'.tr()),
-        content: Text(
-          [
-            'loyaltyBarcodeInvalidBody'
-                .tr(namedArgs: {'format': barcodeFormatLabel(format)}),
-            if (reason != null) reason,
-            if (suggested != null)
-              'loyaltyBarcodeSuggestFormat'
-                  .tr(namedArgs: {'format': barcodeFormatLabel(suggested)}),
-          ].join('\n\n'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: Text('loyaltyBarcodeEditValue'.tr()),
-          ),
-          if (suggested != null)
-            ElevatedButton(
-              onPressed: () => Get.back(result: true),
-              child: Text(
-                'loyaltyBarcodeUseFormat'
-                    .tr(namedArgs: {'format': barcodeFormatLabel(suggested)}),
-              ),
-            ),
-        ],
-      ),
-    );
+    final body = [
+      'loyaltyBarcodeInvalidBody'
+          .tr(namedArgs: {'format': barcodeFormatLabel(format)}),
+      if (reason != null) reason,
+      if (suggested != null)
+        'loyaltyBarcodeSuggestFormat'
+            .tr(namedArgs: {'format': barcodeFormatLabel(suggested)}),
+    ].join('\n\n');
+    final useSuggested = suggested == null
+        ? await showConfirmActionSheet(
+            context: ctx,
+            title: 'loyaltyBarcodeInvalidTitle'.tr(),
+            content: body,
+            confirmText: 'loyaltyBarcodeEditValue'.tr(),
+            cancelText: 'cancel'.tr(),
+            destructive: false,
+            glyph: CwIcons.barcode,
+          ).then((_) => false)
+        : await showConfirmActionSheet(
+            context: ctx,
+            title: 'loyaltyBarcodeInvalidTitle'.tr(),
+            content: body,
+            confirmText: 'loyaltyBarcodeUseFormat'
+                .tr(namedArgs: {'format': barcodeFormatLabel(suggested)}),
+            cancelText: 'loyaltyBarcodeEditValue'.tr(),
+            destructive: false,
+            glyph: CwIcons.barcode,
+          );
     if (useSuggested != true || suggested == null) return false;
     updateField('barcodeFormat', suggested);
     return true;
   }
 
-  Future<void> saveCard() async {
+  /// Saves and pops the form. True when a card was written.
+  Future<bool> saveCard() async {
+    var saved = false;
     // Ignore a second tap that lands before the button rebuilds disabled.
-    if (isLoading.value) return;
+    if (isLoading.value) return false;
     try {
       isLoading.value = true;
       final wasEditMode = isEditMode.value;
-      if (!await _resolveInvalidBarcode()) return;
+      if (!await _resolveInvalidBarcode()) return false;
       await _service.openBox();
 
       if (!wasEditMode) {
@@ -192,17 +248,19 @@ class AddLoyaltyCardController extends GetxController {
           final ctx = Get.context;
           if (ctx == null) {
             Get.toNamed('/premium');
-            return;
+            return false;
           }
           final unlocked =
               await showCardLimitDialog(ctx, CardLimitType.loyalty);
-          if (!unlocked) return;
+          if (!unlocked) return false;
         }
       }
 
       if (wasEditMode && _originalCard != null) {
         final updated = mergeEdit(_originalCard!, currentCard.value);
         await _service.updateLoyaltyCard(_originalCard!, updated);
+        _commitPhotos(updated, _originalCard);
+        saved = true;
         HapticFeedback.mediumImpact();
         Get.back();
         Get.context?.showSuccessSnackBar('loyaltyCardUpdated');
@@ -219,8 +277,13 @@ class AddLoyaltyCardController extends GetxController {
           logoAsset: currentCard.value.logoAsset,
           tags: currentCard.value.tags,
           website: currentCard.value.website,
+          brandColor: currentCard.value.brandColor,
+          frontPhoto: currentCard.value.frontPhoto,
+          backPhoto: currentCard.value.backPhoto,
         );
         await _service.addLoyaltyCard(newCard);
+        _commitPhotos(newCard, null);
+        saved = true;
         unawaited(
           AnalyticsService.instance.logCardAdded(AnalyticsCardType.loyalty),
         );
@@ -258,5 +321,6 @@ class AddLoyaltyCardController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+    return saved;
   }
 }

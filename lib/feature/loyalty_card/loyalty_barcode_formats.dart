@@ -1,3 +1,5 @@
+import 'package:easy_localization/easy_localization.dart';
+
 /// Supported barcode formats. Names match `google_mlkit_barcode_scanning`'s
 /// BarcodeFormat enum so that scanned values from a future scanner can be
 /// stored verbatim.
@@ -16,7 +18,18 @@ const List<LoyaltyBarcodeFormat> kLoyaltyBarcodeFormats = [
   LoyaltyBarcodeFormat('UPC_E', 'UPC-E'),
   LoyaltyBarcodeFormat('QR_CODE', 'QR Code'),
   LoyaltyBarcodeFormat('ITF', 'ITF'),
+  LoyaltyBarcodeFormat('CODE_93', 'Code 93'),
+  LoyaltyBarcodeFormat('CODABAR', 'Codabar'),
+  LoyaltyBarcodeFormat('PDF417', 'PDF417'),
+  LoyaltyBarcodeFormat('AZTEC', 'Aztec'),
+  LoyaltyBarcodeFormat('DATA_MATRIX', 'Data Matrix'),
 ];
+
+/// 2D formats drawn as a square (QR, Aztec, Data Matrix).
+const Set<String> kSquareBarcodeFormats = {'QR_CODE', 'AZTEC', 'DATA_MATRIX'};
+
+bool isSquareBarcodeFormat(String format) =>
+    kSquareBarcodeFormats.contains(format);
 
 /// Formats that only accept numeric digits. EAN/UPC/ITF are positional
 /// digit codes; CODE_128/CODE_39/QR_CODE accept arbitrary characters.
@@ -31,8 +44,10 @@ const Set<String> kDigitOnlyBarcodeFormats = {
 bool isDigitOnlyBarcodeFormat(String format) =>
     kDigitOnlyBarcodeFormats.contains(format);
 
-/// Display label for a stored format code ("EAN_13" → "EAN-13").
+/// Display label for a stored format code ("EAN_13" → "EAN-13"). Format
+/// names are the same in every language except "QR code".
 String barcodeFormatLabel(String code) {
+  if (code == 'QR_CODE') return 'cwFormatQr'.tr();
   for (final f in kLoyaltyBarcodeFormats) {
     if (f.code == code) return f.label;
   }

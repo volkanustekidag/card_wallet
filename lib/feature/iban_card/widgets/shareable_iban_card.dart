@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:wallet_app/ui/card/wallet_card_faces.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_qr_generator.dart';
 import 'package:wallet_app/core/domain/models/iban_card_model/iban_card.dart';
@@ -9,7 +10,7 @@ import 'package:wallet_app/core/utils/locale_upper.dart';
 import 'package:wallet_app/core/widgets/bank_logo.dart';
 
 /// IBAN card laid out for sharing as a PNG: holder, bank + logo, the IBAN in
-/// groups of four, SWIFT when present and a small "CardWallet" mark. Premium
+/// groups of four, SWIFT when present and a small "Deckard" mark. Premium
 /// users also get the payment QR ([qrData]); free users get the same card
 /// without it.
 ///
@@ -39,11 +40,8 @@ class ShareableIbanCard extends StatelessWidget {
     this.bankLogoImage,
   }) : super(key: key);
 
-  static const _gradient = LinearGradient(
-    colors: [Color(0xFF0E9F8B), Color(0xFF134E5E)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+  // Same material as the IBAN card in the wallet.
+  static final _gradient = kIbanMaterial.gradient;
 
   /// The payment QR from [IBANQRGenerator] (TR Karekod / EPC / ISO 20022
   /// picked by country), without amount. Null when the IBAN can't be encoded.
@@ -99,7 +97,7 @@ class ShareableIbanCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              _BankMark(image: bankLogoImage),
+              _BankMark(image: bankLogoImage, name: card.bankName),
               const SizedBox(width: 24),
               Expanded(
                 child: Text(
@@ -107,7 +105,6 @@ class ShareableIbanCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontFamily: 'Poppins',
                     fontSize: 30,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -126,7 +123,6 @@ class ShareableIbanCard extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontFamily: 'Poppins',
               fontSize: 36,
               fontWeight: FontWeight.w800,
               color: Colors.white,
@@ -145,7 +141,6 @@ class ShareableIbanCard extends StatelessWidget {
                 IBANQRGenerator.formatIBANForDisplay(card.iban),
                 maxLines: 1,
                 style: const TextStyle(
-                  fontFamily: 'Poppins',
                   fontSize: 34,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -163,7 +158,6 @@ class ShareableIbanCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
-                fontFamily: 'Poppins',
                 fontSize: 26,
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
@@ -211,7 +205,12 @@ class ShareableIbanCard extends StatelessWidget {
 
 class _BankMark extends StatelessWidget {
   final ImageProvider? image;
-  const _BankMark({required this.image});
+  final String name;
+  const _BankMark({required this.image, this.name = ''});
+
+  String get _monogram => name.trim().isEmpty
+      ? 'IBAN'.substring(0, 1)
+      : name.trim().characters.take(1).toString().toUpperCase();
 
   @override
   Widget build(BuildContext context) {
@@ -232,10 +231,17 @@ class _BankMark extends StatelessWidget {
               fit: BoxFit.contain,
               filterQuality: FilterQuality.high,
             )
-          : const Icon(
-              Icons.account_balance_rounded,
-              color: Colors.white,
-              size: 48,
+          // Text, not an SVG icon: the image is captured off-screen and an
+          // asynchronously decoded vector could miss the frame.
+          : Center(
+              child: Text(
+                _monogram,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 40,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
     );
   }
@@ -252,7 +258,6 @@ class _Label extends StatelessWidget {
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
-        fontFamily: 'Poppins',
         fontSize: 15,
         fontWeight: FontWeight.w600,
         letterSpacing: 2,
@@ -262,7 +267,7 @@ class _Label extends StatelessWidget {
   }
 }
 
-/// Small, quiet wordmark: "Card" regular + "Wallet" bold.
+/// Small, quiet wordmark.
 class _Brand extends StatelessWidget {
   const _Brand();
 
@@ -272,26 +277,22 @@ class _Brand extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.account_balance_wallet_rounded, size: 18, color: color),
+        Container(
+          width: 16,
+          height: 12,
+          decoration: BoxDecoration(
+            border: Border.all(color: color, width: 2),
+            borderRadius: BorderRadius.circular(3),
+          ),
+        ),
         const SizedBox(width: 8),
-        Text.rich(
-          TextSpan(
-            children: [
-              const TextSpan(
-                text: 'Card',
-                style: TextStyle(fontWeight: FontWeight.w400),
-              ),
-              const TextSpan(
-                text: 'Wallet',
-                style: TextStyle(fontWeight: FontWeight.w700),
-              ),
-            ],
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 16,
-              letterSpacing: 0.4,
-              color: color,
-            ),
+        Text(
+          'Deckard',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.4,
+            color: color,
           ),
         ),
       ],

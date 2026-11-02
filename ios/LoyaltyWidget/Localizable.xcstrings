@@ -3,22 +3,10 @@
   "strings" : {
     "Add a loyalty card" : {
       "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sadakat kartı ekle"
-          }
-        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bonuskarte hinzufügen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajouter une carte de fidélité"
           }
         },
         "es" : {
@@ -27,10 +15,10 @@
             "value" : "Añadir tarjeta de fidelidad"
           }
         },
-        "pt-BR" : {
+        "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Adicionar cartão de fidelidade"
+            "value" : "Ajouter une carte de fidélité"
           }
         },
         "it" : {
@@ -49,28 +37,29 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dodaj kartę lojalnościową"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar cartão de fidelidade"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sadakat kartı ekle"
           }
         }
       }
     },
     "Add loyalty card" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sadakat kartı ekle"
-          }
-        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bonuskarte hinzufügen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ajouter une carte de fidélité"
           }
         },
         "es" : {
@@ -79,10 +68,10 @@
             "value" : "Añadir tarjeta de fidelidad"
           }
         },
-        "pt-BR" : {
+        "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Adicionar cartão de fidelidade"
+            "value" : "Ajouter une carte de fidélité"
           }
         },
         "it" : {
@@ -102,27 +91,291 @@
             "state" : "translated",
             "value" : "Dodaj kartę lojalnościową"
           }
-        }
-      }
-    },
-    "Loyalty" : {
-      "localizations" : {
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar cartão de fidelidade"
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sadakat"
+            "value" : "Sadakat kartı ekle"
           }
-        },
+        }
+      }
+    },
+    "Always show this card's barcode." : {
+      "extractionState" : "stale",
+      "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bonuskarten"
+            "value" : "Den Barcode dieser Karte immer anzeigen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar siempre el código de barras de esta tarjeta."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fidélité"
+            "value" : "Toujours afficher le code-barres de cette carte."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra sempre il codice a barre di questa carta."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altijd de barcode van deze kaart tonen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zawsze pokazuj kod kreskowy tej karty."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar sempre o código de barras deste cartão."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu kartın barkodunu hep göster."
+          }
+        }
+      }
+    },
+    "Always shows the card you choose, ready to scan." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigt immer die Karte, die du wählst – bereit zum Scannen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Muestra siempre la tarjeta que elijas, lista para escanear."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Affiche toujours la carte choisie, prête à être scannée."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra sempre la carta che scegli, pronta da scansionare."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toont altijd de kaart die je kiest, klaar om te scannen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zawsze pokazuje wybraną kartę, gotową do zeskanowania."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra sempre o cartão que você escolher, pronto para escanear."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seçtiğin kartı hep gösterir, okutmaya hazır."
+          }
+        }
+      }
+    },
+    "Card" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karte"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarjeta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carte"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carta"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaart"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karta"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartão"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kart"
+          }
+        }
+      }
+    },
+    "Choose a card" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karte wählen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elegir tarjeta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir une carte"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli una carta"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kies een kaart"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wybierz kartę"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolher cartão"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kart seç"
+          }
+        }
+      }
+    },
+    "Deckard" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deckard"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deckard"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deckard"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deckard"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deckard"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deckard"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deckard"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deckard"
+          }
+        }
+      }
+    },
+    "Loyalty" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bonuskarten"
           }
         },
         "es" : {
@@ -131,10 +384,10 @@
             "value" : "Fidelidad"
           }
         },
-        "pt-BR" : {
+        "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Fidelidade"
+            "value" : "Fidélité"
           }
         },
         "it" : {
@@ -154,27 +407,28 @@
             "state" : "translated",
             "value" : "Karty lojalnościowe"
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fidelidade"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sadakat"
+          }
         }
       }
     },
     "Loyalty Card" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sadakat Kartı"
-          }
-        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bonuskarte"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Carte de fidélité"
           }
         },
         "es" : {
@@ -183,10 +437,10 @@
             "value" : "Tarjeta de fidelidad"
           }
         },
-        "pt-BR" : {
+        "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Cartão de fidelidade"
+            "value" : "Carte de fidélité"
           }
         },
         "it" : {
@@ -206,27 +460,80 @@
             "state" : "translated",
             "value" : "Karta lojalnościowa"
           }
-        }
-      }
-    },
-    "Quickly show your most recent loyalty card barcode." : {
-      "localizations" : {
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartão de fidelidade"
+          }
+        },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Son açtığın sadakat kartının barkodunu hızlıca göster."
+            "value" : "Sadakat Kartı"
           }
-        },
+        }
+      }
+    },
+    "Pinned card" : {
+      "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Zeige schnell den Barcode deiner zuletzt genutzten Bonuskarte."
+            "value" : "Feste Karte"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tarjeta fija"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Affichez rapidement le code-barres de votre dernière carte de fidélité."
+            "value" : "Carte épinglée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carta fissa"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vaste kaart"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przypięta karta"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cartão fixo"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sabit kart"
+          }
+        }
+      }
+    },
+    "Quickly show your most recent loyalty card barcode." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeige schnell den Barcode deiner zuletzt genutzten Bonuskarte."
           }
         },
         "es" : {
@@ -235,10 +542,10 @@
             "value" : "Muestra rápidamente el código de barras de tu última tarjeta de fidelidad."
           }
         },
-        "pt-BR" : {
+        "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mostre rapidamente o código de barras do seu último cartão de fidelidade."
+            "value" : "Affichez rapidement le code-barres de votre dernière carte de fidélité."
           }
         },
         "it" : {
@@ -258,27 +565,28 @@
             "state" : "translated",
             "value" : "Szybko pokaż kod kreskowy ostatnio używanej karty lojalnościowej."
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostre rapidamente o código de barras do seu último cartão de fidelidade."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Son açtığın sadakat kartının barkodunu hızlıca göster."
+          }
         }
       }
     },
     "Tap to open the app" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uygulamayı açmak için dokun"
-          }
-        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tippen, um die App zu öffnen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touchez pour ouvrir l'app"
           }
         },
         "es" : {
@@ -287,10 +595,10 @@
             "value" : "Toca para abrir la app"
           }
         },
-        "pt-BR" : {
+        "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toque para abrir o app"
+            "value" : "Touchez pour ouvrir l'app"
           }
         },
         "it" : {
@@ -310,27 +618,28 @@
             "state" : "translated",
             "value" : "Dotknij, aby otworzyć aplikację"
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toque para abrir o app"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uygulamayı açmak için dokun"
+          }
         }
       }
     },
     "Tap to scan" : {
+      "extractionState" : "stale",
       "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Taratmak için dokun"
-          }
-        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Zum Scannen tippen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touchez pour scanner"
           }
         },
         "es" : {
@@ -339,10 +648,10 @@
             "value" : "Toca para escanear"
           }
         },
-        "pt-BR" : {
+        "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toque para escanear"
+            "value" : "Touchez pour scanner"
           }
         },
         "it" : {
@@ -362,27 +671,27 @@
             "state" : "translated",
             "value" : "Dotknij, aby zeskanować"
           }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toque para escanear"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taratmak için dokun"
+          }
         }
       }
     },
     "Tap to show barcode" : {
       "localizations" : {
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Barkodu göstermek için dokun"
-          }
-        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tippen, um den Barcode anzuzeigen"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Touchez pour afficher le code-barres"
           }
         },
         "es" : {
@@ -391,10 +700,10 @@
             "value" : "Toca para mostrar el código de barras"
           }
         },
-        "pt-BR" : {
+        "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toque para mostrar o código de barras"
+            "value" : "Touchez pour afficher le code-barres"
           }
         },
         "it" : {
@@ -413,6 +722,226 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dotknij, aby pokazać kod kreskowy"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toque para mostrar o código de barras"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barkodu göstermek için dokun"
+          }
+        }
+      }
+    },
+    "The card you need now, ready to scan." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Karte, die du jetzt brauchst – bereit zum Scannen."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La tarjeta que necesitas ahora, lista para escanear."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carte qu'il vous faut, prête à scanner."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La carta che ti serve ora, pronta da scansionare."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De kaart die je nu nodig hebt, klaar om te scannen."
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Karta, której teraz potrzebujesz, gotowa do skanowania."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O cartão de que você precisa agora, pronto para escanear."
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Şu an lazım olan kart, okutmaya hazır."
+          }
+        }
+      }
+    },
+    "This card is no longer in your wallet" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Karte ist nicht mehr in deiner Wallet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta tarjeta ya no está en tu cartera"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette carte n'est plus dans votre portefeuille"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa carta non è più nel tuo portafoglio"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze kaart staat niet meer in je portemonnee"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tej karty nie ma już w portfelu"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este cartão não está mais na sua carteira"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bu kart artık cüzdanında değil"
+          }
+        }
+      }
+    },
+    "Touch and hold to choose a card" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gedrückt halten, um eine Karte zu wählen"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantén pulsado para elegir una tarjeta"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maintenez appuyé pour choisir une carte"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tieni premuto per scegliere una carta"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houd ingedrukt om een kaart te kiezen"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Przytrzymaj, aby wybrać kartę"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toque e segure para escolher um cartão"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kart seçmek için basılı tut"
+          }
+        }
+      }
+    },
+    "Up Next" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Als Nächstes"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siguiente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À suivre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prossima"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volgende"
+          }
+        },
+        "pl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Następna"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A seguir"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sıradaki"
           }
         }
       }

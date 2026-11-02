@@ -1,0 +1,152 @@
+# Store listing upload: text, screenshots and the Play feature graphic.
+# Nothing is submitted: App Store versions stay in "Prepare for Submission",
+# Play changes wait under "Changes not sent for review".
+#
+#   ASC_API_KEY_PATH=~/.deckard_keys/asc.json fastlane ios metadata
+#   ASC_API_KEY_PATH=~/.deckard_keys/asc.json fastlane ios metadata promo:true   # release day
+#   PLAY_JSON_KEY=~/.deckard_keys/play.json fastlane android metadata
+#   PLAY_JSON_KEY=~/.deckard_keys/play.json fastlane android metadata wear:true  # once Wear OS is live
+#   ... send:true sends the changes for review at once (default: wait in the console)
+#
+# Regenerate the files first:
+#   python3 tools/store_listing/build.py
+#   python3 tools/store_shots/compose.py
+
+require "fileutils"
+require "tmpdir"
+require "json"
+
+# Locales the stores have that reuse one of ours.
+IOS_MIRRORS = {}
+# Version code from pubspec.yaml ("2.2.0+46" -> 46): picks our release when a
+# track holds several (the live one and a draft).
+VERSION_CODE = File.read("../pubspec.yaml")[/^version:\s*[\d.]+\+(\d+)/, 1].to_i
+VERSION_NAME = File.read("../pubspec.yaml")[/^version:\s*([\d.]+)\+/, 1]
+PLAY_MIRRORS = {}
+
+def stage(src, mirrors)
+  dir = Dir.mktmpdir("deckard-store")
+  FileUtils.cp_r(Dir.glob("#{src}/*"), dir)
+  mirrors.each { |to, from| FileUtils.cp_r("#{dir}/#{from}", "#{dir}/#{to}") }
+  dir
+end
+
+default_platform(:ios)
+
+platform :ios do
+  desc "App Store text + screenshots, every locale. promo:true also sends the promotional text (it goes live at once)."
+  lane :metadata do |options|
+    meta = stage("metadata/ios", IOS_MIRRORS)
+    Dir.glob("#{meta}/*/promotional_text.txt").each { |f| File.delete(f) } unless options[:promo]
+    shots = stage("screenshots", IOS_MIRRORS)
+    deliver(
+      api_key_path: ENV.fetch("ASC_API_KEY_PATH"),
+      app_version: options[:version] || VERSION_NAME,
+      metadata_path: meta,
+      screenshots_path: shots,
+      skip_binary_upload: true,
+      overwrite_screenshots: true,
+      submit_for_review: false,
+      automatic_release: false,
+      run_precheck_before_submit: false,
+      force: true
+    )
+  end
+end
+
+platform :ios do
+  desc "Upload build/ios/ipa/Deckard.ipa to App Store Connect (TestFlight processing; no submission)"
+  lane :upload_build do
+    upload_to_testflight(
+      api_key_path: ENV.fetch("ASC_API_KEY_PATH"),
+      ipa: "build/ios/ipa/Deckard.ipa",
+      skip_waiting_for_build_processing: true,
+      skip_submission: true,
+      distribute_external: false
+    )
+  end
+
+  desc "Wait for the pubspec build to process, then select it on the editable version"
+  lane :attach_build do
+    app_store_connect_api_key(**JSON.parse(File.read(ENV.fetch("ASC_API_KEY_PATH")), symbolize_names: true).slice(:key_id, :issuer_id, :key, :in_house).tap { |h| h[:key_content] = h.delete(:key) })
+    app = Spaceship::ConnectAPI::App.find("com.volkan.walletapp")
+    build = nil
+    60.times do
+      build = Spaceship::ConnectAPI::Build.all(app_id: app.id, build_number: VERSION_CODE.to_s).first
+      break if build && build.processing_state != "PROCESSING"
+      UI.message("waiting for build #{VERSION_CODE}...")
+      sleep 30
+    end
+    UI.user_error!("build #{VERSION_CODE} not processed: #{build&.processing_state}") unless build&.processing_state == "VALID"
+    version = app.get_edit_app_store_version(platform: "IOS")
+    version.select_build(build_id: build.id)
+    UI.success("Build #{VERSION_CODE} selected on #{version.version_string}")
+  end
+end
+
+platform :android do
+  desc "Play listing (text, phone screenshots, feature graphic), every locale; left unsent for review. wear:true keeps the Wear OS frame 4."
+  lane :metadata do |options|
+    meta = stage("metadata/android", {})
+    Dir.glob("#{meta}/*").each do |dir|
+      FileUtils.rm_rf("#{dir}/changelogs")
+      images = "#{dir}/images"
+      FileUtils.cp("../docs/store/icon/play_store_512.png", "#{images}/icon.png")
+      unless options[:wear]
+        alt = "alt/android/#{File.basename(dir)}/4_without_wear.png"
+        FileUtils.cp(alt, "#{images}/phoneScreenshots/4.png") if File.exist?(alt)
+      end
+      # The tablet slots get the same frames (the old ones were phone-sized too).
+      %w[sevenInchScreenshots tenInchScreenshots].each do |slot|
+        FileUtils.mkdir_p("#{images}/#{slot}")
+        FileUtils.cp(Dir.glob("#{images}/phoneScreenshots/*.png"), "#{images}/#{slot}")
+      end
+    end
+    PLAY_MIRRORS.each { |to, from| FileUtils.cp_r("#{meta}/#{from}", "#{meta}/#{to}") }
+    supply(
+      json_key: ENV.fetch("PLAY_JSON_KEY"),
+      metadata_path: meta,
+      skip_upload_apk: true,
+      skip_upload_aab: true,
+      skip_upload_changelogs: true,
+      version_code: options[:version_code] || VERSION_CODE,
+      changes_not_sent_for_review: !options[:send]
+    )
+  end
+
+  desc "Upload the Wear OS AAB to a Wear track as a draft (build: tools/release_build.sh android)"
+  lane :wear do |options|
+    supply(
+      json_key: ENV.fetch("PLAY_JSON_KEY"),
+      aab: "build/wear/outputs/bundle/release/wear-release.aab",
+      track: options[:track] || "wear:internal",
+      release_status: options[:status] || "draft",
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      changes_not_sent_for_review: true
+    )
+  end
+
+  desc "Wear OS screenshots for every locale (once the Wear form factor is on)"
+  lane :wear_screenshots do
+    meta = Dir.mktmpdir("deckard-wear")
+    Dir.glob("later/wear/*").each do |dir|
+      dest = "#{meta}/#{File.basename(dir)}/images/wearScreenshots"
+      FileUtils.mkdir_p(dest)
+      FileUtils.cp(Dir.glob("#{dir}/*.png"), dest)
+    end
+    supply(
+      json_key: ENV.fetch("PLAY_JSON_KEY"),
+      metadata_path: meta,
+      skip_upload_apk: true,
+      skip_upload_aab: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      version_code: VERSION_CODE,
+      changes_not_sent_for_review: true
+    )
+  end
+end

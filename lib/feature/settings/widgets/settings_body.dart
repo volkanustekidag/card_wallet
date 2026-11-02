@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:wallet_app/core/components/dialog/delete_dialog.dart';
 import 'package:wallet_app/core/constants/legal_urls.dart';
@@ -13,27 +14,36 @@ import 'package:wallet_app/core/controllers/theme_controller.dart';
 import 'package:wallet_app/core/data/local_services/auth_services/biometric_service.dart';
 import 'package:wallet_app/core/data/services/backup_service.dart';
 import 'package:wallet_app/core/extensions/snack_bars.dart';
+import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/services/barcode_display_boost.dart';
 import 'package:wallet_app/core/services/card_reminder_service.dart';
 import 'package:wallet_app/core/services/error_reporter.dart';
-import 'package:wallet_app/core/services/wallet_data_wiper.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 import 'package:wallet_app/core/services/rate_app_service.dart';
-import 'package:wallet_app/core/widgets/premium_status_widget.dart';
+import 'package:wallet_app/core/services/ui_prefs.dart';
+import 'package:wallet_app/core/services/wallet_data_wiper.dart';
+import 'package:wallet_app/core/utils/locale_format.dart';
+import 'package:wallet_app/core/utils/premium_gate.dart';
 import 'package:wallet_app/feature/auth/pin_action_page.dart';
-import 'package:wallet_app/core/widgets/premium_upgrade_widget.dart';
-import 'package:wallet_app/feature/home/widgets/sections/home_animations.dart';
+import 'package:wallet_app/feature/import/import_page.dart';
+import 'package:wallet_app/feature/settings/backup_restore_flow.dart';
+import 'package:wallet_app/feature/settings/biometric_toggle_flow.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/auto_lock_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/lang_bottom_sheet.dart';
 import 'package:wallet_app/feature/settings/bottom_sheet/theme_bottom_sheet.dart';
-import 'package:wallet_app/feature/settings/backup_restore_flow.dart';
-import 'package:wallet_app/feature/settings/biometric_toggle_flow.dart';
-import 'package:wallet_app/feature/settings/widgets/settings_card.dart';
-import 'package:wallet_app/core/utils/locale_upper.dart';
-import 'package:wallet_app/core/utils/premium_gate.dart';
-import 'package:wallet_app/core/services/analytics_service.dart';
+import 'package:wallet_app/ui/card/card_face.dart';
+import 'package:wallet_app/ui/card/card_material.dart';
+import 'package:wallet_app/ui/components/cw_list.dart';
+import 'package:wallet_app/ui/components/cw_misc.dart';
+import 'package:wallet_app/ui/components/cw_button.dart';
+import 'package:wallet_app/ui/components/cw_top_bar.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
+import 'package:wallet_app/ui/typography.dart';
 
+/// Settings v2: inset grouped rows — Premium, Security, Checkout,
+/// Notifications, Data, General, About. Every row does something real.
 class SettingsBody extends StatefulWidget {
   const SettingsBody({Key? key}) : super(key: key);
 
@@ -41,14 +51,19 @@ class SettingsBody extends StatefulWidget {
   State<SettingsBody> createState() => _SettingsBodyState();
 }
 
-class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver {
+class _SettingsBodyState extends State<SettingsBody>
+    with WidgetsBindingObserver {
   bool? _notificationsEnabled;
+  String? _version;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _refreshNotificationStatus();
+    PackageInfo.fromPlatform().then((i) {
+      if (mounted) setState(() => _version = '${i.version} (${i.buildNumber})');
+    }).catchError((_) {});
   }
 
   @override
@@ -59,9 +74,7 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _refreshNotificationStatus();
-    }
+    if (state == AppLifecycleState.resumed) _refreshNotificationStatus();
   }
 
   Future<void> _refreshNotificationStatus() async {
@@ -72,224 +85,346 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
     }
   }
 
-  String _getCurrentLanguageName(BuildContext context) {
-    switch (context.locale.languageCode) {
-      case 'tr':
-        return 'Türkçe';
-      case 'en':
-        return 'English';
-      case 'de':
-        return 'Deutsch';
-      case 'fr':
-        return 'Français';
-      case 'es':
-        return 'Español';
-      case 'pt':
-        return 'Português';
-      case 'it':
-        return 'Italiano';
-      case 'nl':
-        return 'Nederlands';
-      case 'pl':
-        return 'Polski';
-      default:
-        return 'English';
-    }
-  }
+  static String languageName(String code) => switch (code) {
+        'tr' => 'Türkçe',
+        'de' => 'Deutsch',
+        'fr' => 'Français',
+        'es' => 'Español',
+        'pt' => 'Português',
+        'it' => 'Italiano',
+        'nl' => 'Nederlands',
+        'pl' => 'Polski',
+        _ => 'English',
+      };
 
-  String _themeLabel(AppThemeMode mode) {
-    switch (mode) {
-      case AppThemeMode.light:
-        return 'themeLight'.tr();
-      case AppThemeMode.dark:
-        return 'themeDark'.tr();
-      case AppThemeMode.system:
-        return 'themeSystem'.tr();
-    }
-  }
+  String _themeLabel(AppThemeMode mode) => switch (mode) {
+        AppThemeMode.light => 'themeLight'.tr(),
+        AppThemeMode.dark => 'themeDark'.tr(),
+        AppThemeMode.system => 'themeSystem'.tr(),
+      };
 
   @override
   Widget build(BuildContext context) {
-    final AuthController authController = Get.isRegistered<AuthController>()
+    final auth = Get.isRegistered<AuthController>()
         ? Get.find<AuthController>()
         : Get.put(AuthController());
+    final c = CwColors.of(context);
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const FadeSlideIn(
-              delay: Duration.zero,
-              child: PremiumUpgradeWidget(margin: EdgeInsets.only(bottom: 8)),
+    return CustomScrollView(
+      physics:
+          const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      slivers: [
+        CwLargeTitleBar(
+          title: 'settings'.tr(),
+          leading: CwCircleButton(
+            CwIcons.back,
+            onPressed: () => Navigator.of(context).maybePop(),
+            semanticLabel: MaterialLocalizations.of(context).backButtonTooltip,
+          ),
+        ),
+        SliverPadding(
+          padding: EdgeInsets.only(
+              top: 6, bottom: 24 + MediaQuery.paddingOf(context).bottom),
+          sliver: SliverList.list(children: [
+            _premiumRow(context),
+            CwSectionHeader('cwSecSecurity'.tr()),
+            Obx(() {
+              final hasPin = auth.hasPassword.value;
+              return CwGroup(children: [
+                CwRow(
+                  leading: CwIconTile(CwIcons.lock, color: c.ink),
+                  title: 'cwLockApp'.tr(),
+                  subtitle: 'lockAppSubtitle'.tr(),
+                  trailing: CwSwitch(
+                    value: hasPin,
+                    onChanged: (v) => _handleAppLockToggle(context, auth, v),
+                  ),
+                ),
+                if (auth.isBiometricAvailable.value)
+                  CwRow(
+                    leading: CwIconTile(CwIcons.faceId, color: c.ok),
+                    title: auth.getBiometricDisplayName(),
+                    trailing: CwSwitch(
+                      value: auth.isBiometricEnabled.value,
+                      onChanged: (v) => handleBiometricToggle(auth, v),
+                    ),
+                  ),
+                if (hasPin)
+                  Obx(() {
+                    final lock = Get.find<AppLockService>();
+                    return CwRow(
+                      leading: CwIconTile(CwIcons.clock, color: c.ink2),
+                      title: 'autoLock'.tr(),
+                      value: AutoLockTime.label(lock.autoLockSeconds.value),
+                      chevron: true,
+                      onTap: () => showAutoLockBottomSheet(context),
+                    );
+                  }),
+                if (hasPin)
+                  CwRow(
+                    leading: CwIconTile(CwIcons.hash, color: c.ink2),
+                    title: 'chanPIN'.tr(),
+                    chevron: true,
+                    onTap: () => Get.toNamed('/changePin'),
+                  ),
+                if (auth.isPinRecoveryAvailable)
+                  CwRow(
+                    leading: CwIconTile(CwIcons.restore, color: c.warn),
+                    title: 'resetPinTitle'.tr(),
+                    subtitle: 'resetPinSubtitle'.tr(),
+                    chevron: true,
+                    onTap: () => _handleBiometricPinReset(context, auth),
+                  ),
+              ]);
+            }),
+            CwSectionHeader('cwSecCheckout'.tr()),
+            Obx(() {
+              final boost = BarcodeDisplayBoost.instance;
+              final upNext = UiPrefs.instance.upNext.value;
+              return CwGroup(children: [
+                CwRow(
+                  leading: CwIconTile(CwIcons.sun, color: c.warn),
+                  title: 'barcodeBrightnessTitle'.tr(),
+                  subtitle: 'barcodeBrightnessSubtitle'.tr(),
+                  trailing: CwSwitch(
+                    value: boost.enabled.value,
+                    onChanged: boost.setEnabled,
+                  ),
+                ),
+                CwRow(
+                  leading: CwIconTile(CwIcons.sparkle, color: c.ok),
+                  title: 'cwUpNextSetting'.tr(),
+                  subtitle: 'cwUpNextSettingSub'.tr(),
+                  trailing: CwSwitch(
+                    value: upNext,
+                    onChanged: UiPrefs.instance.setUpNext,
+                  ),
+                ),
+              ]);
+            }),
+            CwSectionHeader('cwSecNotifications'.tr()),
+            CwGroup(children: [
+              CwRow(
+                leading: CwIconTile(CwIcons.bell,
+                    color:
+                        _notificationsEnabled == false ? c.danger : c.accent),
+                title: 'notificationsRowTitle'.tr(),
+                subtitle: _notificationsEnabled == null
+                    ? null
+                    : (_notificationsEnabled!
+                        ? 'notificationsStatusEnabled'.tr()
+                        : 'notificationsStatusDisabled'.tr()),
+                subtitleColor: _notificationsEnabled == false ? c.danger : null,
+                trailing: CwIcon(CwIcons.external, size: 16, color: c.mute),
+                // Off: ask first (a fresh install was never asked, and the
+                // system settings have no switch until it has been).
+                // requestPermission offers the settings once the OS won't
+                // ask again. On: the settings are where to change it.
+                onTap: () async {
+                  if (_notificationsEnabled == true) {
+                    await CardReminderService().openNotificationSettings();
+                  } else {
+                    await CardReminderService().requestPermission();
+                  }
+                  await _refreshNotificationStatus();
+                },
+              ),
+            ]),
+            CwSectionHeader('cwSecData'.tr()),
+            Obx(() {
+              final premium = Get.find<PremiumController>().isPremium;
+              final last = UiPrefs.instance.lastBackup.value;
+              final lastText = last == null
+                  ? 'cwNever'.tr()
+                  : LocaleFormat.yearMonthDay(context.locale).format(last);
+              return CwGroup(children: [
+                CwRow(
+                  leading: CwIconTile(CwIcons.cloudUp, color: c.ink2),
+                  title: 'cwBackupRestore'.tr(),
+                  subtitle: 'cwLastBackup'.tr(args: [lastText]),
+                  trailing: premium
+                      ? null
+                      : CwPill.accent(context, 'cwPremium'.tr(),
+                          icon: CwIcons.gem),
+                  chevron: premium,
+                  onTap: premium
+                      ? () => _backupSheet(context)
+                      : () => openPremiumGate('backupRestore'),
+                ),
+                CwRow(
+                  leading: CwIconTile(CwIcons.import, color: c.ok),
+                  title: 'cwImportRow'.tr(),
+                  chevron: true,
+                  onTap: () => Get.to<void>(() => const ImportPage()),
+                ),
+                CwRow(
+                  leading: CwIconTile(CwIcons.trash, color: c.danger),
+                  title: 'cwDeleteAll'.tr(),
+                  titleColor: c.danger,
+                  onTap: () => showDialogDeleteData(context),
+                ),
+              ]);
+            }),
+            CwSectionHeader('cwSecGeneral'.tr()),
+            GetX<ThemeController>(
+              builder: (theme) => CwGroup(children: [
+                CwRow(
+                  leading: CwIconTile(CwIcons.globe, color: c.ink2),
+                  title: 'cwLanguage'.tr(),
+                  value: languageName(context.locale.languageCode),
+                  chevron: true,
+                  onTap: () async {
+                    final changed = await showLangChoseeBottomSheet(context);
+                    if (changed == true && mounted) setState(() {});
+                  },
+                ),
+                CwRow(
+                  leading: CwIconTile(CwIcons.theme, color: c.ink2),
+                  title: 'cwAppearance'.tr(),
+                  value: _themeLabel(theme.appThemeMode),
+                  chevron: true,
+                  onTap: () => showThemeBottomSheet(context),
+                ),
+              ]),
             ),
-            const FadeSlideIn(
-              delay: Duration(milliseconds: 60),
-              child: PremiumStatusWidget(margin: EdgeInsets.only(bottom: 8)),
-            ),
-            FadeSlideIn(
-              delay: const Duration(milliseconds: 140),
-              child: _buildAppearanceSection(context),
-            ),
-            FadeSlideIn(
-              delay: const Duration(milliseconds: 220),
-              child: _buildSecuritySection(context, authController),
-            ),
-            FadeSlideIn(
-              delay: const Duration(milliseconds: 260),
-              child: _buildNotificationsSection(context),
-            ),
-            FadeSlideIn(
-              delay: const Duration(milliseconds: 300),
-              child: _buildDataSection(context),
-            ),
-            FadeSlideIn(
-              delay: const Duration(milliseconds: 380),
-              child: _buildAboutSection(context),
-            ),
+            CwSectionHeader('cwSecAbout'.tr()),
+            Obx(() {
+              final premium = Get.find<PremiumController>().isPremium;
+              return CwGroup(children: [
+                // Apple 3.1.2(a): a path back to the store-managed subscription.
+                if (premium && PremiumService.hasActiveSubscription)
+                  CwRow(
+                    leading: CwIconTile(CwIcons.gem, color: c.ink2),
+                    title: 'manageSubscription'.tr(),
+                    trailing: CwIcon(CwIcons.external, size: 16, color: c.mute),
+                    onTap: _openManageSubscription,
+                  ),
+                CwRow(
+                  leading: CwIconTile(CwIcons.star, color: c.warn),
+                  title: 'rateApp'.tr(),
+                  chevron: true,
+                  onTap: () => RateAppService.instance.openStoreListing(),
+                ),
+                CwRow(
+                  leading: CwIconTile(CwIcons.shield, color: c.ink2),
+                  title: 'PP'.tr(),
+                  trailing: CwIcon(CwIcons.external, size: 16, color: c.mute),
+                  onTap: () => _launch(LegalUrls.privacyPolicy),
+                ),
+                CwRow(
+                  leading: CwIconTile(CwIcons.document, color: c.ink2),
+                  title: 'termsOfUse'.tr(),
+                  trailing: CwIcon(CwIcons.external, size: 16, color: c.mute),
+                  onTap: () => _launch(LegalUrls.termsOfUse),
+                ),
+              ]);
+            }),
+            if (_version != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 18),
+                child: Text('cwVersion'.tr(args: [_version!]),
+                    textAlign: TextAlign.center,
+                    style: CwType.caption.copyWith(color: c.mute)),
+              ),
             const SizedBox(height: 8),
+            CwTrustLine('cwEncryptedLocal'.tr()),
+          ]),
+        ),
+      ],
+    );
+  }
+
+  Widget _premiumRow(BuildContext context) {
+    final c = CwColors.of(context);
+    return Obx(() {
+      final premium = Get.find<PremiumController>().isPremium;
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: CwSpace.gutter),
+        child: Material(
+          color: c.surface,
+          borderRadius: BorderRadius.circular(CwRadius.l),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(CwRadius.l),
+            onTap: () => premium
+                ? Get.toNamed('/premium')
+                : Get.toNamed('/premium', arguments: {'trigger': 'settings'}),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Row(
+                children: [
+                  CardFace(
+                    material: CardMaterial.of(23),
+                    width: 56,
+                    height: 36,
+                    radius: 7,
+                    shadow: false,
+                    padding: EdgeInsets.zero,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          premium
+                              ? 'premiumActiveTitle'.tr()
+                              : 'cwPremiumRow'.tr(),
+                          style: CwType.headline.copyWith(color: c.ink),
+                        ),
+                        Text('cwPremiumRowSub'.tr(),
+                            style: CwType.footnote.copyWith(color: c.mute)),
+                      ],
+                    ),
+                  ),
+                  CwIcon(CwIcons.chevronRight, size: 18, color: c.mute),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
+  Future<void> _backupSheet(BuildContext context) async {
+    final c = CwColors.of(context);
+    final pick = await showCwSheet<String>(
+      context,
+      builder: (sheet) => SafeArea(
+        top: false,
+        child: CwGroup(
+          margin: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+          children: [
+            CwRow(
+              leading: CwIconTile(CwIcons.cloudUp, color: c.ink2),
+              title: 'cwCreateBackup'.tr(),
+              chevron: true,
+              onTap: () => Navigator.pop(sheet, 'create'),
+            ),
+            CwRow(
+              leading: CwIconTile(CwIcons.restore, color: c.ok),
+              title: 'cwRestoreBackup'.tr(),
+              chevron: true,
+              onTap: () => Navigator.pop(sheet, 'restore'),
+            ),
           ],
         ),
       ),
     );
+    if (!mounted || pick == null) return;
+    if (pick == 'create') {
+      // ignore: use_build_context_synchronously
+      await _createBackup(context);
+    } else {
+      // ignore: use_build_context_synchronously
+      await restoreFromBackupFlow(context);
+    }
   }
 
-  Widget _buildAppearanceSection(BuildContext context) {
-    return _Section(
-      title: 'sectionAppearance'.tr(),
-      children: [
-        GetX<ThemeController>(
-          builder: (controller) {
-            return SettingsCard(
-              iconData: Icons.lightbulb,
-              title: 'theme'.tr(),
-              subtitle: _themeLabel(controller.appThemeMode),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () => showThemeBottomSheet(context),
-            );
-          },
-        ),
-        Obx(() {
-          final boost = BarcodeDisplayBoost.instance;
-          return SettingsCard(
-            iconData: Icons.brightness_high_rounded,
-            title: 'barcodeBrightnessTitle'.tr(),
-            subtitle: 'barcodeBrightnessSubtitle'.tr(),
-            trailing: Switch(
-              value: boost.enabled.value,
-              onChanged: boost.setEnabled,
-            ),
-            onTap: () => boost.setEnabled(!boost.enabled.value),
-          );
-        }),
-        SettingsCard(
-          iconData: Icons.language,
-          title: _getCurrentLanguageName(context),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () async {
-            final languageChanged = await showLangChoseeBottomSheet(context);
-            if (languageChanged == true && mounted) {
-              setState(() {});
-            }
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSecuritySection(
-    BuildContext context,
-    AuthController authController,
-  ) {
-    return _Section(
-      title: 'sectionSecurity'.tr(),
-      children: [
-        Obx(() {
-          // Master toggle. Off by default for fresh installs; flips on/off
-          // via PinActionPage (create / verify) so we never quietly mutate
-          // the encrypted PIN box from a switch tap.
-          return SettingsCard(
-            iconData: Icons.lock_outline_rounded,
-            title: 'lockApp'.tr(),
-            subtitle: 'lockAppSubtitle'.tr(),
-            trailing: Switch(
-              value: authController.hasPassword.value,
-              onChanged: (value) =>
-                  _handleAppLockToggle(context, authController, value),
-            ),
-            onTap: () => _handleAppLockToggle(
-              context,
-              authController,
-              !authController.hasPassword.value,
-            ),
-          );
-        }),
-        Obx(() {
-          if (!authController.hasPassword.value) {
-            return const SizedBox.shrink();
-          }
-          final lock = Get.find<AppLockService>();
-          return SettingsCard(
-            iconData: Icons.timer_outlined,
-            title: 'autoLock'.tr(),
-            subtitle: AutoLockTime.label(lock.autoLockSeconds.value),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () => showAutoLockBottomSheet(context),
-          );
-        }),
-        Obx(() {
-          if (!authController.isBiometricAvailable.value) {
-            return const SizedBox.shrink();
-          }
-          // Free for everyone: basic security never sits behind the paywall.
-          // Tapping without a PIN routes through PIN creation first
-          // (biometric is a shortcut to skip PIN entry, so it has no meaning
-          // without one).
-          return SettingsCard(
-            iconData: Icons.fingerprint,
-            title: authController.getBiometricDisplayName(),
-            trailing: Switch(
-              value: authController.isBiometricEnabled.value,
-              onChanged: (value) =>
-                  handleBiometricToggle(authController, value),
-            ),
-            onTap: () => handleBiometricToggle(
-              authController,
-              !authController.isBiometricEnabled.value,
-            ),
-          );
-        }),
-        Obx(() {
-          if (!authController.hasPassword.value) {
-            return const SizedBox.shrink();
-          }
-          return SettingsCard(
-            iconData: Icons.pin,
-            title: 'chanPIN'.tr(),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () => Get.toNamed('/changePin'),
-          );
-        }),
-        Obx(() {
-          // Biometric-gated PIN reset. Surfaces only when there is a PIN to
-          // reset *and* the device has biometric enrollment we can use as
-          // proof of ownership. Independent of the in-app biometric login
-          // toggle — recovery is always available if the hardware is.
-          if (!authController.isBiometricRecoveryAvailable) {
-            return const SizedBox.shrink();
-          }
-          return SettingsCard(
-            iconData: Icons.lock_reset,
-            title: 'resetPinTitle'.tr(),
-            subtitle: 'resetPinSubtitle'.tr(),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () => _handleBiometricPinReset(context, authController),
-          );
-        }),
-      ],
-    );
+  Future<void> _launch(String url) async {
+    final ok = await AppLockService.guard(
+        () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication));
+    if (!ok && mounted) context.showErrorSnackBar('couldNotLaunchUrl');
   }
 
   Future<void> _handleBiometricPinReset(
@@ -297,13 +432,14 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
     AuthController authController,
   ) async {
     HapticFeedback.lightImpact();
-    final passed = await authController.verifyBiometricForReset();
+    final passed = await authController.verifyDeviceOwner();
     if (!passed || !mounted) return;
     final created = await Get.to<bool>(
       () => const PinActionPage(),
       arguments: PinAction.create,
     );
     if (created == true && mounted) {
+      // ignore: use_build_context_synchronously
       context.showSuccessSnackBar('resetPinSuccess');
     }
   }
@@ -316,12 +452,13 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
     HapticFeedback.lightImpact();
     if (desiredValue) {
       // Enabling: push the create flow. registerStandalone updates
-      // hasPassword on success, so the Obx switch flips on its own.
+      // hasPassword on success, so the switch flips on its own.
       final created = await Get.to<bool>(
         () => const PinActionPage(),
         arguments: PinAction.create,
       );
       if (created == true && mounted) {
+        // ignore: use_build_context_synchronously
         context.showSuccessSnackBar('appLockEnabled');
       }
     } else {
@@ -334,138 +471,19 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
       if (verified == true) {
         await authController.removePassword();
         if (mounted) {
+          // ignore: use_build_context_synchronously
           context.showSuccessSnackBar('appLockDisabled');
         }
       }
     }
   }
 
-  Widget _buildNotificationsSection(BuildContext context) {
-    final enabled = _notificationsEnabled;
-    final theme = Theme.of(context);
-    final subtitle = enabled == null
-        ? null
-        : enabled
-            ? 'notificationsStatusEnabled'.tr()
-            : 'notificationsStatusDisabled'.tr();
-    final isDisabled = enabled == false;
-
-    return _Section(
-      title: 'sectionNotifications'.tr(),
-      children: [
-        SettingsCard(
-          iconData: isDisabled
-              ? Icons.notifications_off_outlined
-              : Icons.notifications_active_outlined,
-          title: 'notificationsRowTitle'.tr(),
-          subtitle: subtitle,
-          subtitleColor: isDisabled ? theme.colorScheme.error : null,
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () async {
-            await CardReminderService().openNotificationSettings();
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDataSection(BuildContext context) {
-    return _Section(
-      title: 'sectionData'.tr(),
-      children: [
-        Obx(() {
-          final premiumController = Get.find<PremiumController>();
-          final isPremium = premiumController.isPremium;
-          return SettingsCard(
-            iconData: Icons.backup,
-            title: 'backupData'.tr(),
-            premiumLocked: !isPremium,
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: isPremium
-                ? () => _createBackup(context)
-                : () => openPremiumGate('backupRestore'),
-          );
-        }),
-        Obx(() {
-          final premiumController = Get.find<PremiumController>();
-          final isPremium = premiumController.isPremium;
-          return SettingsCard(
-            iconData: Icons.restore,
-            title: 'restoreData'.tr(),
-            premiumLocked: !isPremium,
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: isPremium
-                ? () => restoreFromBackupFlow(context)
-                : () => openPremiumGate('backupRestore'),
-          );
-        }),
-        SettingsCard(
-          iconData: Icons.delete,
-          title: 'clearAllD'.tr(),
-          isDestructive: true,
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () => showDialogDeleteData(context),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAboutSection(BuildContext context) {
-    return _Section(
-      title: 'sectionAbout'.tr(),
-      children: [
-        // Apple Guideline 3.1.2(a) — surface a path back to the store-managed
-        // subscription. Hidden for lifetime / free users since neither has a
-        // recurring subscription to manage.
-        Obx(() {
-          final premiumController = Get.find<PremiumController>();
-          if (!premiumController.isPremium ||
-              !PremiumService.hasActiveSubscription) {
-            return const SizedBox.shrink();
-          }
-          return SettingsCard(
-            iconData: Icons.subscriptions_outlined,
-            title: 'manageSubscription'.tr(),
-            trailing: const Icon(Icons.open_in_new, size: 16),
-            onTap: _openManageSubscription,
-          );
-        }),
-        SettingsCard(
-          iconData: Icons.privacy_tip,
-          title: 'PP'.tr(),
-          trailing: const Icon(Icons.open_in_new, size: 16),
-          onTap: () => AppLockService.guard(() => launchUrl(
-            Uri.parse(LegalUrls.privacyPolicy),
-            mode: LaunchMode.externalApplication,
-          )),
-        ),
-        SettingsCard(
-          iconData: Icons.description_outlined,
-          title: 'termsOfUse'.tr(),
-          trailing: const Icon(Icons.open_in_new, size: 16),
-          onTap: () => AppLockService.guard(() => launchUrl(
-            Uri.parse(LegalUrls.termsOfUse),
-            mode: LaunchMode.externalApplication,
-          )),
-        ),
-        SettingsCard(
-          iconData: Icons.rate_review,
-          title: 'rateApp'.tr(),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () => RateAppService.instance.openStoreListing(),
-        ),
-      ],
-    );
-  }
-
   Future<void> _openManageSubscription() async {
     final uri = Platform.isIOS
         ? Uri.parse('https://apps.apple.com/account/subscriptions')
         : Uri.parse('https://play.google.com/store/account/subscriptions');
-    final launched = await AppLockService.guard(() => launchUrl(
-      uri,
-      mode: LaunchMode.externalApplication,
-    ));
+    final launched = await AppLockService.guard(
+        () => launchUrl(uri, mode: LaunchMode.externalApplication));
     if (!launched && mounted) {
       // ignore: use_build_context_synchronously
       context.showErrorSnackBar('couldNotLaunchUrl');
@@ -482,21 +500,25 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
     if (password == null) return;
 
     try {
-      final backupService = BackupService();
-      final filePath = await backupService.createBackupFile(
+      final filePath = await BackupService().createBackupFile(
         password: password,
         dialogTitle: 'backupData'.tr(),
       );
       if (!mounted) return;
       if (filePath == null) return; // User cancelled the save dialog.
       AnalyticsService.instance.logBackupCreated();
+      await UiPrefs.instance.markBackup();
+      if (!mounted) return;
+      // ignore: use_build_context_synchronously
       context.showSuccessSnackBar('backupSuccess'.tr());
     } on BackupError catch (e) {
       if (!mounted) return;
+      // ignore: use_build_context_synchronously
       context.showErrorSnackBar(localizeBackupError(e));
     } catch (e, st) {
       ErrorReporter.report(e, st, reason: 'createBackup');
       if (!mounted) return;
+      // ignore: use_build_context_synchronously
       context.showErrorSnackBar('backupError');
     }
   }
@@ -504,7 +526,9 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
   Future<void> showDialogDeleteData(BuildContext context) async {
     final confirmed = await showConfirmActionSheet(
       context: context,
-      title: 'areUSure'.tr(),
+      title: 'cwDeleteAllTitle'.tr(),
+      content: 'cwDeleteAllBody'.tr(),
+      confirmText: 'cwDeleteEverything'.tr(),
       cancelText: 'cancel'.tr(),
     );
     if (!confirmed || !mounted) return;
@@ -531,42 +555,5 @@ class _SettingsBodyState extends State<SettingsBody> with WidgetsBindingObserver
       // ignore: use_build_context_synchronously
       context.showErrorSnackBar('deleteAllDataError');
     }
-  }
-}
-
-class _Section extends StatelessWidget {
-  final String title;
-  final List<Widget> children;
-  const _Section({required this.title, required this.children});
-
-  @override
-  Widget build(BuildContext context) {
-    final filtered =
-        children.where((c) => c is! SizedBox || c.height != 0).toList();
-    if (filtered.isEmpty) return const SizedBox.shrink();
-
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(top: 12, bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 6, bottom: 8, top: 4),
-            child: Text(
-              context.upper(title),
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.8,
-                color: colorScheme.onSurface.withValues(alpha: 0.55),
-              ),
-            ),
-          ),
-          ...children,
-        ],
-      ),
-    );
   }
 }

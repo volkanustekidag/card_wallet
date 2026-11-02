@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Deckard</string>
+    <string name="list_title">Carte fedeltà</string>
+    <string name="empty_title">Aggiungi le carte sul telefono</string>
+    <string name="empty_body">Si sincronizzano qui automaticamente.</string>
+    <string name="card_unavailable">Carta non disponibile</string>
+    <string name="show_on_phone">Mostrala sul telefono</string>
+</resources>

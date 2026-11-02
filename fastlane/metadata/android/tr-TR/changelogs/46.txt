@@ -1,0 +1,9 @@
+• Baştan yeni tasarım: cüzdanın gerçek kartlardan bir deste
+• Tek kamera her şeyi ekler: sadakat barkodu, banka kartı, IBAN
+• Sıradaki, bu saatte genelde kullandığın kartı gösterir
+• Ana ekranda Sıradaki widget'ı
+• Eski uygulamandaki kartları tek seferde taşı
+• 500+ marka, logosu ve rengiyle tanınır
+• Parmak izi ve yüz tanıma herkese ücretsiz
+• Tüm kartlarda arama, IBAN'ı görsel olarak paylaş
+• 9 dil ve birçok düzeltme

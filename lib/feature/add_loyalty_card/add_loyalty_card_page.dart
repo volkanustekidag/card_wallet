@@ -1,74 +1,102 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart' hide Trans;
-import 'package:wallet_app/core/constants/linear_gradient_color.dart';
-import 'package:wallet_app/core/controllers/premium_controller.dart';
-import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_barcode_scanner_service.dart';
+import 'package:wallet_app/core/brands/brand_catalog.dart';
 import 'package:wallet_app/core/domain/models/loyalty_card_model/loyalty_card.dart';
-import 'package:wallet_app/core/extensions/snack_bars.dart';
-import 'package:wallet_app/core/utils/loyalty_brand_resolver.dart';
-import 'package:wallet_app/core/widgets/bank_logo.dart';
-import 'package:wallet_app/core/widgets/primary_form_button.dart';
-import 'package:wallet_app/feature/add_credit_card/widgets/text_field_card.dart';
+import 'package:wallet_app/core/widgets/notes_and_tags_section.dart';
 import 'package:wallet_app/feature/add_loyalty_card/controller/add_loyalty_card_controller.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_formats.dart';
 import 'package:wallet_app/feature/loyalty_card/loyalty_barcode_validator.dart';
-import 'package:wallet_app/feature/loyalty_card/loyalty_brand_presets.dart';
-import 'package:wallet_app/core/utils/premium_gate.dart';
+import 'package:wallet_app/feature/loyalty_card/widgets/card_photos.dart';
+import 'package:wallet_app/feature/scanner/brand_picker_sheet.dart';
+import 'package:wallet_app/feature/scanner/live_scanner_page.dart';
+import 'package:wallet_app/feature/scanner/scan_analyzer.dart';
+import 'package:wallet_app/ui/card/loyalty_preview.dart';
+import 'package:wallet_app/ui/card/material_picker.dart';
+import 'package:wallet_app/ui/components/cw_button.dart';
+import 'package:wallet_app/ui/components/cw_field.dart';
+import 'package:wallet_app/ui/components/cw_form.dart';
+import 'package:wallet_app/ui/components/cw_list.dart';
+import 'package:wallet_app/ui/components/cw_misc.dart';
+import 'package:wallet_app/ui/cw_icons.dart';
+import 'package:wallet_app/ui/tokens.dart';
+import 'package:wallet_app/ui/typography.dart';
 
+/// Add / edit a loyalty card by hand: any brand from any country — pick it
+/// from the catalogue or just type your own name. The barcode can be typed
+/// or scanned; its format is checked before saving.
+///
+/// A new card starts from the brand ([brandFirst]): people think "Migros",
+/// not "a name for my card". Picking one fills name, colour and site and
+/// moves on to the number; skipping it lands on the name.
 class AddLoyaltyCardPage extends StatefulWidget {
   final LoyaltyCard? card;
-  const AddLoyaltyCardPage({Key? key, this.card}) : super(key: key);
+  final bool brandFirst;
+  const AddLoyaltyCardPage({Key? key, this.card, this.brandFirst = true})
+      : super(key: key);
 
   @override
   State<AddLoyaltyCardPage> createState() => _AddLoyaltyCardPageState();
 }
 
 class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
-  late final AddLoyaltyCardController _controller;
-  late final TextEditingController _nameController;
-  late final TextEditingController _brandController;
-  late final TextEditingController _barcodeController;
-  late final TextEditingController _notesController;
-  late final TextEditingController _websiteController;
-  late final LoyaltyBarcodeScannerService _scannerService;
-  bool _isScanning = false;
-  bool _websiteExpanded = false;
+  late final AddLoyaltyCardController _c = Get.find<AddLoyaltyCardController>();
+  final _name = TextEditingController();
+  final _barcode = TextEditingController();
+  final _website = TextEditingController();
+  final _nameFocus = FocusNode();
+  final _barcodeFocus = FocusNode();
+
+  bool get _startFromBrand => widget.card == null && widget.brandFirst;
+
+  /// The format was set on purpose (picked, scanned or an existing card's):
+  /// typing the number no longer guesses it.
+  late bool _formatSet = widget.card != null;
 
   @override
   void initState() {
     super.initState();
-    _controller = Get.find<AddLoyaltyCardController>();
     if (widget.card != null) {
-      _controller.initializeForEdit(widget.card!);
+      _c.initializeForEdit(widget.card!);
     } else {
-      _controller.initializeForCreate();
+      _c.initializeForCreate();
     }
-    final c = _controller.currentCard.value;
-    _nameController = TextEditingController(text: c.name);
-    _brandController = TextEditingController(text: c.brand ?? '');
-    _barcodeController = TextEditingController(text: c.barcode);
-    _notesController = TextEditingController(text: c.notes ?? '');
-    _websiteController = TextEditingController(text: c.website ?? '');
-    _websiteExpanded = (c.website ?? '').isNotEmpty;
-    _scannerService = LoyaltyBarcodeScannerService();
+    final card = _c.currentCard.value;
+    _name.text = card.name;
+    _barcode.text = card.barcode;
+    _website.text = card.website ?? '';
+    if (_startFromBrand) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _pickBrandFirst();
+      });
+    }
+  }
+
+  Future<void> _pickBrandFirst() async {
+    final picked = await showBrandPicker(context);
+    if (!mounted) return;
+    final brand = picked?.brand;
+    if (brand != null) {
+      _applyBrand(brand);
+      _barcodeFocus.requestFocus();
+    } else {
+      _nameFocus.requestFocus();
+    }
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _brandController.dispose();
-    _barcodeController.dispose();
-    _notesController.dispose();
-    _websiteController.dispose();
-    _scannerService.dispose();
+    _name.dispose();
+    _barcode.dispose();
+    _website.dispose();
+    _nameFocus.dispose();
+    _barcodeFocus.dispose();
     super.dispose();
   }
 
   /// Strips scheme / www. / path so we save a bare domain ("metro.com.tr").
   /// Returns null if the input doesn't look like a domain.
-  static String? _normalizeDomain(String raw) {
+  static String? normalizeDomain(String raw) {
     var s = raw.trim().toLowerCase();
     if (s.isEmpty) return null;
     s = s.replaceFirst(RegExp(r'^https?://'), '');
@@ -81,674 +109,301 @@ class _AddLoyaltyCardPageState extends State<AddLoyaltyCardPage> {
     return s;
   }
 
+  void _applyBrand(BrandEntry? b) {
+    final previous = _c.currentCard.value.brand;
+    _c.updateField('brand', b?.name);
+    _c.updateField('brandColor', b?.color);
+    if (b != null) {
+      _website.text = b.domain;
+      _c.updateField('website', b.domain);
+      if (_name.text.trim().isEmpty || _name.text.trim() == previous) {
+        _name.text = b.name;
+        _c.updateField('name', b.name);
+      }
+    }
+  }
+
+  Future<void> _pickBrand() async {
+    final picked = await showBrandPicker(context, initial: _name.text);
+    if (picked == null || !mounted) return;
+    _applyBrand(picked.clear ? null : picked.brand);
+  }
+
+  Future<void> _scan() async {
+    final hit = await Navigator.of(context).push<ScanHit>(MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) => const LiveScannerPage(
+        initialMode: ScanMode.barcode,
+        returnHit: true,
+      ),
+    ));
+    if (hit is! LoyaltyHit || !mounted) return;
+    _barcode.text = hit.raw;
+    _c.updateField('barcode', hit.raw);
+    _c.updateField('barcodeFormat', hit.format);
+    _formatSet = true;
+    if (hit.brand != null && _c.currentCard.value.brand == null) {
+      _applyBrand(hit.brand);
+    }
+  }
+
+  Future<void> _pickFormat() async {
+    final current = _c.currentCard.value.barcodeFormat;
+    final picked = await showCwSheet<String>(
+      context,
+      builder: (sheet) => SafeArea(
+        top: false,
+        child: SingleChildScrollView(
+          child: CwGroup(
+            margin: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            children: [
+              for (final f in kLoyaltyBarcodeFormats)
+                CwRow(
+                  title: barcodeFormatLabel(f.code),
+                  trailing: f.code == current
+                      ? CwIcon(CwIcons.check, color: CwColors.of(sheet).accent)
+                      : null,
+                  onTap: () => Navigator.pop(sheet, f.code),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (picked != null) {
+      _formatSet = true;
+      _c.updateField('barcodeFormat', picked);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        titleSpacing: 0,
-        title: Text(
-          widget.card != null
-              ? 'editLoyaltyCardTitle'.tr()
-              : 'addLoyaltyCardTitle'.tr(),
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface,
-          ),
-        ),
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        centerTitle: false,
-      ),
-      bottomNavigationBar: StickyBottomBar(
-        child: Obx(() {
-          final isBusy = _controller.isLoading.value;
-          final canSave = _controller.isFormValid && !isBusy;
-          return PrimaryFormButton(
-            label: widget.card != null ? 'updateAction'.tr() : 'addAction'.tr(),
-            isBusy: isBusy,
-            onPressed: canSave ? _controller.saveCard : null,
-          );
-        }),
-      ),
-      body: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(0, 16, 0, 24),
-          physics: const BouncingScrollPhysics(),
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildPreview(),
-              ),
-              const SizedBox(height: 24),
-              _buildBrandPresets(),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: TextFieldCard(
-                  controller: _nameController,
-                  label: '${'loyaltyCardNameLabel'.tr()} *',
-                  iconData: Icons.badge_outlined,
-                  onChanged: (v) => _controller.updateField('name', v),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: TextFieldCard(
-                  controller: _brandController,
-                  label: 'loyaltyCardBrandLabel'.tr(),
-                  iconData: Icons.storefront_outlined,
-                  onChanged: (v) =>
-                      _controller.updateField('brand', v.isEmpty ? null : v),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildWebsiteSection(),
-              ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Obx(() {
-                  final card = _controller.currentCard.value;
-                  final digitsOnly =
-                      isDigitOnlyBarcodeFormat(card.barcodeFormat);
-                  return TextFieldCard(
-                    controller: _barcodeController,
-                    label: '${'loyaltyCardBarcodeLabel'.tr()} *',
-                    iconData: Icons.qr_code_2_rounded,
-                    onChanged: (v) => _controller.updateField('barcode', v),
-                    helperText: 'loyaltyCardBarcodeHelper'.tr(),
-                    errorText: _barcodeError(card.barcode, card.barcodeFormat),
-                    textInputType:
-                        digitsOnly ? TextInputType.number : TextInputType.text,
-                    inputFormatters: digitsOnly
-                        ? [FilteringTextInputFormatter.digitsOnly]
-                        : null,
-                  );
-                }),
-              ),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildScanButton(),
-              ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _buildBarcodeFormatTile(),
-              ),
-              const SizedBox(height: 16),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: TextFieldCard(
-                  controller: _notesController,
-                  label: 'notesLabel'.tr(),
-                  iconData: Icons.notes_rounded,
-                  maxLines: 3,
-                  onChanged: (v) =>
-                      _controller.updateField('notes', v.isEmpty ? null : v),
-                ),
-              ),
-              const SizedBox(height: 24),
-              _buildColorPicker(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildWebsiteSection() {
-    final theme = Theme.of(context);
-    final accent = theme.colorScheme.primary;
-
-    if (!_websiteExpanded) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(8),
-          onTap: () => setState(() => _websiteExpanded = true),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.add_link_rounded, size: 16, color: accent),
-                const SizedBox(width: 6),
-                Text(
-                  'loyaltyWebsiteAdd'.tr(),
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: accent,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
     return Obx(() {
-      final card = _controller.currentCard.value;
-      final resolved = (card.website ?? '').isNotEmpty;
-      return TextFieldCard(
-        controller: _websiteController,
-        label: 'loyaltyWebsiteLabel'.tr(),
-        iconData: Icons.language_rounded,
-        textInputType: TextInputType.url,
-        helperText: resolved
-            ? 'loyaltyWebsiteResolved'.tr(namedArgs: {'domain': card.website!})
-            : 'loyaltyWebsiteHelper'.tr(),
-        onChanged: (v) {
-          final normalized = _normalizeDomain(v);
-          _controller.updateField('website', normalized);
-        },
-      );
-    });
-  }
-
-  Widget _buildScanButton() {
-    final theme = Theme.of(context);
-    final accent = theme.colorScheme.primary;
-    return OutlinedButton(
-      onPressed: _isScanning ? null : _showScanOptions,
-      style: OutlinedButton.styleFrom(
-        minimumSize: const Size.fromHeight(50),
-        backgroundColor: theme.colorScheme.surface.withValues(alpha: 0.35),
-        side: BorderSide(
-          color: theme.colorScheme.outline.withValues(alpha: 0.4),
+      final card = _c.currentCard.value;
+      final editing = _c.isEditMode.value;
+      final check = card.barcode.trim().isEmpty
+          ? null
+          : LoyaltyBarcodeValidator.validate(card.barcode, card.barcodeFormat);
+      final suggestion = check == null || check.isValid
+          ? null
+          : LoyaltyBarcodeValidator.suggestFormat(
+              card.barcode, card.barcodeFormat);
+      return CwFormScaffold(
+        title: editing ? 'cwEditCard'.tr() : 'cwNewLoyalty'.tr(),
+        action: CwHeaderAction(
+            icon: CwIcons.scan, label: 'cwScan'.tr(), onTap: _scan),
+        preview: LoyaltyCardPreview(card: card),
+        button: CwButton(
+          editing ? 'cwSave'.tr() : 'cwAddCard'.tr(),
+          loading: _c.isLoading.value,
+          onPressed: _c.isFormValid && !_c.isLoading.value
+              ? () => _c.saveCard()
+              : null,
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-        ),
-        foregroundColor: accent,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.qr_code_scanner_rounded, color: accent, size: 20),
-          const SizedBox(width: 10),
-          Flexible(
-            child: Text(
-              _isScanning ? 'scanInProgress'.tr() : 'loyaltyScanBarcode'.tr(),
-              style: theme.textTheme.labelLarge?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: accent,
-              ),
-              textAlign: TextAlign.center,
-            ),
+          // New cards start from the brand; editing starts from the name.
+          if (_startFromBrand) ...[
+            _BrandRow(brand: card.brand, onTap: _pickBrand),
+            const SizedBox(height: 10),
+          ],
+          CwField(
+            controller: _name,
+            focusNode: _nameFocus,
+            label: 'cwName'.tr(),
+            hint: 'cwCardNameHint'.tr(),
+            autofocus: !editing && !_startFromBrand,
+            textCapitalization: TextCapitalization.words,
+            maxLength: 40,
+            onChanged: (v) => _c.updateField('name', v),
           ),
-          if (_isScanning) ...[
-            const SizedBox(width: 10),
-            const SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
+          if (!_startFromBrand) ...[
+            const SizedBox(height: 10),
+            _BrandRow(brand: card.brand, onTap: _pickBrand),
           ],
-        ],
-      ),
-    );
-  }
-
-  void _showScanOptions() {
-    final theme = Theme.of(context);
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: theme.colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'loyaltyScanBarcode'.tr(),
-                    style: const TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: Icon(Icons.qr_code_scanner_rounded,
-                    color: theme.colorScheme.primary),
-                title: Text('loyaltyScanFromCamera'.tr()),
-                subtitle: Text('loyaltyScanFromCameraSubtitle'.tr()),
-                onTap: () {
-                  Navigator.of(ctx).pop();
-                  _runScan(fromCamera: true);
-                },
-              ),
-              ListTile(
-                leading: Icon(Icons.photo_library_outlined,
-                    color: theme.colorScheme.secondary),
-                title: Text('chooseFromGallery'.tr()),
-                subtitle: Text('loyaltyScanFromGallerySubtitle'.tr()),
-                onTap: () {
-                  Navigator.of(ctx).pop();
-                  _runScan(fromCamera: false);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _runScan({required bool fromCamera}) async {
-    setState(() => _isScanning = true);
-    try {
-      final result = fromCamera
-          ? await _scannerService.scanFromCamera()
-          : await _scannerService.scanFromGallery();
-      if (result == null) return;
-
-      final value = result.rawValue;
-      _barcodeController.text = value;
-      _controller.updateField('barcode', value);
-
-      if (result.format != null) {
-        _controller.updateField('barcodeFormat', result.format!);
-      }
-
-      if (mounted) {
-        context.showSuccessSnackBar('loyaltyBarcodeScanned');
-      }
-    } finally {
-      if (mounted) setState(() => _isScanning = false);
-    }
-  }
-
-  Widget _buildPreview() {
-    return Obx(() {
-      final card = _controller.currentCard.value;
-      final gradients = LinearGradients().linearGradientList;
-      final gradient = gradients[card.colorId.clamp(0, gradients.length - 1)];
-      return Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.12),
-              blurRadius: 16,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                if (LoyaltyBrandResolver.domainFor(card.brand) != null ||
-                    (card.website?.isNotEmpty ?? false)) ...[
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.95),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: const EdgeInsets.all(6),
-                    child: BankLogo(
-                      loyaltyBrand: card.brand,
-                      domain: card.website,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        card.name.isEmpty
-                            ? 'loyaltyCardNamePlaceholder'.tr()
-                            : card.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        (card.brand?.isNotEmpty ?? false) ? card.brand! : '—',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white.withValues(alpha: 0.85),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.18),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                card.barcode.isEmpty
-                    ? 'loyaltyCardBarcodePlaceholder'.tr()
-                    : card.barcode,
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
-    });
-  }
-
-  Widget _buildBrandPresets() {
-    return SizedBox(
-      height: 38,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: kLoyaltyBrandPresets.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
-        itemBuilder: (context, index) {
-          final preset = kLoyaltyBrandPresets[index];
-          return InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: () {
-              _brandController.text = preset.name;
-              _controller.updateField('brand', preset.name);
-              if (_nameController.text.trim().isEmpty) {
-                _nameController.text = preset.name;
-                _controller.updateField('name', preset.name);
+          const SizedBox(height: 10),
+          CwField(
+            controller: _barcode,
+            focusNode: _barcodeFocus,
+            label: 'cwBarcodeNumber'.tr(),
+            mono: true,
+            maxLength: 120,
+            onChanged: (v) {
+              _c.updateField('barcode', v.trim());
+              // A valid EAN/UPC number is almost always printed as one.
+              if (!_formatSet) {
+                _c.updateField('barcodeFormat',
+                    LoyaltyBarcodeValidator.guessFormat(v.trim()));
               }
             },
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: preset.seedColor.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: preset.seedColor.withValues(alpha: 0.3),
-                ),
+          ),
+          const SizedBox(height: 10),
+          CwGroup(
+            margin: EdgeInsets.zero,
+            children: [
+              CwRow(
+                title: 'cwBarcodeType'.tr(),
+                value: barcodeFormatLabel(card.barcodeFormat),
+                chevron: true,
+                onTap: _pickFormat,
               ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: preset.seedColor,
-                      shape: BoxShape.circle,
-                    ),
+            ],
+          ),
+          if (check != null) ...[
+            const SizedBox(height: 10),
+            check.isValid
+                ? CwNotice.ok(context,
+                    '${barcodeFormatLabel(card.barcodeFormat)} · ${'cwVerified'.tr()}')
+                : _InvalidNotice(
+                    reason: describeBarcodeIssue(check, card.barcodeFormat),
+                    suggestion: suggestion,
+                    onUseSuggestion: suggestion == null
+                        ? null
+                        : () => _c.updateField('barcodeFormat', suggestion),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    preset.name,
-                    style: const TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildBarcodeFormatTile() {
-    return Obx(() {
-      final theme = Theme.of(context);
-      final selected = _controller.currentCard.value.barcodeFormat;
-      final format = kLoyaltyBarcodeFormats.firstWhere(
-        (f) => f.code == selected,
-        orElse: () => kLoyaltyBarcodeFormats.first,
-      );
-      final fillColor =
-          theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.45);
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(18),
-          onTap: _showBarcodeFormatSheet,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: fillColor,
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.format_list_bulleted_rounded,
-                  size: 18,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'loyaltyCardFormatLabel'.tr(),
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: theme.colorScheme.onSurfaceVariant
-                              .withValues(alpha: 0.8),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        format.label,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: theme.colorScheme.onSurface,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ],
+          ],
+          CwSectionHeader('cwCardPhotos'.tr(),
+              padding: const EdgeInsets.fromLTRB(4, 22, 4, 8)),
+          CardPhotoSlots(
+            front: card.frontPhoto,
+            back: card.backPhoto,
+            onFront: (id) => _c.setPhoto(front: true, id: id),
+            onBack: (id) => _c.setPhoto(front: false, id: id),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              card.barcode.trim().isEmpty && card.frontPhoto != null
+                  ? 'cwPhotoInsteadOfBarcode'.tr()
+                  : 'cwCardPhotosHint'.tr(),
+              style: CwType.footnote.copyWith(color: CwColors.of(context).mute),
             ),
           ),
-        ),
+          const SizedBox(height: 18),
+          MaterialPicker(
+            selected: card.colorId,
+            brandColor: BrandCatalog.instance.match(card.brand)?.color ??
+                card.brandColor,
+            brandSelected: card.brandColor != null,
+            onBrand: () => _c.updateField(
+                'brandColor',
+                BrandCatalog.instance.match(card.brand)?.color ??
+                    card.brandColor),
+            onSelected: (i) {
+              _c.updateField('colorId', i);
+              _c.updateField('brandColor', null);
+            },
+          ),
+          const SizedBox(height: 14),
+          CwField(
+            controller: _website,
+            label: 'cwWebsite'.tr(),
+            hint: 'example.com',
+            icon: CwIcons.globe,
+            keyboardType: TextInputType.url,
+            onChanged: (v) => _c.updateField('website', normalizeDomain(v)),
+          ),
+          CwSectionHeader('cwNotesTags'.tr(),
+              padding: const EdgeInsets.fromLTRB(4, 24, 4, 8)),
+          NotesAndTagsSection(
+            initialNotes: card.notes,
+            initialTags: card.tags,
+            onNotesChanged: (v) => _c.updateField('notes', v),
+            onTagsChanged: (v) => _c.updateField('tags', v),
+          ),
+          const SizedBox(height: 20),
+          CwTrustLine('cwEncryptedLocal'.tr()),
+          const SizedBox(height: 4),
+        ],
       );
     });
   }
+}
 
-  void _showBarcodeFormatSheet() {
-    final theme = Theme.of(context);
-    final selected = _controller.currentCard.value.barcodeFormat;
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: theme.colorScheme.surface,
-      showDragHandle: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
-              child: Text(
-                'loyaltyCardFormatLabel'.tr(),
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Flexible(
-              child: SingleChildScrollView(
+class _BrandRow extends StatelessWidget {
+  final String? brand;
+  final VoidCallback onTap;
+  const _BrandRow({required this.brand, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    final matched = BrandCatalog.instance.match(brand) != null;
+    return Material(
+      color: c.surface,
+      borderRadius: BorderRadius.circular(CwRadius.m),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(CwRadius.m),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 10, 14, 10),
+          child: Row(
+            children: [
+              Expanded(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final f in kLoyaltyBarcodeFormats)
-                      ListTile(
-                        title: Text(
-                          f.label,
-                          style: const TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        trailing: f.code == selected
-                            ? Icon(Icons.check_rounded,
-                                color: theme.colorScheme.primary)
-                            : null,
-                        onTap: () {
-                          _controller.updateField('barcodeFormat', f.code);
-                          Navigator.of(ctx).pop();
-                        },
-                      ),
+                    Text('cwBrand'.tr(),
+                        style: CwType.caption.copyWith(color: c.mute)),
+                    const SizedBox(height: 2),
+                    Text(
+                      brand == null || brand!.isEmpty
+                          ? 'cwChooseBrand'.tr()
+                          : matched
+                              ? '$brand · ${'cwMatchedCatalog'.tr()}'
+                              : brand!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: CwType.body
+                          .copyWith(color: brand == null ? c.mute : c.ink),
+                    ),
                   ],
                 ),
               ),
-            ),
-          ],
+              Text('cwChange'.tr(),
+                  style: CwType.callout
+                      .copyWith(color: c.accent, fontWeight: FontWeight.w600)),
+            ],
+          ),
         ),
       ),
     );
   }
+}
 
-  String? _barcodeError(String value, String format) {
-    if (value.trim().isEmpty) return null;
-    return describeBarcodeIssue(
-      LoyaltyBarcodeValidator.validate(value, format),
-      format,
-    );
-  }
+class _InvalidNotice extends StatelessWidget {
+  final String? reason;
+  final String? suggestion;
+  final VoidCallback? onUseSuggestion;
 
-  Widget _buildColorPicker() {
-    final gradients = LinearGradients().linearGradientList;
-    final premium = Get.find<PremiumController>();
-    return Obx(() {
-      final selected = _controller.currentCard.value.colorId;
-      final isPremium = premium.isPremium;
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'colorLabel'.tr(),
-              style: const TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
+  const _InvalidNotice({
+    required this.reason,
+    required this.suggestion,
+    required this.onUseSuggestion,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final c = CwColors.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        CwNotice.warn(context, reason ?? 'cwFormatInvalid'.tr(),
+            title: 'cwFormatInvalid'.tr()),
+        if (suggestion != null && onUseSuggestion != null)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton(
+              onPressed: onUseSuggestion,
+              child: Text(
+                'loyaltyBarcodeUseFormat'
+                    .tr(namedArgs: {'format': barcodeFormatLabel(suggestion!)}),
+                style: CwType.callout
+                    .copyWith(color: c.accent, fontWeight: FontWeight.w600),
               ),
             ),
           ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 50,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: gradients.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
-              itemBuilder: (context, index) {
-                final isSelected = index == selected;
-                final locked = !isPremium && GradientCatalogue.isPremium(index);
-                return GestureDetector(
-                  onTap: () {
-                    if (locked) {
-                      openPremiumGate('premiumColors');
-                      return;
-                    }
-                    _controller.updateField('colorId', index);
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    width: 50,
-                    decoration: BoxDecoration(
-                      gradient: gradients[index],
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.primary
-                            : Colors.transparent,
-                        width: 2,
-                      ),
-                    ),
-                    child: locked
-                        ? const Center(
-                            child: Icon(
-                              Icons.lock_rounded,
-                              color: Colors.white,
-                              size: 18,
-                            ),
-                          )
-                        : null,
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      );
-    });
+      ],
+    );
   }
 }

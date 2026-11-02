@@ -59,6 +59,15 @@ abstract final class LoyaltyBarcodeValidator {
     'QR_CODE',
   ];
 
+  /// Best format for a typed number: EAN-13 / EAN-8 / UPC-A when the check
+  /// digit says so, Code 128 for anything else.
+  static String guessFormat(String value) {
+    for (final f in const ['EAN_13', 'EAN_8', 'UPC_A']) {
+      if (validate(value, f).isValid) return f;
+    }
+    return 'CODE_128';
+  }
+
   static BarcodeCheck validate(String value, String format) {
     final data = value.trim();
     if (data.isEmpty) return const BarcodeCheck._(BarcodeIssue.empty);
@@ -133,6 +142,16 @@ abstract final class LoyaltyBarcodeValidator {
         return Barcode.upcE();
       case 'ITF':
         return Barcode.itf();
+      case 'CODE_93':
+        return Barcode.code93();
+      case 'CODABAR':
+        return Barcode.codabar();
+      case 'PDF417':
+        return Barcode.pdf417();
+      case 'AZTEC':
+        return Barcode.aztec();
+      case 'DATA_MATRIX':
+        return Barcode.dataMatrix();
       default:
         return null;
     }

@@ -62,12 +62,10 @@ class _SplashPageState extends State<SplashPage> {
     return Scaffold(
       backgroundColor: context.theme.scaffoldBackgroundColor,
       body: Center(
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(100),
-          child: Image.asset(
-            AppImages.logo,
-            width: size.width * 0.3,
-          ),
+        // The app icon, corners already rounded in the asset.
+        child: Image.asset(
+          AppImages.logo,
+          width: size.width * 0.3,
         ),
       ),
     );

@@ -10,28 +10,38 @@ import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/app_lock_service.dart';
 import 'package:wallet_app/core/utils/session_prompt_gate.dart';
 
-/// Schedules and triggers the native in-app review prompt and routes manual
-/// "Rate App" taps to the right store for the current platform.
+/// Triggers the native in-app review prompt at success moments and routes
+/// manual "Rate App" taps to the right store for the current platform.
 ///
 /// The OS rate-limits the native prompt (Apple shows it at most 3 times per
-/// 365 days, Play has its own quota), so the eligibility gate below is
-/// intentionally conservative on top of that.
+/// 365 days, Play has its own quota), so it is only asked right after the
+/// app has just worked for the user: a card shown at the till and closed
+/// again, or the third card saved. Never on launch or resume: the app is
+/// often opened at the till, and a dialog over the barcode is the worst
+/// moment there is.
 class RateAppService {
   RateAppService._();
   static final RateAppService instance = RateAppService._();
 
   static const String _boxName = 'rate_app_box';
   static const String _kFirstLaunch = 'first_launch_ms';
-  static const String _kSessionCount = 'session_count';
   static const String _kLastPromptAt = 'last_prompt_ms';
+  static const String _kCheckoutShows = 'checkout_shows';
 
   static const String _appStoreId = '6755343533';
   static const String _androidPackageName = 'com.volkan.wallet_app';
 
-  static const int _minSessions = 4;
-  static const int _minDaysSinceInstall = 3;
   static const int _minDaysBetweenPrompts = 60;
-  static const Duration _initialPromptDelay = Duration(seconds: 6);
+
+  /// A checkout counts once the barcode was up this long (a scan, not a peek).
+  static const Duration minCheckoutShown = Duration(seconds: 3);
+
+  /// Checkouts before the first ask, and days since install.
+  static const int checkoutsBeforeAsking = 3;
+  static const int minDaysSinceInstall = 2;
+
+  /// Lets the card's close animation finish before the system sheet appears.
+  static const Duration _afterCloseDelay = Duration(milliseconds: 800);
 
   final InAppReview _review = InAppReview.instance;
   Box? _box;
@@ -49,42 +59,47 @@ class RateAppService {
     unawaited(
       AnalyticsService.instance.setDaysSinceInstall(daysSinceInstall),
     );
-    final next = (_box!.get(_kSessionCount, defaultValue: 0) as int) + 1;
-    await _box!.put(_kSessionCount, next);
   }
 
-  /// Schedules a delayed eligibility check so the prompt never collides with
-  /// splash / lock-screen frames.
-  void scheduleInitialPrompt() {
-    Future.delayed(_initialPromptDelay, maybeRequestReview);
-  }
+  /// Whether closing a checkout should ask for a rating: the barcode was up
+  /// long enough to be scanned, this is at least the [checkoutsBeforeAsking]th
+  /// such checkout, and the app has been installed for a couple of days.
+  @visibleForTesting
+  static bool shouldAskAfterCheckout({
+    required Duration shownFor,
+    required int checkouts,
+    required int daysSinceInstall,
+  }) =>
+      shownFor >= minCheckoutShown &&
+      checkouts >= checkoutsBeforeAsking &&
+      daysSinceInstall >= minDaysSinceInstall;
 
-  /// Time-based path: triggered from the splash → home transition. Requires
-  /// the user has been around long enough (sessions + days since install)
-  /// that they've formed an opinion of the app.
-  Future<void> maybeRequestReview() async {
+  /// Success-moment path: a loyalty card's checkout was just closed after
+  /// [shownFor] on screen. Counts real checkouts and, from the third on,
+  /// asks once the card has animated away.
+  Future<void> onCheckoutClosed(Duration shownFor) async {
     final box = _box;
-    if (box == null) return;
-
+    if (box == null || shownFor < minCheckoutShown) return;
+    final checkouts = (box.get(_kCheckoutShows, defaultValue: 0) as int) + 1;
+    await box.put(_kCheckoutShows, checkouts);
     final firstLaunchMs = box.get(_kFirstLaunch) as int?;
     if (firstLaunchMs == null) return;
-
-    final sessions = box.get(_kSessionCount, defaultValue: 0) as int;
-    final now = DateTime.now();
-
-    final daysSinceInstall = now
+    final daysSinceInstall = DateTime.now()
         .difference(DateTime.fromMillisecondsSinceEpoch(firstLaunchMs))
         .inDays;
-    if (daysSinceInstall < _minDaysSinceInstall) return;
-    if (sessions < _minSessions) return;
-
-    await _attemptReview(source: 'time_based');
+    if (!shouldAskAfterCheckout(
+      shownFor: shownFor,
+      checkouts: checkouts,
+      daysSinceInstall: daysSinceInstall,
+    )) {
+      return;
+    }
+    await Future<void>.delayed(_afterCloseDelay);
+    await _attemptReview(source: 'milestone', milestone: 'checkout_used');
   }
 
   /// Success-moment path: fired after a positive user action (e.g. the
-  /// third card added). Skips the session / install-age gates that
-  /// [maybeRequestReview] applies, since milestone reach is a strong
-  /// happiness signal on its own. Still respects the 60-day window between
+  /// third card added); reaching it is a strong happiness signal on its own. Still respects the 60-day window between
   /// prompts and the OS-level quota — Apple silently rate-limits to ~3
   /// shows per 365 days regardless of what we do, so spamming this would
   /// just burn the user's remaining quota with no benefit.

@@ -64,6 +64,8 @@ class WalletPassExportService {
   bool get isConfigured => _baseUrl.trim().isNotEmpty;
 
   bool isBarcodeSupported(WalletPassProvider provider, LoyaltyCard card) {
+    // Photo-only cards have nothing a pass could show.
+    if (!card.hasBarcode) return false;
     final format = card.barcodeFormat.trim().toUpperCase();
     switch (provider) {
       case WalletPassProvider.apple:
