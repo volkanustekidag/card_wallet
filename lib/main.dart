@@ -245,7 +245,6 @@ class _AppWrapperState extends State<AppWrapper> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    RateAppService.instance.scheduleInitialPrompt();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) unawaited(_rescheduleReminders(context.locale));
       // Logos + brand colours; parsed off the UI isolate.
@@ -280,7 +279,6 @@ class _AppWrapperState extends State<AppWrapper> with WidgetsBindingObserver {
       if (Get.isRegistered<HomeController>()) {
         Get.find<HomeController>().refreshData();
       }
-      RateAppService.instance.scheduleInitialPrompt();
     }
   }
 

@@ -15,6 +15,7 @@ import 'package:wallet_app/core/router/getx_bindings.dart';
 import 'package:wallet_app/core/router/getx_routes.dart';
 import 'package:wallet_app/core/services/analytics_service.dart';
 import 'package:wallet_app/core/services/barcode_display_boost.dart';
+import 'package:wallet_app/core/services/rate_app_service.dart';
 import 'package:wallet_app/core/services/widget_data_service.dart';
 import 'package:wallet_app/core/utils/sensitive_clipboard.dart';
 import 'package:wallet_app/core/utils/tag_index.dart';
@@ -66,6 +67,7 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
   bool get readOnly => widget.readOnly;
 
   StreamSubscription<AccelerometerEvent>? _accel;
+  final DateTime _openedAt = DateTime.now();
   bool _landscapeOpen = false;
   DateTime? _sidewaysSince;
 
@@ -92,6 +94,13 @@ class _LoyaltyCardDetailPageState extends State<LoyaltyCardDetailPage> {
   void dispose() {
     _accel?.cancel();
     BarcodeDisplayBoost.instance.release();
+    // Closing a card that was up long enough to scan is the moment the app
+    // just worked: the one time a rating ask is welcome. Not from the
+    // widget's PIN-locked view.
+    if (!readOnly) {
+      unawaited(RateAppService.instance
+          .onCheckoutClosed(DateTime.now().difference(_openedAt)));
+    }
     super.dispose();
   }
 
