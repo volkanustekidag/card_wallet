@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/billing_client_wrappers.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:in_app_purchase_storekit/store_kit_2_wrappers.dart';
+import 'package:flutter/services.dart';
 import 'package:wallet_app/core/services/premium_entitlement_cache.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
 
@@ -227,8 +229,7 @@ void main() {
       await sub.cancel();
     });
 
-    test('completePurchase is called for pending-complete purchases',
-        () async {
+    test('completePurchase is called for pending-complete purchases', () async {
       await PremiumService.initialize();
       final details = _purchase(
         PremiumService.monthlyProductId,
@@ -258,6 +259,78 @@ void main() {
       await _settle();
 
       expect(PremiumService.isPremium, isFalse);
+    });
+  });
+
+  group('App Store answer (StoreKit 2)', () {
+    Future<List<PremiumPurchaseResult>> buyWith(
+      Future<SK2ProductPurchaseResult> Function(String id) store,
+    ) async {
+      PremiumService.configureForTesting(
+        iap: iap,
+        cache: cache,
+        clock: () => now,
+        appStorePurchase: store,
+      );
+      final results = <PremiumPurchaseResult>[];
+      final sub = PremiumService.purchaseResultStream.listen(results.add);
+      await PremiumService.purchaseProduct(
+          _product(PremiumService.yearlyProductId));
+      await _settle();
+      await sub.cancel();
+      return results;
+    }
+
+    test('closing the sheet is a cancel, not a failure', () async {
+      final results =
+          await buyWith((_) async => SK2ProductPurchaseResult.userCancelled);
+      expect(results, [PremiumPurchaseResult.canceled]);
+      expect(PremiumService.lastFailure, isNull);
+      expect(iap.bought, isEmpty);
+    });
+
+    test('Ask to Buy is pending', () async {
+      final results =
+          await buyWith((_) async => SK2ProductPurchaseResult.pending);
+      expect(results, [PremiumPurchaseResult.pending]);
+    });
+
+    test('success waits for the transaction on the purchase stream', () async {
+      final results =
+          await buyWith((_) async => SK2ProductPurchaseResult.success);
+      expect(results, isEmpty);
+    });
+
+    test('an unverified transaction is a store error', () async {
+      final results =
+          await buyWith((_) async => SK2ProductPurchaseResult.unverified);
+      expect(results, [PremiumPurchaseResult.error]);
+      expect(PremiumService.lastFailure?.reason, 'store_error');
+      expect(PremiumService.lastFailure?.code, 'unverified');
+    });
+
+    test('a purchase StoreKit refuses to start keeps its error code', () async {
+      await buyWith((_) async => throw PlatformException(
+          code: 'storekit2_purchase_failed', message: 'x'));
+      expect(PremiumService.lastFailure?.reason, 'not_started');
+      expect(PremiumService.lastFailure?.code, 'storekit2_purchase_failed');
+    });
+
+    test('a store error on the stream keeps its code', () async {
+      configure();
+      await PremiumService.initialize();
+      iap.controller.add([
+        PurchaseDetails(
+          productID: PremiumService.yearlyProductId,
+          verificationData: _verification(),
+          transactionDate: '0',
+          status: PurchaseStatus.error,
+        )..error = IAPError(
+            source: 'app_store', code: 'payment_invalid', message: 'bad'),
+      ]);
+      await _settle();
+      expect(PremiumService.lastFailure?.reason, 'store_error');
+      expect(PremiumService.lastFailure?.code, 'payment_invalid');
     });
   });
 

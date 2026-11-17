@@ -306,6 +306,14 @@ class _PremiumPageState extends State<PremiumPage> {
   }
 
   Future<void> _handlePurchase(ProductDetails product) async {
+    unawaited(
+      AnalyticsService.instance.logPurchaseInitiated(
+        productId: product.id,
+        price: product.rawPrice,
+        currency: product.currencyCode,
+        trigger: _trigger,
+      ),
+    );
     final result = await _premiumController.purchase(product);
     if (!mounted) return;
     switch (result) {
@@ -349,7 +357,11 @@ class _PremiumPageState extends State<PremiumPage> {
         break;
       case PremiumPurchaseResult.error:
         unawaited(
-          AnalyticsService.instance.logPurchaseFailed(product.id),
+          AnalyticsService.instance.logPurchaseFailed(
+            product.id,
+            failure: PremiumService.lastFailure,
+            currency: product.currencyCode,
+          ),
         );
         HapticFeedback.heavyImpact();
         context.showErrorSnackBar('purchaseFailed');
@@ -371,6 +383,7 @@ class _PremiumPageState extends State<PremiumPage> {
           productId: candidate.id,
           price: candidate.rawPrice,
           currency: candidate.currencyCode,
+          isDefault: true,
         ),
       );
       setState(() => _selectedProduct = candidate);

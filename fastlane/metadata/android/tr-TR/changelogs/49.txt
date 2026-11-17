@@ -1,0 +1,2 @@
+CardWallet artık Deckard: aynı uygulama, yeni isim. Kartların olduğu yerde duruyor.
+• Küçük düzeltmeler ve iyileştirmeler.

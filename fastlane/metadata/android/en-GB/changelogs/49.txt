@@ -1,0 +1,2 @@
+CardWallet is now Deckard: same app, new name. Your cards are right where you left them.
+• Small fixes and improvements.

@@ -1,1 +1,1 @@
-Sıradaki, ihtiyacın olan kartı en üste koyar, barkod kasada parlak açılır; banka kartların ve IBAN'ların hemen yanında. Hesap yok, internetsiz çalışır.
+CardWallet artık Deckard. Sadakat kartların, kredi kartların ve IBAN'ların telefonunda şifreli kalır; hesap yok, reklam yok.

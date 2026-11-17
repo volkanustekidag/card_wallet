@@ -1,1 +1,3 @@
-Küçük iyileştirmeler ve hata düzeltmeleri.
+CardWallet artık Deckard: aynı uygulama, yeni isim. Kartların olduğu yerde duruyor.
+• Ödeme penceresini kapatınca artık satın alma hatası gösterilmiyor.
+• Küçük düzeltmeler ve iyileştirmeler.

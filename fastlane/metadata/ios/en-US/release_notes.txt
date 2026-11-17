@@ -1,1 +1,3 @@
-Small improvements and fixes.
+CardWallet is now Deckard: same app, new name. Your cards are right where you left them.
+• Closing the App Store payment sheet no longer shows a purchase error.
+• Small fixes and improvements.

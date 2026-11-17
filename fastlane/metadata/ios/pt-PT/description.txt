@@ -1,3 +1,5 @@
+O Deckard (antigo CardWallet) guarda os seus cartões de cliente, cartões bancários e IBAN numa carteira privada.
+
 O Deckard põe o cartão certo no topo antes de chegar à caixa: o «A seguir» aprende, só no seu iPhone, quando usa cada cartão de cliente, e o código de barras abre com o brilho no máximo. Os seus cartões bancários e IBAN ficam mesmo ao lado. Não precisa de criar conta, não tem anúncios e funciona sem internet.
 
 Na caixa, abra o cartão: o ecrã fica mais claro sozinho e o leitor lê o código de barras à primeira. Os seus cartões também estão no Apple Watch e num widget do ecrã principal.

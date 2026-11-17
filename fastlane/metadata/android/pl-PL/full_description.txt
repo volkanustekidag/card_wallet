@@ -1,3 +1,5 @@
+Deckard (wcześniej CardWallet) przechowuje karty lojalnościowe, karty bankowe i numery IBAN w jednym prywatnym portfelu.
+
 Deckard wyciąga właściwą kartę na górę, zanim dojdziesz do kasy: „Następna” uczy się, tylko na Twoim telefonie, kiedy używasz każdej karty lojalnościowej, a kod kreskowy otwiera się z pełną jasnością. Karty bankowe i numery IBAN są tuż obok. Nie musisz zakładać konta, nie ma reklam, a aplikacja działa też bez internetu.
 
 Przy kasie otwierasz kartę, ekran sam się rozjaśnia, a czytnik odczytuje kod kreskowy za pierwszym razem. Ulubioną kartę możesz przypiąć widżetem do ekranu głównego albo otworzyć kafelkiem w Szybkich ustawieniach.

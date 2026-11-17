@@ -1,3 +1,5 @@
+Deckard (antes CardWallet) guarda tus tarjetas de fidelidad, tarjetas bancarias e IBAN en una cartera privada.
+
 Deckard pone la tarjeta correcta arriba antes de que llegues a la caja: «Siguiente» aprende, solo en tu iPhone, cuándo usas cada tarjeta de fidelidad, y el código de barras se abre con el brillo al máximo. Tus tarjetas bancarias e IBAN están justo al lado. No tienes que crear ninguna cuenta, no hay anuncios y funciona sin conexión a internet.
 
 En caja, abre la tarjeta: la pantalla sube el brillo sola y el lector lee el código de barras a la primera. Tus tarjetas también están en el Apple Watch y en un widget de la pantalla de inicio.

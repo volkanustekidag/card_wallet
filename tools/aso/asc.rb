@@ -12,7 +12,7 @@ now = Time.now.to_i
 TOKEN = JWT.encode({ iss: k["issuer_id"], iat: now, exp: now + 1100, aud: "appstoreconnect-v1" }, key, "ES256", { kid: k["key_id"], typ: "JWT" })
 def call(method, path, body = nil)
   uri = URI(path.start_with?("http") ? path : "https://api.appstoreconnect.apple.com#{path}")
-  req = (method == "POST" ? Net::HTTP::Post : Net::HTTP::Get).new(uri)
+  req = { "POST" => Net::HTTP::Post, "PATCH" => Net::HTTP::Patch }.fetch(method, Net::HTTP::Get).new(uri)
   req["Authorization"] = "Bearer #{TOKEN}"
   if body then req["Content-Type"] = "application/json"; req.body = body.to_json end
   res = Net::HTTP.start(uri.host, uri.port, use_ssl: true) { |h| h.request(req) }
