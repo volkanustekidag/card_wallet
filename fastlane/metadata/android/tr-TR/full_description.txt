@@ -1,3 +1,5 @@
+Deckard (eski adıyla CardWallet) sadakat kartlarını, kredi kartlarını ve IBAN'larını tek bir gizli cüzdanda tutar.
+
 Deckard, kasaya gelmeden doğru kartı en üste koyar: Sıradaki, hangi sadakat kartını ne zaman kullandığını yalnızca telefonunda öğrenir, barkod tam parlaklıkta açılır. Kredi kartların ve IBAN'ların da hemen yanında. Hesap açman gerekmez, reklam yoktur, internet olmadan da çalışır.
 
 IBAN'ını tek dokunuşla kopyala ya da paylaş, karşındakine QR kodla okut. Kasada sadakat kartını aç, ekran kendiliğinden parlasın. Kredi kartının ödeme ve son kullanma tarihini hatırlatıcılar senin yerine takip etsin. Aradığın kartı ana ekrandaki aramayla isim, banka, etiket ya da son 4 haneyle bul.

@@ -1,0 +1,2 @@
+O CardWallet agora é Deckard: o mesmo app, com novo nome. Seus cartões continuam onde estavam.
+• Pequenas correções e melhorias.

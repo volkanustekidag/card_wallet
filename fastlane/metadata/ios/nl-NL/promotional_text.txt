@@ -1,1 +1,1 @@
-‘Volgende’ zet de kaart die je nodig hebt bovenaan, de barcode opent helder bij de kassa en je bankpassen en IBAN's staan ernaast. Geen account, werkt offline.
+CardWallet heet nu Deckard. Je klantenkaarten, bankpassen en IBAN's blijven versleuteld op je telefoon, zonder account en zonder advertenties.

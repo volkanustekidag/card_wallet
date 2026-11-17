@@ -1,1 +1,1 @@
-cartão,pontos,carteira,loja,leitor,clube,sócio,widget,relógio,offline,privado,desconto,poupança
+cartão,pontos,carteira,loja,leitor,clube,sócio,cardwallet,relógio,privado,desconto,poupança

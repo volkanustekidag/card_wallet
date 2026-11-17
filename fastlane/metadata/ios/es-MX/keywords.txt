@@ -1,1 +1,1 @@
-fidelidad,cliente,socio,descuentos,tienda,escaner,club,widget,reloj,offline,privado,barras
+fidelidad,cliente,socio,descuentos,tienda,escaner,club,cardwallet,reloj,offline,privado,barras

@@ -1,3 +1,5 @@
+Deckard (früher CardWallet) bewahrt deine Kundenkarten, Bankkarten und IBANs in einer privaten Wallet auf.
+
 Deckard legt die richtige Karte nach oben, bevor du an der Kasse stehst: „Als Nächstes“ lernt nur auf deinem iPhone, wann du welche Kundenkarte nutzt, und der Barcode öffnet mit voller Helligkeit. Deine Bankkarten und IBANs liegen gleich daneben. Du brauchst kein Konto, es gibt keine Werbung, und die App funktioniert auch ohne Internet.
 
 An der Kasse öffnest du die Karte, der Bildschirm wird automatisch hell und der Scanner liest den Barcode beim ersten Versuch. Deine Karten hast du außerdem auf der Apple Watch und im Widget auf dem Home-Bildschirm.

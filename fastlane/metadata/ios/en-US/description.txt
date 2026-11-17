@@ -1,3 +1,5 @@
+Deckard (formerly CardWallet) keeps your loyalty cards, credit cards and IBANs in one private wallet.
+
 Deckard puts the right card on top before you reach the checkout: Up Next learns when you use each loyalty card, on your iPhone only, and the barcode opens at full brightness. Your bank cards and IBANs sit right beside them. There's no account to create, no ads, and it works without an internet connection.
 
 At the checkout, open a card and the screen brightens automatically so the scanner reads your barcode on the first try. Your cards are also on your Apple Watch and in a home screen widget.

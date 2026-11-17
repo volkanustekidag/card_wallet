@@ -1,3 +1,5 @@
+Deckard (prima CardWallet) tiene carte fedeltà, carte bancarie e IBAN in un unico portafoglio privato.
+
 Deckard mette in cima la carta giusta prima che tu arrivi alla cassa: «Prossima» impara, solo sul tuo telefono, quando usi ogni carta fedeltà, e il codice a barre si apre alla massima luminosità. Le tue carte bancarie e gli IBAN sono subito accanto. Non serve creare un account, non ci sono pubblicità e funziona anche senza connessione.
 
 Alla cassa apri la carta: lo schermo si illumina da solo e il lettore legge il codice a barre al primo colpo. Metti la tua carta preferita nella schermata Home con un widget o aprila da un riquadro delle Impostazioni rapide.

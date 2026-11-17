@@ -115,7 +115,15 @@ def main():
                     re.sub(r'\b' + re.escape(old_word) + r'\b', new_word, x)
                     for x in (ios_desc, play_desc, promo, ios_notes, play_notes))
         if PATCH_NOTES:
-            ios_notes = play_notes = PATCH_NOTES[lang]
+            notes = PATCH_NOTES[lang]
+            # One text for both stores, or {"ios": ..., "play": ...}.
+            ios_notes, play_notes = (notes['ios'], notes['play']) if isinstance(notes, dict) else (notes, notes)
+        # The rename's bridge: a promotional text and a first line that say
+        # CardWallet is now Deckard, so people who knew the old name find it.
+        promo = a.get('promo', promo)
+        if 'bridge' in a:
+            ios_desc = a['bridge'] + '\n\n' + ios_desc
+            play_desc = a['bridge'] + '\n\n' + play_desc
         # Keywords must not repeat what the name and subtitle already index.
         indexed = set(re.findall(r'\w+', (a['name'] + ' ' + a['subtitle']).lower()))
         dup = [k for k in a['keywords'].split(',') if k.lower() in indexed]

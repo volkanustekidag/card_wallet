@@ -1,1 +1,3 @@
-Drobne ulepszenia i poprawki.
+CardWallet to teraz Deckard: ta sama aplikacja, nowa nazwa. Twoje karty są tam, gdzie były.
+• Zamknięcie okna płatności nie pokazuje już błędu zakupu.
+• Drobne poprawki i ulepszenia.

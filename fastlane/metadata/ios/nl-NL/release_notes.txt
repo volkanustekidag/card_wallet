@@ -1,1 +1,3 @@
-Kleine verbeteringen en oplossingen.
+CardWallet heet nu Deckard: dezelfde app, een nieuwe naam. Je kaarten staan nog gewoon op hun plek.
+• Het betaalvenster sluiten geeft geen aankoopfout meer.
+• Kleine verbeteringen en oplossingen.

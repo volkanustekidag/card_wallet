@@ -1,1 +1,3 @@
-Kleine Verbesserungen und Fehlerbehebungen.
+Aus CardWallet wird Deckard: dieselbe App, neuer Name. Deine Karten sind alle noch da.
+• Wer das Zahlungsfenster schließt, sieht keinen Kauffehler mehr.
+• Kleine Korrekturen und Verbesserungen.

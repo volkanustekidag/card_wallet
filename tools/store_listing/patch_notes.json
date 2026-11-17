@@ -15,5 +15,67 @@
     "pl-PL": "Drobne ulepszenia i poprawki.",
     "pt-BR": "Pequenas melhorias e correções.",
     "pt-PT": "Pequenas melhorias e correções."
+  },
+  "2.2.2": {
+    "en-US": {
+      "ios": "CardWallet is now Deckard: same app, new name. Your cards are right where you left them.\n• Closing the App Store payment sheet no longer shows a purchase error.\n• Small fixes and improvements.",
+      "play": "CardWallet is now Deckard: same app, new name. Your cards are right where you left them.\n• Small fixes and improvements."
+    },
+    "en-GB": {
+      "ios": "CardWallet is now Deckard: same app, new name. Your cards are right where you left them.\n• Closing the App Store payment sheet no longer shows a purchase error.\n• Small fixes and improvements.",
+      "play": "CardWallet is now Deckard: same app, new name. Your cards are right where you left them.\n• Small fixes and improvements."
+    },
+    "en-AU": {
+      "ios": "CardWallet is now Deckard: same app, new name. Your cards are right where you left them.\n• Closing the App Store payment sheet no longer shows a purchase error.\n• Small fixes and improvements.",
+      "play": "CardWallet is now Deckard: same app, new name. Your cards are right where you left them.\n• Small fixes and improvements."
+    },
+    "en-CA": {
+      "ios": "CardWallet is now Deckard: same app, new name. Your cards are right where you left them.\n• Closing the App Store payment sheet no longer shows a purchase error.\n• Small fixes and improvements.",
+      "play": "CardWallet is now Deckard: same app, new name. Your cards are right where you left them.\n• Small fixes and improvements."
+    },
+    "de-DE": {
+      "ios": "Aus CardWallet wird Deckard: dieselbe App, neuer Name. Deine Karten sind alle noch da.\n• Wer das Zahlungsfenster schließt, sieht keinen Kauffehler mehr.\n• Kleine Korrekturen und Verbesserungen.",
+      "play": "Aus CardWallet wird Deckard: dieselbe App, neuer Name. Deine Karten sind alle noch da.\n• Kleine Korrekturen und Verbesserungen."
+    },
+    "tr-TR": {
+      "ios": "CardWallet artık Deckard: aynı uygulama, yeni isim. Kartların olduğu yerde duruyor.\n• Ödeme penceresini kapatınca artık satın alma hatası gösterilmiyor.\n• Küçük düzeltmeler ve iyileştirmeler.",
+      "play": "CardWallet artık Deckard: aynı uygulama, yeni isim. Kartların olduğu yerde duruyor.\n• Küçük düzeltmeler ve iyileştirmeler."
+    },
+    "fr-FR": {
+      "ios": "CardWallet devient Deckard : même application, nouveau nom. Vos cartes sont toujours là.\n• Fermer la fenêtre de paiement n'affiche plus d'erreur d'achat.\n• Petites corrections et améliorations.",
+      "play": "CardWallet devient Deckard : même application, nouveau nom. Vos cartes sont toujours là.\n• Petites corrections et améliorations."
+    },
+    "fr-CA": {
+      "ios": "CardWallet devient Deckard : même application, nouveau nom. Vos cartes sont toujours là.\n• Fermer la fenêtre de paiement n'affiche plus d'erreur d'achat.\n• Petites corrections et améliorations.",
+      "play": "CardWallet devient Deckard : même application, nouveau nom. Vos cartes sont toujours là.\n• Petites corrections et améliorations."
+    },
+    "es-ES": {
+      "ios": "CardWallet ahora es Deckard: la misma app, con nuevo nombre. Tus tarjetas siguen en su sitio.\n• Cerrar la ventana de pago ya no muestra un error de compra.\n• Pequeñas correcciones y mejoras.",
+      "play": "CardWallet ahora es Deckard: la misma app, con nuevo nombre. Tus tarjetas siguen en su sitio.\n• Pequeñas correcciones y mejoras."
+    },
+    "es-MX": {
+      "ios": "CardWallet ahora es Deckard: la misma app, con nuevo nombre. Tus tarjetas siguen en su sitio.\n• Cerrar la ventana de pago ya no muestra un error de compra.\n• Pequeñas correcciones y mejoras.",
+      "play": "CardWallet ahora es Deckard: la misma app, con nuevo nombre. Tus tarjetas siguen en su sitio.\n• Pequeñas correcciones y mejoras."
+    },
+    "it-IT": {
+      "ios": "CardWallet ora si chiama Deckard: stessa app, nuovo nome. Le tue carte sono ancora tutte lì.\n• Chiudere la finestra di pagamento non mostra più un errore di acquisto.\n• Piccole correzioni e miglioramenti.",
+      "play": "CardWallet ora si chiama Deckard: stessa app, nuovo nome. Le tue carte sono ancora tutte lì.\n• Piccole correzioni e miglioramenti."
+    },
+    "nl-NL": {
+      "ios": "CardWallet heet nu Deckard: dezelfde app, een nieuwe naam. Je kaarten staan nog gewoon op hun plek.\n• Het betaalvenster sluiten geeft geen aankoopfout meer.\n• Kleine verbeteringen en oplossingen.",
+      "play": "CardWallet heet nu Deckard: dezelfde app, een nieuwe naam. Je kaarten staan nog gewoon op hun plek.\n• Kleine verbeteringen en oplossingen."
+    },
+    "pl-PL": {
+      "ios": "CardWallet to teraz Deckard: ta sama aplikacja, nowa nazwa. Twoje karty są tam, gdzie były.\n• Zamknięcie okna płatności nie pokazuje już błędu zakupu.\n• Drobne poprawki i ulepszenia.",
+      "play": "CardWallet to teraz Deckard: ta sama aplikacja, nowa nazwa. Twoje karty są tam, gdzie były.\n• Drobne poprawki i ulepszenia."
+    },
+    "pt-BR": {
+      "ios": "O CardWallet agora é Deckard: o mesmo app, com novo nome. Seus cartões continuam onde estavam.\n• Fechar a janela de pagamento não mostra mais um erro de compra.\n• Pequenas correções e melhorias.",
+      "play": "O CardWallet agora é Deckard: o mesmo app, com novo nome. Seus cartões continuam onde estavam.\n• Pequenas correções e melhorias."
+    },
+    "pt-PT": {
+      "ios": "O CardWallet passou a chamar-se Deckard: a mesma app, com novo nome. Os seus cartões continuam no mesmo sítio.\n• Fechar a janela de pagamento já não mostra um erro de compra.\n• Pequenas correções e melhorias.",
+      "play": "O CardWallet passou a chamar-se Deckard: a mesma app, com novo nome. Os seus cartões continuam no mesmo sítio.\n• Pequenas correções e melhorias."
+    }
   }
 }

@@ -21,6 +21,7 @@ class AnalyticsEvents {
   // Paywall / purchase funnel
   static const String paywallViewed = 'paywall_viewed';
   static const String paywallPlanSelected = 'paywall_plan_selected';
+  static const String purchaseInitiated = 'purchase_initiated';
   static const String purchaseSuccess = 'purchase_success';
   static const String purchaseCanceled = 'purchase_canceled';
   static const String purchaseFailed = 'purchase_failed';
@@ -206,10 +207,13 @@ class AnalyticsService {
         },
       );
 
+  /// [isDefault] marks the plan the paywall pre-selects on open, so the
+  /// funnel can tell it from a plan the user tapped.
   Future<void> logPaywallPlanSelected({
     required String productId,
     double? price,
     String? currency,
+    bool isDefault = false,
   }) =>
       logEvent(
         AnalyticsEvents.paywallPlanSelected,
@@ -217,6 +221,25 @@ class AnalyticsService {
           'product_id': productId,
           if (price != null) 'price': price,
           if (currency != null) 'currency': currency,
+          'is_default': isDefault ? 1 : 0,
+        },
+      );
+
+  /// The buy button was tapped: the step between choosing a plan and the
+  /// store's answer.
+  Future<void> logPurchaseInitiated({
+    required String productId,
+    double? price,
+    String? currency,
+    String? trigger,
+  }) =>
+      logEvent(
+        AnalyticsEvents.purchaseInitiated,
+        params: {
+          'product_id': productId,
+          if (price != null) 'value': price,
+          if (currency != null) 'currency': currency,
+          'trigger': trigger ?? 'unknown',
         },
       );
 
@@ -239,10 +262,29 @@ class AnalyticsService {
         params: {'product_id': productId},
       );
 
-  Future<void> logPurchaseFailed(String productId) => logEvent(
+  /// [failure] says where it failed: the store's own error (with its code
+  /// and message), a purchase that could not be started, an unusable
+  /// receipt, or no answer from the store in time.
+  Future<void> logPurchaseFailed(
+    String productId, {
+    PurchaseFailure? failure,
+    String? currency,
+  }) =>
+      logEvent(
         AnalyticsEvents.purchaseFailed,
-        params: {'product_id': productId},
+        params: {
+          'product_id': productId,
+          'reason': failure?.reason ?? 'unknown',
+          if (failure?.code != null) 'error_code': _clip(failure!.code!),
+          if (failure?.message != null)
+            'error_message': _clip(failure!.message!),
+          if (currency != null) 'currency': currency,
+        },
       );
+
+  /// GA4 drops parameter values longer than 100 characters.
+  static String _clip(String value) =>
+      value.length <= 100 ? value : value.substring(0, 100);
 
   Future<void> logBiometricEnabled() =>
       logEvent(AnalyticsEvents.biometricEnabled);
@@ -294,13 +336,13 @@ class AnalyticsService {
           params: {'type': type, 'method': method});
 
   /// [provider]: `apple` or `google`.
-  Future<void> logWalletExportAttempt(String provider) => logEvent(
-      AnalyticsEvents.walletExportAttempt,
-      params: {'provider': provider});
+  Future<void> logWalletExportAttempt(String provider) =>
+      logEvent(AnalyticsEvents.walletExportAttempt,
+          params: {'provider': provider});
 
-  Future<void> logWalletExportSuccess(String provider) => logEvent(
-      AnalyticsEvents.walletExportSuccess,
-      params: {'provider': provider});
+  Future<void> logWalletExportSuccess(String provider) =>
+      logEvent(AnalyticsEvents.walletExportSuccess,
+          params: {'provider': provider});
 
   /// [errorKey] is the translation key shown to the user (or `canceled` /
   /// `unknown`), never an exception message.
@@ -343,9 +385,8 @@ class AnalyticsService {
         if (feature != null) 'feature': feature,
       });
 
-  Future<void> logPremiumGateTapped(String feature) => logEvent(
-      AnalyticsEvents.premiumGateTapped,
-      params: {'feature': feature});
+  Future<void> logPremiumGateTapped(String feature) =>
+      logEvent(AnalyticsEvents.premiumGateTapped, params: {'feature': feature});
 
   /// One per search session. [selectedType] is the [AnalyticsCardType] of
   /// the opened result, or `none`. The query text is never logged.
@@ -429,4 +470,14 @@ class _LateAnalyticsObserver extends RouteObserver<ModalRoute<dynamic>> {
     super.didPop(route, previousRoute);
     _ready?.didPop(route, previousRoute);
   }
+}
+
+/// Why a purchase ended in an error, for `purchase_failed`.
+class PurchaseFailure {
+  const PurchaseFailure(this.reason, {this.code, this.message});
+
+  /// `store_error`, `not_started`, `empty_receipt` or `timeout`.
+  final String reason;
+  final String? code;
+  final String? message;
 }

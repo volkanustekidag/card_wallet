@@ -1,3 +1,5 @@
+Deckard (anciennement CardWallet) réunit vos cartes de fidélité, cartes bancaires et RIB dans un portefeuille privé.
+
 Deckard met la bonne carte en haut avant que vous arriviez en caisse : « À suivre » apprend, uniquement sur votre iPhone, quand vous utilisez chaque carte de fidélité, et le code-barres s'ouvre en pleine luminosité. Vos cartes bancaires et vos IBAN sont juste à côté. Pas de compte à créer, pas de publicité, et l'app fonctionne sans connexion Internet.
 
 En caisse, ouvrez la carte : l'écran s'éclaircit tout seul et le lecteur lit le code-barres du premier coup. Vos cartes sont aussi sur votre Apple Watch et dans un widget de l'écran d'accueil.

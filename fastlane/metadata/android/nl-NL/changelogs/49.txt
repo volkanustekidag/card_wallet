@@ -1,0 +1,2 @@
+CardWallet heet nu Deckard: dezelfde app, een nieuwe naam. Je kaarten staan nog gewoon op hun plek.
+• Kleine verbeteringen en oplossingen.

@@ -1,1 +1,1 @@
-membership,store,points,scan,club,gym,library,pass,widget,watch,offline,private,keytag,shopping
+membership,points,barcode,scan,club,gym,library,pass,keytag,coupon,bank,iban,cardwallet,shopping

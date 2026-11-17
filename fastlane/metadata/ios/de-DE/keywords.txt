@@ -1,1 +1,1 @@
-treuekarte,karten,wallet,mitgliedskarte,punkte,scanner,geldbörse,widget,watch,offline,sicher
+treuekarte,karten,wallet,mitgliedskarte,punkte,scanner,geldbörse,cardwallet,watch,offline,sicher

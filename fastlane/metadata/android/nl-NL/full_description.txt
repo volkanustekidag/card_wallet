@@ -1,3 +1,5 @@
+Deckard (voorheen CardWallet) bewaart je klantenkaarten, bankpassen en IBAN's in één privé-wallet.
+
 Deckard zet de juiste kaart bovenaan voordat je bij de kassa staat: ‘Volgende’ leert alleen op je telefoon wanneer je welke klantenkaart gebruikt, en de barcode opent op volle helderheid. Je bankpassen en IBAN's staan er direct naast. Je hoeft geen account te maken, er is geen reclame en de app werkt ook zonder internet.
 
 Open bij de kassa je kaart: het scherm wordt vanzelf fel en de scanner leest je barcode in één keer. Zet je favoriete kaart met een widget op je startscherm of open hem via een tegel in Snelle instellingen.
