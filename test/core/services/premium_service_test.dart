@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/billing_client_wrappers.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
-import 'package:in_app_purchase_storekit/store_kit_2_wrappers.dart';
 import 'package:flutter/services.dart';
 import 'package:wallet_app/core/services/premium_entitlement_cache.dart';
 import 'package:wallet_app/core/services/premium_service.dart';
@@ -16,6 +15,7 @@ class FakeInAppPurchase implements InAppPurchase {
   bool throwOnRestore = false;
   List<PurchaseDetails> restoreResult = [];
   final bought = <PurchaseParam>[];
+  Object? buyError;
   final completed = <PurchaseDetails>[];
   Set<String>? queried;
 
@@ -40,6 +40,7 @@ class FakeInAppPurchase implements InAppPurchase {
 
   @override
   Future<bool> buyNonConsumable({required PurchaseParam purchaseParam}) async {
+    if (buyError != null) throw buyError!;
     bought.add(purchaseParam);
     return true;
   }
@@ -262,62 +263,8 @@ void main() {
     });
   });
 
-  group('App Store answer (StoreKit 2)', () {
-    Future<List<PremiumPurchaseResult>> buyWith(
-      Future<SK2ProductPurchaseResult> Function(String id) store,
-    ) async {
-      PremiumService.configureForTesting(
-        iap: iap,
-        cache: cache,
-        clock: () => now,
-        appStorePurchase: store,
-      );
-      final results = <PremiumPurchaseResult>[];
-      final sub = PremiumService.purchaseResultStream.listen(results.add);
-      await PremiumService.purchaseProduct(
-          _product(PremiumService.yearlyProductId));
-      await _settle();
-      await sub.cancel();
-      return results;
-    }
-
-    test('closing the sheet is a cancel, not a failure', () async {
-      final results =
-          await buyWith((_) async => SK2ProductPurchaseResult.userCancelled);
-      expect(results, [PremiumPurchaseResult.canceled]);
-      expect(PremiumService.lastFailure, isNull);
-      expect(iap.bought, isEmpty);
-    });
-
-    test('Ask to Buy is pending', () async {
-      final results =
-          await buyWith((_) async => SK2ProductPurchaseResult.pending);
-      expect(results, [PremiumPurchaseResult.pending]);
-    });
-
-    test('success waits for the transaction on the purchase stream', () async {
-      final results =
-          await buyWith((_) async => SK2ProductPurchaseResult.success);
-      expect(results, isEmpty);
-    });
-
-    test('an unverified transaction is a store error', () async {
-      final results =
-          await buyWith((_) async => SK2ProductPurchaseResult.unverified);
-      expect(results, [PremiumPurchaseResult.error]);
-      expect(PremiumService.lastFailure?.reason, 'store_error');
-      expect(PremiumService.lastFailure?.code, 'unverified');
-    });
-
-    test('a purchase StoreKit refuses to start keeps its error code', () async {
-      await buyWith((_) async => throw PlatformException(
-          code: 'storekit2_purchase_failed', message: 'x'));
-      expect(PremiumService.lastFailure?.reason, 'not_started');
-      expect(PremiumService.lastFailure?.code, 'storekit2_purchase_failed');
-    });
-
+  group('failure reasons', () {
     test('a store error on the stream keeps its code', () async {
-      configure();
       await PremiumService.initialize();
       iap.controller.add([
         PurchaseDetails(
@@ -331,6 +278,29 @@ void main() {
       await _settle();
       expect(PremiumService.lastFailure?.reason, 'store_error');
       expect(PremiumService.lastFailure?.code, 'payment_invalid');
+    });
+
+    test('a purchase the store refuses to start keeps its error code',
+        () async {
+      iap.buyError = PlatformException(code: 'storekit2_failed', message: 'x');
+      final started = await PremiumService.purchaseProduct(
+          _product(PremiumService.yearlyProductId));
+      expect(started, isFalse);
+      expect(PremiumService.lastFailure?.reason, 'not_started');
+      expect(PremiumService.lastFailure?.code, 'storekit2_failed');
+    });
+
+    test('a closed payment sheet is a cancel, with no failure', () async {
+      await PremiumService.initialize();
+      final results = <PremiumPurchaseResult>[];
+      final sub = PremiumService.purchaseResultStream.listen(results.add);
+      iap.controller.add([
+        _purchase(PremiumService.yearlyProductId, PurchaseStatus.canceled),
+      ]);
+      await _settle();
+      await sub.cancel();
+      expect(results, [PremiumPurchaseResult.canceled]);
+      expect(PremiumService.lastFailure, isNull);
     });
   });
 

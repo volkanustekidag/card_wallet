@@ -6,7 +6,6 @@ import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/billing_client_wrappers.dart'
     show ReplacementMode;
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
-import 'package:in_app_purchase_storekit/store_kit_2_wrappers.dart';
 import 'package:wallet_app/core/data/local_services/card_services/credi_card/credit_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/iban_card/iban_card_service.dart';
 import 'package:wallet_app/core/data/local_services/card_services/loyalty_card/loyalty_card_service.dart';
@@ -96,14 +95,6 @@ class PremiumService {
   static PremiumEntitlementCache _cache = PremiumEntitlementCache();
   static DateTime Function() _clock = DateTime.now;
   static bool Function() _isAndroid = () => Platform.isAndroid;
-
-  /// On iOS the buy goes straight to StoreKit 2, whose answer says when the
-  /// user closed the sheet or the payment waits for approval. The plugin's
-  /// generic buy drops that answer: a cancel then reached the paywall only as
-  /// a 30-second timeout, reported as a failed purchase.
-  static Future<SK2ProductPurchaseResult> Function(String productId)?
-      _appStorePurchase =
-      Platform.isIOS ? (id) => SK2Product.purchase(id) : null;
 
   static PurchaseFailure? _lastFailure;
   static StreamSubscription<List<PurchaseDetails>>? _subscription;
@@ -266,32 +257,9 @@ class PremiumService {
           );
         }
       }
-      final appStorePurchase = _appStorePurchase;
-      if (!_isAndroid() && appStorePurchase != null) {
-        final result = await AppLockService.guard(
-          () => appStorePurchase(productDetails.id),
-        );
-        switch (result) {
-          case SK2ProductPurchaseResult.success:
-            // The transaction itself arrives on the purchase stream.
-            break;
-          case SK2ProductPurchaseResult.userCancelled:
-            _emitPurchaseResult(PremiumPurchaseResult.canceled);
-            break;
-          case SK2ProductPurchaseResult.pending:
-            _emitPurchaseResult(PremiumPurchaseResult.pending);
-            break;
-          case SK2ProductPurchaseResult.unverified:
-            // StoreKit could not verify the transaction's signature.
-            _lastFailure =
-                const PurchaseFailure('store_error', code: 'unverified');
-            _emitPurchaseResult(PremiumPurchaseResult.error);
-            break;
-        }
-        return true;
-      }
       final param = purchaseParam;
-      return AppLockService.guard(
+      // Awaited so a store that refuses to start lands in the catches below.
+      return await AppLockService.guard(
         () => _iap.buyNonConsumable(purchaseParam: param),
       );
     } on PlatformException catch (e) {
@@ -391,10 +359,7 @@ class PremiumService {
     DateTime Function()? clock,
     Duration refreshWindow = Duration.zero,
     bool isAndroid = false,
-    Future<SK2ProductPurchaseResult> Function(String productId)?
-        appStorePurchase,
   }) {
-    _appStorePurchase = appStorePurchase;
     _lastFailure = null;
     _subscription?.cancel();
     _subscription = null;
